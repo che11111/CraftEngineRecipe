@@ -31,16 +31,16 @@
 | 项目 | 要求 |
 | --- | --- |
 | Java | Java 25（当前构建目标） |
-| 服务端 | Paper；当前编译依赖为 `26.2.build.132-stable` |
+| 服务端 | Minecraft `26.1.2 / 26.2 / 26.3` 对应的 Paper / Folia，安装对应版本的插件 JAR |
 | 必装插件 | CraftEngine；当前编译依赖为 `26.8.1` |
-| 已打包依赖 | InvUI 2.3.2、pinyin4j 2.5.1、bStats 3.0.2，无需单独安装 |
+| 已打包依赖 | 各版本对应的 InvUI（见下表）、pinyin4j 2.5.1、bStats 3.0.2，无需单独安装 |
 | Folia | 1.0.10 起实验性支持；目标 `26.1.2 build 8` + CraftEngine `26.9.2`，见下文 |
 
 
 
 ## Folia 适配
 
-使用 Java 25、Folia `26.1.2 build 8` 和 CraftEngine `26.9.2`。Paper 与 Folia 使用同一个插件 JAR。
+Folia 作为实验性支持，适配目标包含 Java 25、Folia `26.1.2 build 8` 和 CraftEngine `26.9.2`。Folia 也按 Minecraft 版本选择上表中的对应 JAR，并使用匹配的 CraftEngine 版本。
 
 菜单、搜索回调、声音和配方轮播使用玩家实体调度器，会跟随玩家跨区域移动。全局配置与索引发布在全局调度器执行，纯文本索引计算放到异步线程。重载会先暂停访问，异步等待各玩家完成窗口清理，再加载配置和发布新的分类/搜索快照；不会在区域线程等待其他区域完成任务。旧搜索回调和延迟按钮动作在重载后失效。
 
@@ -50,7 +50,7 @@
 ## 首次安装与分类应用
 
 1. 安装并配置 CraftEngine，确保它已经加载你的物品包、物品分类与配方。
-2. 将 `CraftEngineRecipe-1.0.13.jar` 放入服务器的 `plugins/`，启动服务器。内置资源首次运行时会自动安装到 CraftEngine 的资源目录，详见[资源包说明](#资源包的应用)。
+2. 安装对应版本的 CraftEngineRecipe ，内置资源包首次运行时会自动安装到 CraftEngine 的资源目录，详见[资源包说明](#资源包的应用)。
 3. 等待控制台出现 `CraftEngineRecipe 数据就绪`。索引会分批、异步构建，物品多时需要稍候。
 4. 管理员执行 `/cer unapplied`，预览尚未应用的分类。
 5. 打开 `plugins/CraftEngineRecipe/categories-unapplied.yml`，找到需要开放的命名空间，例如 `farmersdelight`。
@@ -326,4 +326,17 @@ actions:
 mvn clean verify
 ```
 
-最终插件为 `target/CraftEngineRecipe-x.x.x.jar`。
+默认构建 Minecraft 26.2 版本。可用 Maven profile 选择目标版本：
+
+```bash
+mvn clean verify -Pmc-26.1
+mvn clean verify -Pmc-26.2
+mvn clean verify -Pmc-26.3
+```
+
+单次构建产物位于 `target/`，文件名包含对应的 `mc26.1`、`mc26.2` 或 `mc26.3` 后缀。需要一次构建全部版本时运行：
+
+```bash
+./build-all.sh
+```
+

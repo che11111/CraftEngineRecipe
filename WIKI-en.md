@@ -2,7 +2,7 @@
 
 [Back to README](README.md) · [简体中文](WIKI-zh.md)
 
-This guide covers installation, player controls, configuration, and upgrades. For a quick start, see the [README](README.md#quick-start).
+This guide covers installation, player controls, configuration, and upgrades.
 
 ## Contents
 
@@ -30,14 +30,14 @@ Common settings: [Commands, Permissions, and Controls](#commands-permissions-and
 | Component | Requirement |
 | --- | --- |
 | Java | Java 25 (current build target) |
-| Server | Paper; the current compile-time dependency is `26.2.build.132-stable` |
+| Server | Paper / Folia for Minecraft `26.1.2 / 26.2 / 26.3`, using the matching plugin JAR |
 | Required plugin | CraftEngine; the current compile-time dependency is `26.8.1` |
-| Bundled dependencies | InvUI 2.3.2, pinyin4j 2.5.1, and bStats 3.0.2; no separate installation needed |
+| Bundled dependencies | The matching InvUI version for each build, pinyin4j 2.5.1, and bStats 3.0.2; no separate installation needed |
 | Folia | Experimental support since 1.0.10; target: `26.1.2 build 8` + CraftEngine `26.9.2`; see below |
 
 ## Folia Support
 
-Use Java 25, Folia `26.1.2 build 8`, and CraftEngine `26.9.2`. Paper and Folia use the same plugin JAR.
+Folia support is experimental. Targets include Java 25, Folia `26.1.2 build 8`, and CraftEngine `26.9.2`. For Folia, also choose the JAR matching its Minecraft version and use a compatible CraftEngine release.
 
 Menus, search callbacks, sounds, and recipe rotation use the player's entity scheduler, which follows the player across regions. Global configuration and index publication run on the global scheduler, while plain-text search indexes are computed asynchronously. A reload first pauses access and asynchronously waits for each player's windows to close, then loads configuration and publishes new category/search snapshots. Region threads do not block while waiting for other regions. Old search callbacks and delayed button actions become invalid after a reload.
 
@@ -46,7 +46,7 @@ Menus, search callbacks, sounds, and recipe rotation use the player's entity sch
 ## First Installation and Applying Categories
 
 1. Install and configure CraftEngine, and make sure it has loaded your item packs, item categories, and recipes.
-2. Place `CraftEngineRecipe-1.0.13.jar` in your server's `plugins/` directory and start the server. On the first run, the bundled assets are automatically installed into CraftEngine's resource directory. See [Applying the Resource Pack](#applying-the-resource-pack).
+2. Install the CraftEngineRecipe version matching your server. On the first run, the bundled resource pack is automatically installed into CraftEngine's resource directory. See [Applying the Resource Pack](#applying-the-resource-pack).
 3. Wait for the console message indicating that CraftEngineRecipe data is ready (`CraftEngineRecipe 数据就绪` in Chinese). Indexes are built in batches and asynchronously, so large item collections may take a little longer.
 4. As an administrator, run `/cer unapplied` to preview categories that have not yet been applied.
 5. Open `plugins/CraftEngineRecipe/categories-unapplied.yml` and find the namespaces you want to make available, such as `farmersdelight`.
@@ -301,4 +301,17 @@ Install JDK 25 and Maven 3.9+, then run the following in the project directory:
 mvn clean verify
 ```
 
-The resulting plugin is `target/CraftEngineRecipe-x.x.x.jar`.
+The default build targets Minecraft 26.2. Use a Maven profile to select a target version:
+
+```bash
+mvn clean verify -Pmc-26.1
+mvn clean verify -Pmc-26.2
+mvn clean verify -Pmc-26.3
+```
+
+A single build writes its JAR to `target/` with the matching `mc26.1`, `mc26.2`, or `mc26.3` filename suffix. To build all variants at once, run:
+
+```bash
+./build-all.sh
+```
+

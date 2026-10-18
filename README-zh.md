@@ -7,7 +7,7 @@
 <p align="center">基于 CraftEngine 的物品与配方浏览插件，支持分类浏览、拼音搜索和配方用途查询。</p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-26.2+-3fb950" alt="Minecraft Java Edition">
+  <img src="https://img.shields.io/badge/Minecraft-26.1.2%20%2F%2026.2%20%2F%2026.3-3fb950" alt="Minecraft 26.1.2 / 26.2 / 26.3">
   <a href="WIKI-zh.md#环境要求"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 编译 API，运行要求见 Wiki"></a>
   <img src="https://img.shields.io/badge/Java-25-orange" alt="Java 25">
   <img src="https://img.shields.io/badge/Paper-supported-blue" alt="Paper supported">
@@ -27,10 +27,10 @@
   </tr>
   <tr>
     <td align="center">
-      <img src="img/202610291192714.gif" alt="Page Display Demo" width="100%">
+      <img src="img/202610291172005.gif" alt="Page Display Demo" width="100%">
     </td>
     <td align="center">
-      <img src="img/202610291172005.gif" alt="Search Display Demo" width="100%">
+      <img src="img/202610291192714.gif" alt="Search Display Demo" width="100%">
     </td>
   </tr>
 </table>
@@ -48,12 +48,12 @@
 
 ## 运行要求
 
-Java **25**、**Paper / Folia**、**CraftEngine**
+Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，以及兼容该服务端的 **CraftEngine**。
 
 
 ## 快速上手
 
-1. 安装 CraftEngine 并加载物品、分类和配方，将本插件 JAR 放入 `plugins/` 后启动服务器。
+1. 安装兼容当前服务端的 CraftEngine 并加载物品、分类和配方，安装对应版本的 CraftEngineRecipe。
 
 2. 首次运行时，插件会自动将背景与按钮资源安装到 `plugins/CraftEngine/resources/cer_resource/`，（无需手动复制，后续重启或重载不会再次安装）。再通过 CraftEngine 生成并分发资源包（如 `/ce reload all`，以所用版本为准），让客户端接受资源包。详见 [资源包说明](WIKI-zh.md#资源包的应用)。
 

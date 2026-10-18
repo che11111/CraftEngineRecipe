@@ -6,7 +6,7 @@
 
     <groupId>dev.leon</groupId>
     <artifactId>craftenginerecipe</artifactId>
-    <version>1.0.13</version>
+    <version>1.0.14</version>
     <packaging>jar</packaging>
     <name>CraftEngineRecipe</name>
     <description>基于 CraftEngine 物品的高级配方浏览器（常驻分类栏 + 搜索）</description>
@@ -15,6 +15,8 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- The default build targets Minecraft 26.2. Select exactly one mc-* profile for other versions. -->
+        <mc.label>26.2</mc.label>
         <paper.version>26.2.build.132-stable</paper.version>
         <craftengine.version>26.8.1</craftengine.version>
         <invui.version>2.3.2</invui.version>
@@ -91,8 +93,35 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>mc-26.1</id>
+            <properties>
+                <mc.label>26.1</mc.label>
+                <paper.version>26.1.2.build.74-stable</paper.version>
+                <invui.version>2.1.1</invui.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>mc-26.2</id>
+            <properties>
+                <mc.label>26.2</mc.label>
+                <paper.version>26.2.build.132-stable</paper.version>
+                <invui.version>2.3.2</invui.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>mc-26.3</id>
+            <properties>
+                <mc.label>26.3</mc.label>
+                <paper.version>26.3.build.181-stable</paper.version>
+                <invui.version>2.5.1</invui.version>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
-        <finalName>CraftEngineRecipe-${project.version}</finalName>
+        <finalName>CraftEngineRecipe-${project.version}-mc${mc.label}</finalName>
 
         <resources>
             <resource>
@@ -179,6 +208,8 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <paperweight-mappings-namespace>mojang</paperweight-mappings-namespace>
+                                        <CraftEngineRecipe-Minecraft>${mc.label}</CraftEngineRecipe-Minecraft>
+                                        <CraftEngineRecipe-InvUI>${invui.version}</CraftEngineRecipe-InvUI>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
