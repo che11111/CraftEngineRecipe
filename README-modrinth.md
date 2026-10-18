@@ -20,11 +20,20 @@
 
 ## Demo
 
-**Page Display:**
-![CraftEngineRecipe demo](https://github.com/che11111/CraftEngineRecipe/blob/main/img/202610291172005.gif?raw=true)
-
-**Search Display:**
-![CraftEngineRecipe Usage Demo](https://github.com/che11111/CraftEngineRecipe/blob/main/img/202610291172005.gif?raw=true)
+<table>
+  <tr>
+    <td align="center"><strong>Page Display</strong></td>
+    <td align="center"><strong>Search Display</strong></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/che11111/CraftEngineRecipe/blob/main/img/202610291172005.gif?raw=true" alt="Page Display Demo" width="100%">
+    </td>
+    <td align="center">
+      <img src="https://github.com/che11111/CraftEngineRecipe/blob/main/img/202610291192714.gif?raw=true" alt="Search Display Demo" width="100%">
+    </td>
+  </tr>
+</table>
 
 ## Features
 

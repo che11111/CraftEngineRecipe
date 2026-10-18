@@ -20,11 +20,20 @@
 
 ## 使用演示
 
-**页面展示：**
-![CraftEngineRecipe 使用演示](img/202610291172005.gif)
-
-**搜索展示：**
-![CraftEngineRecipe 使用演示](img/202610291192714.gif)
+<table>
+  <tr>
+    <td align="center"><strong>页面展示</strong></td>
+    <td align="center"><strong>搜索展示</strong></td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="img/202610291192714.gif" alt="Page Display Demo" width="100%">
+    </td>
+    <td align="center">
+      <img src="img/202610291172005.gif" alt="Search Display Demo" width="100%">
+    </td>
+  </tr>
+</table>
 
 ## 功能与特色
 
