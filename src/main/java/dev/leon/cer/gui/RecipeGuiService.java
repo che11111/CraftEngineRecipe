@@ -5,6 +5,7 @@ import dev.leon.cer.config.CerConfig;
 import dev.leon.cer.data.CraftEngineData;
 import dev.leon.cer.data.RecipeIndex;
 import dev.leon.cer.util.ItemBridge;
+import dev.leon.cer.util.CompatibilityWarnings;
 import net.kyori.adventure.text.Component;
 import net.momirealms.craftengine.core.item.recipe.CustomBrewingRecipe;
 import net.momirealms.craftengine.core.item.recipe.CustomCookingRecipe;
@@ -395,7 +396,8 @@ public final class RecipeGuiService {
                 if (r != null && r.item() != null) {
                     return r.item().id();
                 }
-            } catch (Throwable ignored) {
+            } catch (RuntimeException | LinkageError error) {
+                CompatibilityWarnings.warn("RecipeGui.resultKey", error);
             }
         }
         return null;
@@ -408,7 +410,8 @@ public final class RecipeGuiService {
                 if (r != null) {
                     return Math.max(1, r.count());
                 }
-            } catch (Throwable ignored) {
+            } catch (RuntimeException | LinkageError error) {
+                CompatibilityWarnings.warn("RecipeGui.resultCount", error);
             }
         }
         return 1;

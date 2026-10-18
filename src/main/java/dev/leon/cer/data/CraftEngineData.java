@@ -3,6 +3,7 @@ package dev.leon.cer.data;
 import dev.leon.cer.CraftEngineRecipePlugin;
 import dev.leon.cer.util.DisplayNames;
 import dev.leon.cer.util.ResourcePackTranslations;
+import dev.leon.cer.util.CompatibilityWarnings;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.api.event.CraftEngineReloadEvent;
 import net.momirealms.craftengine.core.item.ItemDefinition;
@@ -30,6 +31,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 import java.util.logging.Level;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,6 +41,9 @@ public final class CraftEngineData implements Listener {
     public static final Key ALL_ITEMS_CATEGORY = Key.of("internal:all");
     private final CraftEngineRecipePlugin plugin;
     private final CategoryNamespaces emptyNamespaces;
+    private static final CategoryGraph EMPTY_GRAPH = CategoryGraph.compile(Map.of());
+    private static final Pattern MEMBER_ID = Pattern.compile("(?:[a-z0-9_.-]+:)?[a-z0-9/._-]+");
+    private final AtomicLong reloadRevision = new AtomicLong();
     private volatile Snapshot snapshot;
     private volatile boolean ready;
     private volatile long generation;
@@ -66,6 +72,7 @@ public final class CraftEngineData implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onCraftEngineReload(CraftEngineReloadEvent event) {
+        this.reloadRevision.incrementAndGet();
         // Configuration reads are global; viewer inventories belong to their entity schedulers.
         this.plugin.tasks().global(() -> this.rebuild(ok -> {}));
     }
@@ -94,19 +101,29 @@ public final class CraftEngineData implements Listener {
     private void capture(long version, long started, boolean reloadSettings) {
         try {
             if (reloadSettings) this.plugin.reloadSettings();
+            if (CraftEngine.instance().isReloading()) {
+                this.retryCapture(version, started);
+                return;
+            }
+            long revision = this.reloadRevision.get();
             CategoryNamespaces namespaces = new CategoryNamespaces(this.plugin);
             namespaces.load();
             Map<Key, ItemDefinition> items = Collections.unmodifiableMap(new LinkedHashMap<>(CraftEngineItems.loadedItems()));
             Map<Key, Category> categories = this.captureCategories();
+            CategoryGraph graph = CategoryGraph.compile(categories);
+            Set<Key> recipeKeys = new HashSet<>(items.keySet());
+            for (Key category : categories.keySet()) {
+                graph.members(category).stream().filter(member -> !member.category())
+                        .forEach(member -> recipeKeys.add(member.key()));
+            }
+            RecipeSnapshot recipes = RecipeSnapshot.capture(CraftEngine.instance().recipeManager(), recipeKeys);
             Set<Key> referenced = new HashSet<>();
             Map<Key, Key> parents = new LinkedHashMap<>();
             for (Category category : categories.values()) {
-                if (category.members() == null) continue;
-                for (String member : category.members()) {
-                    Key child = subCategory(member);
-                    if (child == null) continue;
-                    referenced.add(child);
-                    parents.putIfAbsent(child, category.id());
+                for (CategoryGraph.Member member : graph.members(category.id())) {
+                    if (!member.category() || member.reference().isEmpty()) continue;
+                    referenced.add(member.key());
+                    parents.putIfAbsent(member.key(), category.id());
                 }
             }
             List<Category> tops = new ArrayList<>();
@@ -117,10 +134,47 @@ public final class CraftEngineData implements Listener {
             // Do not expose hidden categories when the graph has no roots (e.g. a cycle).
             Set<String> discovered = new LinkedHashSet<>();
             categories.keySet().forEach(id -> discovered.add(id.namespace()));
+            if (!this.stable(revision)) {
+                this.retryCapture(version, started);
+                return;
+            }
             namespaces.sync(discovered);
-            this.loadTranslations(version, started, items, categories, List.copyOf(tops), Map.copyOf(parents), namespaces);
+            this.plugin.config().validateReferences(categories.keySet());
+            namespaces.validateReferences(categories.keySet());
+            this.validateMembers(categories);
+            this.loadTranslations(version, started, new Captured(items, categories, graph, recipes,
+                    List.copyOf(tops), Map.copyOf(parents), namespaces, revision));
         } catch (Exception | LinkageError e) {
-            this.fail(version, e);
+            if (CraftEngine.instance().isReloading()) this.retryCapture(version, started);
+            else this.fail(version, e);
+        }
+    }
+
+    private boolean stable(long revision) {
+        return this.reloadRevision.get() == revision && !CraftEngine.instance().isReloading();
+    }
+
+    private void validateMembers(Map<Key, Category> categories) {
+        for (Category category : categories.values()) {
+            if (category.members() == null) continue;
+            for (int index = 0; index < category.members().size(); index++) {
+                String member = category.members().get(index);
+                if (member == null || member.isBlank()) continue;
+                boolean child = member.charAt(0) == '#';
+                String reference = child ? member.substring(1) : member;
+                String message = !MEMBER_ID.matcher(reference).matches() ? "logs.config-invalid-id"
+                        : child && !categories.containsKey(Key.of(reference)) ? "logs.config-missing-category" : null;
+                if (message != null) this.plugin.getLogger().warning(this.plugin.lang().text(message,
+                        "path", "CraftEngine:categories[" + category.id() + "].members[" + index + "]", "value", member));
+            }
+        }
+    }
+
+    private void retryCapture(long version, long started) {
+        if (this.isCurrent(version)) {
+            this.pendingTask = this.plugin.tasks().globalLater(() -> {
+                if (this.isCurrent(version)) this.capture(version, started, false);
+            }, 1);
         }
     }
 
@@ -152,9 +206,7 @@ public final class CraftEngineData implements Listener {
         }
     }
 
-    private void loadTranslations(long version, long started, Map<Key, ItemDefinition> items,
-                                  Map<Key, Category> categories, List<Category> tops, Map<Key, Key> parents,
-                                  CategoryNamespaces namespaces) {
+    private void loadTranslations(long version, long started, Captured captured) {
         // Resolve CraftEngine configuration here; the worker only receives a path and plain locale names.
         Path zip = this.resourcePackPath();
         List<String> languages = this.plugin.config().searchLanguages();
@@ -185,7 +237,7 @@ public final class CraftEngineData implements Listener {
                             this.plugin.getLogger().warning(this.plugin.lang().text("logs.search-pack-skipped", "error", skipped));
                         }
                     }
-                    this.captureNames(version, started, items, categories, tops, parents, namespaces, loaded.translations());
+                    this.captureNames(version, started, captured, loaded.translations());
                 });
             } catch (IllegalPluginAccessException ignored) {
                 // Plugin shutdown raced with worker completion.
@@ -201,15 +253,14 @@ public final class CraftEngineData implements Listener {
             Path configured = Config.resourcePackPath();
             if (configured != null) return configured.isAbsolute() ? configured : serverRoot.resolve(configured).normalize();
         } catch (RuntimeException | LinkageError ignored) {
+            CompatibilityWarnings.warn("CraftEngine.resourcePackPath", ignored);
         }
         return dataFolder.resolveSibling("CraftEngine").resolve("generated/resource_pack.zip");
     }
 
-    private void captureNames(long version, long started, Map<Key, ItemDefinition> items,
-                              Map<Key, Category> categories, List<Category> tops, Map<Key, Key> parents,
-                              CategoryNamespaces namespaces, Map<String, String> translations) {
-        Iterator<Map.Entry<Key, ItemDefinition>> itemIterator = items.entrySet().iterator();
-        Iterator<Map.Entry<Key, Category>> categoryIterator = categories.entrySet().iterator();
+    private void captureNames(long version, long started, Captured captured, Map<String, String> translations) {
+        Iterator<Map.Entry<Key, ItemDefinition>> itemIterator = captured.items().entrySet().iterator();
+        Iterator<Map.Entry<Key, Category>> categoryIterator = captured.categories().entrySet().iterator();
         Map<Key, String> itemNames = new LinkedHashMap<>();
         Map<Key, String> translationKeys = new LinkedHashMap<>();
         Map<Key, String> categoryNames = new LinkedHashMap<>();
@@ -217,6 +268,10 @@ public final class CraftEngineData implements Listener {
             @Override
             public void run() {
                 if (!isCurrent(version)) return;
+                if (!stable(captured.revision())) {
+                    retryCapture(version, started);
+                    return;
+                }
                 try {
                     long deadline = System.nanoTime() + 2_000_000L;
                     int remaining = 128;
@@ -248,10 +303,14 @@ public final class CraftEngineData implements Listener {
                         if (!isCurrent(version)) return;
                         plugin.tasks().global(() -> {
                             if (!isCurrent(version)) return;
-                            snapshot = new Snapshot(items, categories, tops, parents, search, categorySearch, namespaces);
+                            if (!stable(captured.revision())) {
+                                retryCapture(version, started);
+                                return;
+                            }
+                            snapshot = new Snapshot(captured, search, categorySearch);
                             ready = true;
-                            plugin.getLogger().info(plugin.lang().text("logs.data-ready", "items", String.valueOf(items.size()),
-                                    "categories", String.valueOf(tops.size()), "elapsed",
+                            plugin.getLogger().info(plugin.lang().text("logs.data-ready", "items", String.valueOf(captured.items().size()),
+                                    "categories", String.valueOf(captured.tops().size()), "elapsed",
                                     String.format(java.util.Locale.ROOT, "%.1f", (System.nanoTime() - started) / 1_000_000.0)));
                             finish(true);
                         });
@@ -301,27 +360,35 @@ public final class CraftEngineData implements Listener {
 
     public CategoryNamespaces namespaces() {
         Snapshot state = this.snapshot;
-        return state == null ? this.emptyNamespaces : state.namespaces();
+        return state == null ? this.emptyNamespaces : state.captured().namespaces();
     }
     public long generation() { return this.generation; }
     public boolean isReady() { return this.ready; }
     public Map<Key, ItemDefinition> items() {
         Snapshot state = this.snapshot;
-        return state == null ? Map.of() : state.items();
+        return state == null ? Map.of() : state.captured().items();
     }
     public Optional<ItemDefinition> item(Key id) { return Optional.ofNullable(this.items().get(id)); }
     public Optional<Category> category(Key id) { return Optional.ofNullable(this.categoriesById().get(id)); }
     public List<Category> topCategories() {
         Snapshot state = this.snapshot;
-        return state == null ? List.of() : state.tops();
+        return state == null ? List.of() : state.captured().tops();
     }
     public Map<Key, Category> categoriesById() {
         Snapshot state = this.snapshot;
-        return state == null ? Map.of() : state.categories();
+        return state == null ? Map.of() : state.captured().categories();
     }
     public Key parentOf(Key id) {
         Snapshot state = this.snapshot;
-        return state == null ? null : state.parents().get(id);
+        return state == null ? null : state.captured().parents().get(id);
+    }
+    public CategoryGraph categoryGraph() {
+        Snapshot state = this.snapshot;
+        return state == null ? EMPTY_GRAPH : state.captured().graph();
+    }
+    public RecipeSnapshot recipeSnapshot() {
+        Snapshot state = this.snapshot;
+        return state == null ? RecipeSnapshot.EMPTY : state.captured().recipes();
     }
     public SearchIndex searchIndex() {
         Snapshot state = this.snapshot;
@@ -332,7 +399,9 @@ public final class CraftEngineData implements Listener {
         return state == null ? null : state.categorySearch();
     }
 
-    private record Snapshot(Map<Key, ItemDefinition> items, Map<Key, Category> categories, List<Category> tops,
-                            Map<Key, Key> parents, SearchIndex search, CategoryIndex categorySearch,
-                            CategoryNamespaces namespaces) {}
+    private record Captured(Map<Key, ItemDefinition> items, Map<Key, Category> categories, CategoryGraph graph,
+                            RecipeSnapshot recipes, List<Category> tops, Map<Key, Key> parents,
+                            CategoryNamespaces namespaces, long revision) {}
+
+    private record Snapshot(Captured captured, SearchIndex search, CategoryIndex categorySearch) {}
 }

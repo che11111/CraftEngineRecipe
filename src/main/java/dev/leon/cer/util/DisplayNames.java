@@ -48,7 +48,8 @@ public final class DisplayNames {
         try {
             String key = definition.translationKey();
             return notBlank(key) ? key : null;
-        } catch (RuntimeException | LinkageError ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("DisplayNames.translationKey", error);
             return null;
         }
     }
@@ -57,7 +58,8 @@ public final class DisplayNames {
         ItemProcessor[] processors;
         try {
             processors = definition.processors();
-        } catch (Throwable ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("DisplayNames.processors", error);
             return null;
         }
         if (processors == null) {
@@ -73,7 +75,8 @@ public final class DisplayNames {
                 if (!(processor instanceof ItemNameProcessor)) continue;
                 ItemNameProcessor inp = (ItemNameProcessor) processor;
                 return strip(inp.itemName(), translations);
-            } catch (Throwable ignored) {
+            } catch (RuntimeException | LinkageError error) {
+                CompatibilityWarnings.warn("DisplayNames.nameProcessor", error);
             }
         }
         return null;
@@ -90,7 +93,8 @@ public final class DisplayNames {
         String raw;
         try {
             raw = category.displayName();
-        } catch (Throwable ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("DisplayNames.categoryName", error);
             return null;
         }
         String plain = strip(raw, translations);
@@ -99,7 +103,8 @@ public final class DisplayNames {
         }
         try {
             return category.id().value();
-        } catch (Throwable ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("DisplayNames.categoryId", error);
             return null;
         }
     }
@@ -112,7 +117,8 @@ public final class DisplayNames {
         String text = null;
         try {
             text = plain(AdventureHelper.miniMessage().deserialize(expanded), translations, 0);
-        } catch (Throwable ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("DisplayNames.miniMessage", error);
         }
         if (text == null || text.isBlank() || TAG.matcher(text).find()) {
             text = TAG.matcher(expanded).replaceAll("");
@@ -137,7 +143,8 @@ public final class DisplayNames {
             try {
                 String text = TranslationManager.instance().miniMessageTranslation(key);
                 sb.append(text == null || text.equals(key) ? translations.getOrDefault(key, key) : text);
-            } catch (Throwable ignored) {
+            } catch (RuntimeException | LinkageError error) {
+                CompatibilityWarnings.warn("DisplayNames.localizedText", error);
                 sb.append(translations.getOrDefault(key, key));
             }
             last = m.end();
@@ -164,7 +171,8 @@ public final class DisplayNames {
                 try {
                     Component resolved = TranslationManager.instance().render(translatable);
                     if (!resolved.equals(translatable)) rendered = plain(resolved, translations, depth + 1);
-                } catch (Throwable ignored) {
+                } catch (RuntimeException | LinkageError error) {
+                    CompatibilityWarnings.warn("DisplayNames.translatableComponent", error);
                 }
                 sb.append(notBlank(rendered) ? rendered : translatable.key());
             }

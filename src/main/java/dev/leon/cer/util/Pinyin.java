@@ -5,6 +5,7 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
 import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
 import java.util.Locale;
 import java.util.Map;
@@ -84,7 +85,8 @@ public final class Pinyin {
             if (arr != null && arr.length > 0 && arr[0] != null && !arr[0].isEmpty()) {
                 result = arr[0].toLowerCase(Locale.ROOT);
             }
-        } catch (Throwable ignored) {
+        } catch (BadHanyuPinyinOutputFormatCombination | RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("Pinyin.character", error);
         }
         CHAR_CACHE.put(c, result);
         return result.isEmpty() ? null : result;

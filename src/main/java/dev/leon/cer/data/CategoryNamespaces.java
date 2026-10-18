@@ -2,6 +2,8 @@ package dev.leon.cer.data;
 
 import dev.leon.cer.CraftEngineRecipePlugin;
 import dev.leon.cer.i18n.LanguageManager;
+import net.momirealms.craftengine.core.util.Key;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -18,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * 管理分类命名空间的可见性、排序数据文件（categories.yml），以及菜单中的自定义按钮。
@@ -36,6 +39,9 @@ import java.util.logging.Logger;
  * </ul>
  */
 public final class CategoryNamespaces {
+    private static final Pattern NAMESPACE = Pattern.compile("[a-z0-9_.-]+");
+    private static final Pattern FULL_ID = Pattern.compile("[a-z0-9_.-]+:[a-z0-9_./-]+");
+    private static final Pattern ID_PATH = Pattern.compile("[a-z0-9_./-]+");
 
     public enum Visibility {
         ADMIN,
@@ -57,9 +63,24 @@ public final class CategoryNamespaces {
             List<String> subIconLore,
             Map<String, Set<String>> hiddenItems,
             Set<String> hiddenCategories) implements Entry {
+        public NamespaceEntry {
+            itemLore = immutableList(itemLore);
+            iconLore = immutableList(iconLore);
+            subIconLore = immutableList(subIconLore);
+            Map<String, Set<String>> rules = new LinkedHashMap<>();
+            hiddenItems.forEach((category, items) ->
+                    rules.put(category, Collections.unmodifiableSet(new LinkedHashSet<>(items))));
+            hiddenItems = Collections.unmodifiableMap(rules);
+            hiddenCategories = Collections.unmodifiableSet(new LinkedHashSet<>(hiddenCategories));
+        }
     }
 
     public record ButtonEntry(String id, ButtonDisplay display, Map<String, List<String>> actions, Visibility visibility, String permission) implements Entry {
+        public ButtonEntry {
+            Map<String, List<String>> copied = new LinkedHashMap<>();
+            actions.forEach((click, lines) -> copied.put(click, immutableList(lines)));
+            actions = Collections.unmodifiableMap(copied);
+        }
 
         public List<String> actionsFor(ClickType clickType) {
             if (clickType == null) {
@@ -75,6 +96,14 @@ public final class CategoryNamespaces {
     }
 
     public record ButtonDisplay(String material, String name, List<String> lore) {
+        public ButtonDisplay {
+            lore = immutableList(lore);
+        }
+    }
+
+    private static <T> List<T> immutableList(List<T> values) {
+        // Keep ordering and null action entries compatible with the existing action executor.
+        return Collections.unmodifiableList(new ArrayList<>(values));
     }
 
     private final LanguageManager language;
@@ -87,6 +116,9 @@ public final class CategoryNamespaces {
     private final Map<String, Set<String>> legacyHiddenItems = new LinkedHashMap<>();
     private final Map<String, Set<String>> hiddenItems = new LinkedHashMap<>();
     private final Set<String> hiddenCategories = new LinkedHashSet<>();
+    private final List<CategoryReference> categoryReferences = new ArrayList<>();
+
+    private record CategoryReference(File source, String path, String id) {}
 
     public CategoryNamespaces(CraftEngineRecipePlugin plugin) {
         this(plugin.getDataFolder(), plugin.lang(), plugin.getLogger());
@@ -106,6 +138,7 @@ public final class CategoryNamespaces {
         this.legacyHiddenItems.clear();
         this.hiddenItems.clear();
         this.hiddenCategories.clear();
+        this.categoryReferences.clear();
         if (this.file.exists()) {
             this.loadCategoriesFile();
         }
@@ -118,12 +151,16 @@ public final class CategoryNamespaces {
     private void loadCategoriesFile() {
         YamlConfiguration yaml = readYaml(this.file);
         List<?> list = yaml.getList("entries");
+        String listPath = "entries";
         if (list == null) {
             list = yaml.getList("namespaces");
+            listPath = "namespaces";
         }
         if (list != null) {
-            for (Object o : list) {
+            for (int index = 0; index < list.size(); index++) {
+                Object o = list.get(index);
                 if (!(o instanceof Map<?, ?> m)) continue;
+                this.diagnoseEntry(m, this.file, listPath + "[" + index + "]");
                 if (m.get("display") instanceof Map<?, ?>) {
                     ButtonEntry button = parseButton(m);
                     if (button != null) {
@@ -137,6 +174,7 @@ public final class CategoryNamespaces {
                 }
             }
         }
+        this.diagnoseHiddenItems(yaml.get("hidden-items"), this.file, "hidden-items");
         this.legacyHiddenItems.putAll(parseHiddenItems(yaml.get("hidden-items")));
     }
 
@@ -196,11 +234,79 @@ public final class CategoryNamespaces {
         if (list == null) {
             return;
         }
-        for (Object o : list) {
+        for (int index = 0; index < list.size(); index++) {
+            Object o = list.get(index);
             if (!(o instanceof Map<?, ?> m)) continue;
+            this.diagnoseNamespace(m, this.extraFile, "entries[" + index + "]");
             NamespaceEntry ns = parseNamespace(m);
             if (ns != null) {
                 this.extra.add(ns);
+            }
+        }
+    }
+
+    private void diagnoseEntry(Map<?, ?> entry, File source, String path) {
+        if (entry.get("display") instanceof Map<?, ?> display) {
+            String material = str(display.get("material"));
+            if (material.isBlank()) return; // Blank materials intentionally use the existing stone fallback.
+            String prefix = "source:CraftEngine:";
+            if (material.startsWith(prefix)) {
+                this.diagnoseId(material.substring(prefix.length()), source, path + ".display.material");
+            } else if (!FULL_ID.matcher(material).matches() && !ID_PATH.matcher(material).matches()
+                    && Material.matchMaterial(material) == null) {
+                this.warn("logs.config-invalid-material", source, path + ".display.material", material);
+            }
+        } else {
+            this.diagnoseNamespace(entry, source, path);
+        }
+    }
+
+    private void diagnoseNamespace(Map<?, ?> entry, File source, String path) {
+        String id = str(entry.get("id"));
+        if (!NAMESPACE.matcher(id).matches()) this.warn("logs.config-invalid-id", source, path + ".id", id);
+        this.diagnoseHiddenItems(entry.get("hidden-items"), source, path + ".hidden-items");
+        if (entry.get("hidden-categories") instanceof List<?> categories) {
+            for (int index = 0; index < categories.size(); index++) {
+                this.diagnoseCategory(str(categories.get(index)), source, path + ".hidden-categories[" + index + "]");
+            }
+        }
+    }
+
+    private void diagnoseHiddenItems(Object value, File source, String path) {
+        if (!(value instanceof List<?> rules)) return;
+        for (int index = 0; index < rules.size(); index++) {
+            if (!(rules.get(index) instanceof Map<?, ?> rule)) continue;
+            String rulePath = path + "[" + index + "]";
+            this.diagnoseCategory(str(rule.get("category")), source, rulePath + ".category");
+            if (rule.get("items") instanceof List<?> items) {
+                for (int itemIndex = 0; itemIndex < items.size(); itemIndex++) {
+                    String item = str(items.get(itemIndex));
+                    if (!item.equals("*")) this.diagnoseId(item, source, rulePath + ".items[" + itemIndex + "]");
+                }
+            }
+        }
+    }
+
+    private void diagnoseId(String value, File source, String path) {
+        if (!FULL_ID.matcher(value).matches()) this.warn("logs.config-invalid-id", source, path, value);
+    }
+
+    private void diagnoseCategory(String value, File source, String path) {
+        this.diagnoseId(value, source, path);
+        this.categoryReferences.add(new CategoryReference(source, path, value));
+    }
+
+    private void warn(String message, File source, String path, String value) {
+        this.logger.warning(this.language.text(message, "path", source.getName() + ":" + path, "value", value));
+    }
+
+    /** Warn after CraftEngine's category snapshot is ready; never remove or rewrite a configured rule. */
+    public void validateReferences(Set<Key> categories) {
+        Set<String> known = new LinkedHashSet<>();
+        for (Key category : categories) known.add(category.toString());
+        for (CategoryReference reference : this.categoryReferences) {
+            if (FULL_ID.matcher(reference.id()).matches() && !known.contains(reference.id())) {
+                this.warn("logs.config-missing-category", reference.source(), reference.path(), reference.id());
             }
         }
     }
@@ -323,13 +429,13 @@ public final class CategoryNamespaces {
     }
 
     public List<Entry> entries() {
-        return this.entries;
+        return List.copyOf(this.entries);
     }
 
     public List<Entry> allEntries() {
         List<Entry> out = new ArrayList<>(this.entries);
         out.addAll(this.extra);
-        return out;
+        return List.copyOf(out);
     }
 
     public List<NamespaceEntry> unappliedEntries() {

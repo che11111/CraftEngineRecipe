@@ -1,115 +1,96 @@
 package dev.leon.cer.util;
 
 import dev.leon.cer.CraftEngineRecipePlugin;
+import dev.leon.cer.data.CategoryNamespaces;
 import dev.leon.cer.gui.Sounds;
 import dev.leon.cer.scheduler.TaskDispatcher;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.plugin.IllegalPluginAccessException;
 
-import java.util.List;
-import java.util.Locale;
-
-/**
- * 自定义按钮的动作执行器。支持：sound / close / delay / command(console) / player / op。
- */
+/** Executes administrator-configured actions with the originating button's authorization. */
 public final class ButtonActions {
+    private ButtonActions() {}
 
-    private ButtonActions() {
-    }
-
-    public static void run(Player player, List<String> actions) {
+    public static void run(Player player, CategoryNamespaces.ButtonEntry button, ClickType clickType) {
         CraftEngineRecipePlugin plugin = CraftEngineRecipePlugin.get();
-        if (plugin == null) return;
-        run(plugin, player, actions, 0, plugin.data().generation());
+        if (plugin == null || player == null || button == null) return;
+        BukkitEnvironment environment = new BukkitEnvironment(plugin, player, button, plugin.data().generation());
+        Runnable start = () -> ButtonActionExecutor.execute(environment, button.actionsFor(clickType));
+        if (Bukkit.isOwnedByCurrentRegion(player)) start.run();
+        else environment.player(start);
     }
 
-    private static void run(CraftEngineRecipePlugin plugin, Player player, List<String> actions, int index, long generation) {
-        if (!plugin.isEnabled() || !plugin.data().isReady() || plugin.data().generation() != generation
-                || player == null || !player.isOnline() || actions == null || index >= actions.size()) {
-            return;
+    private record BukkitEnvironment(CraftEngineRecipePlugin plugin, Player player,
+                                     CategoryNamespaces.ButtonEntry button, long generation)
+            implements ButtonActionExecutor.Environment {
+        @Override
+        public boolean isCurrent() {
+            return this.plugin.isEnabled() && this.plugin.data().isReady()
+                    && this.plugin.data().generation() == this.generation;
         }
-        String action = actions.get(index);
-        if (action == null) {
-            run(plugin, player, actions, index + 1, generation);
-            return;
-        }
-        action = action.trim();
-        if (action.isEmpty()) {
-            run(plugin, player, actions, index + 1, generation);
-            return;
-        }
-        String lower = action.toLowerCase(Locale.ROOT);
 
-        if (lower.equals("close")) {
-            player.closeInventory();
-            run(plugin, player, actions, index + 1, generation);
-            return;
+        @Override
+        public boolean isPlayerAuthorized() {
+            return this.player.isOnline() && this.plugin.data().namespaces().canViewButton(this.player, this.button);
         }
-        if (lower.startsWith("delay:")) {
-            long ticks = parseDelayTicks(action.substring("delay:".length()).trim());
-            plugin.tasks().playerLater(player, () -> run(plugin, player, actions, index + 1, generation), ticks);
-            return;
-        }
-        if (lower.startsWith("sound:")) {
-            Sounds.playAction(player, action.substring(action.indexOf(':') + 1).trim());
-            run(plugin, player, actions, index + 1, generation);
-            return;
-        }
-        if (lower.startsWith("console:")) {
-            String cmd = action.substring(action.indexOf(':') + 1).trim();
-            if (cmd.isEmpty()) {
-                run(plugin, player, actions, index + 1, generation);
-                return;
-            }
-            plugin.tasks().global(() -> {
-                if (!plugin.data().isReady() || plugin.data().generation() != generation) return;
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-                plugin.tasks().player(player, () -> run(plugin, player, actions, index + 1, generation));
-            });
-            return;
-        }
-        if (lower.startsWith("command:") || lower.startsWith("player:")) {
-            String cmd = action.substring(action.indexOf(':') + 1).trim();
-            if (!cmd.isEmpty()) {
-                player.performCommand(cmd);
-            }
-            run(plugin, player, actions, index + 1, generation);
-            return;
-        }
-        if (lower.startsWith("op:")) {
-            if (TaskDispatcher.isFolia()) {
-                plugin.getLogger().warning(plugin.lang().text("logs.folia-op-unsupported"));
-                return;
-            }
-            String cmd = action.substring(action.indexOf(':') + 1).trim();
-            if (!cmd.isEmpty()) {
-                boolean wasOp = player.isOp();
-                try {
-                    player.setOp(true);
-                    player.performCommand(cmd);
-                } finally {
-                    player.setOp(wasOp);
-                }
-            }
-            run(plugin, player, actions, index + 1, generation);
-            return;
-        }
-        run(plugin, player, actions, index + 1, generation);
-    }
 
-    private static long parseDelayTicks(String v) {
-        v = v.trim();
-        try {
-            if (v.endsWith("t") || v.endsWith("T")) {
-                return Math.max(1, (long) Double.parseDouble(v.substring(0, v.length() - 1)));
+        @Override
+        public boolean mayExecuteConsole() {
+            // Paper's global task owns player state and can recheck at dispatch. On Folia only
+            // the last entity-thread check authorizes this handoff; never inspect Player here.
+            return this.isFolia() || this.isPlayerAuthorized();
+        }
+
+        @Override
+        public boolean isFolia() { return TaskDispatcher.isFolia(); }
+
+        @Override
+        public void later(Runnable action, long ticks) {
+            this.submit(() -> this.plugin.tasks().playerLater(this.player, action, ticks));
+        }
+
+        @Override
+        public void player(Runnable action) {
+            this.plugin.tasks().player(this.player, action);
+        }
+
+        @Override
+        public void global(Runnable action) {
+            this.submit(() -> this.plugin.tasks().global(action));
+        }
+
+        private void submit(Runnable submission) {
+            try {
+                submission.run();
+            } catch (IllegalPluginAccessException error) {
+                // Disabling can race with the lifecycle check immediately before submission.
+                if (this.plugin.isEnabled()) throw error;
             }
-            if (v.endsWith("s") || v.endsWith("S")) {
-                v = v.substring(0, v.length() - 1);
-            }
-            double seconds = Double.parseDouble(v);
-            return Math.max(1, Math.round(seconds * 20.0));
-        } catch (NumberFormatException e) {
-            return 20L;
+        }
+
+        @Override
+        public void sound(String sound) { Sounds.playAction(this.player, sound); }
+
+        @Override
+        public void close() { this.player.closeInventory(); }
+
+        @Override
+        public void consoleCommand(String command) { Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command); }
+
+        @Override
+        public void playerCommand(String command) { this.player.performCommand(command); }
+
+        @Override
+        public boolean isOp() { return this.player.isOp(); }
+
+        @Override
+        public void setOp(boolean op) { this.player.setOp(op); }
+
+        @Override
+        public void rejectFoliaOp() {
+            this.plugin.getLogger().warning(this.plugin.lang().text("logs.folia-op-unsupported"));
         }
     }
 }

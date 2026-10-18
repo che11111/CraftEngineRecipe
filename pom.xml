@@ -6,7 +6,7 @@
 
     <groupId>dev.leon</groupId>
     <artifactId>craftenginerecipe</artifactId>
-    <version>1.0.14</version>
+    <version>1.0.16</version>
     <packaging>jar</packaging>
     <name>CraftEngineRecipe</name>
     <description>基于 CraftEngine 物品的高级配方浏览器（常驻分类栏 + 搜索）</description>
@@ -17,6 +17,8 @@
 
         <!-- The default build targets Minecraft 26.2. Select exactly one mc-* profile for other versions. -->
         <mc.label>26.2</mc.label>
+        <!-- The real minimum API, also used by Modrinth to infer Minecraft versions. -->
+        <mc.api.version>26.2</mc.api.version>
         <paper.version>26.2.build.132-stable</paper.version>
         <craftengine.version>26.8.1</craftengine.version>
         <invui.version>2.3.2</invui.version>
@@ -98,6 +100,7 @@
             <id>mc-26.1</id>
             <properties>
                 <mc.label>26.1</mc.label>
+                <mc.api.version>26.1.2</mc.api.version>
                 <paper.version>26.1.2.build.74-stable</paper.version>
                 <invui.version>2.1.1</invui.version>
             </properties>
@@ -106,6 +109,7 @@
             <id>mc-26.2</id>
             <properties>
                 <mc.label>26.2</mc.label>
+                <mc.api.version>26.2</mc.api.version>
                 <paper.version>26.2.build.132-stable</paper.version>
                 <invui.version>2.3.2</invui.version>
             </properties>
@@ -114,6 +118,7 @@
             <id>mc-26.3</id>
             <properties>
                 <mc.label>26.3</mc.label>
+                <mc.api.version>26.3</mc.api.version>
                 <paper.version>26.3.build.181-stable</paper.version>
                 <invui.version>2.5.1</invui.version>
             </properties>
@@ -122,6 +127,13 @@
 
     <build>
         <finalName>CraftEngineRecipe-${project.version}-mc${mc.label}</finalName>
+        <!-- Maintained regression tests; src/test remains ignored for local experiments. -->
+        <testSourceDirectory>tests/java</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>tests/resources</directory>
+            </testResource>
+        </testResources>
 
         <resources>
             <resource>

@@ -5,14 +5,21 @@ import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class Sounds {
     private static final String NUMBER = "[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?";
     private static final Pattern PARAMETERS = Pattern.compile(
             "^(.*?)-\\s*(" + NUMBER + ")\\s*(?:-\\s*(" + NUMBER + ")\\s*)?$");
+    private static final Map<String, String> LEGACY_NAMES = loadLegacyNames();
 
     private Sounds() {
     }
@@ -66,17 +73,39 @@ public final class Sounds {
     }
 
     private static Sound resolve(String name) {
+        return resolve(name, key -> Registry.SOUNDS.get(key));
+    }
+
+    static <T> T resolve(String name, Function<NamespacedKey, T> registry) {
         try {
-            return Sound.valueOf(name.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            NamespacedKey key = name.contains(":")
-                    ? NamespacedKey.fromString(name)
-                    : NamespacedKey.minecraft(name);
-            return Registry.SOUNDS.get(key);
-        } catch (Throwable ignored) {
+            NamespacedKey direct = registryKey(name);
+            T sound = direct == null ? null : registry.apply(direct);
+            if (sound != null) return sound;
+            String legacy = legacyPath(name);
+            return legacy == null ? null : registry.apply(NamespacedKey.minecraft(legacy));
+        } catch (IllegalArgumentException | IllegalStateException | LinkageError ignored) {
             return null;
+        }
+    }
+
+    private static NamespacedKey registryKey(String name) {
+        // Modern registry keys take precedence over the old Bukkit aliases.
+        return NamespacedKey.fromString(name.toLowerCase(Locale.ROOT));
+    }
+
+    private static String legacyPath(String name) {
+        return name == null ? null : LEGACY_NAMES.get(name.toUpperCase(Locale.ROOT));
+    }
+
+    private static Map<String, String> loadLegacyNames() {
+        try (InputStream input = Sounds.class.getResourceAsStream("/internal/bukkit-sound-aliases.properties")) {
+            if (input == null) throw new IllegalStateException("Missing bundled Bukkit sound aliases");
+            Properties values = new Properties();
+            values.load(input);
+            return values.stringPropertyNames().stream().collect(Collectors.toUnmodifiableMap(
+                    name -> name, values::getProperty));
+        } catch (IOException error) {
+            throw new IllegalStateException("Cannot read bundled Bukkit sound aliases", error);
         }
     }
 

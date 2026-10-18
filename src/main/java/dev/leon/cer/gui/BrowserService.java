@@ -7,6 +7,7 @@ import dev.leon.cer.data.CategoryItems;
 import dev.leon.cer.data.CraftEngineData;
 import dev.leon.cer.data.RecipeIndex;
 import dev.leon.cer.util.ButtonActions;
+import dev.leon.cer.util.CompatibilityWarnings;
 import dev.leon.cer.util.DisplayNames;
 import dev.leon.cer.util.HeldRecipeScope;
 import dev.leon.cer.util.ItemBridge;
@@ -33,7 +34,6 @@ import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class BrowserService {
 
-    private static final int WIDTH = 9;
     private static final char EMPTY_CHAR = '#';
 
     private final CraftEngineRecipePlugin plugin;
@@ -132,7 +131,7 @@ public final class BrowserService {
             return;
         }
         Set<Key> visible = HeldRecipeScope.visibleItems(this.allTopCategories(), this.data.categoriesById(),
-                this.data.items().keySet(), this.data.namespaces(), player);
+                this.data.categoryGraph(), this.data.items().keySet(), this.data.namespaces(), player);
         if (!visible.contains(id)) {
             player.sendMessage(this.plugin.lang().message("messages.hand-item-unavailable"));
             return;
@@ -231,10 +230,8 @@ public final class BrowserService {
             return;
         }
         List<ContentEntry> entries = this.collectEntries(category, player);
-        List<Item> contentItems = new ArrayList<>(entries.size());
-        for (ContentEntry entry : entries) {
-            contentItems.add(lazyItem(() -> entry.toItem(this, player, category)));
-        }
+        List<Item> contentItems = new LazyItems<>(entries,
+                entry -> lazyItem(() -> entry.toItem(this, player, category)));
         boolean showBack = !this.isTopLevel(categoryId);
         GuiSession session = GuiSession.of(player);
         session.enter(categoryId, categoryPage, showBack ? this.findParentOf(categoryId) : null);
@@ -260,13 +257,11 @@ public final class BrowserService {
                 entries.add(new ItemKeyEntry(id));
             }
         }
-        List<Item> contentItems = new ArrayList<>(entries.size());
         Category owner = parentCategory == null ? null : this.data.category(parentCategory).orElse(null);
-        for (ContentEntry entry : entries) {
-            contentItems.add(lazyItem(() -> entry.toItem(this, player, owner)));
-        }
+        List<Item> contentItems = new LazyItems<>(entries,
+                entry -> lazyItem(() -> entry.toItem(this, player, owner)));
         if (contentItems.isEmpty()) {
-            contentItems.add(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
+            contentItems = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
         }
         Gui gui = this.buildLayout(player, contentItems, parentCategory, categoryPage, parentCategory != null);
         Component titleComponent = searching
@@ -364,73 +359,27 @@ public final class BrowserService {
     }
 
     private String[] normalizeLayout() {
-        Set<Character> known = this.knownChars();
-        List<String> raw = this.config.layoutRows();
-        String[] out = new String[CerConfig.ROWS];
-        for (int r = 0; r < CerConfig.ROWS; r++) {
-            String line = r < raw.size() ? raw.get(r) : "";
-            StringBuilder sb = new StringBuilder(WIDTH);
-            for (int i = 0; i < line.length() && sb.length() < WIDTH; i++) {
-                char ch = line.charAt(i);
-                if (ch == ' ' || ch == '\t') continue;
-                sb.append(known.contains(ch) ? ch : EMPTY_CHAR);
-            }
-            while (sb.length() < WIDTH) {
-                sb.append(EMPTY_CHAR);
-            }
-            out[r] = sb.toString();
-        }
-        return out;
-    }
-
-    private Set<Character> knownChars() {
-        Set<Character> set = new HashSet<>();
-        set.add(this.config.categoryIconChar());
-        set.add(this.config.contentAreaChar());
-        for (CerConfig.ButtonDef def : List.of(
-                this.config.prevCategory(), this.config.nextCategory(),
-                this.config.prevPage(), this.config.nextPage(),
-                this.config.search(), this.config.back())) {
-            if (def.symbol() == '\u0000') continue;
-            set.add(def.symbol());
-        }
-        return set;
+        return BrowserLayout.normalize(this.config);
     }
 
     private static List<Integer> slotsOf(String[] structure, char symbol) {
-        List<Integer> slots = new ArrayList<>();
-        if (symbol == '\u0000') {
-            return slots;
-        }
-        for (int r = 0; r < structure.length; r++) {
-            String line = structure[r];
-            for (int c = 0; c < line.length(); c++) {
-                if (line.charAt(c) != symbol) continue;
-                slots.add(r * WIDTH + c);
-            }
-        }
-        return slots;
+        return BrowserLayout.slotsOf(structure, symbol);
     }
 
     private void bind(PagedGui.Builder<Item> builder, CerConfig.ButtonDef def, Item item) {
         char symbol = def.symbol();
-        if (symbol == '\u0000') {
-            return;
+        switch (BrowserLayout.binding(symbol, this.config.categoryIconChar(), this.config.contentAreaChar())) {
+            case DISABLED -> { }
+            case RESERVED -> this.plugin.getLogger().warning(this.plugin.lang().text("logs.layout-reserved"));
+            case CONFLICT -> this.plugin.getLogger().warning(this.plugin.lang().text("logs.layout-conflict",
+                    "symbol", String.valueOf(symbol)));
+            case ALLOWED -> builder.addIngredient(symbol, item);
         }
-        if (symbol == EMPTY_CHAR) {
-            this.plugin.getLogger().warning(this.plugin.lang().text("logs.layout-reserved"));
-            return;
-        }
-        if (symbol == this.config.categoryIconChar() || symbol == this.config.contentAreaChar()) {
-            this.plugin.getLogger().warning(this.plugin.lang().text("logs.layout-conflict", "symbol", String.valueOf(symbol)));
-            return;
-        }
-        builder.addIngredient(symbol, item);
     }
 
     private Set<Key> visibleItemIds(Player player) {
         if (this.data.categoriesById().isEmpty()) return this.data.items().keySet();
-        return CategoryItems.visible(this.visibleCategories(player), this.data.categoriesById(),
+        return this.data.categoryGraph().visible(this.visibleCategories(player),
                 category -> !this.data.namespaces().isCategoryHidden(category.id().toString())
                         && this.data.namespaces().canView(player, category.id().namespace()),
                 category -> this.data.namespaces().hiddenItems(category.id().toString()));
@@ -537,7 +486,8 @@ public final class BrowserService {
         ItemStack icon;
         try {
             icon = ItemBridge.build(category.icon(), player);
-        } catch (Throwable t) {
+        } catch (RuntimeException | LinkageError t) {
+            CompatibilityWarnings.warn("Browser.categoryIcon", t);
             icon = new ItemStack(this.config.empty().material());
         }
         Component name = this.categoryName(category);
@@ -586,7 +536,7 @@ public final class BrowserService {
         }
         ItemStack decorated = ItemBridge.decorate(icon, name, lore);
         return Item.builder().setItemProvider(decorated).addClickHandler(click ->
-                ButtonActions.run(click.player(), button.actionsFor(click.clickType()))).build();
+                ButtonActions.run(click.player(), button, click.clickType())).build();
     }
 
     private Component categoryName(Category category) {
@@ -734,16 +684,12 @@ public final class BrowserService {
 
     private List<ContentEntry> collectEntries(Category category, Player player) {
         List<ContentEntry> entries = new ArrayList<>();
-        if (category.members() == null) {
-            return entries;
-        }
         Set<String> hidden = this.data.namespaces().hiddenItems(category.id().toString());
-        for (String member : category.members()) {
-            if (member == null || member.isBlank()) continue;
-            if (member.charAt(0) == '#') {
-                String subId = member.substring(1);
+        for (var member : this.data.categoryGraph().members(category.id())) {
+            if (member.category()) {
+                String subId = member.reference();
                 if (this.data.namespaces().isCategoryHidden(subId)) continue;
-                Category sub = this.data.category(Key.of(subId)).orElse(null);
+                Category sub = this.data.category(member.key()).orElse(null);
                 if (sub != null) {
                     entries.add(new SubCategoryEntry(sub));
                 } else {
@@ -751,7 +697,7 @@ public final class BrowserService {
                 }
                 continue;
             }
-            Key itemKey = Key.of(member);
+            Key itemKey = member.key();
             if (CategoryItems.isHidden(hidden, itemKey)) continue;
             entries.add(new ItemKeyEntry(itemKey));
         }
@@ -772,15 +718,7 @@ public final class BrowserService {
     }
 
     private int countMembers(Category category) {
-        if (category.members() == null) {
-            return 0;
-        }
-        int n = 0;
-        for (String m : category.members()) {
-            if (m == null || m.isBlank()) continue;
-            ++n;
-        }
-        return n;
+        return this.data.categoryGraph().members(category.id()).size();
     }
 
     private String plainName(Category category) {

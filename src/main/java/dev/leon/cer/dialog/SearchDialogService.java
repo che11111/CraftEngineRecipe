@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 public final class SearchDialogService {
 
@@ -25,6 +27,7 @@ public final class SearchDialogService {
 
     private final CraftEngineRecipePlugin plugin;
     private final CerConfig config;
+    private final AtomicBoolean inputFailureLogged = new AtomicBoolean();
 
     public SearchDialogService(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
@@ -35,18 +38,19 @@ public final class SearchDialogService {
         if (!this.plugin.browser().claim(player)) return;
         long generation = this.plugin.data().generation();
         CerConfig c = this.plugin.config();
+        int maxLength = c.searchMaxLength();
         TextDialogInput input = DialogInput.text(INPUT_KEY, c.mm(c.searchDialogLabel()))
                 .width(300)
                 .labelVisible(true)
                 .initial("")
-                .maxLength(c.searchMaxLength())
+                .maxLength(maxLength)
                 .build();
         ActionButton confirm = ActionButton.create(
                 this.plugin.lang().component("ui.search.confirm"),
                 this.plugin.lang().component("ui.search.confirm-tooltip"),
                 100,
                 DialogAction.customClick(
-                        (view, audience) -> this.handleResult(player, view, generation),
+                        (view, audience) -> this.handleResult(player, view, generation, maxLength),
                         ClickCallback.Options.builder().uses(1).lifetime(Duration.ofMinutes(5L)).build()
                 )
         );
@@ -73,20 +77,28 @@ public final class SearchDialogService {
         Sounds.play(player, this.config.sounds().search());
     }
 
-    private void handleResult(Player player, DialogResponseView view, long generation) {
+    private void handleResult(Player player, DialogResponseView view, long generation, int maxLength) {
         String keyword;
         try {
             keyword = view.getText(INPUT_KEY);
-        } catch (Throwable t) {
+        } catch (RuntimeException | LinkageError error) {
+            if (this.inputFailureLogged.compareAndSet(false, true)) {
+                this.plugin.getLogger().log(Level.WARNING, this.plugin.lang().text("logs.search-input-failed"), error);
+            }
             keyword = null;
         }
-        String kw = keyword == null ? "" : keyword.trim();
+        String kw = validatedKeyword(keyword, maxLength);
         if (kw.isEmpty()) {
             this.schedule(player, generation, () -> this.plugin.browser().openDefault(player));
             return;
         }
         String finalKw = kw;
         this.schedule(player, generation, () -> this.plugin.browser().openItemList(player, null, finalKw, 0, finalKw));
+    }
+
+    /** Reject forged oversized responses instead of silently searching a truncated keyword. */
+    static String validatedKeyword(String keyword, int maxLength) {
+        return keyword == null || keyword.length() > maxLength ? "" : keyword.trim();
     }
 
     private void schedule(Player player, long generation, Runnable task) {

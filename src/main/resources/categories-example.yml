@@ -20,15 +20,15 @@
   # permission：仅当 visibility 为 permission 时生效（例如 'cer.vip'） / permission: used when visibility is permission (e.g. 'cer.vip')
   permission: ''
 
-  # 1.0.4 起推荐在命名空间条目下写隐藏规则；使用完整分类和物品 ID。
-  # Since 1.0.4, keep hidden rules under their namespace; use full category and item IDs.
+  # 在命名空间条目下写隐藏规则；使用完整分类和物品 ID。
+  # Keep hidden rules under their namespace; use full category and item IDs.
   hidden-items:
     - category: internal:tools
       items:
         - internal:secret_sword
 
-  # 1.0.5 起支持隐藏分类入口及其浏览/搜索路径；填写完整分类 ID，不支持 '*'。
-  # Since 1.0.5, hide category entries and their browsing/search paths; full category IDs only, no '*'.
+  # 支持隐藏分类入口及其浏览/搜索路径；填写完整分类 ID，不支持 '*'。
+  # Hide category entries and their browsing/search paths; full category IDs only, no '*'.
   hidden-categories:
     - internal:gui
 
@@ -53,7 +53,7 @@
 # 装饰分割用的灰色玻璃板（无任何动作） / Decorative gray glass separator with no actions
 - display:
     material: minecraft:gray_stained_glass_pane   # minecraft:材质名 / minecraft:material_name
-    name: '&8&m            '
+    name: '&8---'
   actions:
     all: []
 
@@ -74,7 +74,7 @@
     all:
     - 'sound: BLOCK_LEVER_CLICK-1-0'   # 播放声音 / Play a sound
     - close                            # 关闭菜单 / Close the menu
-    - 'delay: 5'                       # 延时 5 秒后执行后续动作 / Continue remaining actions after 5 seconds
+    - 'delay: 0.5'                       # 延时 0.5 秒后执行后续动作 / Continue remaining actions after 0.5 seconds
     - 'command: fd recipe'             # 以玩家身份执行 /fd recipe / Run /fd recipe as the player
 
 # 一个支持左右键不同动作的按钮 / Button with separate left/right click actions
@@ -95,8 +95,6 @@
 #   sound: 声音-音量-音调        播放声音（音量、音调可省略） / sound: SOUND-VOLUME-PITCH; volume and pitch are optional
 #                                声音支持枚举名 BLOCK_LEVER_CLICK 或 minecraft:block.lever.click / Accepts enum names such as BLOCK_LEVER_CLICK or minecraft:block.lever.click
 #   sound: UI_BUTTON_CLICK-1-2   点击音，音量 1、音调 2 / Click sound, volume 1, pitch 2
-#   1.0.6 起 config.yml 的 sounds.* 同样支持上述参数格式；修改配置后 /cer reload。
-#   Since 1.0.6, config.yml sounds.* accepts the same parameters; run /cer reload after editing.
 #   全局音效统一在 config.yml 的 sounds 下设置；分类条目中仅使用 actions 的 sound:。
 #   Global sounds belong under sounds in config.yml; category entries use sound: inside actions only.
 #   sounds.change-category 控制 prev-category/next-category，默认 UI_BUTTON_CLICK-1-2。
@@ -109,8 +107,8 @@
 #   按钮 sound: 后接 close 会额外播放 sounds.close-menu；不需要按钮声音时删除 sound: 动作。
 #   A button sound: followed by close also plays sounds.close-menu; remove the button sound: if unwanted.
 #   close                        关闭当前菜单 / close: close the current menu
-#   delay: 5                     延时 5 秒后执行后续动作（等价 100 个 tick） / delay: 5 = 5 seconds (100 ticks at normal TPS)
-#   delay: 100t                  延时 100 个 tick 后执行后续动作 / delay: 100t = continue remaining actions after 100 ticks
+#   delay: 0.5                     延时 0.5 秒后执行后续动作 / delay: 0.5 = 0.5 seconds 
+#   delay: 10t                  延时 10 个 tick 后执行后续动作 / delay: 10t = continue remaining actions after 10 ticks
 #   command: <指令>              以玩家身份执行指令 / command: <command> = run as the player
 #   player:  <指令>              以玩家身份执行指令 / player: <command> = run as the player
 #   console: <指令>              以控制台身份执行指令 / console: <command> = run as the console
@@ -143,14 +141,6 @@
 # CraftEngine 的 hidden: true 不阻止父分类通过 #分类ID 引用子分类。
 # CraftEngine hidden: true does not block a child referenced via #category_id by a parent.
 #
-# 旧版兼容：仍可将 hidden-items 与 entries 放在同一层（顶层 '*' 需 1.0.3+）。
-# Legacy: hidden-items may still sit alongside entries (top-level '*' requires 1.0.3+).
-# 两处规则取并集；迁移时建议移除旧位置的重复条目。
-# Both locations are merged; remove duplicate legacy entries when migrating.
-# hidden-items:
-#   - category: internal:tools
-#     items:
-#       - internal:secret_sword
 
 # 五、同时隐藏 GUI / 展示模型的分类入口和物品（1.0.5+）
 # 5. Hide both GUI / display-model category entries and their items (1.0.5+)

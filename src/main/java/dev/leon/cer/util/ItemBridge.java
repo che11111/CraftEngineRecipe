@@ -33,7 +33,8 @@ public final class ItemBridge {
             if (def != null) {
                 stack = player != null ? def.buildBukkitItem(player) : def.buildBukkitItem();
             }
-        } catch (Throwable ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("ItemBridge.build", error);
         }
         if (stack == null || stack.getType() == Material.AIR) {
             Material vanilla = matchVanilla(id);
@@ -95,7 +96,8 @@ public final class ItemBridge {
                 ItemStack stack = (ItemStack) raw;
                 return stack.clone();
             }
-        } catch (Throwable ignored) {
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("ItemBridge.platformItem", error);
         }
         return emptySlot();
     }

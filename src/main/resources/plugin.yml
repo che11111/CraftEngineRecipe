@@ -1,8 +1,8 @@
 name: CraftEngineRecipe
 version: '${project.version}'
 main: dev.leon.cer.CraftEngineRecipePlugin
-api-version: '1.21'
-authors: [ nsoer ]
+api-version: '${mc.api.version}'
+authors: [ che1s, nsoer ]
 description: Recipe browser for CraftEngine with categories and search
 depend: [ CraftEngine ]
 folia-supported: true

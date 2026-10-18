@@ -12,6 +12,7 @@ import dev.leon.cer.metrics.MetricsService;
 import dev.leon.cer.scheduler.TaskDispatcher;
 import dev.leon.cer.i18n.LanguageManager;
 import dev.leon.cer.resource.ResourcePackInstaller;
+import dev.leon.cer.util.CompatibilityWarnings;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -59,6 +60,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.config.load();
         this.saveExampleFile();
         this.data = new CraftEngineData(this);
+        CompatibilityWarnings.install(this.getLogger(), this.language, this.data::generation);
         this.recipeIndex = new RecipeIndex(this);
         this.data.attachListener();
         this.dialogService = new SearchDialogService(this);
@@ -112,14 +114,17 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     @Override
     public void onDisable() {
+        // Stop callbacks before clearing the state they can access. Pending cleanup barriers
+        // must complete even though a disabled plugin cannot schedule more entity work.
+        if (this.tasks != null) this.tasks.shutdown();
         if (this.data != null) {
             this.data.detachListener();
         }
         if (this.browserService != null) this.browserService.shutdown();
         if (this.metrics != null) this.metrics.shutdown();
         GuiSession.clearAll();
-        if (this.tasks != null) this.tasks.cancelGlobalAndAsync();
         instance = null;
+        CompatibilityWarnings.clear();
         if (this.language != null) this.getLogger().info(this.language.text("logs.disabled"));
     }
 

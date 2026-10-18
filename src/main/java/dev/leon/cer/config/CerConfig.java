@@ -7,17 +7,24 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.momirealms.craftengine.core.util.AdventureHelper;
+import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public final class CerConfig {
 
     public static final int ROWS = 6;
     public static final String DISABLED_ITEM_MODEL = "cer:blank_items";
+    private static final Pattern FULL_ID = Pattern.compile("[a-z0-9_.-]+:[a-z0-9/._-]+");
+    private static final Pattern ID_PATH = Pattern.compile("[a-z0-9/._-]+");
+    private static final List<String> BUTTON_PATHS = List.of("category-bar.prev-category", "category-bar.next-category",
+            "content.prev-page", "content.next-page", "content.back", "content.search", "content.empty");
 
     private static final List<String> DEFAULT_LAYOUT_ROWS = List.of(
             "<CCCCCCC>",
@@ -120,6 +127,46 @@ public final class CerConfig {
 
         this.hotkeyEnabled = c.getBoolean("hotkey.enabled", true);
         this.hotkeyRequireSneak = c.getBoolean("hotkey.require-sneak", true);
+        this.diagnose(c);
+    }
+
+    private void diagnose(FileConfiguration config) {
+        for (int i = 0; i < this.categoryList.size(); i++) {
+            String id = this.categoryList.get(i);
+            if (!validId(id)) this.warn("logs.config-invalid-id", "category-bar.list[" + i + "]", id);
+        }
+        for (String button : BUTTON_PATHS) {
+            String model = config.getString(button + ".item-model", "");
+            if (!model.isBlank() && !validId(model) && !ID_PATH.matcher(model).matches()) {
+                this.warn("logs.config-invalid-id", button + ".item-model", model);
+            }
+            String material = config.getString(button + ".material");
+            if (material != null) {
+                String materialName = material.contains(":") ? material.substring(material.indexOf(':') + 1) : material;
+                if (Material.matchMaterial(materialName) == null) {
+                    this.warn("logs.config-invalid-material", button + ".material", material);
+                }
+            }
+        }
+    }
+
+    /** Called once a new CraftEngine category snapshot is available; diagnostics never alter config. */
+    public void validateReferences(Set<Key> categories) {
+        if (this.categoryFollowCe) return;
+        for (int i = 0; i < this.categoryList.size(); i++) {
+            String id = this.categoryList.get(i);
+            if (validId(id) && !categories.contains(Key.of(id))) {
+                this.warn("logs.config-missing-category", "category-bar.list[" + i + "]", id);
+            }
+        }
+    }
+
+    private static boolean validId(String value) {
+        return value != null && FULL_ID.matcher(value).matches();
+    }
+
+    private void warn(String message, String path, String value) {
+        this.plugin.getLogger().warning(this.plugin.lang().text(message, "path", "config.yml:" + path, "value", value));
     }
 
     private void loadLayout(FileConfiguration c) {

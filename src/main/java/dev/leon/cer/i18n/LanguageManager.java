@@ -4,7 +4,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.InvalidConfigurationException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +40,7 @@ public final class LanguageManager {
             try (InputStream stream = resources.apply("lang/" + locale + ".yml")) {
                 if (stream == null) throw new IllegalStateException("Missing bundled language: " + locale);
                 this.bundled.put(locale, read(new InputStreamReader(stream, StandardCharsets.UTF_8)));
-            } catch (Exception e) {
+            } catch (IOException | InvalidConfigurationException | RuntimeException e) {
                 throw new IllegalStateException("Cannot load bundled language: " + locale, e);
             }
         }
@@ -57,7 +59,7 @@ public final class LanguageManager {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             this.logger.warning(this.text("logs.language-save-failed", "error", error(e)));
         }
 
@@ -80,14 +82,14 @@ public final class LanguageManager {
                         values.put(entry.getKey(), entry.getValue());
                     }
                 }
-            } catch (Exception e) {
+            } catch (IOException | InvalidConfigurationException | RuntimeException e) {
                 this.logger.warning(this.text("logs.language-read-failed", "file", file.toString(), "error", error(e)));
             }
         }
         this.active = new Bundle(locale, Map.copyOf(values));
     }
 
-    private static Map<String, Object> read(java.io.Reader reader) throws Exception {
+    private static Map<String, Object> read(java.io.Reader reader) throws IOException, InvalidConfigurationException {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(reader);
         Map<String, Object> values = new LinkedHashMap<>();

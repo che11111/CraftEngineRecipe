@@ -82,6 +82,11 @@ ui:
     no-usage: <gray>This item has no uses</gray>
     dynamic-result: <gray>Result depends on the actual input items</gray>
 logs:
+  compatibility-fallback: 'Compatibility operation {operation} failed; keeping the existing fallback. Each call site is logged once per data generation; exception details follow.'
+  search-input-failed: 'Failed to read search input; returning to the menu.'
+  config-invalid-id: 'Invalid configured ID: {path} = {value}; keeping the existing fallback behavior. Check the namespace and path.'
+  config-invalid-material: 'Unknown configured material: {path} = {value}; keeping the existing fallback behavior.'
+  config-missing-category: 'Configured CraftEngine category does not exist: {path} = {value}; keeping the configuration. Check the spelling and whether its pack is loaded.'
   search-pack-ready: 'Resource pack translations loaded: {count} keys, {files} language files, path {path}'
   search-pack-failed: 'Failed to read resource pack translations: {path} ({error}); using existing name and ID search. Run /cer reload after generating the pack.'
   search-pack-skipped: 'Skipped an invalid resource pack language file: {error}'

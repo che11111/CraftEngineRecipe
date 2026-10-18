@@ -82,6 +82,11 @@ ui:
     no-usage: <gray>该物品暂无用途</gray>
     dynamic-result: <gray>结果取决于实际投入物品</gray>
 logs:
+  compatibility-fallback: '兼容性处理 {operation} 失败，继续使用原有回退；本次数据版本内相同位置仅记录一次，异常详情如下。'
+  search-input-failed: '读取搜索输入失败，已返回菜单。'
+  config-invalid-id: '配置中的 ID 格式无效：{path} = {value}；保留原有回退处理，请检查命名空间和路径。'
+  config-invalid-material: '配置中的材质未知：{path} = {value}；保留原有回退处理。'
+  config-missing-category: '配置引用的 CraftEngine 分类不存在：{path} = {value}；保留配置，请检查拼写或资源包是否已加载。'
   search-pack-ready: '已读取资源包翻译：{count} 个键，{files} 个语言文件，路径 {path}'
   search-pack-failed: '读取资源包翻译失败：{path}（{error}）；继续使用原有名称与 ID 搜索。生成资源包后可执行 /cer reload。'
   search-pack-skipped: '已跳过资源包中的异常语言文件：{error}'

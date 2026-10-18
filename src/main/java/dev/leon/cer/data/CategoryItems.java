@@ -2,9 +2,7 @@ package dev.leon.cer.data;
 
 import net.momirealms.craftengine.core.plugin.gui.category.Category;
 import net.momirealms.craftengine.core.util.Key;
-import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -21,29 +19,6 @@ public final class CategoryItems {
 
     public static Set<Key> visible(Collection<Category> roots, Map<Key, Category> categories,
                                    Predicate<Category> permitted, Function<Category, Set<String>> hiddenItems) {
-        Set<Key> items = new HashSet<>();
-        Set<Key> visited = new HashSet<>();
-        ArrayDeque<Category> queue = new ArrayDeque<>(roots);
-        while (!queue.isEmpty()) {
-            Category category = queue.remove();
-            if (!visited.add(category.id()) || !permitted.test(category)) continue;
-            if (category.members() == null) continue;
-            Set<String> hidden = hiddenItems.apply(category);
-            for (String member : category.members()) {
-                if (member == null || member.isBlank()) continue;
-                try {
-                    if (member.charAt(0) == '#') {
-                        Category child = categories.get(Key.of(member.substring(1)));
-                        if (child != null) queue.add(child);
-                    } else {
-                        Key item = Key.of(member);
-                        if (!isHidden(hidden, item)) items.add(item);
-                    }
-                } catch (IllegalArgumentException ignored) {
-                    // A malformed member must not make the entire search unusable.
-                }
-            }
-        }
-        return Set.copyOf(items);
+        return CategoryGraph.compile(categories).visible(roots, permitted, hiddenItems);
     }
 }

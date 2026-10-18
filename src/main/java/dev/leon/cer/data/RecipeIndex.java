@@ -3,7 +3,6 @@ package dev.leon.cer.data;
 import dev.leon.cer.CraftEngineRecipePlugin;
 import net.momirealms.craftengine.core.item.recipe.Recipe;
 import net.momirealms.craftengine.core.item.recipe.RecipeType;
-import net.momirealms.craftengine.core.plugin.CraftEngine;
 import net.momirealms.craftengine.core.util.Key;
 
 import java.util.List;
@@ -17,32 +16,15 @@ public final class RecipeIndex {
     }
 
     public List<Recipe> recipesForResult(Key result) {
-        try {
-            List<Recipe> list = CraftEngine.instance().recipeManager().recipeByResult(result);
-            return list == null ? List.of() : list;
-        } catch (Throwable t) {
-            this.plugin.getLogger().warning(this.plugin.lang().text("logs.result-query-failed", "id", result.toString(), "error", t.getMessage()));
-            return List.of();
-        }
+        return this.plugin.data().recipeSnapshot().forResult(result);
     }
 
     public List<Recipe> recipesUsingIngredient(Key ingredient) {
-        try {
-            List<Recipe> list = CraftEngine.instance().recipeManager().recipeByIngredient(ingredient);
-            return list == null ? List.of() : list;
-        } catch (Throwable t) {
-            this.plugin.getLogger().warning(this.plugin.lang().text("logs.usage-query-failed", "id", ingredient.toString(), "error", t.getMessage()));
-            return List.of();
-        }
+        return this.plugin.data().recipeSnapshot().usingIngredient(ingredient);
     }
 
     public List<Recipe> recipesByType(RecipeType type) {
-        try {
-            List<Recipe> list = CraftEngine.instance().recipeManager().recipesByType(type);
-            return list == null ? List.of() : list;
-        } catch (Throwable t) {
-            return List.of();
-        }
+        return this.plugin.data().recipeSnapshot().byType(type);
     }
 
     public static RecipeUiKind uiKindOf(Recipe recipe) {

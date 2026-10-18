@@ -1,6 +1,6 @@
 package dev.leon.cer.util;
 
-import dev.leon.cer.data.CategoryItems;
+import dev.leon.cer.data.CategoryGraph;
 import dev.leon.cer.data.CategoryNamespaces;
 import net.momirealms.craftengine.core.plugin.gui.category.Category;
 import net.momirealms.craftengine.core.util.Key;
@@ -17,6 +17,12 @@ public final class HeldRecipeScope {
 
     public static Set<Key> visibleItems(Collection<Category> topCategories, Map<Key, Category> categories,
                                         Collection<Key> loadedItems, CategoryNamespaces namespaces, Player player) {
+        return visibleItems(topCategories, categories, CategoryGraph.compile(categories), loadedItems, namespaces, player);
+    }
+
+    public static Set<Key> visibleItems(Collection<Category> topCategories, Map<Key, Category> categories,
+                                        CategoryGraph graph, Collection<Key> loadedItems,
+                                        CategoryNamespaces namespaces, Player player) {
         Set<String> applied = new HashSet<>();
         for (CategoryNamespaces.Entry entry : namespaces.entries()) {
             if (entry instanceof CategoryNamespaces.NamespaceEntry namespace) applied.add(namespace.id());
@@ -29,7 +35,7 @@ public final class HeldRecipeScope {
             return Set.copyOf(visible);
         }
         var roots = topCategories.stream().filter(category -> applied.contains(category.id().namespace())).toList();
-        return CategoryItems.visible(roots, categories,
+        return graph.visible(roots,
                 category -> !namespaces.isCategoryHidden(category.id().toString())
                         && namespaces.canView(player, category.id().namespace()),
                 category -> namespaces.hiddenItems(category.id().toString()));
