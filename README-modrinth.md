@@ -96,4 +96,3 @@ The administrator permission is `craftenginerecipe.admin`. OPs have it by defaul
 
 This project is based on nsoer's CEGUI-1.0.0.jar and adds many features. Thank you to nsoer for granting permission to use the code and texture assets.
 
-Thanks to ChatGPT Astra for its help, and especially to DeepSeek, whose outage on October 15 resulted in a CNY 160 credit for me.
