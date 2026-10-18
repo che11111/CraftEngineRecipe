@@ -1,3 +1,5 @@
+.gitignore
+
 # Maven 构建产物（含测试编译结果与报告）
 # Maven build outputs, including test classes/reports
 target/
