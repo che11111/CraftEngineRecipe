@@ -1,0 +1,17 @@
+name: CraftEngineRecipe
+version: '${project.version}'
+main: dev.leon.cer.CraftEngineRecipePlugin
+api-version: '1.21'
+authors: [ nsoer ]
+description: Recipe browser for CraftEngine with categories and search
+depend: [ CraftEngine ]
+folia-supported: true
+commands:
+  cer:
+    description: Open the CraftEngineRecipe recipe browser
+    usage: /cer [search|reload|unapplied]
+    aliases: [ cg, browser ]
+permissions:
+  craftenginerecipe.admin:
+    description: 查看管理分类及执行管理命令 / View admin categories and use /cer unapplied and /cer reload
+    default: op

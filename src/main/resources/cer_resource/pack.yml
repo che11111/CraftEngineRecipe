@@ -1,0 +1,5 @@
+author: nsoer
+version: 1.0
+description: CraftEngineRecipe 插件内置资源包
+namespace: cer
+enable: true

@@ -1,0 +1,136 @@
+# CraftEngineRecipe 语言文件 / Language file
+# 文案支持 MiniMessage；{参数} 是消息占位符，<name>/<count> 等是菜单模板占位符。
+# Text supports MiniMessage; {arguments} are message placeholders, while <name>/<count> are UI template placeholders.
+# 缺少的条目自动使用内置同语言文案，然后回退英文；不会覆盖你的文件。
+# Missing keys use bundled translations for this language, then English; your file is never overwritten.
+prefix: '<aqua>[CraftEngineRecipe]</aqua> '
+messages:
+  no-permission: <red>You do not have permission to do this.</red>
+  player-only: <red>This command can only be used by a player.</red>
+  reload-start: <yellow>Reloading. You will be notified when the indexes are ready.</yellow>
+  reload-success: <green>Configuration, language and data indexes reloaded.</green>
+  reload-failed: <red>Rebuild failed or a newer reload replaced this request. Check the console.</red>
+  data-not-ready: '<yellow>Data is not ready: {reason}</yellow>'
+  not-ready-reason: Data is initializing, rebuilding, or the last rebuild failed. Please wait; if needed, run /cer reload and check the console.
+  category-not-found: '<red>Category not found: {id}</red>'
+command:
+  description: Open the CraftEngineRecipe recipe browser
+ui:
+  browser:
+    title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>Recipe Browser</dark_aqua> <gray>»</gray> <white><category></white>
+  category-bar:
+    icon-name: <white><name></white>
+    icon-lore:
+    - <gray>Click to view this category</gray>
+    - '<dark_gray>Items: <count></dark_gray>'
+    sub-icon-lore:
+    - <gray>Click to open this subcategory</gray>
+    - '<dark_gray>Items: <count></dark_gray>'
+    admin-only-hint: <dark_gray>This category is only visible to administrators</dark_gray>
+    no-permission-hint: <dark_gray>You need <permission> to view this category</dark_gray>
+    prev-category:
+      name: <yellow>◀ Previous category</yellow>
+    next-category:
+      name: <yellow>Next category ▶</yellow>
+  content:
+    prev-page:
+      name: <aqua>◀ Previous page</aqua>
+    next-page:
+      name: <aqua>Next page ▶</aqua>
+    back:
+      name: <red>Back to parent</red>
+    search:
+      name: <gold>Search items</gold>
+      lore:
+      - <gray>Click to search by keyword</gray>
+    item-lore:
+    - <gray>Left-click to view recipes</gray>
+    - <gray>Right-click to view uses</gray>
+    - <gray>No window means no matching recipes</gray>
+    - <gray>Or no recipe in vanilla crafting</gray>
+    empty:
+      name: <red>Nothing here</red>
+  recipe:
+    title: <dark_aqua>Recipe</dark_aqua> <gray>»</gray> <white><name></white>
+    title-crafting: <dark_aqua>Crafting Recipe</dark_aqua>
+    title-smelting: <gold>Smelting Recipe</gold>
+    title-blasting: <gold>Blasting Recipe</gold>
+    title-smoking: <gold>Smoking Recipe</gold>
+    title-campfire: <gold>Campfire Recipe</gold>
+    title-stonecutting: <gray>Stonecutting Recipe</gray>
+    title-smithing: <gray>Smithing Recipe</gray>
+    title-brewing: <light_purple>Brewing Recipe</light_purple>
+    title-none: <red>No recipe</red>
+  search:
+    dialog-title: <gold>Search Items</gold>
+    dialog-label: Enter a keyword
+    dialog-hint: Search by item ID, display name 
+    result-title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>Search Results</dark_aqua> <gray>»</gray> <white><keyword></white>
+    confirm: <green>Search</green>
+    confirm-tooltip: <gray>Find items by keyword</gray>
+    cancel: <red>Cancel</red>
+    cancel-tooltip: <gray>Close the search dialog</gray>
+  common:
+    all-items: All items
+    first-page: <dark_gray>Already on the first page</dark_gray>
+    last-page: <dark_gray>Already on the last page</dark_gray>
+    no-recipe: <gray>This item has no recipes</gray>
+    no-usage: <gray>This item has no uses</gray>
+    dynamic-result: <gray>Result depends on the actual input items</gray>
+logs:
+  player-task-failed: Failed to execute a player menu task
+  folia-op-unsupported: 'Temporary OP actions stop the action chain without execution on Folia; use an explicit console: command or grant the player command permissions.'
+  enabled: CraftEngineRecipe enabled; initializing the data cache...
+  disabled: CraftEngineRecipe disabled.
+  pack-install-failed: 'Failed to prepare the bundled resource pack: {error}'
+  pack-copy-ready: 'Local resource copy ready at {path} ({count} files restored; existing files preserved)'
+  pack-first-installed: 'Resources installed for the first time at {path} ({count} files added); future restarts or reloads will leave CraftEngine resources untouched.'
+  data-ready: 'CraftEngineRecipe data ready: {items} items, {categories} top-level categories, {elapsed} ms total (including time between batches)'
+  data-build-failed: Failed to build CraftEngineRecipe data
+  metrics-ready: 'bStats initialized with built-in service IDs: {ids}'
+  metrics-failed: 'bStats initialization failed; recipe browsing is unaffected: {error}'
+  category-read-failed: 'Failed to read category configuration: {file}'
+  category-save-failed: 'Failed to save category namespace configuration: {error}'
+  unapplied-save-failed: 'Failed to save unapplied namespace configuration: {error}'
+  result-query-failed: 'Failed to query output recipes ({id}): {error}'
+  usage-query-failed: 'Failed to query ingredient uses ({id}): {error}'
+  layout-reserved: 'Layout conflict: a button uses the reserved # character and will not be displayed'
+  layout-conflict: 'Layout conflict: button character {symbol} is used by category/content slots and will not be displayed'
+  language-unknown: Unknown or invalid language {locale}; falling back to zh_CN.
+  language-save-failed: 'Failed to extract language files; using bundled translations: {error}'
+  language-read-failed: 'Failed to read language file {file}; using bundled or fallback translations: {error}'
+headers:
+  categories: 'CraftEngineRecipe 配方分类菜单条目（按顺序显示） / Recipe menu entries (display order)
+
+    命名空间：id + visibility(admin/player/permission) + permission
+
+    Namespace: id + visibility(admin/player/permission) + permission
+
+    可选：icon-name / item-lore / icon-lore / sub-icon-lore
+
+    Optional: icon-name / item-lore / icon-lore / sub-icon-lore
+
+    自定义按钮：display + actions，可与命名空间条目混排
+
+    Custom buttons: display + actions; mix freely with namespace entries
+
+    未配置的命名空间写入 categories-unapplied.yml，用 /cer unapplied 预览
+
+    Unconfigured namespaces go to categories-unapplied.yml; preview with /cer unapplied
+
+    hidden-categories 隐藏分类入口与路径；hidden-items 只隐藏物品 / hidden-categories hides category entries and paths; hidden-items hides only items
+
+    完整示例见 categories-example.yml / See categories-example.yml for examples'
+  unapplied: 'CraftEngineRecipe 未应用命名空间 / Unapplied namespaces
+
+    此文件列出未在 categories.yml 中配置的命名空间
+
+    Lists namespaces not configured in categories.yml
+
+    将需要的条目复制到 categories.yml 的 entries 中，调整可见性后 /cer reload
+
+    Copy desired entries into categories.yml, adjust visibility, then run /cer reload
+
+    已应用的条目在重载后移除，其他条目保留原有属性
+
+    Applied entries are removed on reload; other entries retain their properties'

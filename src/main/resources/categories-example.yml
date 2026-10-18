@@ -1,0 +1,172 @@
+# ============================================================================
+#  CraftEngineRecipe 菜单条目语法示例 / CraftEngineRecipe menu entry examples
+#  本文件仅用于教学，复制所需部分到 plugins/CraftEngineRecipe/categories.yml / Examples only: copy desired entries into plugins/CraftEngineRecipe/categories.yml
+#  的 entries: 列表下即可。删除本文件不影响插件运行。 / under entries:. This example file can be removed safely.
+#
+#  categories.yml 结构（与本示例不同，实际文件为）： / Actual categories.yml structure (unlike this example list):
+#    entries:        # 有序列表，顺序即菜单显示顺序，命名空间与按钮可自由混排 / Ordered list; mix namespaces and buttons in display order
+#    hidden-items:   # 旧版顶层隐藏规则仍兼容 / Legacy top-level hidden rules are still supported
+#  未写进 categories.yml 的命名空间会自动写入 categories-unapplied.yml； / Unconfigured namespaces are written to categories-unapplied.yml.
+#  管理员用 /cer unapplied 预览，正式 /cer 菜单仅显示 categories.yml 的条目。 / Admins preview with /cer unapplied; /cer shows only applied entries.
+#  如需启用某个命名空间，把它从 categories-unapplied.yml 复制到 categories.yml 的 entries 即可。 / To apply a namespace, copy it into entries in categories.yml.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# 一、命名空间条目：控制某个 CraftEngine 包（命名空间）的分类显示 / 1. Namespace entries control category visibility for a CraftEngine pack.
+# ----------------------------------------------------------------------------
+- id: internal
+  # visibility：admin=仅管理员可见 | player=对玩家可见 | permission=按权限 / visibility: admin=admins only | player=everyone | permission=permission required
+  visibility: admin
+  # permission：仅当 visibility 为 permission 时生效（例如 'cer.vip'） / permission: used when visibility is permission (e.g. 'cer.vip')
+  permission: ''
+
+  # 1.0.4 起推荐在命名空间条目下写隐藏规则；使用完整分类和物品 ID。
+  # Since 1.0.4, keep hidden rules under their namespace; use full category and item IDs.
+  hidden-items:
+    - category: internal:tools
+      items:
+        - internal:secret_sword
+
+  # 1.0.5 起支持隐藏分类入口及其浏览/搜索路径；填写完整分类 ID，不支持 '*'。
+  # Since 1.0.5, hide category entries and their browsing/search paths; full category IDs only, no '*'.
+  hidden-categories:
+    - internal:gui
+
+  # 以下四个字段可选：自定义该命名空间下的悬浮提示，不写则用语言文件中的默认值 / Optional text overrides for this namespace; otherwise use language defaults.
+  icon-name: '<white><name></white>'   # 分类图标名字模板（<name> 会被替换为分类名） / Category icon name template; <name> is the category name
+  item-lore:                       # 该命名空间下物品的悬浮提示 / Item lore for this namespace
+  - '<gray>左键查看合成配方</gray>'
+  - '<gray>右键查看用途</gray>'
+  icon-lore:                       # 大分类图标的描述行（<count> 会被替换为物品数） / Top-level category lore; <count> is the direct member count, including subcategory references
+  - '<gray>点击查看此分类</gray>'
+  - '<dark_gray>物品数: <count></dark_gray>'
+  sub-icon-lore:                   # 子分类图标的描述行 / Subcategory icon lore
+  - '<gray>点击进入子分类</gray>'
+  - '<dark_gray>物品数: <count></dark_gray>'
+
+# ----------------------------------------------------------------------------
+# 二、自定义按钮：放在两个命名空间之间，作为分割或跳转入口 / 2. Custom buttons can separate namespaces or open other menus.
+#     display.name / display.lore 支持 & 颜色码（&e &7 &f 等） / display.name / display.lore support & color codes (&e &7 &f etc.)
+#     可选 visibility（admin/player/permission）+ permission，控制按钮对谁可见 / Optional visibility (admin/player/permission) and permission control button access.
+# ----------------------------------------------------------------------------
+
+# 装饰分割用的灰色玻璃板（无任何动作） / Decorative gray glass separator with no actions
+- display:
+    material: minecraft:gray_stained_glass_pane   # minecraft:材质名 / minecraft:material_name
+    name: '&8&m            '
+  actions:
+    all: []
+
+# 打开外部菜单的按钮（农夫乐事） / Button opening an external menu (Farmer's Delight)
+- display:
+    # CraftEngine 物品：source:CraftEngine:命名空间:物品ID / CraftEngine item: source:CraftEngine:namespace:item_id
+    material: source:CraftEngine:farmersdelight:stove
+    name: '&e> 农夫乐事'
+    lore:
+    - '&7------------------------'
+    - ' &f农夫乐事及附属的配方大全'
+    - '&7------------------------'
+  # visibility: player    # 默认 player=所有人可见；admin=仅管理员；permission=按权限 / Default player=everyone; admin=admins only; permission=permission required
+  # permission: 'cer.vip' # visibility 为 permission 时生效 / Used when visibility is permission
+  actions:
+    # 键为点击类型：all / left / right / shift_left / shift_right / middle / Click type keys: all / left / right / shift_left / shift_right / middle
+    # 找不到对应类型时回退到 all / Falls back to all when the click type is not configured
+    all:
+    - 'sound: BLOCK_LEVER_CLICK-1-0'   # 播放声音 / Play a sound
+    - close                            # 关闭菜单 / Close the menu
+    - 'delay: 5'                       # 延时 5 秒后执行后续动作 / Continue remaining actions after 5 seconds
+    - 'command: fd recipe'             # 以玩家身份执行 /fd recipe / Run /fd recipe as the player
+
+# 一个支持左右键不同动作的按钮 / Button with separate left/right click actions
+- display:
+    material: minecraft:chest
+    name: '&a> 示例按钮'
+  actions:
+    left:
+    - 'sound: UI_BUTTON_CLICK-1-2'
+    - 'player: spawn'
+    right:
+    - 'sound: BLOCK_LEVER_CLICK'
+    - 'console: say 右键点击了按钮'
+
+# ----------------------------------------------------------------------------
+# 三、按钮动作（action）速查 / 3. Button action reference
+# ----------------------------------------------------------------------------
+#   sound: 声音-音量-音调        播放声音（音量、音调可省略） / sound: SOUND-VOLUME-PITCH; volume and pitch are optional
+#                                声音支持枚举名 BLOCK_LEVER_CLICK 或 minecraft:block.lever.click / Accepts enum names such as BLOCK_LEVER_CLICK or minecraft:block.lever.click
+#   sound: UI_BUTTON_CLICK-1-2   点击音，音量 1、音调 2 / Click sound, volume 1, pitch 2
+#   1.0.6 起 config.yml 的 sounds.* 同样支持上述参数格式；修改配置后 /cer reload。
+#   Since 1.0.6, config.yml sounds.* accepts the same parameters; run /cer reload after editing.
+#   全局音效统一在 config.yml 的 sounds 下设置；分类条目中仅使用 actions 的 sound:。
+#   Global sounds belong under sounds in config.yml; category entries use sound: inside actions only.
+#   sounds.change-category 控制 prev-category/next-category，默认 UI_BUTTON_CLICK-1-2。
+#   sounds.change-category controls prev-category/next-category, default UI_BUTTON_CLICK-1-2.
+#   sounds.change-page 控制 prev-page/next-page，sounds.back 控制返回，默认均为翻书声。
+#   sounds.change-page controls prev-page/next-page; sounds.back controls returning; both default to page-turn sounds.
+#   sounds.open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2' / sounds.close-menu: 'BLOCK_IRON_DOOR_CLOSE-1-2'
+#   上述为 sounds 下的键路径，值是声音字符串，无 sound: 前缀；'' 禁用，内部切换不触发打开/关闭声。
+#   These are key paths under sounds; values are sound strings without sound:; '' disables; internal navigation plays no entry/exit sounds.
+#   按钮 sound: 后接 close 会额外播放 sounds.close-menu；不需要按钮声音时删除 sound: 动作。
+#   A button sound: followed by close also plays sounds.close-menu; remove the button sound: if unwanted.
+#   close                        关闭当前菜单 / close: close the current menu
+#   delay: 5                     延时 5 秒后执行后续动作（等价 100 个 tick） / delay: 5 = 5 seconds (100 ticks at normal TPS)
+#   delay: 100t                  延时 100 个 tick 后执行后续动作 / delay: 100t = continue remaining actions after 100 ticks
+#   command: <指令>              以玩家身份执行指令 / command: <command> = run as the player
+#   player:  <指令>              以玩家身份执行指令 / player: <command> = run as the player
+#   console: <指令>              以控制台身份执行指令 / console: <command> = run as the console
+#   op:      <指令>              仅 Paper：临时 OP 执行后恢复；Folia 不执行并停止动作链。
+#   op: <command> = Paper only: temporary OP, then restore; on Folia, stop without executing.
+#   Folia 请改用 console: 或授予玩家权限 / On Folia, use console: or grant the player command permissions.
+
+# ----------------------------------------------------------------------------
+# 四、隐藏分类物品：推荐放在对应命名空间条目下（1.0.4+）
+# 4. Hide category items under their namespace entry (recommended, 1.0.4+)
+# ----------------------------------------------------------------------------
+# entries:
+#   - id: farmersdelight
+#     visibility: player
+#     permission: ''
+#     hidden-items:
+#       - category: farmersdelight:gui
+#         items:
+#           - '*'
+#       - category: farmersdelight:item_display
+#         items:
+#           - '*'
+#
+# 单独的 '*' 隐藏指定分类的全部直接物品；必须加引号，不支持 namespace:*。
+# Standalone '*' hides all direct items in that category; quote it. namespace:* is unsupported.
+# 若只隐藏个别物品，将 '*' 换为完整物品 ID，例如 farmersdelight:recipe_book。
+# To hide individual items, replace '*' with full item IDs, e.g. farmersdelight:recipe_book.
+# 分类图标、子分类和其他分类路径不受影响；浏览和搜索均执行隐藏规则。
+# Category icons, child categories and other category paths remain; rules apply to browsing/search.
+# CraftEngine 的 hidden: true 不阻止父分类通过 #分类ID 引用子分类。
+# CraftEngine hidden: true does not block a child referenced via #category_id by a parent.
+#
+# 旧版兼容：仍可将 hidden-items 与 entries 放在同一层（顶层 '*' 需 1.0.3+）。
+# Legacy: hidden-items may still sit alongside entries (top-level '*' requires 1.0.3+).
+# 两处规则取并集；迁移时建议移除旧位置的重复条目。
+# Both locations are merged; remove duplicate legacy entries when migrating.
+# hidden-items:
+#   - category: internal:tools
+#     items:
+#       - internal:secret_sword
+
+# 五、同时隐藏 GUI / 展示模型的分类入口和物品（1.0.5+）
+# 5. Hide both GUI / display-model category entries and their items (1.0.5+)
+# entries:
+#   - id: farmersdelight
+#     visibility: player
+#     permission: ''
+#     hidden-categories:
+#       - farmersdelight:gui
+#       - farmersdelight:item_display
+#
+# 上述写法可替代这两个分类原有的 hidden-items 星号规则；其他分类保留。
+# Replaces wildcard hidden-items rules for these two categories; other categories remain.
+# hidden-categories 必须放在命名空间条目下，不支持顶层配置和星号。
+# hidden-categories belongs under the namespace entry; no top-level setting or wildcard support.
+# 同时作用于顶层分类栏、父分类中的子分类按钮与搜索范围；管理员同样受影响。
+# Applies to top-level bars, child-category buttons and search paths, including for admins.
+# 跳过隐藏分类的全部下级路径；同一物品或子分类经其他可见路径仍可访问。
+# Skips descendants through hidden paths; other visible item/category paths still work.

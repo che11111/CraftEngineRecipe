@@ -1,0 +1,136 @@
+# CraftEngineRecipe 语言文件 / Language file
+# 文案支持 MiniMessage；{参数} 是消息占位符，<name>/<count> 等是菜单模板占位符。
+# Text supports MiniMessage; {arguments} are message placeholders, while <name>/<count> are UI template placeholders.
+# 缺少的条目自动使用内置同语言文案，然后回退英文；不会覆盖你的文件。
+# Missing keys use bundled translations for this language, then English; your file is never overwritten.
+prefix: '<aqua>[CraftEngineRecipe]</aqua> '
+messages:
+  no-permission: <red>你没有权限执行此操作。</red>
+  player-only: <red>该指令只能由玩家执行。</red>
+  reload-start: <yellow>正在重载，索引构建完成后会通知你。</yellow>
+  reload-success: <green>配置、语言与数据索引已重载完成。</green>
+  reload-failed: <red>构建失败或请求被新的重载替代，请查看控制台。</red>
+  data-not-ready: <yellow>数据尚未就绪：{reason}</yellow>
+  not-ready-reason: 数据正在初始化、重建或上次构建失败，请稍候；仍未就绪时执行 /cer reload 并检查控制台
+  category-not-found: <red>分类不存在：{id}</red>
+command:
+  description: 打开 CraftEngineRecipe 配方浏览器
+ui:
+  browser:
+    title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>配方浏览器</dark_aqua> <gray>»</gray> <white><category></white>
+  category-bar:
+    icon-name: <white><name></white>
+    icon-lore:
+    - <gray>点击查看此分类</gray>
+    - '<dark_gray>物品数: <count></dark_gray>'
+    sub-icon-lore:
+    - <gray>点击进入子分类</gray>
+    - '<dark_gray>物品数: <count></dark_gray>'
+    admin-only-hint: <dark_gray>此分类配方仅管理员可见</dark_gray>
+    no-permission-hint: <dark_gray>无权限查看此分类配方（需要权限 <permission>）</dark_gray>
+    prev-category:
+      name: <yellow>◀ 上一个</yellow>
+    next-category:
+      name: <yellow>下一个 ▶</yellow>
+  content:
+    prev-page:
+      name: <aqua>◀ 上一页</aqua>
+    next-page:
+      name: <aqua>下一页 ▶</aqua>
+    back:
+      name: <red>返回上级</red>
+    search:
+      name: <gold>搜索物品</gold>
+      lore:
+      - <gray>点击输入关键字搜索</gray>
+    item-lore:
+    - <gray>左键查看合成配方</gray>
+    - <gray>右键查看用途</gray>
+    - <gray>无法打开则代表无</gray>
+    - <gray>或是在原版合成器中无配方</gray>
+    empty:
+      name: <red>空空如也</red>
+  recipe:
+    title: <dark_aqua>配方</dark_aqua> <gray>»</gray> <white><name></white>
+    title-crafting: <dark_aqua>工作台配方</dark_aqua>
+    title-smelting: <gold>熔炼配方</gold>
+    title-blasting: <gold>高炉配方</gold>
+    title-smoking: <gold>烟熏配方</gold>
+    title-campfire: <gold>营火配方</gold>
+    title-stonecutting: <gray>切石配方</gray>
+    title-smithing: <gray>锻造配方</gray>
+    title-brewing: <light_purple>酿造配方</light_purple>
+    title-none: <red>无配方</red>
+  search:
+    dialog-title: <gold>搜索物品</gold>
+    dialog-label: 请输入关键字
+    dialog-hint: 支持物品 ID、显示名与拼音（如 茄子 / qie / zi / qiez / qz）
+    result-title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>搜索结果</dark_aqua> <gray>»</gray> <white><keyword></white>
+    confirm: <green>搜索</green>
+    confirm-tooltip: <gray>按关键字查找物品</gray>
+    cancel: <red>取消</red>
+    cancel-tooltip: <gray>关闭搜索</gray>
+  common:
+    all-items: 全部物品
+    first-page: <dark_gray>已是第一页</dark_gray>
+    last-page: <dark_gray>已是最后一页</dark_gray>
+    no-recipe: <gray>该物品暂无配方</gray>
+    no-usage: <gray>该物品暂无用途</gray>
+    dynamic-result: <gray>结果取决于实际投入物品</gray>
+logs:
+  player-task-failed: 玩家菜单任务执行失败
+  folia-op-unsupported: 'Folia 不执行临时 OP 动作并停止动作链；请改用明确的 console: 命令，或给玩家授予命令权限。'
+  enabled: CraftEngineRecipe 已启用，正在初始化数据缓存…
+  disabled: CraftEngineRecipe 已卸载。
+  pack-install-failed: 准备内置资源包失败：{error}
+  pack-copy-ready: 资源副本已就绪：{path}（本次补齐 {count} 个文件，保留已有文件）
+  pack-first-installed: 已首次安装资源到 {path}（新增 {count} 个文件）；以后重启或重载不再修改 CraftEngine 资源目录。
+  data-ready: CraftEngineRecipe 数据就绪：物品 {items} 个，顶层分类 {categories} 个，总耗时 {elapsed} ms（含分帧等待）
+  data-build-failed: 构建 CraftEngineRecipe 数据失败
+  metrics-ready: bStats 已初始化，使用内置服务 ID：{ids}
+  metrics-failed: bStats 初始化失败，不影响配方浏览：{error}
+  category-read-failed: 读取分类配置失败：{file}
+  category-save-failed: 保存分类命名空间数据文件失败：{error}
+  unapplied-save-failed: 保存未应用命名空间数据文件失败：{error}
+  result-query-failed: 查询产出配方失败（{id}）：{error}
+  usage-query-failed: 查询用途配方失败（{id}）：{error}
+  layout-reserved: 'layout 字符冲突：按钮使用了保留字符 #，该按钮不会显示'
+  layout-conflict: layout 字符冲突：按钮字符 {symbol} 已被分类槽或内容区占用，该按钮不会显示
+  language-unknown: 未知或无效语言 {locale}，回退到 zh_CN。
+  language-save-failed: 释放语言文件失败，继续使用内置文案：{error}
+  language-read-failed: 读取语言文件 {file} 失败，使用内置或回退文案：{error}
+headers:
+  categories: 'CraftEngineRecipe 配方分类菜单条目（按顺序显示） / Recipe menu entries (display order)
+
+    命名空间：id + visibility(admin/player/permission) + permission
+
+    Namespace: id + visibility(admin/player/permission) + permission
+
+    可选：icon-name / item-lore / icon-lore / sub-icon-lore
+
+    Optional: icon-name / item-lore / icon-lore / sub-icon-lore
+
+    自定义按钮：display + actions，可与命名空间条目混排
+
+    Custom buttons: display + actions; mix freely with namespace entries
+
+    未配置的命名空间写入 categories-unapplied.yml，用 /cer unapplied 预览
+
+    Unconfigured namespaces go to categories-unapplied.yml; preview with /cer unapplied
+
+    hidden-categories 隐藏分类入口与路径；hidden-items 只隐藏物品 / hidden-categories hides category entries and paths; hidden-items hides only items
+
+    完整示例见 categories-example.yml / See categories-example.yml for examples'
+  unapplied: 'CraftEngineRecipe 未应用命名空间 / Unapplied namespaces
+
+    此文件列出未在 categories.yml 中配置的命名空间
+
+    Lists namespaces not configured in categories.yml
+
+    将需要的条目复制到 categories.yml 的 entries 中，调整可见性后 /cer reload
+
+    Copy desired entries into categories.yml, adjust visibility, then run /cer reload
+
+    已应用的条目在重载后移除，其他条目保留原有属性
+
+    Applied entries are removed on reload; other entries retain their properties'

@@ -1,0 +1,152 @@
+# CraftEngineRecipe - 基于 CraftEngine 的配方浏览器
+# CraftEngineRecipe - Recipe browser for CraftEngine
+
+# 全服使用的语言；内置 zh_CN（简体中文）与 en_US（英语）。
+# Server-wide language; bundled options: zh_CN (Simplified Chinese), en_US (English).
+language: zh_CN
+# 标题、按钮名称和 lore 在 lang/<语言>.yml 的 ui 下修改；此文件控制行为、布局、材质和音效。
+# Edit titles, button names and lore under ui in lang/<language>.yml; this file controls behavior, layout, materials and sounds.
+# 旧版 config 的自定义文案优先于 lang；与内置文案相同的旧默认值随语言切换。
+# Custom legacy text overrides lang; old values matching bundled text follow the selected language.
+# 建议将自定义文案迁移到 lang 后删除旧文案字段。
+# Move custom text to lang, then remove the legacy text fields when ready.
+
+# 资源首次自动安装到 CraftEngine；之后仅在启动或 /cer reload 时补齐本插件 cer_resource 副本。
+# Resources install into CraftEngine once; startup or /cer reload then only restores missing files in this plugin's cer_resource copy.
+# 保留 resource-pack-installed.marker，修改 CraftEngine 资源目录名不会触发重复安装。
+# Keep resource-pack-installed.marker; renaming the CraftEngine pack directory will not trigger reinstallation.
+
+# ---------- 主界面 / Main browser ----------
+browser:
+  # 6 行、每行 9 格；C=分类，X=内容，#=保留空槽；按钮字符见下面配置。
+  # Six rows of nine slots: C=categories, X=content, #=reserved empty slot; see button chars below.
+  # 按钮位置仅由此布局决定；空格忽略，未知字符变为空槽，短行补齐、长行截断。
+  # This layout alone defines button positions; spaces are ignored, unknown symbols become empty, short rows are padded and long rows truncated.
+  # 不足 6 行补空行，多余行忽略 / Missing rows are empty; rows beyond six are ignored.
+  # 每个按钮使用不同的单字符；设 char: '' 可禁用按钮，并将布局中对应字符改为 #。
+  # Use a distinct single character per button; set char: '' to disable it and replace its layout symbol with #.
+  layout:
+    - "<CCCCCCC>"
+    - "XXXXXXXXX"
+    - "XXXXXXXXX"
+    - "XXXXXXXXX"
+    - "XXXXXXXXX"
+    - "B#L#S#R##"
+
+# ---------- 分类栏 / Category bar ----------
+category-bar:
+  # ce=跟随 CraftEngine 顶层分类；custom=使用 list 中的完整分类 ID。
+  # ce=follow CraftEngine top-level categories; custom=use the full category IDs in list.
+  source: ce
+  # custom 模式的完整分类 ID 列表；命名空间仍需应用到 categories.yml。
+  # Full category IDs for custom mode; their namespaces must also be applied in categories.yml.
+  list: []
+  # 分类槽对应的布局字符，不要与内容区、按钮或 # 重复。
+  # Layout character for category slots; must differ from content, buttons and #.
+  icon-char: C
+  # 分类栏向左/向右滚动按钮：char=布局字符，item-model=模型，material=基础材质。
+  # Category scroll buttons: char=layout symbol, item-model=model, material=base material.
+  prev-category:
+    char: "<"
+    item-model: cer:prev
+    material: minecraft:arrow
+  next-category:
+    char: ">"
+    item-model: cer:next
+    material: minecraft:arrow
+
+# ---------- 内容区 / Content area ----------
+content:
+  # 物品/子分类槽的布局字符。
+  # Layout character for item/subcategory slots.
+  area-char: X
+  # 内容分页按钮；到头时使用空白模型 cer:blank_items。
+  # Content paging buttons; use cer:blank_items when no further page is available.
+  prev-page:
+    char: L
+    item-model: cer:prev
+    material: minecraft:spectral_arrow
+  next-page:
+    char: R
+    item-model: cer:next
+    material: minecraft:spectral_arrow
+  # 返回上级按钮。
+  # Back to parent category button.
+  back:
+    char: B
+    item-model: cer:back
+    material: minecraft:barrier
+  # 打开搜索对话框的按钮。
+  # Open the search dialog.
+  search:
+    char: S
+    item-model: cer:blank_items
+    material: minecraft:compass
+  # 无结果时的图标材质；显示名来自语言文件。
+  # Empty-result icon material; its display name comes from the language file.
+  # 图标固定使用此材质；item-model/char 对 empty 不适用。
+  # This icon uses this material; item-model/char do not apply to empty.
+  empty:
+    material: minecraft:barrier
+
+# ---------- 配方页 / Recipe windows ----------
+recipe:
+  # 多配方轮播间隔，范围 5～200 tick；正常 TPS 下 20 tick=1 秒。
+  # Rotation interval for multiple recipes, 5-200 ticks; 20 ticks=1 second at normal TPS.
+  rotate-interval: 30
+  # 使用原生配方窗口，点击窗口外返回；物品左键查看配方、右键查看用途。
+  # Native recipe windows: click outside to return; left-click items for recipes, right-click for uses.
+
+# ---------- 搜索 / Search ----------
+search:
+  # 输入长度上限，范围 1～64。
+  # Maximum input length, 1-64 characters.
+  max-length: 32
+  # 结果数量上限，范围 1～1000；物品多时建议保留默认值。
+  # Maximum results, 1-1000; keep the default for large item collections.
+  max-results: 200
+
+# ---------- 音效 / Sounds ----------
+# 支持 Bukkit 名称或 minecraft:声音键；可追加 -音量-音调；空字符串关闭音效。
+# Accepts Bukkit names or minecraft:sound keys, optionally followed by -volume-pitch; empty disables.
+# 示例 / Example: click: 'UI_BUTTON_CLICK-1-2' 或 / or 'minecraft:ui.button.click-1-2'
+# 不写参数时音量 0.7、音调 1；自定义按钮的 sound: 动作支持相同格式，默认音量 1。
+# Without parameters: volume 0.7, pitch 1; button sound: actions use the same format with default volume 1.
+sounds:
+  # 分类栏 prev-category / next-category；成功滚动一次播放一次，边界静音。
+  # Category-bar prev-category / next-category; once per successful move, silent at boundaries.
+  change-category: 'UI_BUTTON_CLICK-1-2'
+  # 物品区 prev-page / next-page；成功翻页一次播放一次，边界静音。
+  # Content prev-page / next-page; once per successful page change, silent at boundaries.
+  change-page: minecraft:item.book.page_turn
+  # 分类、子分类和可查看配方的物品点击 / Category, subcategory and recipe item clicks.
+  click: minecraft:ui.button.click
+  # back：返回上级分类或从配方返回 / back: returning to a parent category or from a recipe.
+  back: minecraft:item.book.page_turn
+  # 显示搜索对话框时播放一次 / Played once when showing the search dialog.
+  search: minecraft:ui.toast.in
+  # /cer、Shift+F、/cer unapplied 主动打开菜单时播放一次。
+  # Played once when entering via /cer, Shift+F or /cer unapplied.
+  open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2'
+  # 离开浏览/配方菜单时播放一次；内部翻页/分类切换/配方轮播不触发打开或关闭音效。
+  # Played once on leaving browser/recipe menus; internal paging/category changes/recipe rotation do not play entry/exit sounds.
+  close-menu: 'BLOCK_IRON_DOOR_CLOSE-1-2'
+# 所有 sounds.* 均为声音字符串，无需 sound: 前缀；设为 '' 禁用。重载、停用和断线静音。
+# All sounds.* are plain sound strings without a sound: prefix; use '' to disable. Reload, disable and disconnect are silent.
+# 兼容旧顶层 Open/Close 列表与 sounds.open；显式 open-menu/close-menu 优先，不叠加。
+# Legacy top-level Open/Close lists and sounds.open are supported; explicit open-menu/close-menu take precedence without combining sounds.
+
+# ---------- 快捷键 / Hotkey ----------
+hotkey:
+  # 是否启用交换副手键打开菜单，默认 Shift+F；无需额外权限。
+  # Enable opening with the swap-hands key (Shift+F by default); no extra permission required.
+  enabled: true
+  # 是否必须潜行；设为 false 会占用普通交换副手操作。
+  # Require sneaking; false also intercepts normal swap-hands actions.
+  require-sneak: true
+
+# ---------- bStats 统计 / Anonymous bStats metrics ----------
+bstats:
+  # 同时启用/关闭本插件与原作者的两份统计；ID 固定在源码中。
+  # Enable/disable both this plugin's and the original author's metrics; IDs are fixed in source.
+  enabled: true
