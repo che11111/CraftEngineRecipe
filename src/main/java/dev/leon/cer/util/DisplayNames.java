@@ -13,6 +13,7 @@ import net.momirealms.craftengine.libraries.adventure.text.TranslatableComponent
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Map;
 
 public final class DisplayNames {
 
@@ -23,21 +24,36 @@ public final class DisplayNames {
     }
 
     public static String of(ItemDefinition definition) {
+        return of(definition, Map.of());
+    }
+
+    public static String of(ItemDefinition definition, Map<String, String> translations) {
         if (definition == null) {
             return null;
         }
-        String custom = findProcessor(definition, true);
+        String custom = findProcessor(definition, true, translations);
         if (notBlank(custom)) {
             return custom;
         }
-        String itemName = findProcessor(definition, false);
+        String itemName = findProcessor(definition, false, translations);
         if (notBlank(itemName)) {
             return itemName;
         }
-        return null;
+        String key = translationKeyOf(definition);
+        return key == null ? null : translations.get(key);
     }
 
-    private static String findProcessor(ItemDefinition definition, boolean custom) {
+    public static String translationKeyOf(ItemDefinition definition) {
+        if (definition == null) return null;
+        try {
+            String key = definition.translationKey();
+            return notBlank(key) ? key : null;
+        } catch (RuntimeException | LinkageError ignored) {
+            return null;
+        }
+    }
+
+    private static String findProcessor(ItemDefinition definition, boolean custom, Map<String, String> translations) {
         ItemProcessor[] processors;
         try {
             processors = definition.processors();
@@ -52,11 +68,11 @@ public final class DisplayNames {
                 if (custom) {
                     if (!(processor instanceof CustomNameProcessor)) continue;
                     CustomNameProcessor cnp = (CustomNameProcessor) processor;
-                    return strip(cnp.customName());
+                    return strip(cnp.customName(), translations);
                 }
                 if (!(processor instanceof ItemNameProcessor)) continue;
                 ItemNameProcessor inp = (ItemNameProcessor) processor;
-                return strip(inp.itemName());
+                return strip(inp.itemName(), translations);
             } catch (Throwable ignored) {
             }
         }
@@ -64,6 +80,10 @@ public final class DisplayNames {
     }
 
     public static String of(Category category) {
+        return of(category, Map.of());
+    }
+
+    public static String of(Category category, Map<String, String> translations) {
         if (category == null) {
             return null;
         }
@@ -73,7 +93,7 @@ public final class DisplayNames {
         } catch (Throwable ignored) {
             return null;
         }
-        String plain = strip(raw);
+        String plain = strip(raw, translations);
         if (notBlank(plain)) {
             return plain;
         }
@@ -84,14 +104,14 @@ public final class DisplayNames {
         }
     }
 
-    private static String strip(String miniMessage) {
+    private static String strip(String miniMessage, Map<String, String> translations) {
         if (miniMessage == null || miniMessage.isBlank()) {
             return null;
         }
-        String expanded = expandL10n(miniMessage);
+        String expanded = expandL10n(miniMessage, translations);
         String text = null;
         try {
-            text = plain(AdventureHelper.miniMessage().deserialize(expanded), 0);
+            text = plain(AdventureHelper.miniMessage().deserialize(expanded), translations, 0);
         } catch (Throwable ignored) {
         }
         if (text == null || text.isBlank() || TAG.matcher(text).find()) {
@@ -101,6 +121,10 @@ public final class DisplayNames {
     }
 
     public static String expandL10n(String raw) {
+        return expandL10n(raw, Map.of());
+    }
+
+    private static String expandL10n(String raw, Map<String, String> translations) {
         if (raw == null || raw.indexOf("<l10n:") < 0) {
             return raw;
         }
@@ -112,9 +136,9 @@ public final class DisplayNames {
             String key = m.group(1);
             try {
                 String text = TranslationManager.instance().miniMessageTranslation(key);
-                sb.append(text == null ? key : text);
+                sb.append(text == null || text.equals(key) ? translations.getOrDefault(key, key) : text);
             } catch (Throwable ignored) {
-                sb.append(key);
+                sb.append(translations.getOrDefault(key, key));
             }
             last = m.end();
         }
@@ -122,7 +146,7 @@ public final class DisplayNames {
         return sb.toString();
     }
 
-    private static String plain(Component component, int depth) {
+    static String plain(Component component, Map<String, String> translations, int depth) {
         if (component == null || depth > 8) {
             return "";
         }
@@ -132,14 +156,21 @@ public final class DisplayNames {
             sb.append(text.content());
         } else if (component instanceof TranslatableComponent) {
             TranslatableComponent translatable = (TranslatableComponent) component;
-            try {
-                sb.append(plain(TranslationManager.instance().render(translatable), depth + 1));
-            } catch (Throwable ignored) {
-                sb.append(translatable.key());
+            String translated = translations.get(translatable.key());
+            if (notBlank(translated)) {
+                sb.append(translated);
+            } else {
+                String rendered = null;
+                try {
+                    Component resolved = TranslationManager.instance().render(translatable);
+                    if (!resolved.equals(translatable)) rendered = plain(resolved, translations, depth + 1);
+                } catch (Throwable ignored) {
+                }
+                sb.append(notBlank(rendered) ? rendered : translatable.key());
             }
         }
         for (Component child : component.children()) {
-            sb.append(plain(child, depth + 1));
+            sb.append(plain(child, translations, depth + 1));
         }
         return sb.toString();
     }

@@ -8,14 +8,14 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Minecraft-26.2+-3fb950" alt="Minecraft Java Edition">
-  <a href="WIKI.md#环境要求"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 编译 API，运行要求见 Wiki"></a>
+  <a href="WIKI-zh.md#环境要求"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 编译 API，运行要求见 Wiki"></a>
   <img src="https://img.shields.io/badge/Java-25-orange" alt="Java 25">
   <img src="https://img.shields.io/badge/Paper-supported-blue" alt="Paper supported">
-  <a href="WIKI.md#folia-适配"><img src="https://img.shields.io/badge/Folia-experimental-blueviolet" alt="Folia 实验性支持，验证范围见 Wiki"></a>
+  <a href="WIKI-zh.md#folia-适配"><img src="https://img.shields.io/badge/Folia-experimental-blueviolet" alt="Folia 实验性支持，验证范围见 Wiki"></a>
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> · <a href="WIKI-zh.md">使用 Wiki</a> · <a href="#快速上手">快速上手</a> · <a href="WIKI.md#常用调整与故障排查">常见问题</a>
+  <a href="README.md">English</a> · <a href="WIKI-zh.md">使用 Wiki</a> · <a href="#快速上手">快速上手</a> · <a href="WIKI-zh.md#常用调整与故障排查">常见问题</a>
 </p>
 
 ## 使用演示
@@ -32,7 +32,8 @@
 - 分类浏览与分页，左键查看其配方、右键查看可参与配方。
 - 自定义分类顺序、可见权限、隐藏规则，自定义菜单按钮。
 - 设置自定义按钮，执行任意指令，以前往其他页面。
-- 按物品 ID、名称、中文拼音或首字母搜索。
+- 按物品 ID、名称、翻译键、中文拼音或首字母搜索，支持读取资源包语言文件补全名称。
+- 使用 `/cer hand` 查看主手物品的合成来源配方。
 - 中英文语言文件，可调整菜单布局、提示文字与音效。
 - `Shift+F`快捷键，快速打开配方菜单，可设置启用与否。
 
@@ -45,7 +46,7 @@ Java **25**、**Paper / Folia**、**CraftEngine**
 
 1. 安装 CraftEngine 并加载物品、分类和配方，将本插件 JAR 放入 `plugins/` 后启动服务器。
 
-2. 首次运行时，插件会自动将背景与按钮资源安装到 `plugins/CraftEngine/resources/cer_resource/`，（无需手动复制，后续重启或重载不会再次安装）。再通过 CraftEngine 生成并分发资源包（如 `/ce reload all`，以所用版本为准），让客户端接受资源包。详见 [资源包说明](WIKI.md#资源包的应用)。
+2. 首次运行时，插件会自动将背景与按钮资源安装到 `plugins/CraftEngine/resources/cer_resource/`，（无需手动复制，后续重启或重载不会再次安装）。再通过 CraftEngine 生成并分发资源包（如 `/ce reload all`，以所用版本为准），让客户端接受资源包。详见 [资源包说明](WIKI-zh.md#资源包的应用)。
 
 3. 等待数据就绪，管理员执行 `/cer unapplied` 预览待应用分类。
 
@@ -63,7 +64,7 @@ Java **25**、**Paper / Folia**、**CraftEngine**
 5. 执行 `/cer reload`，完成后用 `/cer` 或 Shift+F 打开菜单。左键物品查看配方，右键查看可参与配方。
 
 
-首次正式菜单为空时，请先完成分类应用。详细操作见 [使用 Wiki](WIKI.md)。
+首次正式菜单为空时，请先完成分类应用。详细操作见 [使用 Wiki](WIKI-zh.md)。
 
 ## 常用命令
 
@@ -71,6 +72,7 @@ Java **25**、**Paper / Folia**、**CraftEngine**
 | --- | --- |
 | `/cer` | 打开正式菜单，别名 `/cg`、`/browser`、`Shift+F` |
 | `/cer search` | 搜索物品 |
+| `/cer hand` | 查看主手物品的 CraftEngine 产出配方，遵循正式分类可见范围 |
 | `/cer unapplied` | 预览待应用分类（管理员） |
 | `/cer reload` | 重载配置与索引（管理员） |
 
@@ -80,7 +82,7 @@ Java **25**、**Paper / Folia**、**CraftEngine**
 
 ## 配置文档
 
-[分类与权限](WIKI.md#分类权限与隐藏规则) · [隐藏物品](WIKI.md#隐藏某个分类中的物品) · [隐藏分类按钮](WIKI.md#同时隐藏分类入口和分类中的物品) · [自定义按钮](WIKI.md#自定义按钮) · [音效](WIKI.md#菜单音效) · [排障](WIKI.md#常用调整与故障排查) 
+[分类与权限](WIKI-zh.md#分类权限与隐藏规则) · [隐藏物品](WIKI-zh.md#隐藏某个分类中的物品) · [隐藏分类按钮](WIKI-zh.md#同时隐藏分类入口和分类中的物品) · [自定义按钮](WIKI-zh.md#自定义按钮) · [音效](WIKI-zh.md#菜单音效) · [排障](WIKI-zh.md#常用调整与故障排查) 
 
 ## 鸣谢
 

@@ -13,6 +13,10 @@ messages:
   data-not-ready: '<yellow>Data is not ready: {reason}</yellow>'
   not-ready-reason: Data is initializing, rebuilding, or the last rebuild failed. Please wait; if needed, run /cer reload and check the console.
   category-not-found: '<red>Category not found: {id}</red>'
+  hand-empty: <yellow>Hold the item in your main hand to look up how to craft it.</yellow>
+  hand-item-unavailable: <red>Your main-hand item is not available in the applied menu, or is restricted by permissions or hiding rules.</red>
+  hand-no-recipe: <yellow>No recipe producing {id} was found; only recipes available through CraftEngine are queried.</yellow>
+  hand-resolve-failed: <red>Could not identify your main-hand item. Check the console.</red>
 command:
   description: Open the CraftEngineRecipe recipe browser
 ui:
@@ -78,6 +82,10 @@ ui:
     no-usage: <gray>This item has no uses</gray>
     dynamic-result: <gray>Result depends on the actual input items</gray>
 logs:
+  search-pack-ready: 'Resource pack translations loaded: {count} keys, {files} language files, path {path}'
+  search-pack-failed: 'Failed to read resource pack translations: {path} ({error}); using existing name and ID search. Run /cer reload after generating the pack.'
+  search-pack-skipped: 'Skipped an invalid resource pack language file: {error}'
+  hand-resolve-failed: 'Failed to identify the main-hand item: {error}'
   player-task-failed: Failed to execute a player menu task
   folia-op-unsupported: 'Temporary OP actions stop the action chain without execution on Folia; use an explicit console: command or grant the player command permissions.'
   enabled: CraftEngineRecipe enabled; initializing the data cache...

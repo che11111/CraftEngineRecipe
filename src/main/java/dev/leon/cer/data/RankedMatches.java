@@ -7,11 +7,11 @@ import java.util.List;
 
 final class RankedMatches {
     private final int limit;
-    private final List<List<Key>> ranks = new ArrayList<>(6);
+    private final List<List<Key>> ranks = new ArrayList<>(7);
 
     RankedMatches(int limit) {
         this.limit = Math.max(0, limit);
-        for (int i = 0; i < 6; i++) this.ranks.add(new ArrayList<>());
+        for (int i = 0; i < 7; i++) this.ranks.add(new ArrayList<>());
     }
 
     void add(int rank, Key id) {

@@ -2,6 +2,7 @@ package dev.leon.cer.config;
 
 import dev.leon.cer.CraftEngineRecipePlugin;
 import dev.leon.cer.i18n.LanguageManager;
+import dev.leon.cer.util.ResourcePackTranslations;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -55,6 +56,7 @@ public final class CerConfig {
     private String searchResultTitle;
     private int searchMaxLength;
     private int searchMaxResults;
+    private List<String> searchLanguages;
     private SoundSettings sounds;
     private boolean hotkeyEnabled;
     private boolean hotkeyRequireSneak;
@@ -112,6 +114,7 @@ public final class CerConfig {
         this.searchResultTitle = lang.uiText(c, "search.result-title");
         this.searchMaxLength = clamp(c.getInt("search.max-length", 32), 1, 64);
         this.searchMaxResults = clamp(c.getInt("search.max-results", 200), 1, 1000);
+        this.searchLanguages = ResourcePackTranslations.normalizeLanguages(c.getStringList("search.languages"));
 
         this.sounds = SoundSettings.load(c);
 
@@ -292,6 +295,10 @@ public final class CerConfig {
 
     public int searchMaxResults() {
         return this.searchMaxResults;
+    }
+
+    public List<String> searchLanguages() {
+        return this.searchLanguages;
     }
 
     public SoundSettings sounds() {

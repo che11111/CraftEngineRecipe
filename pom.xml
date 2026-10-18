@@ -6,7 +6,7 @@
 
     <groupId>dev.leon</groupId>
     <artifactId>craftenginerecipe</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <packaging>jar</packaging>
     <name>CraftEngineRecipe</name>
     <description>基于 CraftEngine 物品的高级配方浏览器（常驻分类栏 + 搜索）</description>

@@ -72,6 +72,10 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             this.plugin.searchDialog().open(player);
             return true;
         }
+        if (args.length > 0 && args[0].equalsIgnoreCase("hand")) {
+            this.plugin.browser().openHeldRecipe(player);
+            return true;
+        }
         this.plugin.browser().openApplied(player);
         return true;
     }
@@ -83,6 +87,9 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             List<String> out = new ArrayList<>();
             if ("search".startsWith(prefix)) {
                 out.add("search");
+            }
+            if ("hand".startsWith(prefix)) {
+                out.add("hand");
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "reload".startsWith(prefix)) {
                 out.add("reload");

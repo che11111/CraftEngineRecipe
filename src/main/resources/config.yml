@@ -105,6 +105,13 @@ search:
   # 结果数量上限，范围 1～1000；物品多时建议保留默认值。
   # Maximum results, 1-1000; keep the default for large item collections.
   max-results: 200
+  # 从 CraftEngine 生成的资源包读取物品翻译；靠前的语言优先，后面的语言补齐缺失键。
+  # Read item translations from CraftEngine's generated pack; earlier locales win, later ones fill missing keys.
+  # 与顶部 language（插件界面语言）无关；生成资源包后执行 /cer reload 刷新搜索索引。
+  # Independent of the UI language above; run /cer reload after generating the pack to refresh search indexes.
+  languages:
+    - zh_cn
+    - en_us
 
 # ---------- 音效 / Sounds ----------
 # 支持 Bukkit 名称或 minecraft:声音键；可追加 -音量-音调；空字符串关闭音效。

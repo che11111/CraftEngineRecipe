@@ -9,7 +9,7 @@ folia-supported: true
 commands:
   cer:
     description: Open the CraftEngineRecipe recipe browser
-    usage: /cer [search|reload|unapplied]
+    usage: /cer [search|hand|reload|unapplied]
     aliases: [ cg, browser ]
 permissions:
   craftenginerecipe.admin:

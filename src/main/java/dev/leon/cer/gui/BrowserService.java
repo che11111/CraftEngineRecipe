@@ -8,9 +8,11 @@ import dev.leon.cer.data.CraftEngineData;
 import dev.leon.cer.data.RecipeIndex;
 import dev.leon.cer.util.ButtonActions;
 import dev.leon.cer.util.DisplayNames;
+import dev.leon.cer.util.HeldRecipeScope;
 import dev.leon.cer.util.ItemBridge;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.core.plugin.gui.category.Category;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Bukkit;
@@ -98,6 +100,61 @@ public final class BrowserService {
     public void openUnapplied(Player player) {
         GuiSession.of(player).unapplied(true);
         this.openEntry(player);
+    }
+
+    /** Looks up recipes producing the main-hand item; it never opens the ingredient-use view. */
+    public void openHeldRecipe(Player player) {
+        boolean alreadyTracked = this.viewers.containsKey(player.getUniqueId());
+        if (!this.claim(player)) return;
+        try {
+            this.openHeldRecipeClaimed(player);
+        } finally {
+            // Failed queries do not own an inventory or dialog to close during a later reload.
+            if (!alreadyTracked && !this.lifecycle.contains(player.getUniqueId())) {
+                this.viewers.remove(player.getUniqueId(), player);
+            }
+        }
+    }
+
+    private void openHeldRecipeClaimed(Player player) {
+        ItemStack held = player.getInventory().getItemInMainHand();
+        if (held.getType().isAir() || held.getAmount() <= 0) {
+            player.sendMessage(this.plugin.lang().message("messages.hand-empty"));
+            return;
+        }
+        Key id;
+        try {
+            id = CraftEngineItems.getCustomItemId(held);
+            if (id == null) id = Key.of(held.getType().getKey().toString());
+        } catch (RuntimeException | LinkageError error) {
+            this.plugin.getLogger().warning(this.plugin.lang().text("logs.hand-resolve-failed", "error", error.toString()));
+            player.sendMessage(this.plugin.lang().message("messages.hand-resolve-failed"));
+            return;
+        }
+        Set<Key> visible = HeldRecipeScope.visibleItems(this.allTopCategories(), this.data.categoriesById(),
+                this.data.items().keySet(), this.data.namespaces(), player);
+        if (!visible.contains(id)) {
+            player.sendMessage(this.plugin.lang().message("messages.hand-item-unavailable"));
+            return;
+        }
+        if (!this.recipeGui.hasContent(id, false)) {
+            player.sendMessage(this.plugin.lang().message("messages.hand-no-recipe", "id", id.toString()));
+            return;
+        }
+        GuiSession session = GuiSession.of(player);
+        Key category = session.currentCategory();
+        if (session.unapplied() || category != null && (this.data.category(category).isEmpty()
+                || this.data.namespaces().isCategoryHidden(category.toString())
+                || !this.data.namespaces().canView(player, category.namespace()))) {
+            session.enter(null, 0, null);
+        }
+        session.unapplied(false);
+        this.lifecycle.requestEntry(player.getUniqueId());
+        try {
+            this.recipeGui.open(player, id, false, 0);
+        } finally {
+            this.lifecycle.cancelEntry(player.getUniqueId());
+        }
     }
 
     private void openEntry(Player player) {

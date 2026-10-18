@@ -2,10 +2,12 @@ package dev.leon.cer.data;
 
 import dev.leon.cer.CraftEngineRecipePlugin;
 import dev.leon.cer.util.DisplayNames;
+import dev.leon.cer.util.ResourcePackTranslations;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.api.event.CraftEngineReloadEvent;
 import net.momirealms.craftengine.core.item.ItemDefinition;
 import net.momirealms.craftengine.core.plugin.CraftEngine;
+import net.momirealms.craftengine.core.plugin.config.Config;
 import net.momirealms.craftengine.core.plugin.gui.category.Category;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Bukkit;
@@ -29,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public final class CraftEngineData implements Listener {
     public static final Key ALL_ITEMS_CATEGORY = Key.of("internal:all");
@@ -114,7 +118,7 @@ public final class CraftEngineData implements Listener {
             Set<String> discovered = new LinkedHashSet<>();
             categories.keySet().forEach(id -> discovered.add(id.namespace()));
             namespaces.sync(discovered);
-            this.captureNames(version, started, items, categories, List.copyOf(tops), Map.copyOf(parents), namespaces);
+            this.loadTranslations(version, started, items, categories, List.copyOf(tops), Map.copyOf(parents), namespaces);
         } catch (Exception | LinkageError e) {
             this.fail(version, e);
         }
@@ -148,12 +152,66 @@ public final class CraftEngineData implements Listener {
         }
     }
 
+    private void loadTranslations(long version, long started, Map<Key, ItemDefinition> items,
+                                  Map<Key, Category> categories, List<Category> tops, Map<Key, Key> parents,
+                                  CategoryNamespaces namespaces) {
+        // Resolve CraftEngine configuration here; the worker only receives a path and plain locale names.
+        Path zip = this.resourcePackPath();
+        List<String> languages = this.plugin.config().searchLanguages();
+        this.indexTask = this.plugin.tasks().async(() -> {
+            ResourcePackTranslations.ReadResult result;
+            String problem;
+            try {
+                result = ResourcePackTranslations.read(zip, languages);
+                problem = null;
+            } catch (IOException | RuntimeException e) {
+                result = new ResourcePackTranslations.ReadResult(Map.of(), 0, List.of());
+                problem = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+            }
+            var loaded = result;
+            var failure = problem;
+            if (!this.isCurrent(version)) return;
+            try {
+                this.plugin.tasks().global(() -> {
+                    if (!this.isCurrent(version)) return;
+                    if (failure != null) {
+                        this.plugin.getLogger().warning(this.plugin.lang().text("logs.search-pack-failed",
+                                "path", zip.toString(), "error", failure));
+                    } else {
+                        this.plugin.getLogger().info(this.plugin.lang().text("logs.search-pack-ready",
+                                "count", String.valueOf(loaded.translations().size()),
+                                "files", String.valueOf(loaded.files()), "path", zip.toString()));
+                        for (String skipped : loaded.problems()) {
+                            this.plugin.getLogger().warning(this.plugin.lang().text("logs.search-pack-skipped", "error", skipped));
+                        }
+                    }
+                    this.captureNames(version, started, items, categories, tops, parents, namespaces, loaded.translations());
+                });
+            } catch (IllegalPluginAccessException ignored) {
+                // Plugin shutdown raced with worker completion.
+            }
+        });
+    }
+
+    private Path resourcePackPath() {
+        Path dataFolder = this.plugin.getDataFolder().toPath().toAbsolutePath();
+        Path serverRoot = dataFolder.getParent().getParent();
+        try {
+            // Shared by both legacy pack generation and newer workflow-based CraftEngine versions.
+            Path configured = Config.resourcePackPath();
+            if (configured != null) return configured.isAbsolute() ? configured : serverRoot.resolve(configured).normalize();
+        } catch (RuntimeException | LinkageError ignored) {
+        }
+        return dataFolder.resolveSibling("CraftEngine").resolve("generated/resource_pack.zip");
+    }
+
     private void captureNames(long version, long started, Map<Key, ItemDefinition> items,
                               Map<Key, Category> categories, List<Category> tops, Map<Key, Key> parents,
-                              CategoryNamespaces namespaces) {
+                              CategoryNamespaces namespaces, Map<String, String> translations) {
         Iterator<Map.Entry<Key, ItemDefinition>> itemIterator = items.entrySet().iterator();
         Iterator<Map.Entry<Key, Category>> categoryIterator = categories.entrySet().iterator();
         Map<Key, String> itemNames = new LinkedHashMap<>();
+        Map<Key, String> translationKeys = new LinkedHashMap<>();
         Map<Key, String> categoryNames = new LinkedHashMap<>();
         Runnable batch = new Runnable() {
             @Override
@@ -165,10 +223,11 @@ public final class CraftEngineData implements Listener {
                     do {
                         if (itemIterator.hasNext()) {
                             var entry = itemIterator.next();
-                            itemNames.put(entry.getKey(), DisplayNames.of(entry.getValue()));
+                            itemNames.put(entry.getKey(), DisplayNames.of(entry.getValue(), translations));
+                            translationKeys.put(entry.getKey(), DisplayNames.translationKeyOf(entry.getValue()));
                         } else if (categoryIterator.hasNext()) {
                             var entry = categoryIterator.next();
-                            categoryNames.put(entry.getKey(), DisplayNames.of(entry.getValue()));
+                            categoryNames.put(entry.getKey(), DisplayNames.of(entry.getValue(), translations));
                         } else {
                             buildIndexes();
                             return;
@@ -184,7 +243,7 @@ public final class CraftEngineData implements Listener {
                 // Hand off plain text only: no CraftEngine managers or ItemStacks on this worker.
                 indexTask = plugin.tasks().async(() -> {
                     try {
-                        SearchIndex search = SearchIndex.fromNames(itemNames);
+                        SearchIndex search = SearchIndex.fromNames(itemNames, translationKeys);
                         CategoryIndex categorySearch = CategoryIndex.fromNames(categoryNames);
                         if (!isCurrent(version)) return;
                         plugin.tasks().global(() -> {

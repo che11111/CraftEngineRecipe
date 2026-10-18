@@ -13,6 +13,10 @@ messages:
   data-not-ready: <yellow>数据尚未就绪：{reason}</yellow>
   not-ready-reason: 数据正在初始化、重建或上次构建失败，请稍候；仍未就绪时执行 /cer reload 并检查控制台
   category-not-found: <red>分类不存在：{id}</red>
+  hand-empty: <yellow>请先在主手拿着要查询合成配方的物品。</yellow>
+  hand-item-unavailable: <red>主手物品未在正式菜单中开放，或被权限、隐藏规则限制。</red>
+  hand-no-recipe: <yellow>未找到制作 {id} 的配方；仅查询 CraftEngine 可提供的配方。</yellow>
+  hand-resolve-failed: <red>无法识别主手物品，请查看控制台。</red>
 command:
   description: 打开 CraftEngineRecipe 配方浏览器
 ui:
@@ -78,6 +82,10 @@ ui:
     no-usage: <gray>该物品暂无用途</gray>
     dynamic-result: <gray>结果取决于实际投入物品</gray>
 logs:
+  search-pack-ready: '已读取资源包翻译：{count} 个键，{files} 个语言文件，路径 {path}'
+  search-pack-failed: '读取资源包翻译失败：{path}（{error}）；继续使用原有名称与 ID 搜索。生成资源包后可执行 /cer reload。'
+  search-pack-skipped: '已跳过资源包中的异常语言文件：{error}'
+  hand-resolve-failed: '识别主手物品失败：{error}'
   player-task-failed: 玩家菜单任务执行失败
   folia-op-unsupported: 'Folia 不执行临时 OP 动作并停止动作链；请改用明确的 console: 命令，或给玩家授予命令权限。'
   enabled: CraftEngineRecipe 已启用，正在初始化数据缓存…

@@ -25,18 +25,26 @@ public final class SearchIndex {
 
     public static SearchIndex build(Map<Key, ItemDefinition> items) {
         LinkedHashMap<Key, String> names = new LinkedHashMap<>();
-        items.forEach((id, definition) -> names.put(id, DisplayNames.of(definition)));
-        return fromNames(names);
+        LinkedHashMap<Key, String> keys = new LinkedHashMap<>();
+        items.forEach((id, definition) -> {
+            names.put(id, DisplayNames.of(definition));
+            keys.put(id, DisplayNames.translationKeyOf(definition));
+        });
+        return fromNames(names, keys);
     }
 
     /** Only immutable IDs and plain strings are needed on the worker thread. */
     public static SearchIndex fromNames(Map<Key, String> names) {
+        return fromNames(names, Map.of());
+    }
+
+    public static SearchIndex fromNames(Map<Key, String> names, Map<Key, String> translationKeys) {
         List<Entry> entries = new ArrayList<>(names.size());
-        names.forEach((id, name) -> entries.add(buildEntry(id, name)));
+        names.forEach((id, name) -> entries.add(buildEntry(id, name, translationKeys.get(id))));
         return new SearchIndex(List.copyOf(entries), List.copyOf(names.keySet()));
     }
 
-    private static Entry buildEntry(Key id, String raw) {
+    private static Entry buildEntry(Key id, String raw, String translationKey) {
         String idFull = normalize(id.toString());
         String idPath = normalize(id.value());
         if (raw == null || raw.isBlank()) raw = id.value();
@@ -49,7 +57,7 @@ public final class SearchIndex {
             pinyinInitials = normalize(Pinyin.initials(name));
             pinyinChars = normalize(Pinyin.perCharJoined(name));
         }
-        return new Entry(id, idFull, idPath, name, pinyinFull, pinyinInitials, pinyinChars);
+        return new Entry(id, idFull, idPath, name, pinyinFull, pinyinInitials, pinyinChars, normalize(translationKey));
     }
 
     public List<Key> search(String keyword, int maxResults) {
@@ -84,8 +92,13 @@ public final class SearchIndex {
                 matches.add(4, entry.id);
                 continue;
             }
+            if (!entry.translationKey.isEmpty() && (entry.translationKey.contains(kw)
+                    || entry.translationKey.contains(nsStripped))) {
+                matches.add(5, entry.id);
+                continue;
+            }
             if (!entry.idPath.contains(nsStripped) && !entry.idFull.contains(kw)) continue;
-            matches.add(5, entry.id);
+            matches.add(6, entry.id);
         }
 
         return matches.result();
@@ -122,6 +135,7 @@ public final class SearchIndex {
         return s == null ? "" : s.toLowerCase(Locale.ROOT);
     }
 
-    private record Entry(Key id, String idFull, String idPath, String name, String pinyinFull, String pinyinInitials, String pinyinChars) {
+    private record Entry(Key id, String idFull, String idPath, String name, String pinyinFull,
+                         String pinyinInitials, String pinyinChars, String translationKey) {
     }
 }

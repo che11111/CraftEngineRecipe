@@ -1,8 +1,8 @@
 # CraftEngineRecipe User Guide
 
-[Back to README](README.en.md) · [简体中文](WIKI.md)
+[Back to README](README.md) · [简体中文](WIKI-zh.md)
 
-This guide covers installation, player controls, configuration, and upgrades. For a quick start, see the [README](README.en.md#quick-start).
+This guide covers installation, player controls, configuration, and upgrades. For a quick start, see the [README](README.md#quick-start).
 
 ## Contents
 
@@ -12,6 +12,7 @@ This guide covers installation, player controls, configuration, and upgrades. Fo
 - [Commands, Permissions, and Controls](#commands-permissions-and-controls)
 - [Applying the Resource Pack](#applying-the-resource-pack)
 - [Player Controls and Search](#player-controls-and-search)
+  - [Look Up Main-Hand Recipes](#look-up-main-hand-recipes)
   - [Search](#search)
 - [Categories, Permissions, and Hiding Rules](#categories-permissions-and-hiding-rules)
   - [Order, Display Names, and Tooltips](#order-display-names-and-tooltips)
@@ -45,7 +46,7 @@ Menus, search callbacks, sounds, and recipe rotation use the player's entity sch
 ## First Installation and Applying Categories
 
 1. Install and configure CraftEngine, and make sure it has loaded your item packs, item categories, and recipes.
-2. Place `CraftEngineRecipe-1.0.12.jar` in your server's `plugins/` directory and start the server. On the first run, the bundled assets are automatically installed into CraftEngine's resource directory. See [Applying the Resource Pack](#applying-the-resource-pack).
+2. Place `CraftEngineRecipe-1.0.13.jar` in your server's `plugins/` directory and start the server. On the first run, the bundled assets are automatically installed into CraftEngine's resource directory. See [Applying the Resource Pack](#applying-the-resource-pack).
 3. Wait for the console message indicating that CraftEngineRecipe data is ready (`CraftEngineRecipe 数据就绪` in Chinese). Indexes are built in batches and asynchronously, so large item collections may take a little longer.
 4. As an administrator, run `/cer unapplied` to preview categories that have not yet been applied.
 5. Open `plugins/CraftEngineRecipe/categories-unapplied.yml` and find the namespaces you want to make available, such as `farmersdelight`.
@@ -74,6 +75,7 @@ This plugin reads categories and recipes already defined in CraftEngine. Editing
 | `/cer unapplied` | `craftenginerecipe.admin` | Open the unapplied menu |
 | `/cer`, `/cg`, `/browser` | None | Open the main menu |
 | `/cer search` | None | Open the search dialog |
+| `/cer hand` | None | View recipes that produce the main-hand item, within accessible main-menu categories |
 | `/cer reload` | `craftenginerecipe.admin` | Reload plugin configuration, language, category data, search indexes, and the bStats setting |
 | Press the swap-offhand key while sneaking (Shift+F by default; can be disabled in settings) | — | Open the main menu; actual keys depend on the client's key bindings |
 | Click outside the recipe window | — | Close the recipe page and return to the main menu |
@@ -97,11 +99,34 @@ Clicking an item with no matching recipe or usage does not open a recipe page. M
 
 Supported recipes include shaped/shapeless crafting, smelting, blasting, smoking, campfire cooking, stonecutting, smithing, and brewing. Campfire recipes use a furnace-style window. Brewing pages show the input container at the bottom left and the output at the bottom right. Dynamic recipes primarily preview ingredients and fixed outputs; smithing trim results display a message that the result depends on the actual input items. When an ingredient has multiple alternatives, only the first is currently shown. The interface is for reference and does not provide one-click crafting.
 
+### Look Up Main-Hand Recipes
+
+Hold an item in your main hand and run `/cer hand` to view recipes that produce it. This shows how to craft the item and does not consume, replace, or modify it. Multiple recipes use the existing automatic rotation.
+
+This supports CraftEngine custom items and vanilla items exposed by accessible CraftEngine categories. It only queries recipes loaded and indexed from CraftEngine; it does not collect private recipes from other plugins. The command follows the main menu's applied categories, visibility, permissions, and hiding rules. Administrators cannot use it to bypass unapplied or hidden content. If CraftEngine has no categories at all, only loaded custom items in applied namespaces that the player has permission to access can be queried.
+
+An empty hand, an inaccessible item, or an item with no indexed output recipe produces a message.
+
 ### Search
 
 Run `/cer search` or click the search button, enter a keyword in the dialog, and confirm.
 
-Search supports full item IDs, partial IDs, display names, pinyin, and pinyin initials. For example, an item named “茄子” can be found with `茄子`, `qie`, `zi`, `qiez`, or `qz`. For characters with multiple pronunciations, pinyin4j's first pronunciation is used; some items may require searching by name or ID instead.
+Search supports full item IDs, partial IDs, display names, full or partial translation keys, pinyin, and pinyin initials. For example, an item named “茄子” can be found with `茄子`, `qie`, `zi`, `qiez`, or `qz`. For characters with multiple pronunciations, pinyin4j's first pronunciation is used; some items may require searching by name or ID instead.
+
+For item names that use translation keys, the plugin reads translations from `assets/*/lang/*.json` in CraftEngine's generated resource pack and includes the resolved names and their pinyin in the search index. For example, if `item.example.eggplant` maps to “茄子” in `zh_cn.json`, you can search by its Chinese name, pinyin, or translation key.
+
+Set the preferred search-name languages in `config.yml`:
+
+```yaml
+search:
+  languages:
+    - zh_cn
+    - en_us
+```
+
+The first language with a matching translation wins; later entries provide fallbacks. This does not index names in every listed language. It is independent of `language`, which controls plugin menus and messages, and does not automatically follow each player's client language.
+
+The plugin uses the resource pack path supplied by CraftEngine, falling back to `plugins/CraftEngine/generated/resource_pack.zip` when that path is unavailable. After editing language files, generate the updated ZIP with CraftEngine, then run `/cer reload`; CraftEngine reload events also refresh the index. ZIP reading, JSON parsing, and text indexing run asynchronously. A missing or broken resource pack is logged, and existing item ID/name search remains available.
 
 By default, search input is limited to 32 characters and results to 200 entries. Searches include categories and accessible subcategories that the player can access in the current main/unapplied menu. Hidden category members are excluded. If the same item also appears in another visible category, it may still be found. The browser and search only fall back to all loaded items when CraftEngine has no categories at all.
 
