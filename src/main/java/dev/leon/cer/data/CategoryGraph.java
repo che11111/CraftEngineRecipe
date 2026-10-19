@@ -20,10 +20,15 @@ public final class CategoryGraph {
 
     private final Map<Key, Category> categories;
     private final Map<Key, List<Member>> members;
+    private final Set<Key> referencedItems;
 
     private CategoryGraph(Map<Key, Category> categories, Map<Key, List<Member>> members) {
         this.categories = Map.copyOf(categories);
         this.members = Map.copyOf(members);
+        Set<Key> items = new HashSet<>();
+        members.values().forEach(entries -> entries.stream().filter(member -> !member.category())
+                .forEach(member -> items.add(member.key())));
+        this.referencedItems = Set.copyOf(items);
     }
 
     public static CategoryGraph compile(Map<Key, Category> categories) {
@@ -45,6 +50,11 @@ public final class CategoryGraph {
 
     public List<Member> members(Key id) {
         return this.members.getOrDefault(id, List.of());
+    }
+
+    /** Includes items in captured categories that cannot be reached through a permitted path. */
+    public boolean hasItemReference(Key item) {
+        return this.referencedItems.contains(item);
     }
 
     public Set<Key> visible(Collection<Category> roots, Predicate<Category> permitted,

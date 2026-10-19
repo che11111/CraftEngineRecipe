@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -65,6 +66,15 @@ public final class TaskDispatcher {
             return this.async.runNow(this.plugin, ignored -> {
                 if (!this.stopped) action.run();
             });
+        }
+    }
+
+    public ScheduledTask asyncTimer(Runnable action, long initialDelay, long period, TimeUnit unit) {
+        synchronized (this.lifecycleLock) {
+            this.requireRunning();
+            return this.async.runAtFixedRate(this.plugin, ignored -> {
+                if (!this.stopped) action.run();
+            }, Math.max(1, initialDelay), Math.max(1, period), unit);
         }
     }
 

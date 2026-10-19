@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public final class SearchDialogService {
@@ -35,6 +36,12 @@ public final class SearchDialogService {
     }
 
     public void open(Player player) {
+        this.open(player, keyword -> this.plugin.browser().openItemList(player, null, keyword, 0, keyword),
+                () -> this.plugin.browser().openDefault(player));
+    }
+
+    /** The caller owns its destination, including workstation type and return-page context. */
+    public void open(Player player, Consumer<String> results, Runnable cancel) {
         if (!this.plugin.browser().claim(player)) return;
         long generation = this.plugin.data().generation();
         CerConfig c = this.plugin.config();
@@ -50,16 +57,16 @@ public final class SearchDialogService {
                 this.plugin.lang().component("ui.search.confirm-tooltip"),
                 100,
                 DialogAction.customClick(
-                        (view, audience) -> this.handleResult(player, view, generation, maxLength),
+                        (view, audience) -> this.handleResult(player, view, generation, maxLength, results, cancel),
                         ClickCallback.Options.builder().uses(1).lifetime(Duration.ofMinutes(5L)).build()
                 )
         );
-        ActionButton cancel = ActionButton.create(
+        ActionButton cancelButton = ActionButton.create(
                 this.plugin.lang().component("ui.search.cancel"),
                 this.plugin.lang().component("ui.search.cancel-tooltip"),
                 100,
                 DialogAction.customClick(
-                        (view, audience) -> this.schedule(player, generation, () -> this.plugin.browser().openDefault(player)),
+                        (view, audience) -> this.schedule(player, generation, cancel),
                         ClickCallback.Options.builder().uses(1).lifetime(Duration.ofMinutes(5L)).build()
                 )
         );
@@ -71,13 +78,14 @@ public final class SearchDialogService {
                                 : List.of(DialogBody.plainMessage(c.mm(c.searchDialogHint()))))
                         .inputs(List.of(input))
                         .build())
-                .type(DialogType.confirmation(confirm, cancel)));
+                .type(DialogType.confirmation(confirm, cancelButton)));
         this.plugin.browser().leaveForSearch(player);
         player.showDialog(dialog);
         Sounds.play(player, this.config.sounds().search());
     }
 
-    private void handleResult(Player player, DialogResponseView view, long generation, int maxLength) {
+    private void handleResult(Player player, DialogResponseView view, long generation, int maxLength,
+                              Consumer<String> results, Runnable cancel) {
         String keyword;
         try {
             keyword = view.getText(INPUT_KEY);
@@ -89,11 +97,11 @@ public final class SearchDialogService {
         }
         String kw = validatedKeyword(keyword, maxLength);
         if (kw.isEmpty()) {
-            this.schedule(player, generation, () -> this.plugin.browser().openDefault(player));
+            this.schedule(player, generation, cancel);
             return;
         }
         String finalKw = kw;
-        this.schedule(player, generation, () -> this.plugin.browser().openItemList(player, null, finalKw, 0, finalKw));
+        this.schedule(player, generation, () -> results.accept(finalKw));
     }
 
     /** Reject forged oversized responses instead of silently searching a truncated keyword. */

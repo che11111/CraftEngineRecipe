@@ -6,7 +6,8 @@ import java.util.List;
 
 /** All menu sound settings; old Open/Close lists are read only for compatibility. */
 public record SoundSettings(String changeCategory, String changePage, String click, String back,
-                            String search, List<MenuSound> openMenu, List<MenuSound> closeMenu) {
+                            String search, String querySuccess, String queryFailure,
+                            List<MenuSound> openMenu, List<MenuSound> closeMenu) {
     private static final String BOOK = "minecraft:item.book.page_turn";
 
     public static SoundSettings load(FileConfiguration config) {
@@ -16,6 +17,8 @@ public record SoundSettings(String changeCategory, String changePage, String cli
                 config.getString("sounds.click", "minecraft:ui.button.click"),
                 config.getString("sounds.back", BOOK),
                 config.getString("sounds.search", "minecraft:ui.toast.in"),
+                config.getString("sounds.query-success", "UI_BUTTON_CLICK-1-2"),
+                config.getString("sounds.query-failure", "BLOCK_NOTE_BLOCK_BASS-1-1"),
                 menuSound(config, "sounds.open-menu", "Open", "sounds.open", "BLOCK_IRON_DOOR_OPEN-1-2"),
                 menuSound(config, "sounds.close-menu", "Close", null, "BLOCK_IRON_DOOR_CLOSE-1-2"));
     }

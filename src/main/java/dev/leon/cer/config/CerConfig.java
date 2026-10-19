@@ -9,8 +9,10 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.momirealms.craftengine.core.util.AdventureHelper;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,26 @@ public final class CerConfig {
     private static final Pattern FULL_ID = Pattern.compile("[a-z0-9_.-]+:[a-z0-9/._-]+");
     private static final Pattern ID_PATH = Pattern.compile("[a-z0-9/._-]+");
     private static final List<String> BUTTON_PATHS = List.of("category-bar.prev-category", "category-bar.next-category",
-            "content.prev-page", "content.next-page", "content.back", "content.search", "content.empty");
+            "content.prev-page", "content.next-page", "content.back", "content.search", "content.hand",
+            "content.info", "content.workstations", "content.glasses", "content.empty");
+
+    private static final List<String> LEGACY_DEFAULT_LAYOUT_ROWS = List.of(
+            "<CCCCCCC>",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "B#L#S#R##"
+    );
+
+    private static final List<String> PREVIOUS_DEFAULT_LAYOUT_ROWS = List.of(
+            "<CCCCCCC>",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "BHLIS#RT#"
+    );
 
     private static final List<String> DEFAULT_LAYOUT_ROWS = List.of(
             "<CCCCCCC>",
@@ -32,7 +53,7 @@ public final class CerConfig {
             "XXXXXXXXX",
             "XXXXXXXXX",
             "XXXXXXXXX",
-            "B#L#S#R##"
+            "BHLISGRT#"
     );
 
     private final CraftEngineRecipePlugin plugin;
@@ -52,6 +73,10 @@ public final class CerConfig {
     private ButtonDef nextPage;
     private ButtonDef back;
     private ButtonDef search;
+    private ButtonDef hand;
+    private ButtonDef info;
+    private ButtonDef workstations;
+    private ButtonDef glasses;
     private List<String> itemLore;
     private ButtonDef empty;
     private int recipeRotateInterval;
@@ -76,6 +101,14 @@ public final class CerConfig {
 
     public void load() {
         this.plugin.saveDefaultConfig();
+        try {
+            YamlDefaultsUpdater.update(this.plugin.getDataFolder().toPath().resolve("config.yml"),
+                    this.plugin.getResource("config.yml"), Map.of("language", "locale",
+                            "sounds.open-menu", "sounds.open"),
+                    Map.of("sounds.open-menu", List.of("Open"), "sounds.close-menu", List.of("Close")));
+        } catch (IOException | InvalidConfigurationException e) {
+            this.plugin.getLogger().warning(this.plugin.lang().text("logs.config-update-failed", "error", e.getMessage()));
+        }
         this.plugin.reloadConfig();
         FileConfiguration c = this.plugin.getConfig();
         LanguageManager lang = this.plugin.lang();
@@ -99,6 +132,11 @@ public final class CerConfig {
         this.nextPage = ButtonDef.of(c, lang, "content.next-page", Material.SPECTRAL_ARROW);
         this.back = ButtonDef.of(c, lang, "content.back", Material.BARRIER);
         this.search = ButtonDef.of(c, lang, "content.search", Material.COMPASS);
+        this.hand = ButtonDef.of(c, lang, "content.hand", Material.PAPER, "cer:palm_blue_cuff", 'H');
+        this.info = ButtonDef.of(c, lang, "content.info", Material.PAPER, "cer:info_icon", 'I');
+        this.workstations = ButtonDef.of(c, lang, "content.workstations", Material.CRAFTING_TABLE,
+                "cer:crafting_table", 'T');
+        this.glasses = ButtonDef.of(c, lang, "content.glasses", Material.PAPER, "cer:glasses", 'G');
         this.itemLore = lang.uiList(c, "content.item-lore");
         this.empty = ButtonDef.of(c, lang, "content.empty", Material.BARRIER);
 
@@ -171,16 +209,17 @@ public final class CerConfig {
 
     private void loadLayout(FileConfiguration c) {
         List<String> rows = c.getStringList("browser.layout");
-        this.layoutRows = rows.isEmpty() ? DEFAULT_LAYOUT_ROWS : List.copyOf(rows);
+        // Migrate only the exact shipped layout, in memory; preserve custom layouts and user files.
+        this.layoutRows = rows.isEmpty() || rows.equals(LEGACY_DEFAULT_LAYOUT_ROWS) || rows.equals(PREVIOUS_DEFAULT_LAYOUT_ROWS)
+                ? DEFAULT_LAYOUT_ROWS : List.copyOf(rows);
         this.categoryIconChar = firstChar(c.getString("category-bar.icon-char"), 'C');
         this.contentAreaChar = firstChar(c.getString("content.area-char"), 'X');
     }
 
     private static char firstChar(String s, char fallback) {
-        if (s == null || s.isBlank()) {
-            return fallback;
-        }
-        return s.trim().charAt(0);
+        if (s == null) return fallback;
+        String value = s.trim();
+        return value.isBlank() ? fallback : value.charAt(0);
     }
 
     public Component mm(String miniMessage) {
@@ -304,6 +343,22 @@ public final class CerConfig {
         return this.search;
     }
 
+    public ButtonDef hand() {
+        return this.hand;
+    }
+
+    public ButtonDef info() {
+        return this.info;
+    }
+
+    public ButtonDef workstations() {
+        return this.workstations;
+    }
+
+    public ButtonDef glasses() {
+        return this.glasses;
+    }
+
     public List<String> itemLore() {
         return this.itemLore;
     }
@@ -363,9 +418,14 @@ public final class CerConfig {
     public record ButtonDef(Material material, String itemModel, char symbol, String name, List<String> lore) {
 
         static ButtonDef of(FileConfiguration c, LanguageManager lang, String path, Material defMaterial) {
+            return of(c, lang, path, defMaterial, "", firstChar(c.getString(path + ".char"), '\u0000'));
+        }
+
+        static ButtonDef of(FileConfiguration c, LanguageManager lang, String path, Material defMaterial,
+                            String defItemModel, char defSymbol) {
             Material m = parseMaterial(c.getString(path + ".material", defMaterial.getKey().toString()));
-            String itemModel = c.getString(path + ".item-model", "");
-            char symbol = firstChar(c.getString(path + ".char"), '\u0000');
+            String itemModel = c.getString(path + ".item-model", defItemModel);
+            char symbol = firstChar(c.getString(path + ".char", String.valueOf(defSymbol)), '\u0000');
             String name = lang.uiText(c, path + ".name");
             List<String> lore = lang.uiList(c, path + ".lore");
             return new ButtonDef(m, itemModel, symbol, name, lore);

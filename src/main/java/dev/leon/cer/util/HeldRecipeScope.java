@@ -11,9 +11,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** Main-hand queries always use applied entries, independently of the last menu visited. */
+/** Direct recipe queries share applied-category rules, independently of the last menu visited. */
 public final class HeldRecipeScope {
     private HeldRecipeScope() {}
+
+    /** Uncategorized vanilla items remain queryable without opening access to restricted custom items. */
+    public static boolean canQuery(Key id, Collection<Category> topCategories, Map<Key, Category> categories,
+                                   CategoryGraph graph, Collection<Key> loadedItems,
+                                   CategoryNamespaces namespaces, Player player) {
+        if (visibleItems(topCategories, categories, graph, loadedItems, namespaces, player).contains(id)) return true;
+        if (!"minecraft".equals(id.namespace()) || loadedItems.contains(id) || graph.hasItemReference(id)) return false;
+        if (namespaces.findNamespace("minecraft") == null) return true;
+        return namespaces.entries().stream().anyMatch(entry -> entry instanceof CategoryNamespaces.NamespaceEntry namespace
+                && namespace.id().equals("minecraft")) && namespaces.canView(player, "minecraft");
+    }
 
     public static Set<Key> visibleItems(Collection<Category> topCategories, Map<Key, Category> categories,
                                         Collection<Key> loadedItems, CategoryNamespaces namespaces, Player player) {

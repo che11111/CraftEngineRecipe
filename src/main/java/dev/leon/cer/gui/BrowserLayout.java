@@ -20,7 +20,9 @@ final class BrowserLayout {
         return normalize(config.layoutRows(), config.categoryIconChar(), config.contentAreaChar(), List.of(
                 config.prevCategory().symbol(), config.nextCategory().symbol(),
                 config.prevPage().symbol(), config.nextPage().symbol(),
-                config.search().symbol(), config.back().symbol()));
+                config.search().symbol(), config.back().symbol(),
+                config.hand().symbol(), config.info().symbol(), config.workstations().symbol(),
+                config.glasses().symbol()));
     }
 
     static String[] normalize(List<String> raw, char category, char content, List<Character> buttons) {
@@ -43,6 +45,16 @@ final class BrowserLayout {
             out[row] = normalized.toString();
         }
         return out;
+    }
+
+    static String[] workstations(CerConfig config) {
+        // Workstations use the same category slots and navigation buttons as the CE browser.
+        return normalize(config);
+    }
+
+    static int categoryOffset(int requested, int entries, int slots) {
+        if (slots <= 0) return 0;
+        return Math.max(0, Math.min(requested, Math.max(0, entries - slots)));
     }
 
     static List<Integer> slotsOf(String[] structure, char symbol) {

@@ -33,27 +33,28 @@
     - internal:gui
 
   # 以下四个字段可选：自定义该命名空间下的悬浮提示，不写则用语言文件中的默认值 / Optional text overrides for this namespace; otherwise use language defaults.
-  icon-name: '<white><name></white>'   # 分类图标名字模板（<name> 会被替换为分类名） / Category icon name template; <name> is the category name
+  icon-name: '<#EEF2F6><name></#EEF2F6>'   # 分类图标名字模板（<name> 会被替换为分类名） / Category icon name template; <name> is the category name
   item-lore:                       # 该命名空间下物品的悬浮提示 / Item lore for this namespace
-  - '<gray>左键查看合成配方</gray>'
-  - '<gray>右键查看用途</gray>'
+  - '<#B8C0CC>左键查看合成配方</#B8C0CC>'
+  - '<#B8C0CC>右键查看用途</#B8C0CC>'
   icon-lore:                       # 大分类图标的描述行（<count> 会被替换为物品数） / Top-level category lore; <count> is the direct member count, including subcategory references
-  - '<gray>点击查看此分类</gray>'
-  - '<dark_gray>物品数: <count></dark_gray>'
+  - '<#B8C0CC>点击查看此分类</#B8C0CC>'
+  - '<#8793A5>物品数: <count></#8793A5>'
   sub-icon-lore:                   # 子分类图标的描述行 / Subcategory icon lore
-  - '<gray>点击进入子分类</gray>'
-  - '<dark_gray>物品数: <count></dark_gray>'
+  - '<#B8C0CC>点击进入子分类</#B8C0CC>'
+  - '<#8793A5>物品数: <count></#8793A5>'
 
 # ----------------------------------------------------------------------------
 # 二、自定义按钮：放在两个命名空间之间，作为分割或跳转入口 / 2. Custom buttons can separate namespaces or open other menus.
-#     display.name / display.lore 支持 & 颜色码（&e &7 &f 等） / display.name / display.lore support & color codes (&e &7 &f etc.)
+#     display.name / display.lore 使用 &#RRGGBB 十六进制颜色，也支持 &e &7 &f 等旧颜色码。
+#     display.name / display.lore use &#RRGGBB hex colors; legacy codes such as &e &7 &f also work.
 #     可选 visibility（admin/player/permission）+ permission，控制按钮对谁可见 / Optional visibility (admin/player/permission) and permission control button access.
 # ----------------------------------------------------------------------------
 
 # 装饰分割用的灰色玻璃板（无任何动作） / Decorative gray glass separator with no actions
 - display:
     material: minecraft:gray_stained_glass_pane   # minecraft:材质名 / minecraft:material_name
-    name: '&8---'
+    name: '&#8793A5---'
   actions:
     all: []
 
@@ -61,11 +62,11 @@
 - display:
     # CraftEngine 物品：source:CraftEngine:命名空间:物品ID / CraftEngine item: source:CraftEngine:namespace:item_id
     material: source:CraftEngine:farmersdelight:stove
-    name: '&e> 农夫乐事'
+    name: '&#E4D397> 农夫乐事'
     lore:
-    - '&7------------------------'
-    - ' &f农夫乐事及附属的配方大全'
-    - '&7------------------------'
+    - '&#B8C0CC------------------------'
+    - ' &#EEF2F6农夫乐事及附属的配方大全'
+    - '&#B8C0CC------------------------'
   # visibility: player    # 默认 player=所有人可见；admin=仅管理员；permission=按权限 / Default player=everyone; admin=admins only; permission=permission required
   # permission: 'cer.vip' # visibility 为 permission 时生效 / Used when visibility is permission
   actions:
@@ -80,7 +81,7 @@
 # 一个支持左右键不同动作的按钮 / Button with separate left/right click actions
 - display:
     material: minecraft:chest
-    name: '&a> 示例按钮'
+    name: '&#98C69A> 示例按钮'
   actions:
     left:
     - 'sound: UI_BUTTON_CLICK-1-2'

@@ -8,14 +8,14 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Minecraft-26.1.2%20%2F%2026.2%20%2F%2026.3-3fb950" alt="Minecraft 26.1.2 / 26.2 / 26.3">
-  <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#requirements"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 compile-time API; see the Wiki for requirements"></a>
+  <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 compile-time API; see the Wiki for requirements"></a>
   <img src="https://img.shields.io/badge/Java-25-orange" alt="Java 25">
   <img src="https://img.shields.io/badge/Paper-supported-blue" alt="Paper supported">
-  <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#folia-support"><img src="https://img.shields.io/badge/Folia-experimental-blueviolet" alt="Experimental Folia support; see the Wiki for details"></a>
+  <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/#folia-support"><img src="https://img.shields.io/badge/Folia-experimental-blueviolet" alt="Experimental Folia support; see the Wiki for details"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/README-zh.md">简体中文</a> · <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md">User Wiki</a> · <a href="#quick-start">Quick Start</a> · <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#common-settings-and-troubleshooting">FAQ</a>
+  <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/README-zh.md">简体中文</a> · <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/">User Wiki</a> · <a href="#quick-start">Quick Start</a> · <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/">FAQ</a>
 </p>
 
 ## Demo
@@ -37,14 +37,14 @@
 
 ## Features
 
-- A clear, ready-to-use UI, with bundled assets automatically copied into CraftEngine's resource directory.
-- Category browsing and pagination. Left-click an item to view its recipes; right-click to view recipes that use it.
-- Custom category order, visibility permissions, hiding rules, and menu buttons.
-- Custom buttons that execute commands to open other menus or pages.
-- Search by item ID, name, translation key, Chinese pinyin, or pinyin initials, including names from resource pack language files.
-- Run `/cer hand` to view recipes that produce the item in your main hand.
-- Chinese and English language files, with configurable menu layouts, messages, and sounds.
-- A configurable `Shift+F` shortcut to open the recipe menu quickly.
+- A clear, ready-to-use UI, with assets **automatically installed** in CraftEngine's resource pack directory.
+- Two browsing modes: **CraftEngine categories** and **workstation types**.
+- **Left-click** an item to view its **recipes**; **right-click** to view recipes that **use it**.
+- **Customize** category order, visibility permissions, hiding rules, and menu **buttons**.
+- Custom buttons can run any command to open other menus or pages.
+- Search by item ID, name, translation key, Chinese pinyin, or pinyin initials.
+- Look up recipes for the item in your `main hand` or the block under your `crosshair`, using commands or menu shortcuts.
+- Open the recipe menu quickly with the configurable `Shift+F` shortcut.
 
 ## Requirements
 
@@ -55,7 +55,7 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 1. Install a version of CraftEngine compatible with your server, load the items, categories, and recipes, then install the corresponding version of CraftEngineRecipe.
 
-2. On its first run, the plugin automatically installs the background and button assets into `plugins/CraftEngine/resources/cer_resource/`. No manual copying is required, and subsequent restarts or reloads will not install them again. Use CraftEngine to generate and distribute the resource pack (for example, `/ce reload all`, depending on your version), then have clients accept it. See [Applying the Resource Pack](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#applying-the-resource-pack).
+2. On its first run, the plugin automatically installs the background and button assets into `plugins/CraftEngine/resources/cer_resource/`. No manual copying is required, and subsequent restarts or reloads will not install them again. Use CraftEngine to generate and distribute the resource pack (for example, `/ce reload all`, depending on your version), then have clients accept it. See [Applying the Resource Pack](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/getting-started/#applying-the-resource-pack).
 
 3. Wait for the data to be ready, then run `/cer unapplied` as an administrator to preview categories that have not yet been applied.
 
@@ -72,7 +72,7 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 5. Run `/cer reload`. Once it finishes, open the menu with `/cer` or Shift+F. Left-click an item to view its recipes; right-click to view recipes that use it.
 
-If the main menu is empty on the first run, apply your categories first. See the [User Wiki](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md) for detailed instructions.
+If the main menu is empty on the first run, apply your categories first. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for detailed instructions.
 
 ## Common Commands
 
@@ -80,7 +80,8 @@ If the main menu is empty on the first run, apply your categories first. See the
 | --- | --- |
 | `/cer` | Open the main menu; aliases: `/cg`, `/browser`; shortcut: `Shift+F` |
 | `/cer search` | Search for items |
-| `/cer hand` | View CraftEngine recipes that produce your main-hand item, within accessible categories |
+| `/cer hand` | View recipes producing your main-hand vanilla or CE item, respecting configured category restrictions |
+| `/cer target` | View recipes producing the vanilla or CE block under your crosshair, respecting configured category restrictions |
 | `/cer unapplied` | Preview unapplied categories (administrator) |
 | `/cer reload` | Reload configuration and indexes (administrator) |
 
@@ -90,9 +91,13 @@ The administrator permission is `craftenginerecipe.admin`. OPs have it by defaul
 
 ## Configuration Guide
 
-[Categories and Permissions](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#categories-permissions-and-hiding-rules) · [Hide Items](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#hiding-items-in-a-category) · [Hide Category Buttons](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#hiding-both-category-entries-and-their-items) · [Custom Buttons](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#custom-buttons) · [Sounds](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#menu-sounds) · [Troubleshooting](https://github.com/che11111/CraftEngineRecipe/blob/main/WIKI-en.md#common-settings-and-troubleshooting)
+[Categories and Permissions](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Hide Items](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/#hide-items-and-keep-the-category-button) · [Hide Category Buttons](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/#hide-category-buttons-and-contents) · [Custom Buttons](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/custom-buttons/) · [Sounds](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menu-sounds/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
+
+## Usage Statistics
+
+[View usage statistics on bStats](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772). 
 
 ## Credits
 
-This project is based on nsoer's CEGUI-1.0.0.jar and adds many features. Thank you to nsoer for granting permission to use the code and texture assets.
+This project is a derivative work of nsoer’s CEGUI-1.0.0.jar, with many additional features and improvements. Special thanks to nsoer for granting permission to use portions of the original code and texture assets.
 

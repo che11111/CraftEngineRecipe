@@ -510,6 +510,13 @@ public final class CategoryNamespaces {
         return this.hiddenCategories.contains(categoryId);
     }
 
+    /** Explicit filters may target categories omitted from CE's top-level browser list. */
+    public Set<String> filteredCategoryIds() {
+        Set<String> ids = new LinkedHashSet<>(this.hiddenCategories);
+        ids.addAll(this.hiddenItems.keySet());
+        return Set.copyOf(ids);
+    }
+
     public static boolean isAdmin(Player player) {
         return player != null && (player.isOp() || player.hasPermission("craftenginerecipe.admin"));
     }

@@ -1,5 +1,6 @@
 package dev.leon.cer.i18n;
 
+import dev.leon.cer.config.YamlDefaultsUpdater;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -25,6 +26,21 @@ import java.util.regex.Pattern;
 public final class LanguageManager {
     private static final List<String> BUILT_INS = List.of("zh_CN", "en_US");
     private static final Pattern ARGUMENT = Pattern.compile("\\{([a-zA-Z0-9_-]+)}");
+    private static final Pattern BOLD_TAG = Pattern.compile("</?(?:bold|b)(?::(?:true|false))?>|<!(?:bold|b)>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern RESET_TAG = Pattern.compile("<reset>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern COLOR_TAG = Pattern.compile("</?(?:black|dark_blue|dark_green|dark_aqua|dark_red|dark_purple|gold|gray|grey|dark_gray|dark_grey|blue|green|aqua|red|light_purple|yellow|white|#[0-9a-f]{6}|(?:color|colour|c|gradient|transition|rainbow)(?::[^>]*)?)>", Pattern.CASE_INSENSITIVE);
+    private static final Map<String, String> LEGACY_BROWSER_TITLES = Map.of(
+            "<dark_aqua>配方浏览器</dark_aqua> <gray>»</gray> <white><category></white>",
+            "<bold><dark_aqua>配方浏览器</dark_aqua> <gray>»</gray> </bold><white><category></white>",
+            "<bold><dark_aqua>配方浏览器</dark_aqua> <gray>»</gray> <white><category></white></bold>",
+            "<bold><dark_aqua>配方浏览器</dark_aqua> <gray>»</gray> </bold><white><category></white>",
+            "<dark_aqua>Recipe Browser</dark_aqua> <gray>»</gray> <white><category></white>",
+            "<bold><dark_aqua>Recipe Browser</dark_aqua> <gray>»</gray> </bold><white><category></white>",
+            "<bold><dark_aqua>Recipe Browser</dark_aqua> <gray>»</gray> <white><category></white></bold>",
+            "<bold><dark_aqua>Recipe Browser</dark_aqua> <gray>»</gray> </bold><white><category></white>");
+    private static final Map<String, String> LEGACY_TARGET_BLOCK_UNAVAILABLE = Map.of(
+            "zh_CN", "<red>目标方块未在正式菜单中开放，或被权限、隐藏规则限制。</red>",
+            "en_US", "<red>The target block is not available in the applied menu, or is restricted by permissions or hiding rules.</red>");
     private static final MiniMessage MINI = MiniMessage.miniMessage();
     private final Path directory;
     private final Function<String, InputStream> resources;
@@ -57,6 +73,13 @@ public final class LanguageManager {
                         if (stream == null) throw new IllegalStateException("Missing bundled language: " + locale);
                         Files.copy(stream, file);
                     }
+                } else {
+                    try (InputStream stream = this.resources.apply("lang/" + locale + ".yml")) {
+                        YamlDefaultsUpdater.update(file, stream);
+                    } catch (IOException | InvalidConfigurationException | RuntimeException e) {
+                        this.logger.warning(this.text("logs.language-update-failed", "file", file.toString(),
+                                "error", error(e)));
+                    }
                 }
             }
         } catch (IOException | RuntimeException e) {
@@ -77,6 +100,10 @@ public final class LanguageManager {
                 Map<String, Object> overrides = read(reader);
                 for (var entry : overrides.entrySet()) {
                     Object expected = values.get(entry.getKey());
+                    // Migrate only the exact former bundled message; keep server-owned translations intact.
+                    if (entry.getKey().equals("messages.target-block-unavailable")
+                            && Objects.equals(entry.getValue(), LEGACY_TARGET_BLOCK_UNAVAILABLE.get(locale))) continue;
+                    if (sameDefault(entry.getKey(), entry.getValue(), expected)) continue;
                     if (expected == null || expected.getClass() == entry.getValue().getClass()
                             || (expected instanceof List<?> && entry.getValue() instanceof List<?>)) {
                         values.put(entry.getKey(), entry.getValue());
@@ -114,7 +141,7 @@ public final class LanguageManager {
 
     public String text(String key, String... arguments) {
         Object value = this.active.values().get(key);
-        return format(value instanceof String string ? string : key, arguments);
+        return format(styleTitle(key, value instanceof String string ? string : key), arguments);
     }
 
     public List<String> list(String key) {
@@ -162,7 +189,7 @@ public final class LanguageManager {
     /** Old custom UI text remains an override; old shipped defaults follow the selected language. */
     public String uiText(FileConfiguration config, String path) {
         Object override = this.legacyOverride(config, path);
-        return override instanceof String text ? text : this.text("ui." + path);
+        return override instanceof String text ? styleTitle("ui." + path, text) : this.text("ui." + path);
     }
 
     public List<String> uiList(FileConfiguration config, String path) {
@@ -176,9 +203,56 @@ public final class LanguageManager {
     private Object legacyOverride(FileConfiguration config, String path) {
         Object value = config.get(path);
         for (var defaults : this.bundled.values()) {
-            if (Objects.equals(value, defaults.get("ui." + path))) return null;
+            Object fallback = defaults.get("ui." + path);
+            if (sameDefault("ui." + path, value, fallback)) return null;
         }
         return value;
+    }
+
+    private static boolean sameDefault(String key, Object value, Object fallback) {
+        if (Objects.equals(value, fallback)) return true;
+        if (value instanceof String text && fallback instanceof String bundledText) {
+            return Objects.equals(DefaultPalette.apply(styleTitle(key, text)), DefaultPalette.apply(styleTitle(key, bundledText)));
+        }
+        if (value instanceof List<?> lines && fallback instanceof List<?> bundledLines) {
+            return lines.stream().allMatch(String.class::isInstance) && bundledLines.stream().allMatch(String.class::isInstance)
+                    && lines.stream().map(String.class::cast).map(DefaultPalette::apply).toList()
+                    .equals(bundledLines.stream().map(String.class::cast).map(DefaultPalette::apply).toList());
+        }
+        return false;
+    }
+
+    /** Apply title styling to old files too, without rewriting custom translations or tinting GUI images. */
+    static String styleTitle(String key, String text) {
+        String leaf = key.substring(key.lastIndexOf('.') + 1);
+        if (!key.startsWith("ui.") || !(leaf.equals("title") || leaf.startsWith("title-") || leaf.endsWith("-title"))
+                || text.isEmpty()) return text;
+        int imageEnd = DefaultPalette.imagePrefixEnd(text);
+        String prefix = BOLD_TAG.matcher(text.substring(0, imageEnd)).replaceAll("");
+        String body = text.substring(imageEnd);
+        // Browser titles may deliberately keep the category outside the bold heading.
+        // Preserve that explicit scope; older titles without bold tags still get the default style.
+        if (key.equals("ui.browser.title")) {
+            for (var legacy : LEGACY_BROWSER_TITLES.entrySet()) {
+                if (body.equals(legacy.getKey())) {
+                    body = legacy.getValue();
+                    break;
+                }
+                if (body.equals(DefaultPalette.apply(legacy.getKey()))) {
+                    body = DefaultPalette.apply(legacy.getValue());
+                    break;
+                }
+            }
+        }
+        if (key.equals("ui.browser.title") && BOLD_TAG.matcher(body).find()) return prefix + body;
+        String visible = BOLD_TAG.matcher(body).replaceAll("");
+        if (key.equals("ui.recipe.title") || key.startsWith("ui.recipe.title-")) {
+            visible = COLOR_TAG.matcher(visible).replaceAll("");
+            visible = RESET_TAG.matcher(visible).replaceAll("");
+            return prefix + "<#292D35><bold>" + visible + "</bold></#292D35>";
+        }
+        visible = RESET_TAG.matcher(visible).replaceAll("<reset><bold>");
+        return prefix + "<bold>" + visible + "</bold>";
     }
 
     private static String error(Exception error) {

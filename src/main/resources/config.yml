@@ -1,5 +1,7 @@
 # CraftEngineRecipe - 基于 CraftEngine 的配方浏览器
 # CraftEngineRecipe - Recipe browser for CraftEngine
+# 启动或 /cer reload 时自动补齐缺失配置与默认值，保留已有配置值。
+# Startup or /cer reload adds missing settings and defaults while preserving existing values.
 
 # 全服使用的语言；内置 zh_CN（简体中文）与 en_US（英语）。
 # Server-wide language; bundled options: zh_CN (Simplified Chinese), en_US (English).
@@ -10,6 +12,12 @@ language: zh_CN
 # Custom legacy text overrides lang; old values matching bundled text follow the selected language.
 # 建议将自定义文案迁移到 lang 后删除旧文案字段。
 # Move custom text to lang, then remove the legacy text fields when ready.
+
+# 检查更新：启动后及每 6 小时后台检查 GitHub 正式版，发现新版后通知控制台和管理员。
+# Check for updates: check GitHub stable releases in the background after startup and every 6 hours; notify console and admins.
+# 仅提醒，不自动下载或替换插件；设为 false 后执行 /cer reload 即可关闭。
+# Only sends notifications, without downloading or replacing the plugin; set false and run /cer reload to disable.
+check-for-updates: true
 
 # 资源首次自动安装到 CraftEngine；之后仅在启动或 /cer reload 时补齐本插件 cer_resource 副本。
 # Resources install into CraftEngine once; startup or /cer reload then only restores missing files in this plugin's cer_resource copy.
@@ -25,13 +33,15 @@ browser:
   # 不足 6 行补空行，多余行忽略 / Missing rows are empty; rows beyond six are ignored.
   # 每个按钮使用不同的单字符；设 char: '' 可禁用按钮，并将布局中对应字符改为 #。
   # Use a distinct single character per button; set char: '' to disable it and replace its layout symbol with #.
+  # 底栏：B=返回，H=主手配方，L=上一页，I=说明，S=搜索，G=准星方块配方，R=下一页，T=按合成器浏览。
+  # Bottom row: B=back, H=main-hand recipes, L=previous page, I=help, S=search, G=target block recipes, R=next page, T=workstations.
   layout:
     - "<CCCCCCC>"
     - "XXXXXXXXX"
     - "XXXXXXXXX"
     - "XXXXXXXXX"
     - "XXXXXXXXX"
-    - "B#L#S#R##"
+    - "BTLHSGRI#"
 
 # ---------- 分类栏 / Category bar ----------
 category-bar:
@@ -82,6 +92,34 @@ content:
     char: S
     item-model: cer:blank_items
     material: minecraft:compass
+  # 查询如何合成主手物品；与 /cer hand 相同，遵循正式菜单的权限与隐藏规则。
+  # Look up recipes producing the main-hand item; like /cer hand, follows main-menu permissions and hiding rules.
+  hand:
+    char: H
+    item-model: cer:palm_blue_cuff
+    material: minecraft:paper
+  # 展示菜单操作说明；说明文字来自语言文件。
+  # Display menu usage tips; the text comes from the language file.
+  info:
+    char: I
+    item-model: cer:info_icon
+    material: minecraft:paper
+  # 打开按合成器分类的页面：分类栏用左右按钮浏览 8 种原版合成器，下方仅展示本玩家可见的配方产物。
+  # Open workstation categories: use the category arrows to browse 8 vanilla workstations; below are visible recipe outputs.
+  # 仅整理 CraftEngine 已加载的配方，不额外导入原版配方；配方仍遵循权限与隐藏规则。
+  # Groups recipes already loaded by CraftEngine without importing extra vanilla recipes; permissions and hiding rules still apply.
+  # 支持锻造升级等有固定产物的配方；仅无固定产物的动态配方（如锻造纹饰）不在此列表展示。
+  # Supports recipes with fixed outputs, including smithing transforms; only dynamic recipes such as smithing trims are omitted.
+  workstations:
+    char: T
+    item-model: cer:crafting_table
+    material: minecraft:crafting_table
+  # 查询准星所指方块的合成配方，支持 CraftEngine 自定义方块和原版方块，遵循正式菜单的权限与隐藏规则。
+  # Look up recipes producing the target CraftEngine or vanilla block; follows applied-menu permissions and hiding rules.
+  glasses:
+    char: G
+    item-model: cer:glasses
+    material: minecraft:paper
   # 无结果时的图标材质；显示名来自语言文件。
   # Empty-result icon material; its display name comes from the language file.
   # 图标固定使用此材质；item-model/char 对 empty 不适用。
@@ -120,11 +158,11 @@ search:
 # 不写参数时音量 0.7、音调 1；自定义按钮的 sound: 动作支持相同格式，默认音量 1。
 # Without parameters: volume 0.7, pitch 1; button sound: actions use the same format with default volume 1.
 sounds:
-  # 分类栏 prev-category / next-category；成功滚动一次播放一次，边界静音。
-  # Category-bar prev-category / next-category; once per successful move, silent at boundaries.
+  # 分类栏 prev-category / next-category；成功滚动时播放，无法继续时播放 query-failure。
+  # Category-bar prev-category / next-category; played on a successful move, otherwise query-failure.
   change-category: 'UI_BUTTON_CLICK-1-2'
-  # 物品区 prev-page / next-page；成功翻页一次播放一次，边界静音。
-  # Content prev-page / next-page; once per successful page change, silent at boundaries.
+  # 物品区 prev-page / next-page；成功翻页时播放，无法继续时播放 query-failure。
+  # Content prev-page / next-page; played on a successful page change, otherwise query-failure.
   change-page: minecraft:item.book.page_turn
   # 分类、子分类和可查看配方的物品点击 / Category, subcategory and recipe item clicks.
   click: minecraft:ui.button.click
@@ -132,6 +170,14 @@ sounds:
   back: minecraft:item.book.page_turn
   # 显示搜索对话框时播放一次 / Played once when showing the search dialog.
   search: minecraft:ui.toast.in
+  # /cer hand、/cer target 和对应按钮：成功打开配方时仅播放此声音，不叠加 click 或 open-menu。
+  # /cer hand, /cer target and their buttons: once when a recipe opens, without click or open-menu sounds.
+  query-success: 'UI_BUTTON_CLICK-1-2'
+  # 查询失败时仅播放此声音（空手、无目标、无配方或受限等），不叠加其他按钮声音。
+  # Once when a query fails (empty hand, no target/recipe, restricted item, etc.), without other button sounds.
+  # 同样用于分类/翻页到达边界，以及物品区 X 左右键无法打开配方时。
+  # Also used at category/page boundaries and when left/right clicks on content items cannot open a recipe.
+  query-failure: 'BLOCK_NOTE_BLOCK_BASS-1-1'
   # /cer、Shift+F、/cer unapplied 主动打开菜单时播放一次。
   # Played once when entering via /cer, Shift+F or /cer unapplied.
   open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2'

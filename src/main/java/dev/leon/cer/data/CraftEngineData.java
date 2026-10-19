@@ -109,7 +109,7 @@ public final class CraftEngineData implements Listener {
             CategoryNamespaces namespaces = new CategoryNamespaces(this.plugin);
             namespaces.load();
             Map<Key, ItemDefinition> items = Collections.unmodifiableMap(new LinkedHashMap<>(CraftEngineItems.loadedItems()));
-            Map<Key, Category> categories = this.captureCategories();
+            Map<Key, Category> categories = this.captureCategories(namespaces);
             CategoryGraph graph = CategoryGraph.compile(categories);
             Set<Key> recipeKeys = new HashSet<>(items.keySet());
             for (Key category : categories.keySet()) {
@@ -178,11 +178,20 @@ public final class CraftEngineData implements Listener {
         }
     }
 
-    private Map<Key, Category> captureCategories() {
+    private Map<Key, Category> captureCategories(CategoryNamespaces namespaces) {
         Map<Key, Category> categories = new LinkedHashMap<>();
-        var roots = CraftEngine.instance().itemBrowserManager().categories();
+        var browser = CraftEngine.instance().itemBrowserManager();
+        var roots = browser.categories();
         ArrayDeque<Category> queue = new ArrayDeque<>();
         if (roots != null) queue.addAll(roots);
+        // Keep explicit CER restrictions effective even for detached, hidden CE categories.
+        for (String id : namespaces.filteredCategoryIds()) {
+            try {
+                browser.byId(Key.of(id)).ifPresent(queue::add);
+            } catch (IllegalArgumentException ignored) {
+                // Invalid configured IDs are diagnosed by validateReferences below.
+            }
+        }
         Set<Key> attempted = new HashSet<>();
         while (!queue.isEmpty()) {
             Category category = queue.remove();

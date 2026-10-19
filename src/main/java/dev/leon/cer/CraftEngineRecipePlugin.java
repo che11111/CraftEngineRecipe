@@ -12,6 +12,7 @@ import dev.leon.cer.metrics.MetricsService;
 import dev.leon.cer.scheduler.TaskDispatcher;
 import dev.leon.cer.i18n.LanguageManager;
 import dev.leon.cer.resource.ResourcePackInstaller;
+import dev.leon.cer.update.UpdateChecker;
 import dev.leon.cer.util.CompatibilityWarnings;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -36,6 +37,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private BrowserService browserService;
     private SearchDialogService dialogService;
     private MetricsService metrics;
+    private UpdateChecker updates;
 
     public static CraftEngineRecipePlugin get() {
         return instance;
@@ -70,6 +72,9 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         Bukkit.getPluginManager().registerEvents(this, this);
         this.metrics = new MetricsService(this);
         this.metrics.reload();
+        this.updates = new UpdateChecker(this);
+        Bukkit.getPluginManager().registerEvents(this.updates, this);
+        this.updates.reload();
         // Also supports enabling this plugin after CraftEngine has already loaded.
         this.tasks.global(() -> this.data.rebuild(ok -> {}));
         this.getLogger().info(this.language.text("logs.enabled"));
@@ -114,6 +119,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     @Override
     public void onDisable() {
+        if (this.updates != null) this.updates.shutdown();
         // Stop callbacks before clearing the state they can access. Pending cleanup barriers
         // must complete even though a disabled plugin cannot schedule more entity work.
         if (this.tasks != null) this.tasks.shutdown();
@@ -144,6 +150,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.config.load();
         this.replenishResourcePack();
         this.metrics.reload();
+        this.updates.reload();
         new CerCommand(this).register();
     }
 

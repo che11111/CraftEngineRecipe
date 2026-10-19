@@ -1,96 +1,148 @@
 # CraftEngineRecipe 语言文件 / Language file
 # 文案支持 MiniMessage；{参数} 是消息占位符，<name>/<count> 等是菜单模板占位符。
 # Text supports MiniMessage; {arguments} are message placeholders, while <name>/<count> are UI template placeholders.
-# 缺少的条目自动使用内置同语言文案，然后回退英文；不会覆盖你的文件。
-# Missing keys use bundled translations for this language, then English; your file is never overwritten.
-prefix: '<aqua>[CraftEngineRecipe]</aqua> '
+# 启动或重载时补齐内置语言文件缺失的条目，保留已有文案；其他缺失文案回退英文。
+# Startup or reload adds missing bundled-language entries, preserves existing text, and falls back to English for other missing entries.
+# 默认文案使用柔和的十六进制配色；配方标题统一使用石墨黑粗体，其他标题保留颜色并加粗，背景图片保持纯白。
+# Default text uses a soft hex palette; recipe titles use bold charcoal, other titles retain their colors and become bold, and background images stay pure white.
+prefix: '<#79CFC9>[CraftEngineRecipe]</#79CFC9> '
 messages:
-  no-permission: <red>你没有权限执行此操作。</red>
-  player-only: <red>该指令只能由玩家执行。</red>
-  reload-start: <yellow>正在重载，索引构建完成后会通知你。</yellow>
-  reload-success: <green>配置、语言与数据索引已重载完成。</green>
-  reload-failed: <red>构建失败或请求被新的重载替代，请查看控制台。</red>
-  data-not-ready: <yellow>数据尚未就绪：{reason}</yellow>
+  no-permission: <#E58B8B>你没有权限执行此操作。</#E58B8B>
+  player-only: <#E58B8B>该指令只能由玩家执行。</#E58B8B>
+  reload-start: <#E4D397>正在重载，索引构建完成后会通知你。</#E4D397>
+  reload-success: <#98C69A>配置、语言与数据索引已重载完成。</#98C69A>
+  reload-failed: <#E58B8B>构建失败或请求被新的重载替代，请查看控制台。</#E58B8B>
+  update-available: <#98C69A>发现新版本 {latest}（当前 {current}）。</#98C69A> <#79CFC9>{url}</#79CFC9>
+  data-not-ready: <#E4D397>数据尚未就绪：{reason}</#E4D397>
   not-ready-reason: 数据正在初始化、重建或上次构建失败，请稍候；仍未就绪时执行 /cer reload 并检查控制台
-  category-not-found: <red>分类不存在：{id}</red>
-  hand-empty: <yellow>请先在主手拿着要查询合成配方的物品。</yellow>
-  hand-item-unavailable: <red>主手物品未在正式菜单中开放，或被权限、隐藏规则限制。</red>
-  hand-no-recipe: <yellow>未找到制作 {id} 的配方；仅查询 CraftEngine 可提供的配方。</yellow>
-  hand-resolve-failed: <red>无法识别主手物品，请查看控制台。</red>
+  category-not-found: <#E58B8B>分类不存在：{id}</#E58B8B>
+  hand-empty: <#E4D397>请先在主手拿着要查询合成配方的物品。</#E4D397>
+  hand-item-unavailable: <#E58B8B>主手物品未在正式菜单中开放，或被权限、隐藏规则限制。</#E58B8B>
+  hand-no-recipe: <#E4D397>未找到制作 {id} 的配方。</#E4D397>
+  hand-resolve-failed: <#E58B8B>无法识别主手物品，请查看控制台。</#E58B8B>
+  target-block-empty: <#E4D397>请先看向要查询合成配方的方块。</#E4D397>
+  target-block-unavailable: <#E58B8B>目标方块未查询到配方</#E58B8B>
+  target-block-no-recipe: <#E4D397>未找到制作 {id} 的配方。</#E4D397>
+  target-block-resolve-failed: <#E58B8B>无法识别目标方块，请查看控制台。</#E58B8B>
 command:
   description: 打开 CraftEngineRecipe 配方浏览器
 ui:
   browser:
-    title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>配方浏览器</dark_aqua> <gray>»</gray> <white><category></white>
+    title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>配方浏览器</#287F82> <#B8C0CC>»</#B8C0CC> </bold><#EEF2F6><category></#EEF2F6>
   category-bar:
-    icon-name: <white><name></white>
+    icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
-    - <gray>点击查看此分类</gray>
-    - '<dark_gray>物品数: <count></dark_gray>'
+    - <#B8C0CC>点击查看此分类</#B8C0CC>
+    - '<#8793A5>物品数: <count></#8793A5>'
     sub-icon-lore:
-    - <gray>点击进入子分类</gray>
-    - '<dark_gray>物品数: <count></dark_gray>'
-    admin-only-hint: <dark_gray>此分类配方仅管理员可见</dark_gray>
-    no-permission-hint: <dark_gray>无权限查看此分类配方（需要权限 <permission>）</dark_gray>
+    - <#B8C0CC>点击进入子分类</#B8C0CC>
+    - '<#8793A5>物品数: <count></#8793A5>'
+    admin-only-hint: <#8793A5>此分类配方仅管理员可见</#8793A5>
+    no-permission-hint: <#8793A5>无权限查看此分类配方（需要权限 <permission>）</#8793A5>
     prev-category:
-      name: <yellow>◀ 上一个</yellow>
+      name: <#E4D397>◀ 上一个</#E4D397>
     next-category:
-      name: <yellow>下一个 ▶</yellow>
+      name: <#E4D397>下一个 ▶</#E4D397>
   content:
     prev-page:
-      name: <aqua>◀ 上一页</aqua>
+      name: <#79CFC9>◀ 上一页</#79CFC9>
     next-page:
-      name: <aqua>下一页 ▶</aqua>
+      name: <#79CFC9>下一页 ▶</#79CFC9>
     back:
-      name: <red>返回上级</red>
+      name: <#E58B8B>返回上级</#E58B8B>
     search:
-      name: <gold>搜索物品</gold>
+      name: <#D8B278>搜索物品</#D8B278>
       lore:
-      - <gray>点击输入关键字搜索</gray>
+      - <#B8C0CC>点击输入关键字搜索</#B8C0CC>
+    hand:
+      name: <#79CFC9>查询主手配方</#79CFC9>
+      lore:
+      - <#B8C0CC>点击查看如何合成主手物品</#B8C0CC>
+      - <#8793A5>与 /cer hand 相同</#8793A5>
+    glasses:
+      name: <#79CFC9>查询目标方块配方</#79CFC9>
+      lore:
+      - <#B8C0CC>点击查看如何合成视线中的方块</#B8C0CC>
+      - <#8793A5>屏幕准星对准所需查询配方的方块</#8793A5>
+    info:
+      name: <#79CFC9>操作说明</#79CFC9>
+      lore:
+      - <#B8C0CC>左键物品：查看如何合成</#B8C0CC>
+      - <#B8C0CC>右键物品：查看可参与合成</#B8C0CC>
+      - <#B8C0CC>在合成台页面可点击空白处返回</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>多条配方会自动轮播</#8793A5>
+    workstations:
+      name: <#D8B278>按合成器浏览</#D8B278>
+      lore:
+      - <#B8C0CC>点击按工作台、熔炉等类型浏览</#B8C0CC>
+      - <#8793A5>仅展示你有权查看的配方产物</#8793A5>
     item-lore:
-    - <gray>左键查看合成配方</gray>
-    - <gray>右键查看用途</gray>
-    - <gray>无法打开则代表无</gray>
-    - <gray>或是在原版合成器中无配方</gray>
+    - <#B8C0CC>左键查看合成配方</#B8C0CC>
+    - <#B8C0CC>右键查看用途</#B8C0CC>
+    - <#B8C0CC>无法打开则代表无</#B8C0CC>
+    - <#B8C0CC>或是在原版合成器中无配方</#B8C0CC>
     empty:
-      name: <red>空空如也</red>
+      name: <#E58B8B>空空如也</#E58B8B>
+  # 首行展示 8 种原版合成器，下方仅展示玩家可见的 CraftEngine 配方产物。
+  # The first row shows 8 vanilla workstations; below are only CraftEngine recipe outputs visible to the player.
+  # 不额外导入原版配方，权限与隐藏规则仍然生效。
+  # No extra vanilla recipes are imported; permissions and hiding rules still apply.
+  workstations:
+    title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>合成器分类</#287F82> <#B8C0CC>»</#B8C0CC> <#EEF2F6><category></#EEF2F6></bold>
+    categories:
+      crafting: 工作台
+      smelting: 熔炉
+      blasting: 高炉
+      smoking: 烟熏炉
+      campfire_cooking: 营火
+      stonecutting: 切石机
+      smithing: 锻造台
+      brewing: 酿造台
+    category-lore:
+    - <#B8C0CC>点击查看此合成器的配方产物</#B8C0CC>
+    back-name: <#E58B8B>返回分类浏览</#E58B8B>
+    back-lore:
+    - <#B8C0CC>点击返回物品分类菜单</#B8C0CC>
   recipe:
-    title: <dark_aqua>配方</dark_aqua> <gray>»</gray> <white><name></white>
-    title-crafting: <dark_aqua>工作台配方</dark_aqua>
-    title-smelting: <gold>熔炼配方</gold>
-    title-blasting: <gold>高炉配方</gold>
-    title-smoking: <gold>烟熏配方</gold>
-    title-campfire: <gold>营火配方</gold>
-    title-stonecutting: <gray>切石配方</gray>
-    title-smithing: <gray>锻造配方</gray>
-    title-brewing: <light_purple>酿造配方</light_purple>
-    title-none: <red>无配方</red>
+    title: <#292D35><bold>配方 » <name></bold></#292D35>
+    title-crafting: <#292D35><bold>工作台配方</bold></#292D35>
+    title-smelting: <#292D35><bold>熔炼配方</bold></#292D35>
+    title-blasting: <#292D35><bold>高炉配方</bold></#292D35>
+    title-smoking: <#292D35><bold>烟熏配方</bold></#292D35>
+    title-campfire: <#292D35><bold>营火配方</bold></#292D35>
+    title-stonecutting: <#292D35><bold>切石配方</bold></#292D35>
+    title-smithing: <#292D35><bold>锻造配方</bold></#292D35>
+    title-brewing: <#292D35><bold>酿造配方</bold></#292D35>
+    title-none: <#292D35><bold>无配方</bold></#292D35>
   search:
-    dialog-title: <gold>搜索物品</gold>
+    dialog-title: <bold><#D8B278>搜索物品</#D8B278></bold>
     dialog-label: 请输入关键字
     dialog-hint: 支持物品 ID、显示名与拼音（如 茄子 / qie / zi / qiez / qz）
-    result-title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>搜索结果</dark_aqua> <gray>»</gray> <white><keyword></white>
-    confirm: <green>搜索</green>
-    confirm-tooltip: <gray>按关键字查找物品</gray>
-    cancel: <red>取消</red>
-    cancel-tooltip: <gray>关闭搜索</gray>
+    result-title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>搜索结果</#287F82> <#B8C0CC>»</#B8C0CC> <#EEF2F6><keyword></#EEF2F6></bold>
+    confirm: <#98C69A>搜索</#98C69A>
+    confirm-tooltip: <#B8C0CC>按关键字查找物品</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>关闭搜索</#B8C0CC>
   common:
     all-items: 全部物品
-    first-page: <dark_gray>已是第一页</dark_gray>
-    last-page: <dark_gray>已是最后一页</dark_gray>
-    no-recipe: <gray>该物品暂无配方</gray>
-    no-usage: <gray>该物品暂无用途</gray>
-    dynamic-result: <gray>结果取决于实际投入物品</gray>
+    first-page: <#8793A5>已是第一页</#8793A5>
+    last-page: <#8793A5>已是最后一页</#8793A5>
+    no-recipe: <#B8C0CC>该物品暂无配方</#B8C0CC>
+    no-usage: <#B8C0CC>该物品暂无用途</#B8C0CC>
+    dynamic-result: <#B8C0CC>结果取决于实际投入物品</#B8C0CC>
 logs:
   compatibility-fallback: '兼容性处理 {operation} 失败，继续使用原有回退；本次数据版本内相同位置仅记录一次，异常详情如下。'
   search-input-failed: '读取搜索输入失败，已返回菜单。'
   config-invalid-id: '配置中的 ID 格式无效：{path} = {value}；保留原有回退处理，请检查命名空间和路径。'
   config-invalid-material: '配置中的材质未知：{path} = {value}；保留原有回退处理。'
   config-missing-category: '配置引用的 CraftEngine 分类不存在：{path} = {value}；保留配置，请检查拼写或资源包是否已加载。'
+  config-update-failed: '补齐 config.yml 缺失配置失败，保留原文件：{error}'
   search-pack-ready: '已读取资源包翻译：{count} 个键，{files} 个语言文件，路径 {path}'
   search-pack-failed: '读取资源包翻译失败：{path}（{error}）；继续使用原有名称与 ID 搜索。生成资源包后可执行 /cer reload。'
   search-pack-skipped: '已跳过资源包中的异常语言文件：{error}'
   hand-resolve-failed: '识别主手物品失败：{error}'
+  target-block-resolve-failed: '识别目标方块失败：{error}'
   player-task-failed: 玩家菜单任务执行失败
   folia-op-unsupported: 'Folia 不执行临时 OP 动作并停止动作链；请改用明确的 console: 命令，或给玩家授予命令权限。'
   enabled: CraftEngineRecipe 已启用，正在初始化数据缓存…
@@ -102,6 +154,9 @@ logs:
   data-build-failed: 构建 CraftEngineRecipe 数据失败
   metrics-ready: bStats 已初始化，使用内置服务 ID：{ids}
   metrics-failed: bStats 初始化失败，不影响配方浏览：{error}
+  update-check-enabled: 已开启更新检查，启动后及每 6 小时检查 GitHub 正式版。
+  update-available: '发现新版本 {latest}（当前 {current}）：{url}'
+  update-check-failed: '检查 GitHub 更新失败，将在下次定时检查时重试，不影响插件使用：{error}'
   category-read-failed: 读取分类配置失败：{file}
   category-save-failed: 保存分类命名空间数据文件失败：{error}
   unapplied-save-failed: 保存未应用命名空间数据文件失败：{error}
@@ -111,6 +166,7 @@ logs:
   layout-conflict: layout 字符冲突：按钮字符 {symbol} 已被分类槽或内容区占用，该按钮不会显示
   language-unknown: 未知或无效语言 {locale}，回退到 zh_CN。
   language-save-failed: 释放语言文件失败，继续使用内置文案：{error}
+  language-update-failed: '补齐语言文件 {file} 缺失文案失败，保留原文件：{error}'
   language-read-failed: 读取语言文件 {file} 失败，使用内置或回退文案：{error}
 headers:
   categories: 'CraftEngineRecipe 配方分类菜单条目（按顺序显示） / Recipe menu entries (display order)

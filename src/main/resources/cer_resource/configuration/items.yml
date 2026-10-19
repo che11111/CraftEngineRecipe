@@ -3,7 +3,7 @@ items:
   cer:prev:
     material: paper
     data:
-      item_name: "<!i><white>上一页</white>"
+      item_name: "<!i><#EEF2F6>上一页</#EEF2F6>"
     model:
       type: minecraft:model
       path: cer:item/prev
@@ -16,7 +16,7 @@ items:
   cer:next:
     material: paper
     data:
-      item_name: "<!i><white>下一页</white>"
+      item_name: "<!i><#EEF2F6>下一页</#EEF2F6>"
     model:
       type: minecraft:model
       path: cer:item/next
@@ -29,7 +29,7 @@ items:
   cer:blank_items:
     material: paper
     data:
-      item_name: "<!i><white> </white>"
+      item_name: "<!i><#EEF2F6> </#EEF2F6>"
     model:
       type: minecraft:model
       path: cer:item/blank_items
@@ -41,7 +41,7 @@ items:
   cer:back:
     material: paper
     data:
-      item_name: "<!i><white>返回</white>"
+      item_name: "<!i><#EEF2F6>返回</#EEF2F6>"
     model:
       type: minecraft:model
       path: cer:item/back

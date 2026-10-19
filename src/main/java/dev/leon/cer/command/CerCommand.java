@@ -56,6 +56,15 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = (Player) sender;
+        // Direct queries report their own failure sound, including while data is unavailable.
+        if (args.length > 0 && args[0].equalsIgnoreCase("hand")) {
+            this.plugin.browser().openHeldRecipe(player);
+            return true;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("target")) {
+            this.plugin.browser().openTargetBlockRecipe(player);
+            return true;
+        }
         if (!this.plugin.data().isReady()) {
             player.sendMessage(this.plugin.lang().message("messages.data-not-ready", "reason", this.plugin.data().notReadyReason()));
             return true;
@@ -72,10 +81,6 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             this.plugin.searchDialog().open(player);
             return true;
         }
-        if (args.length > 0 && args[0].equalsIgnoreCase("hand")) {
-            this.plugin.browser().openHeldRecipe(player);
-            return true;
-        }
         this.plugin.browser().openApplied(player);
         return true;
     }
@@ -90,6 +95,9 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             }
             if ("hand".startsWith(prefix)) {
                 out.add("hand");
+            }
+            if ("target".startsWith(prefix)) {
+                out.add("target");
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "reload".startsWith(prefix)) {
                 out.add("reload");

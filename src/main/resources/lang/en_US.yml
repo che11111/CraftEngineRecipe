@@ -1,96 +1,151 @@
 # CraftEngineRecipe 语言文件 / Language file
 # 文案支持 MiniMessage；{参数} 是消息占位符，<name>/<count> 等是菜单模板占位符。
 # Text supports MiniMessage; {arguments} are message placeholders, while <name>/<count> are UI template placeholders.
-# 缺少的条目自动使用内置同语言文案，然后回退英文；不会覆盖你的文件。
-# Missing keys use bundled translations for this language, then English; your file is never overwritten.
-prefix: '<aqua>[CraftEngineRecipe]</aqua> '
+# 启动或重载时补齐内置语言文件缺失的条目，保留已有文案；其他缺失文案回退英文。
+# Startup or reload adds missing bundled-language entries, preserves existing text, and falls back to English for other missing entries.
+# 默认文案使用柔和的十六进制配色；配方标题统一使用石墨黑粗体，其他标题保留颜色并加粗，背景图片保持纯白。
+# Default text uses a soft hex palette; recipe titles use bold charcoal, other titles retain their colors and become bold, and background images stay pure white.
+prefix: '<#79CFC9>[CraftEngineRecipe]</#79CFC9> '
 messages:
-  no-permission: <red>You do not have permission to do this.</red>
-  player-only: <red>This command can only be used by a player.</red>
-  reload-start: <yellow>Reloading. You will be notified when the indexes are ready.</yellow>
-  reload-success: <green>Configuration, language and data indexes reloaded.</green>
-  reload-failed: <red>Rebuild failed or a newer reload replaced this request. Check the console.</red>
-  data-not-ready: '<yellow>Data is not ready: {reason}</yellow>'
+  update-available: <#98C69A>New version {latest} is available (current {current}).</#98C69A> <#79CFC9>{url}</#79CFC9>
+  no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
+  player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
+  reload-start: <#E4D397>Reloading. You will be notified when the indexes are ready.</#E4D397>
+  reload-success: <#98C69A>Configuration, language and data indexes reloaded.</#98C69A>
+  reload-failed: <#E58B8B>Rebuild failed or a newer reload replaced this request. Check the console.</#E58B8B>
+  data-not-ready: '<#E4D397>Data is not ready: {reason}</#E4D397>'
   not-ready-reason: Data is initializing, rebuilding, or the last rebuild failed. Please wait; if needed, run /cer reload and check the console.
-  category-not-found: '<red>Category not found: {id}</red>'
-  hand-empty: <yellow>Hold the item in your main hand to look up how to craft it.</yellow>
-  hand-item-unavailable: <red>Your main-hand item is not available in the applied menu, or is restricted by permissions or hiding rules.</red>
-  hand-no-recipe: <yellow>No recipe producing {id} was found; only recipes available through CraftEngine are queried.</yellow>
-  hand-resolve-failed: <red>Could not identify your main-hand item. Check the console.</red>
+  category-not-found: '<#E58B8B>Category not found: {id}</#E58B8B>'
+  hand-empty: <#E4D397>Hold the item in your main hand to look up how to craft it.</#E4D397>
+  hand-item-unavailable: <#E58B8B>Your main-hand item is not available in the applied menu, or is restricted by permissions or hiding rules.</#E58B8B>
+  hand-no-recipe: <#E4D397>No recipe producing {id} was found.</#E4D397>
+  hand-resolve-failed: <#E58B8B>Could not identify your main-hand item. Check the console.</#E58B8B>
+  target-block-empty: <#E4D397>Look at the block whose crafting recipe you want to view.</#E4D397>
+  target-block-unavailable: <#E58B8B>No recipe found for the target block</#E58B8B>
+  target-block-no-recipe: <#E4D397>No recipe producing {id} was found.</#E4D397>
+  target-block-resolve-failed: <#E58B8B>Could not identify the target block. Check the console.</#E58B8B>
 command:
   description: Open the CraftEngineRecipe recipe browser
 ui:
   browser:
-    title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>Recipe Browser</dark_aqua> <gray>»</gray> <white><category></white>
+    title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>Recipe Browser</#287F82> <#B8C0CC>»</#B8C0CC> </bold><#EEF2F6><category></#EEF2F6>
   category-bar:
-    icon-name: <white><name></white>
+    icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
-    - <gray>Click to view this category</gray>
-    - '<dark_gray>Items: <count></dark_gray>'
+    - <#B8C0CC>Click to view this category</#B8C0CC>
+    - '<#8793A5>Items: <count></#8793A5>'
     sub-icon-lore:
-    - <gray>Click to open this subcategory</gray>
-    - '<dark_gray>Items: <count></dark_gray>'
-    admin-only-hint: <dark_gray>This category is only visible to administrators</dark_gray>
-    no-permission-hint: <dark_gray>You need <permission> to view this category</dark_gray>
+    - <#B8C0CC>Click to open this subcategory</#B8C0CC>
+    - '<#8793A5>Items: <count></#8793A5>'
+    admin-only-hint: <#8793A5>This category is only visible to administrators</#8793A5>
+    no-permission-hint: <#8793A5>You need <permission> to view this category</#8793A5>
     prev-category:
-      name: <yellow>◀ Previous category</yellow>
+      name: <#E4D397>◀ Previous category</#E4D397>
     next-category:
-      name: <yellow>Next category ▶</yellow>
+      name: <#E4D397>Next category ▶</#E4D397>
   content:
     prev-page:
-      name: <aqua>◀ Previous page</aqua>
+      name: <#79CFC9>◀ Previous page</#79CFC9>
     next-page:
-      name: <aqua>Next page ▶</aqua>
+      name: <#79CFC9>Next page ▶</#79CFC9>
     back:
-      name: <red>Back to parent</red>
+      name: <#E58B8B>Back to parent</#E58B8B>
     search:
-      name: <gold>Search items</gold>
+      name: <#D8B278>Search items</#D8B278>
       lore:
-      - <gray>Click to search by keyword</gray>
+      - <#B8C0CC>Click to search by keyword</#B8C0CC>
+    hand:
+      name: <#79CFC9>Main-hand recipes</#79CFC9>
+      lore:
+      - <#B8C0CC>Click to see how to craft your main-hand item</#B8C0CC>
+      - <#8793A5>Same as /cer hand</#8793A5>
+    glasses:
+      name: <#79CFC9>Target-block recipes</#79CFC9>
+      lore:
+      - <#B8C0CC>Click to see how to craft the block you are looking at</#B8C0CC>
+      - <#8793A5>Point your crosshair at the block whose recipe you want to view</#8793A5>
+    info:
+      name: <#79CFC9>Usage tips</#79CFC9>
+      lore:
+      - <#B8C0CC>Left-click an item to see how to craft it</#B8C0CC>
+      - <#B8C0CC>Right-click an item to view recipes that use it</#B8C0CC>
+      - <#B8C0CC>Click an empty area on the crafting table screen to go back</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>Multiple recipes rotate automatically</#8793A5>
+    workstations:
+      name: <#D8B278>Browse by workstation</#D8B278>
+      lore:
+      - <#B8C0CC>Click to browse crafting, smelting and more</#B8C0CC>
+      - <#8793A5>Only recipe outputs you can view are shown</#8793A5>
     item-lore:
-    - <gray>Left-click to view recipes</gray>
-    - <gray>Right-click to view uses</gray>
-    - <gray>No window means no matching recipes</gray>
-    - <gray>Or no recipe in vanilla crafting</gray>
+    - <#B8C0CC>Left-click to view recipes</#B8C0CC>
+    - <#B8C0CC>Right-click to view uses</#B8C0CC>
+    - <#B8C0CC>No window means no matching recipes</#B8C0CC>
+    - <#B8C0CC>Or no recipe in vanilla crafting</#B8C0CC>
     empty:
-      name: <red>Nothing here</red>
+      name: <#E58B8B>Nothing here</#E58B8B>
+  # 首行展示 8 种原版合成器，下方仅展示玩家可见的 CraftEngine 配方产物。
+  # The first row shows 8 vanilla workstations; below are only CraftEngine recipe outputs visible to the player.
+  # 不额外导入原版配方，权限与隐藏规则仍然生效。
+  # No extra vanilla recipes are imported; permissions and hiding rules still apply.
+  workstations:
+    title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>Workstations</#287F82> <#B8C0CC>»</#B8C0CC> <#EEF2F6><category></#EEF2F6></bold>
+    categories:
+      crafting: Crafting Table
+      smelting: Furnace
+      blasting: Blast Furnace
+      smoking: Smoker
+      campfire_cooking: Campfire
+      stonecutting: Stonecutter
+      smithing: Smithing Table
+      brewing: Brewing Stand
+    category-lore:
+    - <#B8C0CC>Click to view recipe outputs for this workstation</#B8C0CC>
+    back-name: <#E58B8B>Back to categories</#E58B8B>
+    back-lore:
+    - <#B8C0CC>Click to return to the item category menu</#B8C0CC>
   recipe:
-    title: <dark_aqua>Recipe</dark_aqua> <gray>»</gray> <white><name></white>
-    title-crafting: <dark_aqua>Crafting Recipe</dark_aqua>
-    title-smelting: <gold>Smelting Recipe</gold>
-    title-blasting: <gold>Blasting Recipe</gold>
-    title-smoking: <gold>Smoking Recipe</gold>
-    title-campfire: <gold>Campfire Recipe</gold>
-    title-stonecutting: <gray>Stonecutting Recipe</gray>
-    title-smithing: <gray>Smithing Recipe</gray>
-    title-brewing: <light_purple>Brewing Recipe</light_purple>
-    title-none: <red>No recipe</red>
+    title: <#292D35><bold>Recipe » <name></bold></#292D35>
+    title-crafting: <#292D35><bold>Crafting Recipe</bold></#292D35>
+    title-smelting: <#292D35><bold>Smelting Recipe</bold></#292D35>
+    title-blasting: <#292D35><bold>Blasting Recipe</bold></#292D35>
+    title-smoking: <#292D35><bold>Smoking Recipe</bold></#292D35>
+    title-campfire: <#292D35><bold>Campfire Recipe</bold></#292D35>
+    title-stonecutting: <#292D35><bold>Stonecutting Recipe</bold></#292D35>
+    title-smithing: <#292D35><bold>Smithing Recipe</bold></#292D35>
+    title-brewing: <#292D35><bold>Brewing Recipe</bold></#292D35>
+    title-none: <#292D35><bold>No recipe</bold></#292D35>
   search:
-    dialog-title: <gold>Search Items</gold>
+    dialog-title: <bold><#D8B278>Search Items</#D8B278></bold>
     dialog-label: Enter a keyword
     dialog-hint: Search by item ID, display name 
-    result-title: <white><shift:-8><image:cer:main><shift:-168><dark_aqua>Search Results</dark_aqua> <gray>»</gray> <white><keyword></white>
-    confirm: <green>Search</green>
-    confirm-tooltip: <gray>Find items by keyword</gray>
-    cancel: <red>Cancel</red>
-    cancel-tooltip: <gray>Close the search dialog</gray>
+    result-title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>Search Results</#287F82> <#B8C0CC>»</#B8C0CC> <#EEF2F6><keyword></#EEF2F6></bold>
+    confirm: <#98C69A>Search</#98C69A>
+    confirm-tooltip: <#B8C0CC>Find items by keyword</#B8C0CC>
+    cancel: <#E58B8B>Cancel</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Close the search dialog</#B8C0CC>
   common:
     all-items: All items
-    first-page: <dark_gray>Already on the first page</dark_gray>
-    last-page: <dark_gray>Already on the last page</dark_gray>
-    no-recipe: <gray>This item has no recipes</gray>
-    no-usage: <gray>This item has no uses</gray>
-    dynamic-result: <gray>Result depends on the actual input items</gray>
+    first-page: <#8793A5>Already on the first page</#8793A5>
+    last-page: <#8793A5>Already on the last page</#8793A5>
+    no-recipe: <#B8C0CC>This item has no recipes</#B8C0CC>
+    no-usage: <#B8C0CC>This item has no uses</#B8C0CC>
+    dynamic-result: <#B8C0CC>Result depends on the actual input items</#B8C0CC>
 logs:
+  update-check-enabled: Update checking enabled; checks GitHub stable releases after startup and every 6 hours.
+  update-available: 'New version {latest} is available (current {current}): {url}'
+  update-check-failed: 'Could not check GitHub for updates; will retry at the next scheduled check without affecting the plugin: {error}'
   compatibility-fallback: 'Compatibility operation {operation} failed; keeping the existing fallback. Each call site is logged once per data generation; exception details follow.'
   search-input-failed: 'Failed to read search input; returning to the menu.'
   config-invalid-id: 'Invalid configured ID: {path} = {value}; keeping the existing fallback behavior. Check the namespace and path.'
   config-invalid-material: 'Unknown configured material: {path} = {value}; keeping the existing fallback behavior.'
   config-missing-category: 'Configured CraftEngine category does not exist: {path} = {value}; keeping the configuration. Check the spelling and whether its pack is loaded.'
+  config-update-failed: 'Failed to add missing config.yml defaults; keeping the original file: {error}'
   search-pack-ready: 'Resource pack translations loaded: {count} keys, {files} language files, path {path}'
   search-pack-failed: 'Failed to read resource pack translations: {path} ({error}); using existing name and ID search. Run /cer reload after generating the pack.'
   search-pack-skipped: 'Skipped an invalid resource pack language file: {error}'
   hand-resolve-failed: 'Failed to identify the main-hand item: {error}'
+  target-block-resolve-failed: 'Failed to identify the target block: {error}'
   player-task-failed: Failed to execute a player menu task
   folia-op-unsupported: 'Temporary OP actions stop the action chain without execution on Folia; use an explicit console: command or grant the player command permissions.'
   enabled: CraftEngineRecipe enabled; initializing the data cache...
@@ -111,6 +166,7 @@ logs:
   layout-conflict: 'Layout conflict: button character {symbol} is used by category/content slots and will not be displayed'
   language-unknown: Unknown or invalid language {locale}; falling back to zh_CN.
   language-save-failed: 'Failed to extract language files; using bundled translations: {error}'
+  language-update-failed: 'Failed to add missing translations to {file}; keeping the original file: {error}'
   language-read-failed: 'Failed to read language file {file}; using bundled or fallback translations: {error}'
 headers:
   categories: 'CraftEngineRecipe 配方分类菜单条目（按顺序显示） / Recipe menu entries (display order)

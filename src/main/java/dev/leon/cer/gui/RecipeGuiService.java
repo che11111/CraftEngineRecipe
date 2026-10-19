@@ -4,6 +4,7 @@ import dev.leon.cer.CraftEngineRecipePlugin;
 import dev.leon.cer.config.CerConfig;
 import dev.leon.cer.data.CraftEngineData;
 import dev.leon.cer.data.RecipeIndex;
+import dev.leon.cer.data.WorkstationRecipes;
 import dev.leon.cer.util.ItemBridge;
 import dev.leon.cer.util.CompatibilityWarnings;
 import net.kyori.adventure.text.Component;
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.IntConsumer;
 
 public final class RecipeGuiService {
 
@@ -66,15 +68,31 @@ public final class RecipeGuiService {
         if (recipes.isEmpty()) {
             return false;
         }
+        return this.showRecipe(player, itemId, usageMode, index, recipes,
+                next -> this.open(player, itemId, usageMode, next));
+    }
+
+    /** A workstation selection rotates only the chosen type's recipes for this visible output. */
+    public boolean openWorkstation(Player player, WorkstationRecipes.Output output, int index, long generation) {
+        if (!this.browser.claim(player) || this.data.generation() != generation
+                || !this.browser.visibleItemIds(player).contains(output.result()) || output.recipes().isEmpty()) return false;
+        boolean opened = this.showRecipe(player, output.result(), false, index, output.recipes(),
+                next -> this.openWorkstation(player, output, next, generation));
+        if (opened) GuiSession.of(player).recipeSelection(output, generation);
+        return opened;
+    }
+
+    private boolean showRecipe(Player player, Key itemId, boolean usageMode, int index, List<Recipe> recipes,
+                               IntConsumer openIndex) {
         int safeIndex = Math.max(0, Math.min(index, recipes.size() - 1));
         Recipe recipe = recipes.get(safeIndex);
         GuiSession.of(player).recipeContext(itemId, safeIndex, usageMode);
         this.openRecipe(player, recipe, recipes, safeIndex, usageMode);
-        this.scheduleRotation(player, itemId, usageMode, safeIndex, recipes);
+        this.scheduleRotation(player, safeIndex, recipes, openIndex);
         return true;
     }
 
-    private void scheduleRotation(Player player, Key itemId, boolean usageMode, int index, List<Recipe> recipes) {
+    private void scheduleRotation(Player player, int index, List<Recipe> recipes, IntConsumer openIndex) {
         this.cancelRotation(player);
         if (recipes.size() <= 1) {
             return;
@@ -90,7 +108,7 @@ public final class RecipeGuiService {
                 this.cancelRotation(player);
                 return;
             }
-            this.open(player, itemId, usageMode, next);
+            openIndex.accept(next);
         }, interval);
         if (task != null) this.rotateTasks.put(player.getUniqueId(), task);
     }
@@ -127,6 +145,14 @@ public final class RecipeGuiService {
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> {
             Player p = click.player();
             boolean usage = click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT;
+            GuiSession session = GuiSession.of(p);
+            WorkstationRecipes.Output selection = session.recipeSelection();
+            if (!usage && selection != null && target.equals(selection.result())) {
+                if (this.openWorkstation(p, selection, 0, session.recipeGeneration())) {
+                    Sounds.play(p, this.config.sounds().click());
+                }
+                return;
+            }
             if (!this.hasContent(target, usage)) {
                 return;
             }
@@ -374,14 +400,8 @@ public final class RecipeGuiService {
     }
 
     private void backToBrowser(Player player) {
-        GuiSession session = GuiSession.of(player);
-        Key category = session.currentCategory();
         Sounds.play(player, this.config.sounds().back());
-        if (category != null && this.data.category(category).isPresent()) {
-            this.browser.openCategory(player, category, session.categoryPage());
-        } else {
-            this.browser.openDefault(player);
-        }
+        this.browser.returnToBrowser(player);
     }
 
     private void onOutsideClick(ClickEvent event) {
