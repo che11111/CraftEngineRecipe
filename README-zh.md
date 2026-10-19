@@ -22,15 +22,15 @@
 
 <table>
   <tr>
-    <td align="center"><strong>页面展示</strong></td>
-    <td align="center"><strong>搜索展示</strong></td>
+    <td align="center"><strong>菜单展示</strong><br><small>按命名空间分类布局与各种合成器分类布局</small></td>
+    <td align="center"><strong>功能展示</strong><br><small>查询手持物品配方、准星目标配方与使用搜索框</small></td>
   </tr>
   <tr>
     <td align="center">
-      <img src="img/202610291172005.gif" alt="Page Display Demo" width="100%">
+      <img src="img/Menu_Display.gif" alt="菜单展示：按命名空间分类布局与各种合成器分类布局" width="100%">
     </td>
     <td align="center">
-      <img src="img/202610291192714.gif" alt="Search Display Demo" width="100%">
+      <img src="img/Feature_Display.gif" alt="功能展示：查询手持物品配方、准星目标配方与使用搜索框" width="100%">
     </td>
   </tr>
 </table>

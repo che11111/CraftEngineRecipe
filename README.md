@@ -22,15 +22,15 @@
 
 <table>
   <tr>
-    <td align="center"><strong>Page Display</strong></td>
-    <td align="center"><strong>Search Display</strong></td>
+    <td align="center"><strong>Menu Showcase</strong><br><small>Browse by namespace or workstation type</small></td>
+    <td align="center"><strong>Feature Showcase</strong><br><small>Find recipes for held items and targeted blocks, and use search</small></td>
   </tr>
   <tr>
     <td align="center">
-      <img src="img/202610291172005.gif" alt="Page Display Demo" width="100%">
+      <img src="img/Menu_Display.gif" alt="Menu Showcase: namespace and workstation layouts" width="100%">
     </td>
     <td align="center">
-      <img src="img/202610291192714.gif" alt="Search Display Demo" width="100%">
+      <img src="img/Feature_Display.gif" alt="Feature Showcase: held item recipes, targeted block recipes, and search" width="100%">
     </td>
   </tr>
 </table>
