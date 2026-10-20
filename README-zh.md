@@ -4,7 +4,8 @@
 
 <h1 align="center">CraftEngineRecipe</h1>
 
-<p align="center">基于 CraftEngine 的物品与配方浏览插件，支持分类浏览、拼音搜索和配方用途查询。</p>
+<p align="center">基于 CraftEngine 的物品与配方浏览插件，支持分类浏览、拼音搜索和配方用途查询。CER不仅仅是作为配方书，更像是一本CE物品图鉴。</p>
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/Minecraft-26.1.2%20%2F%2026.2%20%2F%2026.3-3fb950" alt="Minecraft 26.1.2 / 26.2 / 26.3">
