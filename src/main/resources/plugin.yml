@@ -1,6 +1,6 @@
 name: CraftEngineRecipe
 version: '${project.version}'
-main: dev.leon.cer.CraftEngineRecipePlugin
+main: dev.che1s.craftenginerecipe.CraftEngineRecipePlugin
 api-version: '${mc.api.version}'
 authors: [ che1s, nsoer ]
 description: Recipe browser for CraftEngine with categories and search

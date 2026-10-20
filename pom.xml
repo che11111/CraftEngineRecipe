@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.leon</groupId>
+    <groupId>dev.che1s</groupId>
     <artifactId>craftenginerecipe</artifactId>
-    <version>1.0.16</version>
+    <version>1.0.17</version>
     <packaging>jar</packaging>
     <name>CraftEngineRecipe</name>
     <description>基于 CraftEngine 物品的高级配方浏览器（常驻分类栏 + 搜索）</description>
@@ -189,19 +189,19 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.bstats</pattern>
-                                    <shadedPattern>dev.leon.cer.libs.bstats</shadedPattern>
+                                    <shadedPattern>dev.che1s.craftenginerecipe.libs.bstats</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>xyz.xenondevs.invui</pattern>
-                                    <shadedPattern>dev.leon.cer.libs.invui</shadedPattern>
+                                    <shadedPattern>dev.che1s.craftenginerecipe.libs.invui</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>xyz.xenondevs.inventoryaccess</pattern>
-                                    <shadedPattern>dev.leon.cer.libs.inventoryaccess</shadedPattern>
+                                    <shadedPattern>dev.che1s.craftenginerecipe.libs.inventoryaccess</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>net.sourceforge.pinyin4j</pattern>
-                                    <shadedPattern>dev.leon.cer.libs.pinyin4j</shadedPattern>
+                                    <shadedPattern>dev.che1s.craftenginerecipe.libs.pinyin4j</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
