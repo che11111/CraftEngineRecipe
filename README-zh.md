@@ -127,11 +127,13 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 [分类与权限](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/) · [隐藏物品](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/#只隐藏物品保留分类按钮) · [隐藏分类按钮](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/#隐藏分类按钮及内容) · [自定义按钮](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/custom-buttons/) · [音效](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/menu-sounds/) · [排障](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/troubleshooting/) · [更新插件](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/updating/) · [更新日志](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/changelog/)
 
-本地扩展文档：[自定义配方](docs/custom-recipes.md) · [农夫乐事 / 森罗物语接入](docs/integrations.md)
+
 
 ## 使用统计
 
 [查看 bStats 使用统计](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772)。
+
+[![bStats](https://bstats.org/signatures/bukkit/CraftEngineRecipe.svg)](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772)
 
 ## 许可证
 

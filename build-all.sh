@@ -1,5 +1,5 @@
 #!/bin/sh
-# 从干净源码依次构建每个 Minecraft 目标，再将三个发行版 JAR 收集到 dist/。
+# 从源码依次构建每个 Minecraft 目标，再将三个发行版 JAR 收集到 dist/。
 # JAVA_HOME 用于选择 JDK 25；CER_MAVEN 可指定 PATH 之外的 Maven 可执行文件。
 # 额外参数会原样传给 Maven，例如：./build-all.sh -o -Dmaven.repo.local=/path/to/repository
 set -eu

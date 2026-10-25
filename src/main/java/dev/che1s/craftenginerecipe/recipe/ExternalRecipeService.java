@@ -125,8 +125,8 @@ public final class ExternalRecipeService implements Listener {
             } catch (IOException | RuntimeException error) {
                 failures.put(sourceId + "-cultivation", error.getMessage());
             }
-            Adapter adapter = this.adapter(sourceId);
-            if (adapter == null) {
+            RecipeSource recipeSource = this.recipeSource(sourceId);
+            if (recipeSource == null) {
                 if (cultivationExported) {
                     sources++;
                 } else {
@@ -135,11 +135,11 @@ public final class ExternalRecipeService implements Listener {
                 continue;
             }
             try {
-                if (!adapter.source.ready()) {
+                if (!recipeSource.ready()) {
                     failures.put(sourceId, "source plugin is not ready");
                     continue;
                 }
-                List<DisplayRecipe> captured = List.copyOf(adapter.source.capture());
+                List<DisplayRecipe> captured = List.copyOf(recipeSource.capture());
                 Path target = this.recipesDirectory().resolve(sourceId).normalize();
                 if (!target.startsWith(this.recipesDirectory().normalize())) {
                     throw new IOException("invalid source directory");
@@ -164,6 +164,18 @@ public final class ExternalRecipeService implements Listener {
     private Adapter adapter(String sourceId) {
         for (Adapter adapter : this.adapters.values()) {
             if (adapter.source.id().equals(sourceId)) return adapter;
+        }
+        return null;
+    }
+
+    private RecipeSource recipeSource(String sourceId) {
+        Adapter adapter = this.adapter(sourceId);
+        if (adapter != null) return adapter.source;
+        // CraftEngine 是硬依赖，始终从其实时 API 读取，不依赖插件名扫描是否成功。
+        if ("craftengine".equals(sourceId)
+                && this.plugin.getConfig().getBoolean("sources.craftengine", true)
+                && this.plugin.data().isReady()) {
+            return new CraftEngineRecipeSource(this.plugin);
         }
         return null;
     }
@@ -233,12 +245,20 @@ public final class ExternalRecipeService implements Listener {
         for (var entry : List.copyOf(this.adapters.entrySet())) {
             Adapter adapter = entry.getValue();
             Path target = this.recipesDirectory().resolve(adapter.source.id());
-            if (Files.exists(target)) {
+            boolean exported;
+            try {
+                exported = hasExportedRecipeFiles(target);
+            } catch (IOException error) {
+                this.warn(adapter.source.id(), error);
+                continue;
+            }
+            if (exported) {
                 this.adapters.remove(entry.getKey(), adapter);
                 continue;
             }
             try {
                 if (!adapter.source.ready()) continue;
+                if (Files.exists(target)) deleteRecursively(target);
                 List<DisplayRecipe> captured = adapter.source.capture();
                 RecipeFileExporter.Result result = RecipeFileExporter.export(
                         this.recipesDirectory(), adapter.source.id(), captured);
@@ -253,7 +273,41 @@ public final class ExternalRecipeService implements Listener {
                 this.warn(entry.getKey().getName(), error);
             }
         }
+        this.exportMissingCraftEngine();
         this.sourcesSettled = this.adapters.isEmpty();
+    }
+
+    private void exportMissingCraftEngine() {
+        if (!this.plugin.getConfig().getBoolean("sources.craftengine", true)
+                || !this.plugin.data().isReady()) return;
+        Path target = this.recipesDirectory().resolve(CraftEngineRecipeSource.SOURCE_ID);
+        try {
+            if (hasExportedRecipeFiles(target)) return;
+            if (Files.exists(target)) deleteRecursively(target);
+            RecipeSource source = new CraftEngineRecipeSource(this.plugin);
+            if (!source.ready()) return;
+            List<DisplayRecipe> captured = source.capture();
+            RecipeFileExporter.Result result = RecipeFileExporter.export(
+                    this.recipesDirectory(), source.id(), captured);
+            this.adapters.entrySet().removeIf(entry ->
+                    entry.getValue().source.id().equals(CraftEngineRecipeSource.SOURCE_ID));
+            if (result.installed()) {
+                this.plugin.getLogger().info(this.plugin.lang().text("logs.recipe-source-exported",
+                        "source", "CraftEngine", "files", String.valueOf(result.files()),
+                        "count", String.valueOf(result.recipes())));
+            }
+        } catch (IOException | RuntimeException | LinkageError error) {
+            this.warn("CraftEngine", error);
+        }
+    }
+
+    static boolean hasExportedRecipeFiles(Path directory) throws IOException {
+        if (!Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)) return false;
+        try (var paths = Files.walk(directory)) {
+            return paths.anyMatch(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
+                    && (path.getFileName().toString().endsWith(".yml")
+                    || path.getFileName().toString().endsWith(".yaml")));
+        }
     }
 
     private void reloadFiles(boolean initial) {
