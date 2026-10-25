@@ -4,7 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
 
-/** All menu sound settings; old Open/Close lists are read only for compatibility. */
+/** 菜单的全部音效设置。 */
 public record SoundSettings(String changeCategory, String changePage, String click, String back,
                             String search, String querySuccess, String queryFailure,
                             List<MenuSound> openMenu, List<MenuSound> closeMenu) {
@@ -19,23 +19,13 @@ public record SoundSettings(String changeCategory, String changePage, String cli
                 config.getString("sounds.search", "minecraft:ui.toast.in"),
                 config.getString("sounds.query-success", "UI_BUTTON_CLICK-1-2"),
                 config.getString("sounds.query-failure", "BLOCK_NOTE_BLOCK_BASS-1-1"),
-                menuSound(config, "sounds.open-menu", "Open", "sounds.open", "BLOCK_IRON_DOOR_OPEN-1-2"),
-                menuSound(config, "sounds.close-menu", "Close", null, "BLOCK_IRON_DOOR_CLOSE-1-2"));
+                menuSound(config, "sounds.open-menu", "BLOCK_IRON_DOOR_OPEN-1-2"),
+                menuSound(config, "sounds.close-menu", "BLOCK_IRON_DOOR_CLOSE-1-2"));
     }
 
-    private static List<MenuSound> menuSound(FileConfiguration config, String key, String legacyActions,
-                                              String legacyKey, String fallback) {
-        // Explicit new values (including empty strings) must override old config and bundled defaults.
+    private static List<MenuSound> menuSound(FileConfiguration config, String key, String fallback) {
+        // 显式配置值（包括空字符串）会覆盖默认值。
         if (config.contains(key, true)) return single(config.get(key));
-        if (config.contains(legacyActions, true)) {
-            return config.getStringList(legacyActions).stream().map(String::trim)
-                    .filter(action -> action.regionMatches(true, 0, "sound:", 0, 6))
-                    .map(action -> action.substring(6).trim()).filter(sound -> !sound.isBlank())
-                    .map(sound -> new MenuSound(sound, 1.0f)).toList();
-        }
-        if (legacyKey != null && config.contains(legacyKey, true)) {
-            return single(config.get(legacyKey));
-        }
         return single(config.get(key, fallback));
     }
 

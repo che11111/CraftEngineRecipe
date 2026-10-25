@@ -1,0 +1,5 @@
+author: CraftEngineRecipe,HuiDu_OwO
+version: 1.0
+description: CraftEngineRecipe 插件内置资源包
+namespace: cer_cute
+enable: true

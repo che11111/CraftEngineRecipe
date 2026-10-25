@@ -1,0 +1,52 @@
+items:
+  # 主手配方按钮 / Main-hand recipe button
+  cer_rough:palm_blue_cuff:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6>主手配方</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/palm_blue_cuff
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/palm_blue_cuff
+
+  # 操作说明按钮 / Usage tips button
+  cer_rough:info_icon:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6>操作说明</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/info_icon
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/info_icon
+
+  # 合成器分类按钮 / Workstation category button
+  cer_rough:crafting_table:
+    material: crafting_table
+    data:
+      item_name: "<!i><#EEF2F6>合成器</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/crafting_table
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/crafting_table
+
+  # 准星目标方块配方按钮 / Target-block recipe button
+  cer_rough:glasses:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6>目标方块配方</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/glasses
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/glasses

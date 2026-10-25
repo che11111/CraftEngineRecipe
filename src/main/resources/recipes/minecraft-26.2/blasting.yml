@@ -1,0 +1,1194 @@
+Title: 原版·高炉
+Layout:
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+Options:
+  Page: blasting
+Workstation:
+  id: minecraft:blasting
+  name: 原版·高炉
+  icon:
+    Material: minecraft:blast_furnace
+Recipes:
+  minecraft_data:coal_from_blasting_coal_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:coal_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:coal
+        Usage: result
+        Amount: 1
+  minecraft_data:coal_from_blasting_deepslate_coal_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_coal_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:coal
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_ingot_from_blasting_copper_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_ingot_from_blasting_deepslate_copper_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_copper_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_ingot_from_blasting_raw_copper:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:raw_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_pickaxe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_shovel
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_axe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_hoe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_sword
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_spear
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_horse_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_blasting-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:diamond_from_blasting_deepslate_diamond_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_diamond_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond
+        Usage: result
+        Amount: 1
+  minecraft_data:diamond_from_blasting_diamond_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diamond_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond
+        Usage: result
+        Amount: 1
+  minecraft_data:emerald_from_blasting_deepslate_emerald_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_emerald_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:emerald
+        Usage: result
+        Amount: 1
+  minecraft_data:emerald_from_blasting_emerald_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:emerald_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:emerald
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_blasting_deepslate_gold_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_gold_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_blasting_gold_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:gold_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_blasting_nether_gold_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_gold_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_blasting_raw_gold:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:raw_gold
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_pickaxe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_shovel
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_axe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_hoe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_sword
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_spear
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_horse_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_blasting-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_ingot_from_blasting_deepslate_iron_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_iron_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_ingot_from_blasting_iron_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_ingot_from_blasting_raw_iron:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:raw_iron
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_pickaxe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_shovel
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_axe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_hoe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_sword
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_spear
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_horse_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-13:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-14:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-15:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_blasting-variant-16:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:lapis_lazuli_from_blasting_deepslate_lapis_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_lapis_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:lapis_lazuli
+        Usage: result
+        Amount: 1
+  minecraft_data:lapis_lazuli_from_blasting_lapis_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:lapis_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:lapis_lazuli
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_scrap_from_blasting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:ancient_debris
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:netherite_scrap
+        Usage: result
+        Amount: 1
+  minecraft_data:quartz_from_blasting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_quartz_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:quartz
+        Usage: result
+        Amount: 1
+  minecraft_data:redstone_from_blasting_deepslate_redstone_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_redstone_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:redstone
+        Usage: result
+        Amount: 1
+  minecraft_data:redstone_from_blasting_redstone_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:redstone_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:redstone
+        Usage: result
+        Amount: 1

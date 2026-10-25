@@ -5,7 +5,6 @@
 #
 #  categories.yml 结构（与本示例不同，实际文件为）： / Actual categories.yml structure (unlike this example list):
 #    entries:        # 有序列表，顺序即菜单显示顺序，命名空间与按钮可自由混排 / Ordered list; mix namespaces and buttons in display order
-#    hidden-items:   # 旧版顶层隐藏规则仍兼容 / Legacy top-level hidden rules are still supported
 #  未写进 categories.yml 的命名空间会自动写入 categories-unapplied.yml； / Unconfigured namespaces are written to categories-unapplied.yml.
 #  管理员用 /cer unapplied 预览，正式 /cer 菜单仅显示 categories.yml 的条目。 / Admins preview with /cer unapplied; /cer shows only applied entries.
 #  如需启用某个命名空间，把它从 categories-unapplied.yml 复制到 categories.yml 的 entries 即可。 / To apply a namespace, copy it into entries in categories.yml.
@@ -31,6 +30,25 @@
   # Hide category entries and their browsing/search paths; full category IDs only, no '*'.
   hidden-categories:
     - internal:gui
+
+  # 可选，默认 true：该命名空间的隐藏规则也会影响合成器分类页。
+  # Optional, default true: this namespace's hidden rules also affect workstation pages.
+  # 设为 false 后，hidden-items / hidden-categories 只影响普通分类与搜索。
+  # When false, hidden-items / hidden-categories only affect normal categories and search.
+  hidden-rules-affect-workstations: true
+
+  # 可选：按物品命名空间、再按路径字母顺序排序。
+  # Optional: sort items by namespace, then by path.
+  sort-by-namespace: false
+  # 可选：隐藏没有任何可浏览配方的物品，使用 CER 当前配方逻辑判断。
+  # Optional: hide items without any browsable recipe using CER's current recipe logic.
+  hide-items-without-recipes: false
+
+  # 可选，默认 true：在按命名空间分类的页面显示该命名空间的分类入口。
+  # Optional, default true: show this namespace's category entries in the namespace browser.
+  # 设为 false 后不占用分类按钮，但物品仍可用于搜索、主手/准星查询和合成器产物页面。
+  # false hides the category entries while keeping recipe search, direct queries and workstation outputs available.
+  category-entry: true
 
   # 以下四个字段可选：自定义该命名空间下的悬浮提示，不写则用语言文件中的默认值 / Optional text overrides for this namespace; otherwise use language defaults.
   icon-name: '<#EEF2F6><name></#EEF2F6>'   # 分类图标名字模板（<name> 会被替换为分类名） / Category icon name template; <name> is the category name
@@ -161,3 +179,21 @@
 # Applies to top-level bars, child-category buttons and search paths, including for admins.
 # 跳过隐藏分类的全部下级路径；同一物品或子分类经其他可见路径仍可访问。
 # Skips descendants through hidden paths; other visible item/category paths still work.
+
+# ----------------------------------------------------------------------------
+# 六、仅保留配方访问、不显示分类按钮 / 6. Recipe access without a category button
+# ----------------------------------------------------------------------------
+# 适合只有一个方块或只向其他命名空间提供配方的插件。
+# Useful for addons that contain only one block or contribute recipes to another namespace.
+# visibility / permission 仍然生效；这些物品仍会进入搜索、直接查询和合成器页面。
+# visibility / permission still apply; the items remain available to search, direct queries and workstation pages.
+# entries:
+#   - id: woodworkingsaw
+#     visibility: player
+#     permission: ''
+#     category-entry: false
+#
+#   - id: honeycomb_brewing
+#     visibility: player
+#     permission: ''
+#     category-entry: false

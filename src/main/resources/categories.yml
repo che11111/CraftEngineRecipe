@@ -1,0 +1,22 @@
+# CraftEngineRecipe 配方分类菜单条目（按顺序显示） / Recipe menu entries (display order)
+# 命名空间：id + visibility(admin/player/permission) + permission
+# Namespace: id + visibility(admin/player/permission) + permission
+# 可选：icon-name / item-lore / icon-lore / sub-icon-lore
+# Optional: icon-name / item-lore / icon-lore / sub-icon-lore
+# 自定义按钮：display + actions，可与命名空间条目混排
+# Custom buttons: display + actions; mix freely with namespace entries
+# 未配置的命名空间写入 categories-unapplied.yml，用 /cer unapplied 预览
+# Unconfigured namespaces go to categories-unapplied.yml; preview with /cer unapplied
+# hidden-categories 隐藏分类入口与路径；hidden-items 只隐藏物品 / hidden-categories hides category entries and paths; hidden-items hides only items
+# 完整示例见 categories-example.yml / See categories-example.yml for examples
+
+entries:
+- id: minecraft
+  visibility: player
+  permission: ''
+  sort-by-namespace: true
+  hide-items-without-recipes: true
+  icon-name: '<white>原版物品</white>'
+  icon-lore:
+    - '<gray>点击查看所有原版物品</gray>'
+    - '<dark_gray>物品数: <count></dark_gray>'

@@ -7,9 +7,29 @@
 # Default text uses a soft hex palette; recipe titles use bold charcoal, other titles retain their colors and become bold, and background images stay pure white.
 prefix: '<#79CFC9>[CraftEngineRecipe]</#79CFC9> '
 messages:
+  debug-usage: '<#E4D397>Usage: /cer debug recipes | /cer debug performance [reset]</#E4D397>'
+  debug-export-start: '<#E4D397>Capturing all recipes in small batches; the snapshot will be saved asynchronously in the plugin debug folder.</#E4D397>'
+  debug-export-busy: '<#E4D397>A recipe export is already running. Please wait.</#E4D397>'
+  debug-export-cooldown: '<#E4D397>Please wait {seconds} seconds before exporting again.</#E4D397>'
+  debug-export-success: '<#98C69A>Recipes saved: {path} (Bukkit {bukkit}, CraftEngine {native}, CER providers {external}; entry errors {errors}).</#98C69A>'
+  debug-export-failed: '<#E58B8B>Recipe export failed: {error}. Check the console; retry after recipe reloads have completed.</#E58B8B>'
+  debug-performance-header: '<#79CFC9>Performance statistics ({seconds} seconds since startup or last reset)</#79CFC9>'
+  debug-performance-reset: '<#98C69A>Plugin operation timers and counters reset. Caches and server performance statistics are unchanged.</#98C69A>'
+  debug-performance-server: '<#B8C0CC>Server TPS (1/5/15 min): {tps}, average MSPT: {mspt}, Folia: {folia}</#B8C0CC>'
+  debug-performance-data: '<#B8C0CC>Index ready={ready} generation={generation}; CE items {items}, categories {categories}, recipes {native}; provider recipes {external}, items {externalItems}</#B8C0CC>'
+  debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
+  debug-performance-operation: '<#B8C0CC>{name}: {count} calls, total {total} ms, average {average} ms, max {max} ms</#B8C0CC>'
+  debug-performance-empty: '<#8793A5>No operation timings yet. Use the menus and run this command again.</#8793A5>'
+  debug-performance-note: '<#8793A5>Timings may be nested and cannot be added into a server CPU percentage. Reset, reproduce the slowdown, then inspect; use spark for call stacks. Global TPS/MSPT may be unavailable on Folia.</#8793A5>'
   update-available: <#98C69A>New version {latest} is available (current {current}).</#98C69A> <#79CFC9>{url}</#79CFC9>
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
+  personalization-saved: '<#98C69A>Preferences saved: menu {menu}, restore position: {remember}.</#98C69A>'
+  index-build-started: '<#E4D397>Detected {plugins}; building the recipe index...</#E4D397>'
+  recipe-export-usage: '<#E4D397>Usage: /cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
+  recipe-export-started: '<#E4D397>Reading source plugins and regenerating recipe files, please wait.</#E4D397>'
+  recipe-export-complete: '<#98C69A>Recipe export complete: {sources} sources, {files} files and {recipes} recipes. Failures: {failures}</#98C69A>'
+  recipe-export-failed: '<#E58B8B>No recipe source was exported successfully: {failures}</#E58B8B>'
   reload-start: <#E4D397>Reloading. You will be notified when the indexes are ready.</#E4D397>
   reload-success: <#98C69A>Configuration, language and data indexes reloaded.</#98C69A>
   reload-failed: <#E58B8B>Rebuild failed or a newer reload replaced this request. Check the console.</#E58B8B>
@@ -27,8 +47,11 @@ messages:
 command:
   description: Open the CraftEngineRecipe recipe browser
 ui:
+  additional-recipes:
+    name: '<#79CFC9>Additional recipes</#79CFC9>'
+    title: '<#287F82>Additional recipes</#287F82>'
   browser:
-    title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>Recipe Browser</#287F82> <#B8C0CC>»</#B8C0CC> </bold><#EEF2F6><category></#EEF2F6>
+    title: '<bold><#374151>Recipe Browser</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
   category-bar:
     icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
@@ -59,6 +82,15 @@ ui:
       lore:
       - <#B8C0CC>Click to see how to craft your main-hand item</#B8C0CC>
       - <#8793A5>Same as /cer hand</#8793A5>
+    query:
+      name: <#79CFC9>Recipe lookup</#79CFC9>
+      lore:
+      - <#B8C0CC>Left-click: recipes for the main-hand item</#B8C0CC>
+      - <#B8C0CC>Right-click: recipes for the targeted block</#B8C0CC>
+    close:
+      name: <#E58B8B>Close menu</#E58B8B>
+      lore:
+      - <#B8C0CC>Click to close the recipe browser (same as ESC)</#B8C0CC>
     glasses:
       name: <#79CFC9>Target-block recipes</#79CFC9>
       lore:
@@ -77,28 +109,36 @@ ui:
       lore:
       - <#B8C0CC>Click to browse crafting, smelting and more</#B8C0CC>
       - <#8793A5>Only recipe outputs you can view are shown</#8793A5>
-    item-lore:
-    - <#B8C0CC>Left-click to view recipes</#B8C0CC>
-    - <#B8C0CC>Right-click to view uses</#B8C0CC>
-    - <#B8C0CC>No window means no matching recipes</#B8C0CC>
-    - <#B8C0CC>Or no recipe in vanilla crafting</#B8C0CC>
+      personalization-lore: '<#79CFC9>Right-click: personalization settings</#79CFC9>'
+    # 留空表示不在物品 lore 后追加任何提示。
+    # Empty means no extra item lore is appended.
+    item-lore: []
     empty:
       name: <#E58B8B>Nothing here</#E58B8B>
-  # 首行展示 8 种原版合成器，下方仅展示玩家可见的 CraftEngine 配方产物。
-  # The first row shows 8 vanilla workstations; below are only CraftEngine recipe outputs visible to the player.
-  # 不额外导入原版配方，权限与隐藏规则仍然生效。
-  # No extra vanilla recipes are imported; permissions and hiding rules still apply.
+  personalization:
+    title: <bold><#D8B278>Personalization</#D8B278></bold>
+    description: <#B8C0CC>Choose your main menu style and whether reopening the menu restores your last position.</#B8C0CC>
+    menu-pack-label: <#79CFC9>Main menu style</#79CFC9>
+    remember-label: <#79CFC9>Restore the last position after closing</#79CFC9>
+    on: Enabled
+    off: Disabled
+    save: <#98C69A>Save preferences</#98C69A>
+    save-tooltip: <#B8C0CC>Save these personalization settings</#B8C0CC>
+    cancel: <#E58B8B>Cancel</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Discard changes and return to the menu</#B8C0CC>
+  # The cultivation data is controlled by the separate vanilla and CraftEngine cultivation source flags.
   workstations:
-    title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>Workstations</#287F82> <#B8C0CC>»</#B8C0CC> <#EEF2F6><category></#EEF2F6></bold>
+    title: '<bold><#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
     categories:
-      crafting: Crafting Table
-      smelting: Furnace
-      blasting: Blast Furnace
-      smoking: Smoker
-      campfire_cooking: Campfire
-      stonecutting: Stonecutter
-      smithing: Smithing Table
-      brewing: Brewing Stand
+      crafting: Vanilla · Crafting Table
+      smelting: Vanilla · Furnace
+      blasting: Vanilla · Blast Furnace
+      smoking: Vanilla · Smoker
+      campfire_cooking: Vanilla · Campfire
+      stonecutting: Vanilla · Stonecutter
+      smithing: Vanilla · Smithing Table
+      brewing: Vanilla · Brewing Stand
+      cultivation: Cultivation
     category-lore:
     - <#B8C0CC>Click to view recipe outputs for this workstation</#B8C0CC>
     back-name: <#E58B8B>Back to categories</#E58B8B>
@@ -106,20 +146,20 @@ ui:
     - <#B8C0CC>Click to return to the item category menu</#B8C0CC>
   recipe:
     title: <#292D35><bold>Recipe » <name></bold></#292D35>
-    title-crafting: <#292D35><bold>Crafting Recipe</bold></#292D35>
-    title-smelting: <#292D35><bold>Smelting Recipe</bold></#292D35>
-    title-blasting: <#292D35><bold>Blasting Recipe</bold></#292D35>
-    title-smoking: <#292D35><bold>Smoking Recipe</bold></#292D35>
-    title-campfire: <#292D35><bold>Campfire Recipe</bold></#292D35>
-    title-stonecutting: <#292D35><bold>Stonecutting Recipe</bold></#292D35>
-    title-smithing: <#292D35><bold>Smithing Recipe</bold></#292D35>
-    title-brewing: <#292D35><bold>Brewing Recipe</bold></#292D35>
-    title-none: <#292D35><bold>No recipe</bold></#292D35>
+    title-crafting: <#292D35><bold>Vanilla · Crafting Table</bold></#292D35>
+    title-smelting: <#292D35><bold>Vanilla · Furnace</bold></#292D35>
+    title-blasting: <#292D35><bold>Vanilla · Blast Furnace</bold></#292D35>
+    title-smoking: <#292D35><bold>Vanilla · Smoker</bold></#292D35>
+    title-campfire: <#292D35><bold>Vanilla · Campfire</bold></#292D35>
+    title-stonecutting: <#292D35><bold>Vanilla · Stonecutter</bold></#292D35>
+    title-smithing: <#292D35><bold>Vanilla · Smithing Table</bold></#292D35>
+    title-brewing: <#292D35><bold>Vanilla · Brewing Stand</bold></#292D35>
+    title-none: <#292D35><bold>No Recipe</bold></#292D35>
   search:
     dialog-title: <bold><#D8B278>Search Items</#D8B278></bold>
     dialog-label: Enter a keyword
     dialog-hint: Search by item ID, display name 
-    result-title: <#FFFFFF><shift:-8><image:cer:main><shift:-168><bold><#287F82>Search Results</#287F82> <#B8C0CC>»</#B8C0CC> <#EEF2F6><keyword></#EEF2F6></bold>
+    result-title: '<bold><#374151>Search Results</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>'
     confirm: <#98C69A>Search</#98C69A>
     confirm-tooltip: <#B8C0CC>Find items by keyword</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
@@ -131,8 +171,18 @@ ui:
     no-recipe: <#B8C0CC>This item has no recipes</#B8C0CC>
     no-usage: <#B8C0CC>This item has no uses</#B8C0CC>
     dynamic-result: <#B8C0CC>Result depends on the actual input items</#B8C0CC>
+  vanilla-items:
+    name: Vanilla Items
 logs:
-  update-check-enabled: Update checking enabled; checks GitHub stable releases after startup and every 6 hours.
+  debug-export-failed: Failed to export the recipe diagnostic file
+  recipe-source-ready: 'Recipe source {source} updated: {count} display recipes; files: {files}'
+  recipe-source-exported: 'Exported {count} {source} recipes into {files} workstation files; recipes/ is now the only runtime source.'
+  recipe-files-reloaded: 'Changed recipe files: {files}; automatically reloaded {count} display recipes.'
+  session-save-failed: 'Failed to save the player menu position: {error}'
+  session-load-failed: 'Failed to restore the player menu position; opening the default view: {error}'
+  recipe-source-failed: 'Recipe source {source} could not update; retaining its last valid data: {error}'
+  plugin-fingerprint-mismatch: 'Plugin {plugin} was found, but main class {actual} does not match the expected {expected}; the recipe source was ignored.'
+  update-check-enabled: Update checking enabled.
   update-available: 'New version {latest} is available (current {current}): {url}'
   update-check-failed: 'Could not check GitHub for updates; will retry at the next scheduled check without affecting the plugin: {error}'
   compatibility-fallback: 'Compatibility operation {operation} failed; keeping the existing fallback. Each call site is logged once per data generation; exception details follow.'
@@ -155,7 +205,7 @@ logs:
   pack-first-installed: 'Resources installed for the first time at {path} ({count} files added); future restarts or reloads will leave CraftEngine resources untouched.'
   data-ready: 'CraftEngineRecipe data ready: {items} items, {categories} top-level categories, {elapsed} ms total (including time between batches)'
   data-build-failed: Failed to build CraftEngineRecipe data
-  metrics-ready: 'bStats initialized with built-in service IDs: {ids}'
+  metrics-ready: bStats initialized.
   metrics-failed: 'bStats initialization failed; recipe browsing is unaffected: {error}'
   category-read-failed: 'Failed to read category configuration: {file}'
   category-save-failed: 'Failed to save category namespace configuration: {error}'
@@ -169,27 +219,6 @@ logs:
   language-update-failed: 'Failed to add missing translations to {file}; keeping the original file: {error}'
   language-read-failed: 'Failed to read language file {file}; using bundled or fallback translations: {error}'
 headers:
-  categories: 'CraftEngineRecipe 配方分类菜单条目（按顺序显示） / Recipe menu entries (display order)
-
-    命名空间：id + visibility(admin/player/permission) + permission
-
-    Namespace: id + visibility(admin/player/permission) + permission
-
-    可选：icon-name / item-lore / icon-lore / sub-icon-lore
-
-    Optional: icon-name / item-lore / icon-lore / sub-icon-lore
-
-    自定义按钮：display + actions，可与命名空间条目混排
-
-    Custom buttons: display + actions; mix freely with namespace entries
-
-    未配置的命名空间写入 categories-unapplied.yml，用 /cer unapplied 预览
-
-    Unconfigured namespaces go to categories-unapplied.yml; preview with /cer unapplied
-
-    hidden-categories 隐藏分类入口与路径；hidden-items 只隐藏物品 / hidden-categories hides category entries and paths; hidden-items hides only items
-
-    完整示例见 categories-example.yml / See categories-example.yml for examples'
   unapplied: 'CraftEngineRecipe 未应用命名空间 / Unapplied namespaces
 
     此文件列出未在 categories.yml 中配置的命名空间

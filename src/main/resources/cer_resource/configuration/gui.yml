@@ -1,6 +1,0 @@
-images:
-  cer:main:
-    height: 256
-    ascent: 13
-    font: minecraft:gui
-    file: minecraft:font/gui/custom/cer_main.png

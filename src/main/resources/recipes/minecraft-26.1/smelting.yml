@@ -1,0 +1,2980 @@
+Title: 原版·熔炉
+Layout:
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+Options:
+  Page: smelting
+Workstation:
+  id: minecraft:smelting
+  name: 原版·熔炉
+  icon:
+    Material: minecraft:furnace
+Recipes:
+  minecraft_data:baked_potato:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:potato
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:baked_potato
+        Usage: result
+        Amount: 1
+  minecraft_data:black_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:black_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:black_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:blue_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blue_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:blue_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:brick:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:clay_ball
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:brick
+        Usage: result
+        Amount: 1
+  minecraft_data:brown_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:brown_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:brown_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:dark_oak_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:dark_oak_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_dark_oak_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_dark_oak_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:pale_oak_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:pale_oak_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_pale_oak_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_pale_oak_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oak_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oak_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_oak_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_oak_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-13:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:acacia_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-14:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:acacia_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-15:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_acacia_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-16:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_acacia_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-17:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:birch_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-18:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:birch_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-19:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_birch_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-20:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_birch_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-21:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:jungle_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-22:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:jungle_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-23:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_jungle_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-24:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_jungle_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-25:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:spruce_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-26:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:spruce_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-27:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_spruce_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-28:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_spruce_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-29:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mangrove_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-30:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mangrove_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-31:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_mangrove_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-32:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_mangrove_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-33:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cherry_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-34:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cherry_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-35:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_cherry_log
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:charcoal-variant-36:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stripped_cherry_wood
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:charcoal
+        Usage: result
+        Amount: 1
+  minecraft_data:coal_from_smelting_coal_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:coal_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:coal
+        Usage: result
+        Amount: 1
+  minecraft_data:coal_from_smelting_deepslate_coal_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_coal_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:coal
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_beef:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:beef
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_beef
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_chicken:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chicken
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_chicken
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_cod:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cod
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_cod
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_mutton:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mutton
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_mutton
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_porkchop:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:porkchop
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_porkchop
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_rabbit:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:rabbit
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_rabbit
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_salmon:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:salmon
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_salmon
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_ingot_from_smelting_copper_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_ingot_from_smelting_deepslate_copper_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_copper_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_ingot_from_smelting_raw_copper:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:raw_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_pickaxe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_shovel
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_axe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_hoe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_sword
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_spear
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_horse_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_nugget_from_smelting-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:cracked_deepslate_bricks:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cracked_deepslate_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:cracked_deepslate_tiles:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cracked_deepslate_tiles
+        Usage: result
+        Amount: 1
+  minecraft_data:cracked_nether_bricks:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cracked_nether_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:cracked_polished_blackstone_bricks:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cracked_polished_blackstone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:cracked_stone_bricks:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cracked_stone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:cyan_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cyan_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cyan_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate
+        Usage: result
+        Amount: 1
+  minecraft_data:diamond_from_smelting_deepslate_diamond_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_diamond_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond
+        Usage: result
+        Amount: 1
+  minecraft_data:diamond_from_smelting_diamond_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diamond_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond
+        Usage: result
+        Amount: 1
+  minecraft_data:dried_kelp_from_smelting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:kelp
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:dried_kelp
+        Usage: result
+        Amount: 1
+  minecraft_data:emerald_from_smelting_deepslate_emerald_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_emerald_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:emerald
+        Usage: result
+        Amount: 1
+  minecraft_data:emerald_from_smelting_emerald_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:emerald_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:emerald
+        Usage: result
+        Amount: 1
+  minecraft_data:glass:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sand
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:glass
+        Usage: result
+        Amount: 1
+  minecraft_data:glass-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sand
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:glass
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_smelting_deepslate_gold_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_gold_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_smelting_gold_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:gold_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_smelting_nether_gold_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_gold_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_ingot_from_smelting_raw_gold:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:raw_gold
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_pickaxe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_shovel
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_axe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_hoe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_sword
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_spear
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_horse_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gold_nugget_from_smelting-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:golden_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gold_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:gray_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:gray_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:gray_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:green_dye:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cactus
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:green_dye
+        Usage: result
+        Amount: 1
+  minecraft_data:green_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:green_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:green_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_ingot_from_smelting_deepslate_iron_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_iron_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_ingot_from_smelting_iron_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_ingot_from_smelting_raw_iron:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:raw_iron
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_ingot
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_pickaxe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_shovel
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_axe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_hoe
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_sword
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_spear
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_horse_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-12:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_helmet
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-13:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_chestplate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-14:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_leggings
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-15:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chainmail_boots
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:iron_nugget_from_smelting-variant-16:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:iron_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:iron_nugget
+        Usage: result
+        Amount: 1
+  minecraft_data:lapis_lazuli_from_smelting_deepslate_lapis_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_lapis_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:lapis_lazuli
+        Usage: result
+        Amount: 1
+  minecraft_data:lapis_lazuli_from_smelting_lapis_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:lapis_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:lapis_lazuli
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:jungle_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-02:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oak_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-03:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:spruce_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-04:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:pale_oak_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-05:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:dark_oak_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-06:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:acacia_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-07:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:birch_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-08:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:azalea_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-09:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:flowering_azalea_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-10:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mangrove_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:leaf_litter-variant-11:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cherry_leaves
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:leaf_litter
+        Usage: result
+        Amount: 1
+  minecraft_data:light_blue_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:light_blue_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:light_blue_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:light_gray_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:light_gray_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:light_gray_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:lime_dye_from_smelting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sea_pickle
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:lime_dye
+        Usage: result
+        Amount: 1
+  minecraft_data:lime_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:lime_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:lime_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:magenta_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:magenta_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:magenta_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:nether_brick:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherrack
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:nether_brick
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_scrap:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:ancient_debris
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:netherite_scrap
+        Usage: result
+        Amount: 1
+  minecraft_data:orange_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:orange_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:orange_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:pink_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:pink_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:pink_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:popped_chorus_fruit:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chorus_fruit
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:popped_chorus_fruit
+        Usage: result
+        Amount: 1
+  minecraft_data:purple_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:purple_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:purple_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:quartz:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_quartz_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:quartz
+        Usage: result
+        Amount: 1
+  minecraft_data:red_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:redstone_from_smelting_deepslate_redstone_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_redstone_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:redstone
+        Usage: result
+        Amount: 1
+  minecraft_data:redstone_from_smelting_redstone_ore:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:redstone_ore
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:redstone
+        Usage: result
+        Amount: 1
+  minecraft_data:resin_brick:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:resin_clump
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:resin_brick
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_basalt:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:basalt
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_basalt
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_quartz:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:quartz_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_quartz
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_red_sandstone:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_red_sandstone
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_sandstone:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_sandstone
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_stone:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_stone
+        Usage: result
+        Amount: 1
+  minecraft_data:sponge:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:wet_sponge
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sponge
+        Usage: result
+        Amount: 1
+  minecraft_data:stone:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone
+        Usage: result
+        Amount: 1
+  minecraft_data:terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:clay
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:white_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:white_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:white_glazed_terracotta
+        Usage: result
+        Amount: 1
+  minecraft_data:yellow_glazed_terracotta:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:yellow_terracotta
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:yellow_glazed_terracotta
+        Usage: result
+        Amount: 1

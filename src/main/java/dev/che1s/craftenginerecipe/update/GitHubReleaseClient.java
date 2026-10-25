@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-/** A bounded, synchronous client. Call it from a background thread. */
+/** 有大小限制的同步客户端，应在后台线程调用。 */
 public final class GitHubReleaseClient {
     static final URI ENDPOINT = URI.create("https://api.github.com/repos/che11111/CraftEngineRecipe/releases/latest");
     static final String RELEASE_PAGE = "https://github.com/che11111/CraftEngineRecipe/releases/latest";
@@ -41,7 +41,7 @@ public final class GitHubReleaseClient {
         HttpURLConnection open(URI uri) throws IOException;
     }
 
-    /** A missing latest release is normal; other HTTP/network/format failures are reported to the caller. */
+    /** 没有最新发行版属于正常情况；其他 HTTP、网络或格式错误会报告给调用方。 */
     public Optional<Release> fetchLatest() throws IOException {
         HttpURLConnection connection = connections.open(ENDPOINT);
         try {
@@ -130,7 +130,7 @@ public final class GitHubReleaseClient {
                 return uri.toASCIIString();
             }
         } catch (URISyntaxException ignored) {
-            // A fixed repository URL remains usable if GitHub changes or omits html_url.
+            // 即使 GitHub 修改或省略 html_url，固定仓库地址仍可使用。
         }
         return RELEASE_PAGE;
     }

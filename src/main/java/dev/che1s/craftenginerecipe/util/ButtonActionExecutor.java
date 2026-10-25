@@ -5,20 +5,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-/** Sequential action interpreter; all entry/resume calls belong to the player's scheduler. */
+/** 顺序动作解释器；所有入口与恢复调用都必须位于玩家所属调度器。 */
 final class ButtonActionExecutor {
     private static final int MAX_ACTIONS_PER_TURN = 128;
 
     interface Environment {
-        /** Lifecycle/generation check, safe on both player and global threads. */
+        /** 生命周期与数据版本检查，在玩家线程和全局线程上均安全。 */
         boolean isCurrent();
 
-        /** Checks online state and the originating button's current permission on its owner thread. */
+        /** 在所属线程检查在线状态和原按钮的当前权限。 */
         boolean isPlayerAuthorized();
 
         /**
-         * Called globally after an authorized player-thread handoff. On Folia this must not
-         * read player state: authorization and a later global command cannot be atomic.
+         * 在玩家线程完成授权并移交后于全局线程调用。在 Folia 中不得读取玩家状态，
+         * 因为授权与稍后的全局指令无法原子完成。
          */
         boolean mayExecuteConsole();
 
@@ -40,7 +40,7 @@ final class ButtonActionExecutor {
 
     private ButtonActionExecutor(Environment environment, List<String> actions) {
         this.environment = environment;
-        // Keep null entries compatible with older configurations while isolating delayed execution.
+        // 保留 null 动作项以兼容旧配置，同时隔离延迟执行逻辑。
         this.actions = Collections.unmodifiableList(new ArrayList<>(actions));
     }
 
@@ -74,8 +74,8 @@ final class ButtonActionExecutor {
             } else if (lower.startsWith("console:")) {
                 String command = payload(action);
                 if (command.isEmpty()) continue;
-                // This entity-thread authorization is the Folia handoff boundary. A permission
-                // change after submission cannot atomically retract the already accepted command.
+                // 这里的实体线程授权是 Folia 的线程移交边界。提交后即使用户权限变化，
+                // 也无法原子撤回已经接受的指令。
                 if (!this.mayContinue()) return;
                 this.environment.global(() -> {
                     if (!this.environment.isCurrent() || !this.environment.mayExecuteConsole()) return;
@@ -105,7 +105,7 @@ final class ButtonActionExecutor {
         }
         if (index < this.actions.size() && this.mayContinue()) {
             int next = index;
-            // Bound work on a region tick as well as stack depth for unusually large configurations.
+            // 对异常庞大的配置同时限制单次区域 tick 的工作量和递归深度。
             this.environment.player(() -> this.resume(next));
         }
     }

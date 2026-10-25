@@ -1,0 +1,58 @@
+# 此文件安装为 recipes/example.yml，默认关闭，不会产生任何配方。
+# This file is installed as recipes/example.yml and is disabled by default.
+#
+# 采用 TrMenu 风格的 Title / Layout / Icons 菜单结构。一个 YAML 文件可以放同一
+# 合成器的多个配方；外部插件也可以直接向 recipes/ 发送同样格式的文件。
+# Uses a TrMenu-like Title / Layout / Icons structure. One file may contain many recipes
+# for the same workstation; other plugins can publish files directly under recipes/.
+enabled: false
+
+Title: '<gold>示例烹饪锅'
+Layout:
+  - '         '
+  - ' a  c  b '
+  - '    T    '
+  - '    I    '
+  - '         '
+  - '         '
+Icons:
+  c:
+    Display:
+      Material: minecraft:hopper
+      Name: '<gray>装饰物品'
+    Usage: decoration
+  T:
+    Display:
+      Material: minecraft:cauldron
+    Usage: button
+    Button: workstation
+  I:
+    Usage: button
+    Button: information
+    Information:
+      - '<gray>这里可以写时间、温度或额外条件。'
+
+Workstation:
+  id: example:cooking_pot
+  name: '<gold>示例烹饪锅'
+  icon:
+    Material: minecraft:cauldron
+
+Recipes:
+  example:vegetable_stew:
+    Icons:
+      a:
+        Usage: ingredient
+        Amount: 2
+        Choices:
+          - Display:
+              Material: minecraft:carrot
+          - Display:
+              Material: minecraft:potato
+      b:
+        Usage: result
+        Amount: 1
+        Note: '<gray>示例产物'
+        Display:
+          Material: minecraft:mushroom_stew
+          Name: '<green>蔬菜炖汤'

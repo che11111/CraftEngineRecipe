@@ -1,0 +1,6 @@
+images:
+  cer_rough:main:
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+    file: cer_rough:font/gui/cer_main.png

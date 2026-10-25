@@ -1,0 +1,418 @@
+{
+  "schema": 1,
+  "version": "minecraft-26.3",
+  "source": "client-jar",
+  "crops": [
+    {
+      "id": "minecraft:wheat",
+      "seeds": [
+        "minecraft:wheat_seeds"
+      ],
+      "products": [
+        "minecraft:wheat",
+        "minecraft:wheat_seeds"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "成熟小麦；收获时还会获得种子",
+      "loot_table": "data/minecraft/loot_table/blocks/wheat.json",
+      "loot_items": [
+        "minecraft:wheat",
+        "minecraft:wheat_seeds"
+      ]
+    },
+    {
+      "id": "minecraft:carrots",
+      "seeds": [
+        "minecraft:carrot"
+      ],
+      "products": [
+        "minecraft:carrot"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "成熟胡萝卜",
+      "loot_table": "data/minecraft/loot_table/blocks/carrots.json",
+      "loot_items": [
+        "minecraft:carrot"
+      ]
+    },
+    {
+      "id": "minecraft:potatoes",
+      "seeds": [
+        "minecraft:potato"
+      ],
+      "products": [
+        "minecraft:potato",
+        "minecraft:poisonous_potato"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "成熟马铃薯，可能额外获得毒马铃薯",
+      "loot_table": "data/minecraft/loot_table/blocks/potatoes.json",
+      "loot_items": [
+        "minecraft:potato",
+        "minecraft:poisonous_potato"
+      ]
+    },
+    {
+      "id": "minecraft:beetroots",
+      "seeds": [
+        "minecraft:beetroot_seeds"
+      ],
+      "products": [
+        "minecraft:beetroot",
+        "minecraft:beetroot_seeds"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "成熟甜菜根；收获时还会获得种子",
+      "loot_table": "data/minecraft/loot_table/blocks/beetroots.json",
+      "loot_items": [
+        "minecraft:beetroot",
+        "minecraft:beetroot_seeds"
+      ]
+    },
+    {
+      "id": "minecraft:torchflower_crop",
+      "seeds": [
+        "minecraft:torchflower_seeds"
+      ],
+      "products": [
+        "minecraft:torchflower",
+        "minecraft:torchflower_seeds"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "成熟火把花；收获时还会获得种子",
+      "loot_table": "data/minecraft/loot_table/blocks/torchflower_crop.json",
+      "loot_items": [
+        "minecraft:torchflower_seeds"
+      ]
+    },
+    {
+      "id": "minecraft:pitcher_crop",
+      "seeds": [
+        "minecraft:pitcher_pod"
+      ],
+      "products": [
+        "minecraft:pitcher_plant",
+        "minecraft:pitcher_pod"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "成熟瓶子草；收获时还会获得种荚",
+      "loot_table": "data/minecraft/loot_table/blocks/pitcher_crop.json",
+      "loot_items": [
+        "minecraft:pitcher_pod",
+        "minecraft:pitcher_plant"
+      ]
+    },
+    {
+      "id": "minecraft:melon_stem",
+      "seeds": [
+        "minecraft:melon_seeds"
+      ],
+      "products": [
+        "minecraft:melon_slice",
+        "minecraft:melon"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "果实生成在茎旁；精准采集可获得西瓜方块",
+      "loot_table": "data/minecraft/loot_table/blocks/melon_stem.json",
+      "loot_items": [
+        "minecraft:melon_seeds"
+      ]
+    },
+    {
+      "id": "minecraft:pumpkin_stem",
+      "seeds": [
+        "minecraft:pumpkin_seeds"
+      ],
+      "products": [
+        "minecraft:pumpkin",
+        "minecraft:pumpkin_seeds"
+      ],
+      "substrates": [
+        "minecraft:farmland"
+      ],
+      "note": "果实生成在茎旁",
+      "loot_table": "data/minecraft/loot_table/blocks/pumpkin_stem.json",
+      "loot_items": [
+        "minecraft:pumpkin_seeds"
+      ]
+    },
+    {
+      "id": "minecraft:sugar_cane",
+      "seeds": [
+        "minecraft:sugar_cane"
+      ],
+      "products": [
+        "minecraft:sugar_cane"
+      ],
+      "substrates": [
+        "minecraft:sand",
+        "minecraft:red_sand",
+        "minecraft:dirt",
+        "minecraft:grass_block",
+        "minecraft:coarse_dirt"
+      ],
+      "note": "沙子或泥土紧邻水时种植",
+      "loot_table": "data/minecraft/loot_table/blocks/sugar_cane.json",
+      "loot_items": [
+        "minecraft:sugar_cane"
+      ]
+    },
+    {
+      "id": "minecraft:cactus",
+      "seeds": [
+        "minecraft:cactus"
+      ],
+      "products": [
+        "minecraft:cactus"
+      ],
+      "substrates": [
+        "minecraft:sand",
+        "minecraft:red_sand"
+      ],
+      "note": "沙子或红沙",
+      "loot_table": "data/minecraft/loot_table/blocks/cactus.json",
+      "loot_items": [
+        "minecraft:cactus"
+      ]
+    },
+    {
+      "id": "minecraft:sweet_berry_bush",
+      "seeds": [
+        "minecraft:sweet_berries"
+      ],
+      "products": [
+        "minecraft:sweet_berries"
+      ],
+      "substrates": [
+        "minecraft:grass_block",
+        "minecraft:dirt",
+        "minecraft:podzol",
+        "minecraft:coarse_dirt"
+      ],
+      "note": "草方块、泥土、灰化土或粗泥",
+      "loot_table": "data/minecraft/loot_table/blocks/sweet_berry_bush.json",
+      "loot_items": [
+        "minecraft:sweet_berries"
+      ]
+    },
+    {
+      "id": "minecraft:bamboo",
+      "seeds": [
+        "minecraft:bamboo"
+      ],
+      "products": [
+        "minecraft:bamboo"
+      ],
+      "substrates": [
+        "minecraft:grass_block",
+        "minecraft:dirt",
+        "minecraft:podzol",
+        "minecraft:coarse_dirt",
+        "minecraft:sand",
+        "minecraft:red_sand"
+      ],
+      "note": "可种植在草方块、泥土或沙子上",
+      "loot_table": "data/minecraft/loot_table/blocks/bamboo.json",
+      "loot_items": [
+        "minecraft:bamboo"
+      ]
+    },
+    {
+      "id": "minecraft:kelp",
+      "seeds": [
+        "minecraft:kelp"
+      ],
+      "products": [
+        "minecraft:kelp"
+      ],
+      "substrates": [
+        "minecraft:sand",
+        "minecraft:dirt",
+        "minecraft:gravel"
+      ],
+      "note": "水下沙、泥土、沙砾等可支撑方块",
+      "loot_table": "data/minecraft/loot_table/blocks/kelp.json",
+      "loot_items": [
+        "minecraft:kelp"
+      ]
+    },
+    {
+      "id": "minecraft:sea_pickle",
+      "seeds": [
+        "minecraft:sea_pickle"
+      ],
+      "products": [
+        "minecraft:sea_pickle"
+      ],
+      "substrates": [
+        "minecraft:sand",
+        "minecraft:dirt",
+        "minecraft:gravel"
+      ],
+      "note": "必须种在水下",
+      "loot_table": "data/minecraft/loot_table/blocks/sea_pickle.json",
+      "loot_items": [
+        "minecraft:sea_pickle"
+      ]
+    },
+    {
+      "id": "minecraft:vine",
+      "seeds": [
+        "minecraft:vine"
+      ],
+      "products": [
+        "minecraft:vine"
+      ],
+      "substrates": [
+        "minecraft:oak_log",
+        "minecraft:stone",
+        "minecraft:dirt"
+      ],
+      "note": "附着在方块侧面",
+      "loot_table": "data/minecraft/loot_table/blocks/vine.json",
+      "loot_items": [
+        "minecraft:vine"
+      ]
+    },
+    {
+      "id": "minecraft:cave_vines",
+      "seeds": [
+        "minecraft:glow_berries"
+      ],
+      "products": [
+        "minecraft:glow_berries"
+      ],
+      "substrates": [
+        "minecraft:stone",
+        "minecraft:netherrack",
+        "minecraft:dirt"
+      ],
+      "note": "种在方块底部，用发光浆果种植",
+      "loot_table": "data/minecraft/loot_table/blocks/cave_vines.json",
+      "loot_items": [
+        "minecraft:glow_berries"
+      ]
+    },
+    {
+      "id": "minecraft:twisting_vines",
+      "seeds": [
+        "minecraft:twisting_vines"
+      ],
+      "products": [
+        "minecraft:twisting_vines"
+      ],
+      "substrates": [
+        "minecraft:stone",
+        "minecraft:netherrack",
+        "minecraft:dirt"
+      ],
+      "note": "种在方块底部",
+      "loot_table": "data/minecraft/loot_table/blocks/twisting_vines.json",
+      "loot_items": [
+        "minecraft:twisting_vines"
+      ]
+    },
+    {
+      "id": "minecraft:weeping_vines",
+      "seeds": [
+        "minecraft:weeping_vines"
+      ],
+      "products": [
+        "minecraft:weeping_vines"
+      ],
+      "substrates": [
+        "minecraft:stone",
+        "minecraft:netherrack",
+        "minecraft:dirt"
+      ],
+      "note": "种在方块底部",
+      "loot_table": "data/minecraft/loot_table/blocks/weeping_vines.json",
+      "loot_items": [
+        "minecraft:weeping_vines"
+      ]
+    },
+    {
+      "id": "minecraft:cocoa",
+      "seeds": [
+        "minecraft:cocoa_beans"
+      ],
+      "products": [
+        "minecraft:cocoa_beans"
+      ],
+      "substrates": [
+        "minecraft:jungle_log"
+      ],
+      "note": "种在丛林原木侧面",
+      "loot_table": "data/minecraft/loot_table/blocks/cocoa.json",
+      "loot_items": [
+        "minecraft:cocoa_beans"
+      ]
+    },
+    {
+      "id": "minecraft:nether_wart",
+      "seeds": [
+        "minecraft:nether_wart"
+      ],
+      "products": [
+        "minecraft:nether_wart"
+      ],
+      "substrates": [
+        "minecraft:soul_sand"
+      ],
+      "note": "种在灵魂沙上",
+      "loot_table": "data/minecraft/loot_table/blocks/nether_wart.json",
+      "loot_items": [
+        "minecraft:nether_wart"
+      ]
+    },
+    {
+      "id": "minecraft:chorus_flower",
+      "seeds": [
+        "minecraft:chorus_flower"
+      ],
+      "products": [
+        "minecraft:chorus_fruit",
+        "minecraft:chorus_flower"
+      ],
+      "substrates": [
+        "minecraft:end_stone"
+      ],
+      "note": "种在末地石上",
+      "loot_table": "data/minecraft/loot_table/blocks/chorus_flower.json",
+      "loot_items": [
+        "minecraft:chorus_flower"
+      ]
+    },
+    {
+      "id": "minecraft:lily_pad",
+      "seeds": [
+        "minecraft:lily_pad"
+      ],
+      "products": [
+        "minecraft:lily_pad"
+      ],
+      "substrates": [
+        "minecraft:water"
+      ],
+      "note": "放置在水面",
+      "loot_table": "data/minecraft/loot_table/blocks/lily_pad.json",
+      "loot_items": [
+        "minecraft:lily_pad"
+      ]
+    }
+  ]
+}

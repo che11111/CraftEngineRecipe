@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/** Shared registry; each viewer's lifecycle runs on that viewer's entity scheduler. */
+/** 共享注册表；每个查看者的生命周期都在其所属实体调度器上运行。 */
 final class MenuLifecycle {
     private final Map<UUID, Object> windows = new ConcurrentHashMap<>();
     private final Set<UUID> entries = ConcurrentHashMap.newKeySet();

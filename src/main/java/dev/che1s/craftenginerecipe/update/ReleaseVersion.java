@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Numeric release comparison, including local development/prerelease versions. */
+/** 按数字比较发行版本，并兼容本地开发版和预发布版本。 */
 public final class ReleaseVersion {
     private static final Pattern VERSION = Pattern.compile(
             "[vV]?(\\d+(?:\\.\\d+){0,7})(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?"
@@ -16,7 +16,7 @@ public final class ReleaseVersion {
     private ReleaseVersion() {
     }
 
-    /** Unknown formats never produce an update notification. Build metadata is ignored. */
+    /** 未知格式不会产生更新通知，构建元数据会被忽略。 */
     public static boolean isNewer(String candidate, String installed) {
         Optional<Version> next = parse(candidate);
         Optional<Version> current = parse(installed);

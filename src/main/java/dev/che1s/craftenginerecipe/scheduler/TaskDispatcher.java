@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-/** Paper implements these schedulers too; GUI work always follows its viewer across regions. */
+/** Paper 也实现了这些调度器；GUI 任务始终跟随查看者跨区域调度。 */
 public final class TaskDispatcher {
     private final Plugin plugin;
     private final GlobalRegionScheduler global;
@@ -96,7 +96,7 @@ public final class TaskDispatcher {
         }
     }
 
-    /** Completes even when a viewer disconnects before their cleanup can run. Never blocks a tick. */
+    /** 即使查看者在清理任务执行前断线也能完成，且绝不阻塞服务器 tick。 */
     public CompletableFuture<Void> player(Player player, Runnable action) {
         CompletableFuture<Void> result = new CompletableFuture<>();
         synchronized (this.lifecycleLock) {
@@ -119,7 +119,7 @@ public final class TaskDispatcher {
         return result;
     }
 
-    /** Cancels pending entity work too; scheduler cancellation alone does not invoke retired callbacks. */
+    /** 同时取消待处理的实体任务；仅取消调度器任务不会触发已退出的回调。 */
     public void shutdown() {
         List<EntityWork> pending;
         synchronized (this.lifecycleLock) {
@@ -127,8 +127,8 @@ public final class TaskDispatcher {
             this.stopped = true;
             pending = List.copyOf(this.entityTasks);
         }
-        // Complete every barrier before calling platform cancellation code. A platform error
-        // must not strand another viewer's not-yet-started cleanup future.
+        // 在调用平台取消逻辑前完成所有屏障。平台异常不能让另一名查看者尚未开始的
+        // 清理 future 永久悬挂。
         pending.forEach(EntityWork::retired);
         for (EntityWork work : pending) {
             try {

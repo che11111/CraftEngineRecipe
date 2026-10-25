@@ -9,7 +9,7 @@ import java.util.function.LongSupplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Reports the first compatibility fallback at each fixed call site during a data generation. */
+/** 在每个数据版本中，对每个固定调用点只报告第一次兼容性回退。 */
 public final class CompatibilityWarnings {
     private static volatile Session active;
 

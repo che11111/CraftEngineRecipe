@@ -1,0 +1,5 @@
+author: CraftEngineRecipe,SnowCutieOwO 
+version: 1.0
+description: CraftEngineRecipe 插件内置资源包
+namespace: cer_map
+enable: true

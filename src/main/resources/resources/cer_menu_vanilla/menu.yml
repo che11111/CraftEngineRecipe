@@ -1,0 +1,101 @@
+id: cer_menu_vanilla
+display-name: '<#30343B>CER 原版材质界面'
+
+browser:
+  title-offset: 0
+  title-shift: 0
+  title: '<title>'
+  workstations-title: '<title>'
+  search-title: '<title>'
+  disabled-item-model: ''
+  # 仅本菜单包使用带颜色的玻璃板；其他菜单包未配置时仍使用透明占位。
+  # Only this menu pack uses colored glass panes; other packs remain transparent by default.
+  reserved:
+    material: minecraft:black_stained_glass_pane
+    item-model: ''
+  layout:
+    - '<#BBBBBBB'
+    - 'A#BBBBBBB'
+    - 'A#BBBBBBB'
+    - 'A#BBBBBBB'
+    - 'A########'
+    - '>#LER#SHT'
+
+behavior:
+  workstations-toggle: true
+  disable-back-button: false
+
+category-bar:
+  source: ce
+  list: []
+  icon-char: A
+  icon-name: '<gray><name>'
+  icon-lore: []
+  sub-icon-lore: []
+  prev-category:
+    char: '<'
+    item-model: ''
+    material: minecraft:spectral_arrow
+    name: '<gray>上一目录'
+  next-category:
+    char: '>'
+    item-model: ''
+    material: minecraft:spectral_arrow
+    name: '<gray>下一目录'
+  admin-only-hint: '<red>仅管理员可查看'
+  no-permission-hint: '<red>无权限查看'
+
+content:
+  area-char: B
+  prev-page:
+    char: L
+    item-model: ''
+    material: minecraft:arrow
+    name: '<gray>上一页'
+  next-page:
+    char: R
+    item-model: ''
+    material: minecraft:arrow
+    name: '<gray>下一页'
+  back:
+    char: E
+    item-model: ''
+    material: minecraft:barrier
+    name: '<gray>上一级'
+  search:
+    char: S
+    item-model: ''
+    material: minecraft:compass
+    name: '<gray>搜索'
+  hand:
+    char: H
+    item-model: ''
+    material: minecraft:spyglass
+    name: '<gray>查询'
+  info:
+    char: ''
+    item-model: ''
+    material: minecraft:book
+  workstations:
+    char: T
+    item-model: ''
+    material: minecraft:crafting_table
+    name: '<gray>切换工作台'
+  glasses:
+    char: ''
+    item-model: ''
+    material: minecraft:spyglass
+  empty:
+    material: minecraft:barrier
+  item-lore: []
+
+sounds:
+  change-category: 'UI_BUTTON_CLICK-1-2'
+  change-page: minecraft:item.book.page_turn
+  click: minecraft:ui.button.click
+  back: minecraft:item.book.page_turn
+  search: minecraft:ui.toast.in
+  query-success: 'UI_BUTTON_CLICK-1-2'
+  query-failure: 'BLOCK_NOTE_BLOCK_BASS-1-1'
+  open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2'
+  close-menu: 'BLOCK_IRON_DOOR_CLOSE-1-2'

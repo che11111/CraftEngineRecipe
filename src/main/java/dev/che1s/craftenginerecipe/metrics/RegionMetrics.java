@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-/** Official bStats transport with a global-region data collector instead of BukkitScheduler. */
+/** 使用全局区域数据收集器替代 BukkitScheduler 的官方 bStats 传输实现。 */
 final class RegionMetrics {
     private final MetricsBase base;
 
@@ -43,7 +43,7 @@ final class RegionMetrics {
     }
 
     private static void platformData(JsonObjectBuilder data) {
-        // Called by MetricsBase through the global dispatcher; it never accesses player entities.
+        // 由 MetricsBase 通过全局调度器调用；这里绝不会访问玩家实体。
         data.appendField("playerAmount", Bukkit.getOnlinePlayers().size())
                 .appendField("onlineMode", Bukkit.getOnlineMode() ? 1 : 0)
                 .appendField("bukkitVersion", Bukkit.getVersion())

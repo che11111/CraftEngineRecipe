@@ -1,0 +1,5 @@
+author: CraftEngineRecipe,che1s
+version: 1.0.0
+description: CraftEngineRecipe 农夫乐事 GUI 资源包
+namespace: cer_fd_gui
+enable: true

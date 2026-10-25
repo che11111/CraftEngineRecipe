@@ -1,0 +1,36 @@
+images:
+  cer_kc_gui:chopping_board_gui:
+    file: cer_kc_gui:gui/chopping_board_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+  cer_kc_gui:millstone_gui:
+    file: cer_kc_gui:gui/millstone_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+  cer_kc_gui:pot_gui:
+    file: cer_kc_gui:gui/pot_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+  cer_kc_gui:shawarma_spit_gui:
+    file: cer_kc_gui:gui/shawarma_spit_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+  cer_kc_gui:stockpot_gui:
+    file: cer_kc_gui:gui/stockpot_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+  cer_kc_gui:steamer_full_lid:
+    file: cer_kc_gui:gui/steamer_full_lid.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui
+  cer_kc_gui:teapot_gui:
+    file: cer_kc_gui:gui/teapot_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui

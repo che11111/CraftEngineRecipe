@@ -1,4 +1,56 @@
 # CraftEngineRecipe - 基于 CraftEngine 的配方浏览器
+
+# CER 自定义配方统一从 recipes 文件夹递归加载 .yml/.yaml；示例为 recipes/example.yml。
+# Custom displays load recursively from .yml/.yaml files under recipes; see recipes/example.yml.
+sources:
+  # 从 CraftEngine 配方管理器导出一次固定产物配方；之后只读取 recipes/craftengine/。
+  # Export fixed-result recipes from CraftEngine once, then read only recipes/craftengine/.
+  craftengine: true
+  farmersdelight: true
+  kaleidoscope: true
+  customcrops: true
+  # 启用由客户端 JAR 提取的原版合成配方。
+  # Enable vanilla crafting recipe fallback data extracted from client JARs.
+  minecraft: true
+  # 启用由客户端 JAR 提取的“耕地”原版栽培数据。
+  # Enable vanilla cultivation data extracted from client JARs.
+  minecraft-cultivation: true
+  # 启用 CraftEngine 资源包中按命名空间提供的栽培数据。
+  # Enable cultivation data provided by CraftEngine namespaces.
+  craftengine-cultivation: true
+  # 各来源的栽培数据可独立于普通配方开关。
+  # Each integration's cultivation data has its own independent toggle.
+  farmersdelight-cultivation: true
+  kaleidoscope-cultivation: true
+  customcrops-cultivation: true
+  # 首次启用时，若 recipes/<来源>/ 不存在，则从来源插件导出一次。
+  # 导出后 CER 只读取 recipes/，不会继续直接获取来源插件数据。
+  # Export once when recipes/<source>/ is absent. After that CER reads only recipes/.
+  export-missing: true
+  # 每次插件重载完成、数据就绪后，删除并重新导出所有已启用来源的 recipes/<source>/。
+  # After each plugin reload is ready, delete and re-export every enabled source under recipes/<source>/.
+  # 来源插件缺失或读取失败时保留旧文件。默认 false。
+  # Keep old files when a source plugin is missing or cannot be read. Defaults to false.
+  reexport-on-reload: false
+  # CraftEngine 完成配置/资源包重载后，重新导出 craftengine 配方并刷新本插件索引。
+  # Re-export craftengine recipes and refresh this plugin after CraftEngine reloads.
+  reexport-craftengine-on-ce-reload: true
+
+# ---------- 索引构建提示 / Index build notifications ----------
+indexing:
+  # 插件启动构建索引时，向在线管理员发送检测到的配方来源插件。
+  # Notify online administrators which recipe source plugins were detected during startup indexing.
+  notify-admins-on-startup: true
+
+# ---------- 配方文件 / Recipe files ----------
+recipes:
+  # 监听 recipes/ 下 YAML 的修改并自动重载，不再需要手动执行 /cer reload。
+  # Watch YAML changes under recipes/ and reload automatically without /cer reload.
+  auto-reload: true
+  # 异步文件检查间隔（tick，10～200）。连续两次稳定后才回到主线程重载。
+  # Async file check interval (10-200 ticks); reload happens on the global thread after two stable observations.
+  poll-interval: 20
+
 # CraftEngineRecipe - Recipe browser for CraftEngine
 # 启动或 /cer reload 时自动补齐缺失配置与默认值，保留已有配置值。
 # Startup or /cer reload adds missing settings and defaults while preserving existing values.
@@ -6,127 +58,62 @@
 # 全服使用的语言；内置 zh_CN（简体中文）与 en_US（英语）。
 # Server-wide language; bundled options: zh_CN (Simplified Chinese), en_US (English).
 language: zh_CN
-# 标题、按钮名称和 lore 在 lang/<语言>.yml 的 ui 下修改；此文件控制行为、布局、材质和音效。
-# Edit titles, button names and lore under ui in lang/<language>.yml; this file controls behavior, layout, materials and sounds.
-# 旧版 config 的自定义文案优先于 lang；与内置文案相同的旧默认值随语言切换。
-# Custom legacy text overrides lang; old values matching bundled text follow the selected language.
-# 建议将自定义文案迁移到 lang 后删除旧文案字段。
-# Move custom text to lang, then remove the legacy text fields when ready.
 
+# ---------- 主菜单材质包 / Main menu pack ----------
+menu-packs:
+  # 玩家执行 /cer 和快捷键时使用的默认样式。
+  # Default style used by /cer and the hotkey.
+  default: cer_menu_cute
+  # 同时安装到 CraftEngine 的样式；默认启用可爱版、粗版、原版材质版和地图版。
+  # Menu packs installed into CraftEngine together; cute, rough, vanilla and map are enabled by default.
+  # 可填写一个或多个 cer_menu_*；管理员也可用 /cer menu enable all 启用全部。
+  # List one or more cer_menu_* packs, or use /cer menu enable all as an administrator.
+  enabled:
+    - cer_menu_cute
+    - cer_menu_rough
+    - cer_menu_vanilla
+    - cer_menu_map
+  # 切换后自动执行的 CraftEngine 重载命令；留空则只重载 CER 配置。
+  # CraftEngine command dispatched after changing enabled packs; empty reloads only CER.
+  reload-command: ce reload all
+
+# ---------- 玩家个性化 / Player personalization ----------
+personalization:
+  # 是否允许玩家在菜单中右键“切换工作台”按钮打开个性化页面。
+  # Whether players can right-click the workstation toggle button to open personalization.
+  enabled: true
+  # 玩家可选择的菜单样式；只能选择 menu-packs.enabled 中已启用的样式。
+  # Menu styles players can choose; entries must also be enabled under menu-packs.enabled.
+  menu-packs:
+    - cer_menu_cute
+    - cer_menu_rough
+    - cer_menu_vanilla
+    - cer_menu_map
+  # 玩家尚未保存选择时使用的样式。
+  # Menu style used until the player saves a choice.
+  default-menu-pack: cer_menu_cute
+  # 玩家尚未保存设置时，关闭菜单后是否恢复上次浏览位置。
+  # Whether an unconfigured player reopens the last browsing position.
+  default-remember-last-page: true
+# 标题和文本在 lang/<语言>.yml 中修改；布局、按钮、材质和音效在对应 cer_menu_*/menu.yml 中修改。
+# Edit text under ui in lang/<language>.yml; layouts, buttons, materials and sounds live in each cer_menu_*/menu.yml.
 # 检查更新：启动后及每 6 小时后台检查 GitHub 正式版，发现新版后通知控制台和管理员。
 # Check for updates: check GitHub stable releases in the background after startup and every 6 hours; notify console and admins.
 # 仅提醒，不自动下载或替换插件；设为 false 后执行 /cer reload 即可关闭。
 # Only sends notifications, without downloading or replacing the plugin; set false and run /cer reload to disable.
 check-for-updates: true
 
-# 资源首次自动安装到 CraftEngine；之后仅在启动或 /cer reload 时补齐本插件 cer_resource 副本。
-# Resources install into CraftEngine once; startup or /cer reload then only restores missing files in this plugin's cer_resource copy.
-# 保留 resource-pack-installed.marker，修改 CraftEngine 资源目录名不会触发重复安装。
-# Keep resource-pack-installed.marker; renaming the CraftEngine pack directory will not trigger reinstallation.
+# 插件会生成 CraftEngine/resources/CraftEngineRecipe/subpacks/ 统一资源包。
+# The plugin generates the unified CraftEngine/resources/CraftEngineRecipe/subpacks/ bundle.
 
 # ---------- 主界面 / Main browser ----------
 browser:
-  # 6 行、每行 9 格；C=分类，X=内容，#=保留空槽；按钮字符见下面配置。
-  # Six rows of nine slots: C=categories, X=content, #=reserved empty slot; see button chars below.
-  # 按钮位置仅由此布局决定；空格忽略，未知字符变为空槽，短行补齐、长行截断。
-  # This layout alone defines button positions; spaces are ignored, unknown symbols become empty, short rows are padded and long rows truncated.
-  # 不足 6 行补空行，多余行忽略 / Missing rows are empty; rows beyond six are ignored.
-  # 每个按钮使用不同的单字符；设 char: '' 可禁用按钮，并将布局中对应字符改为 #。
-  # Use a distinct single character per button; set char: '' to disable it and replace its layout symbol with #.
-  # 底栏：B=返回，H=主手配方，L=上一页，I=说明，S=搜索，G=准星方块配方，R=下一页，T=按合成器浏览。
-  # Bottom row: B=back, H=main-hand recipes, L=previous page, I=help, S=search, G=target block recipes, R=next page, T=workstations.
-  layout:
-    - "<CCCCCCC>"
-    - "XXXXXXXXX"
-    - "XXXXXXXXX"
-    - "XXXXXXXXX"
-    - "XXXXXXXXX"
-    - "BTLHSGRI#"
-
-# ---------- 分类栏 / Category bar ----------
-category-bar:
-  # ce=跟随 CraftEngine 顶层分类；custom=使用 list 中的完整分类 ID。
-  # ce=follow CraftEngine top-level categories; custom=use the full category IDs in list.
-  source: ce
-  # custom 模式的完整分类 ID 列表；命名空间仍需应用到 categories.yml。
-  # Full category IDs for custom mode; their namespaces must also be applied in categories.yml.
-  list: []
-  # 分类槽对应的布局字符，不要与内容区、按钮或 # 重复。
-  # Layout character for category slots; must differ from content, buttons and #.
-  icon-char: C
-  # 分类栏向左/向右滚动按钮：char=布局字符，item-model=模型，material=基础材质。
-  # Category scroll buttons: char=layout symbol, item-model=model, material=base material.
-  prev-category:
-    char: "<"
-    item-model: cer:prev
-    material: minecraft:arrow
-  next-category:
-    char: ">"
-    item-model: cer:next
-    material: minecraft:arrow
-
-# ---------- 内容区 / Content area ----------
-content:
-  # 物品/子分类槽的布局字符。
-  # Layout character for item/subcategory slots.
-  area-char: X
-  # 内容分页按钮；到头时使用空白模型 cer:blank_items。
-  # Content paging buttons; use cer:blank_items when no further page is available.
-  prev-page:
-    char: L
-    item-model: cer:prev
-    material: minecraft:spectral_arrow
-  next-page:
-    char: R
-    item-model: cer:next
-    material: minecraft:spectral_arrow
-  # 返回上级按钮。
-  # Back to parent category button.
-  back:
-    char: B
-    item-model: cer:back
-    material: minecraft:barrier
-  # 打开搜索对话框的按钮。
-  # Open the search dialog.
-  search:
-    char: S
-    item-model: cer:blank_items
-    material: minecraft:compass
-  # 查询如何合成主手物品；与 /cer hand 相同，遵循正式菜单的权限与隐藏规则。
-  # Look up recipes producing the main-hand item; like /cer hand, follows main-menu permissions and hiding rules.
-  hand:
-    char: H
-    item-model: cer:palm_blue_cuff
-    material: minecraft:paper
-  # 展示菜单操作说明；说明文字来自语言文件。
-  # Display menu usage tips; the text comes from the language file.
-  info:
-    char: I
-    item-model: cer:info_icon
-    material: minecraft:paper
-  # 打开按合成器分类的页面：分类栏用左右按钮浏览 8 种原版合成器，下方仅展示本玩家可见的配方产物。
-  # Open workstation categories: use the category arrows to browse 8 vanilla workstations; below are visible recipe outputs.
-  # 仅整理 CraftEngine 已加载的配方，不额外导入原版配方；配方仍遵循权限与隐藏规则。
-  # Groups recipes already loaded by CraftEngine without importing extra vanilla recipes; permissions and hiding rules still apply.
-  # 支持锻造升级等有固定产物的配方；仅无固定产物的动态配方（如锻造纹饰）不在此列表展示。
-  # Supports recipes with fixed outputs, including smithing transforms; only dynamic recipes such as smithing trims are omitted.
-  workstations:
-    char: T
-    item-model: cer:crafting_table
-    material: minecraft:crafting_table
-  # 查询准星所指方块的合成配方，支持 CraftEngine 自定义方块和原版方块，遵循正式菜单的权限与隐藏规则。
-  # Look up recipes producing the target CraftEngine or vanilla block; follows applied-menu permissions and hiding rules.
-  glasses:
-    char: G
-    item-model: cer:glasses
-    material: minecraft:paper
-  # 无结果时的图标材质；显示名来自语言文件。
-  # Empty-result icon material; its display name comes from the language file.
-  # 图标固定使用此材质；item-model/char 对 empty 不适用。
-  # This icon uses this material; item-model/char do not apply to empty.
-  empty:
-    material: minecraft:barrier
-
+  # 玩家直接按 ESC 离开时保存其页面（跨重登与服务器重启）；下次 /cer 或快捷键打开时恢复。
+  # Save the current page when the player leaves with ESC (including relog/restart) and resume on the next open.
+  remember-last-page: true
+  # ESC 记忆有效期（分钟），默认 3 分钟；到期后下一次打开从默认首页开始。
+  # ESC position lifetime in minutes (default 3); expired positions open the normal home view.
+  remember-last-page-minutes: 3
 # ---------- 配方页 / Recipe windows ----------
 recipe:
   # 多配方轮播间隔，范围 5～200 tick；正常 TPS 下 20 tick=1 秒。
@@ -151,44 +138,6 @@ search:
     - zh_cn
     - en_us
 
-# ---------- 音效 / Sounds ----------
-# 支持 Bukkit 名称或 minecraft:声音键；可追加 -音量-音调；空字符串关闭音效。
-# Accepts Bukkit names or minecraft:sound keys, optionally followed by -volume-pitch; empty disables.
-# 示例 / Example: click: 'UI_BUTTON_CLICK-1-2' 或 / or 'minecraft:ui.button.click-1-2'
-# 不写参数时音量 0.7、音调 1；自定义按钮的 sound: 动作支持相同格式，默认音量 1。
-# Without parameters: volume 0.7, pitch 1; button sound: actions use the same format with default volume 1.
-sounds:
-  # 分类栏 prev-category / next-category；成功滚动时播放，无法继续时播放 query-failure。
-  # Category-bar prev-category / next-category; played on a successful move, otherwise query-failure.
-  change-category: 'UI_BUTTON_CLICK-1-2'
-  # 物品区 prev-page / next-page；成功翻页时播放，无法继续时播放 query-failure。
-  # Content prev-page / next-page; played on a successful page change, otherwise query-failure.
-  change-page: minecraft:item.book.page_turn
-  # 分类、子分类和可查看配方的物品点击 / Category, subcategory and recipe item clicks.
-  click: minecraft:ui.button.click
-  # back：返回上级分类或从配方返回 / back: returning to a parent category or from a recipe.
-  back: minecraft:item.book.page_turn
-  # 显示搜索对话框时播放一次 / Played once when showing the search dialog.
-  search: minecraft:ui.toast.in
-  # /cer hand、/cer target 和对应按钮：成功打开配方时仅播放此声音，不叠加 click 或 open-menu。
-  # /cer hand, /cer target and their buttons: once when a recipe opens, without click or open-menu sounds.
-  query-success: 'UI_BUTTON_CLICK-1-2'
-  # 查询失败时仅播放此声音（空手、无目标、无配方或受限等），不叠加其他按钮声音。
-  # Once when a query fails (empty hand, no target/recipe, restricted item, etc.), without other button sounds.
-  # 同样用于分类/翻页到达边界，以及物品区 X 左右键无法打开配方时。
-  # Also used at category/page boundaries and when left/right clicks on content items cannot open a recipe.
-  query-failure: 'BLOCK_NOTE_BLOCK_BASS-1-1'
-  # /cer、Shift+F、/cer unapplied 主动打开菜单时播放一次。
-  # Played once when entering via /cer, Shift+F or /cer unapplied.
-  open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2'
-  # 离开浏览/配方菜单时播放一次；内部翻页/分类切换/配方轮播不触发打开或关闭音效。
-  # Played once on leaving browser/recipe menus; internal paging/category changes/recipe rotation do not play entry/exit sounds.
-  close-menu: 'BLOCK_IRON_DOOR_CLOSE-1-2'
-# 所有 sounds.* 均为声音字符串，无需 sound: 前缀；设为 '' 禁用。重载、停用和断线静音。
-# All sounds.* are plain sound strings without a sound: prefix; use '' to disable. Reload, disable and disconnect are silent.
-# 兼容旧顶层 Open/Close 列表与 sounds.open；显式 open-menu/close-menu 优先，不叠加。
-# Legacy top-level Open/Close lists and sounds.open are supported; explicit open-menu/close-menu take precedence without combining sounds.
-
 # ---------- 快捷键 / Hotkey ----------
 hotkey:
   # 是否启用交换副手键打开菜单，默认 Shift+F；无需额外权限。
@@ -200,6 +149,4 @@ hotkey:
 
 # ---------- bStats 统计 / Anonymous bStats metrics ----------
 bstats:
-  # 同时启用/关闭本插件与原作者的两份统计；ID 固定在源码中。
-  # Enable/disable both this plugin's and the original author's metrics; IDs are fixed in source.
   enabled: true

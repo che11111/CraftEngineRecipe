@@ -43,7 +43,7 @@ public final class Sounds {
         if (spec != null) play(player, spec.name(), spec.volume(), spec.pitch());
     }
 
-    /** Shared by config sounds and button actions; only numeric suffixes are parameters. */
+    /** 供配置音效和按钮动作共用；仅数字后缀会被解析为参数。 */
     static SoundSpec parse(String spec, float defaultVolume) {
         if (spec == null || spec.isBlank()) {
             return null;
@@ -89,7 +89,7 @@ public final class Sounds {
     }
 
     private static NamespacedKey registryKey(String name) {
-        // Modern registry keys take precedence over the old Bukkit aliases.
+        // 优先使用现代注册表键，而不是旧的 Bukkit 别名。
         return NamespacedKey.fromString(name.toLowerCase(Locale.ROOT));
     }
 

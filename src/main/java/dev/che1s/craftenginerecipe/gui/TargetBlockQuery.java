@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-/** Region-safe, bounded ray query for the block a player is looking at. */
+/** 查询玩家视线方块的有界射线检测，兼容区域线程。 */
 final class TargetBlockQuery {
     private static final double RANGE = 6.0;
 

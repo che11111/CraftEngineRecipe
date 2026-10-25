@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.function.Function;
 
-/** A window-local list: materialize only entries requested by InvUI's current page. */
+/** 窗口本地列表：只为 InvUI 当前页请求的条目创建物品实例。 */
 final class LazyItems<T> extends AbstractList<Item> implements RandomAccess {
     private final List<T> entries;
     private final Function<T, Item> factory;

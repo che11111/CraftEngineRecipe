@@ -1,5 +1,8 @@
 package dev.che1s.craftenginerecipe.util;
 
+import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
+import dev.che1s.craftenginerecipe.api.RecipeItem;
+
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import net.momirealms.craftengine.bukkit.api.BukkitAdaptor;
@@ -27,6 +30,17 @@ public final class ItemBridge {
     }
 
     public static ItemStack build(Key id, Player player, int count) {
+        var plugin = CraftEngineRecipePlugin.get();
+        if (id != null && "cer_external".equals(id.namespace()) && plugin != null) {
+            RecipeItem external = plugin.externalRecipes().snapshot().items().get(id);
+            if (external != null && !external.provider().equals("craftengine") && !external.provider().equals("minecraft")) {
+                return build(external, player, count);
+            }
+        }
+        return buildNative(id, player, count);
+    }
+
+    private static ItemStack buildNative(Key id, Player player, int count) {
         ItemStack stack = null;
         try {
             BukkitItemDefinition def = CraftEngineItems.byId(id);
@@ -38,7 +52,7 @@ public final class ItemBridge {
         }
         if (stack == null || stack.getType() == Material.AIR) {
             Material vanilla = matchVanilla(id);
-            if (vanilla == null) return barrier(Component.text(id.toString()));
+            if (vanilla == null || !vanilla.isItem()) return barrier(Component.text(id.toString()));
             stack = new ItemStack(vanilla);
         } else {
             stack = stack.clone();
@@ -50,6 +64,41 @@ public final class ItemBridge {
 
     public static ItemStack build(Key id, Player player) {
         return build(id, player, 1);
+    }
+
+    public static ItemStack build(RecipeItem item, Player player, int count) {
+        ItemStack stack = item.icon();
+        var plugin = CraftEngineRecipePlugin.get();
+        if (stack == null && !item.provider().equals("craftengine") && !item.provider().equals("minecraft") && plugin != null) {
+            RecipeItem known = plugin.externalRecipes().snapshot().items().get(dev.che1s.craftenginerecipe.recipe.ExternalRecipeSnapshot.key(item));
+            if (known != null) stack = known.icon();
+        }
+        if (stack == null) {
+            stack = item.provider().equals("craftengine") || item.provider().equals("minecraft")
+                    ? buildNative(Key.of(item.id()), player, count) : barrier(Component.text(item.id()));
+        }
+        stack.setAmount(Math.max(1, Math.min(count, stack.getMaxStackSize())));
+        ItemMeta meta = stack.getItemMeta();
+        if (meta != null && plugin != null) {
+            if (item.name() != null) meta.displayName(plugin.config().mm(item.name()));
+            if (item.lore() != null) meta.lore(item.lore().stream().map(plugin.config()::mm).toList());
+            stack.setItemMeta(meta);
+        }
+        return stack;
+    }
+
+    /** 追加浏览提示，同时保留物品原有的显示 lore。 */
+    public static ItemStack appendLore(ItemStack stack, List<Component> lines) {
+        ItemStack copy = stack.clone();
+        ItemMeta meta = copy.getItemMeta();
+        if (meta != null) {
+            List<Component> lore = new ArrayList<>();
+            if (meta.lore() != null) lore.addAll(meta.lore());
+            lore.addAll(lines);
+            meta.lore(lore);
+            copy.setItemMeta(meta);
+        }
+        return copy;
     }
 
     public static ItemStack buildIngredient(Ingredient ingredient, Player player, int count) {

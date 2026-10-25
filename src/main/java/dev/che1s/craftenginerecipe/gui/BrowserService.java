@@ -2,14 +2,18 @@ package dev.che1s.craftenginerecipe.gui;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.config.CerConfig;
-import dev.che1s.craftenginerecipe.data.CategoryNamespaces;
-import dev.che1s.craftenginerecipe.data.CategoryItems;
+import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
+import dev.che1s.craftenginerecipe.category.CategoryItems;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
-import dev.che1s.craftenginerecipe.data.RecipeIndex;
+import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
+import dev.che1s.craftenginerecipe.recipe.RecipeEntry;
+import dev.che1s.craftenginerecipe.recipe.ExternalRecipeSnapshot;
+import dev.che1s.craftenginerecipe.recipe.access.RecipeAccessPolicy;
+import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.util.ButtonActions;
 import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
 import dev.che1s.craftenginerecipe.util.DisplayNames;
-import dev.che1s.craftenginerecipe.util.HeldRecipeScope;
+import dev.che1s.craftenginerecipe.recipe.access.HeldRecipeScope;
 import dev.che1s.craftenginerecipe.util.ItemBridge;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -24,6 +28,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Markers;
@@ -37,10 +42,16 @@ import xyz.xenondevs.invui.window.Window;
 import xyz.xenondevs.invui.window.WindowManager;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.function.Predicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
@@ -58,11 +69,14 @@ public final class BrowserService {
     private final RecipeIndex recipeIndex;
     private final RecipeGuiService recipeGui;
     private final WorkstationBrowserService workstations;
+    private final BrowserActionItems actionItems;
+    private final GuiSessionStore sessions;
     private final MenuLifecycle lifecycle = new MenuLifecycle();
+    private final MenuActionGate<UUID> actions = new MenuActionGate<>();
     private final Map<UUID, Player> viewers = new ConcurrentHashMap<>();
     private final Object viewerLock = new Object();
 
-    /** Registers in-flight builds too, so reload cannot change settings underneath them. */
+    /** 同时登记正在构建的窗口，避免重载在构建途中改变配置。 */
     public boolean claim(Player player) {
         synchronized (this.viewerLock) {
             if (!this.data.isReady() || !player.isOnline()) return false;
@@ -76,8 +90,36 @@ public final class BrowserService {
         this.config = config;
         this.data = data;
         this.recipeIndex = recipeIndex;
+        this.sessions = plugin.sessions();
         this.recipeGui = new RecipeGuiService(plugin, config, data, recipeIndex, this);
         this.workstations = new WorkstationBrowserService(plugin, this, config, data, recipeIndex, this.recipeGui);
+        this.actionItems = new BrowserActionItems(plugin, config, this);
+    }
+
+    public int viewerCount() { return this.viewers.size(); }
+    public int pendingActionCount() { return this.actions.pendingCount(); }
+
+    /** 导航前先离开 InvUI 的入站封包循环，并合并积压点击。 */
+    public void handleClick(Player player, Runnable action) {
+        this.plugin.diagnostics().increment(Diagnostics.Counter.MENU_CLICKS);
+        this.deferMenuAction(player, action);
+    }
+
+    public void deferMenuAction(Player player, Runnable action) {
+        Window expected = WindowManager.getInstance().getOpenWindow(player);
+        // 快捷键可能从 InvUI 之外触发，此时旧窗口和替代窗口都可能为 null。
+        // 不得覆盖玩家刚打开的 Bukkit 菜单。
+        Inventory expectedInventory = player.getOpenInventory().getTopInventory();
+        if (!this.actions.offer(player.getUniqueId(), expected, this.recipeIndex.generation(), () -> {
+            try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.MENU_ACTION)) {
+                action.run();
+            }
+        }, task -> this.plugin.tasks().playerLater(player, task, 1) != null,
+                () -> WindowManager.getInstance().getOpenWindow(player), this.recipeIndex::generation,
+                () -> this.plugin.isEnabled() && player.isOnline() && this.data.isReady()
+                        && player.getOpenInventory().getTopInventory() == expectedInventory)) {
+            this.plugin.diagnostics().increment(Diagnostics.Counter.CLICK_THROTTLED);
+        }
     }
 
     public RecipeGuiService recipes() {
@@ -87,12 +129,23 @@ public final class BrowserService {
     public void openDefault(Player player) {
         if (!this.claim(player)) return;
         GuiSession.of(player).leaveWorkstations();
+        for (BarEntry entry : this.barEntries(player, false)) {
+            if (entry instanceof VanillaItemsEntry && this.data.namespaces().canView(player, "minecraft")) {
+                this.openVanillaItems(player);
+                return;
+            }
+            if (entry instanceof CategoryEntry category
+                    && this.data.namespaces().canView(player, category.category().id().namespace())) {
+                break;
+            }
+        }
         List<Category> tops = this.visibleCategories(player);
         if (tops.isEmpty()) {
             if (this.data.categoriesById().isEmpty()) {
                 this.openItemList(player, null, this.plugin.lang().text("ui.common.all-items"), 0, null);
             } else {
-                this.openEmptyContent(player);
+                if (this.hasAdditionalRecipes(player)) this.openAdditionalRecipes(player);
+                else this.openEmptyContent(player);
             }
             return;
         }
@@ -101,6 +154,7 @@ public final class BrowserService {
 
     public void openApplied(Player player) {
         GuiSession.of(player).unapplied(false);
+        if (this.rememberLastPage(player) && this.openRemembered(player)) return;
         this.openEntry(player);
     }
 
@@ -109,12 +163,12 @@ public final class BrowserService {
         this.openEntry(player);
     }
 
-    /** Looks up recipes producing the main-hand item; it never opens the ingredient-use view. */
+    /** 查询产出主手物品的配方，绝不打开材料用途视图。 */
     public void openHeldRecipe(Player player) {
         this.runClaimedQuery(player, () -> this.openHeldRecipeClaimed(player));
     }
 
-    /** Looks up recipes producing the block currently under the player's crosshair. */
+    /** 查询产出玩家准星所指方块的配方。 */
     public void openTargetBlockRecipe(Player player) {
         this.runClaimedQuery(player, () -> this.openTargetBlockRecipeClaimed(player));
     }
@@ -133,7 +187,7 @@ public final class BrowserService {
             boolean opened = query.getAsBoolean();
             Sounds.play(player, opened ? this.config.sounds().querySuccess() : this.config.sounds().queryFailure());
         } finally {
-            // Failed queries do not own an inventory or dialog to close during a later reload.
+            // 查询失败时没有需要由后续重载关闭的背包或对话框。
             if (!alreadyTracked && !this.lifecycle.contains(player.getUniqueId())) {
                 this.viewers.remove(player.getUniqueId(), player);
             }
@@ -148,7 +202,8 @@ public final class BrowserService {
         }
         Key id;
         try {
-            id = CraftEngineItems.getCustomItemId(held);
+            id = this.externalItemId(held);
+            if (id == null) id = CraftEngineItems.getCustomItemId(held);
             if (id == null) id = Key.of(held.getType().getKey().toString());
         } catch (RuntimeException | LinkageError error) {
             this.plugin.getLogger().warning(this.plugin.lang().text("logs.hand-resolve-failed", "error", error.toString()));
@@ -185,12 +240,12 @@ public final class BrowserService {
     }
 
     private boolean openProducedRecipe(Player player, Key id, String unavailableMessage, String noRecipeMessage) {
-        if (!HeldRecipeScope.canQuery(id, this.allTopCategories(), this.data.categoriesById(),
-                this.data.categoryGraph(), this.data.items().keySet(), this.data.namespaces(), player)) {
+        var visibility = this.visibility(player);
+        if (!visibility.canQuery(id)) {
             player.sendMessage(this.plugin.lang().message(unavailableMessage));
             return false;
         }
-        if (!this.recipeGui.hasContent(id, false)) {
+        if (!this.recipeGui.hasContent(id, false, visibility)) {
             player.sendMessage(this.plugin.lang().message(noRecipeMessage, "id", id.toString()));
             return false;
         }
@@ -202,8 +257,8 @@ public final class BrowserService {
             session.enter(null, 0, null);
         }
         session.unapplied(false);
-        // Query feedback replaces the entry sound; normal window tracking still handles a later close.
-        boolean opened = this.recipeGui.open(player, id, false, 0);
+        // 查询反馈音效会替代进入音效；正常窗口跟踪仍负责后续关闭处理。
+        boolean opened = this.recipeGui.open(player, id, false, 0, visibility);
         if (!opened) {
             player.sendMessage(this.plugin.lang().message(noRecipeMessage, "id", id.toString()));
         }
@@ -219,7 +274,61 @@ public final class BrowserService {
         }
     }
 
-    /** Replacement windows are one menu visit; old close callbacks must not close the new visit. */
+    private boolean openRemembered(Player player) {
+        long lifetime = java.util.concurrent.TimeUnit.MINUTES.toMillis(
+                this.config.rememberLastPageMinutes());
+        GuiSession.Snapshot saved = this.sessions.get(player.getUniqueId(), lifetime);
+        return this.openSnapshot(player, saved);
+    }
+
+    public boolean openSnapshot(Player player, GuiSession.Snapshot saved) {
+        if (saved == null) return false;
+        GuiSession session = GuiSession.of(player);
+        try {
+            Map<String, RecipeEntry.Output> workstationSelections = new HashMap<>();
+            if (saved.workstationId() != null) {
+                for (RecipeEntry.Output output : this.recipeIndex.outputs(saved.workstationId(), player)) {
+                    workstationSelections.put(output.result().toString(), output);
+                }
+            }
+            session.restore(saved, workstationSelections::get, this.recipeIndex.generation());
+        } catch (RuntimeException error) {
+            this.plugin.getLogger().warning(this.plugin.lang().text("logs.session-load-failed",
+                    "error", "invalid saved menu position"));
+            return false;
+        }
+        if (session.recipeItem() != null) {
+            boolean opened = session.entrySelection() != null
+                    ? this.recipeGui.openWorkstation(player, session.entrySelection(), session.recipeIndex(),
+                            session.recipeGeneration())
+                    : this.recipeGui.hasContent(player, session.recipeItem(), session.recipeUsageMode())
+                            && this.recipeGui.open(player, session.recipeItem(), session.recipeUsageMode(),
+                                    session.recipeIndex());
+            if (opened) return true;
+        }
+        if (session.workstationId() != null) {
+            this.workstations.reopen(player);
+            return true;
+        }
+        if (session.externalCatalog()) {
+            this.openAdditionalRecipes(player);
+            return true;
+        }
+        Key category = session.currentCategory();
+        if (category != null && this.data.category(category).isPresent()
+                && !this.data.namespaces().isCategoryHidden(category.toString())
+                && this.data.namespaces().canView(player, category.namespace())) {
+            this.openCategory(player, category, session.categoryPage(), session.contentPage());
+            return true;
+        }
+        if (category == null && this.isVanillaHome(player)) {
+            this.openVanillaItems(player, session.contentPage());
+            return true;
+        }
+        return false;
+    }
+
+    /** 替代窗口属于同一次菜单访问；旧窗口的关闭回调不得关闭新的访问。 */
     public void openWindow(Window window) {
         Player player = window.getViewer();
         if (!this.claim(player)) return;
@@ -237,13 +346,14 @@ public final class BrowserService {
                 this.forgetPlayer(player);
                 return;
             }
-            // InvUI closes the old window before opening its replacement. Wait one tick
-            // to distinguish internal navigation from leaving this plugin's menus.
+            // InvUI 会先关闭旧窗口再打开替代窗口。等待一个 tick，
+            // 用于区分内部导航与真正离开本插件菜单。
             this.plugin.tasks().playerLater(player, () -> {
                 if (this.lifecycle.closed(player.getUniqueId(), token) && player.isOnline()) {
                     for (var sound : this.config.sounds().closeMenu()) {
                         Sounds.play(player, sound.spec(), sound.defaultVolume());
                     }
+                    if (reason == InventoryCloseEvent.Reason.PLAYER) this.rememberPlayer(player);
                     this.viewers.remove(player.getUniqueId(), player);
                 }
             }, 1);
@@ -252,83 +362,166 @@ public final class BrowserService {
     }
 
     public void forgetPlayer(Player player) {
+        this.actions.cancel(player.getUniqueId());
         this.lifecycle.forget(player.getUniqueId());
         this.viewers.remove(player.getUniqueId(), player);
     }
 
-    /** Search dialogs have their own lifecycle; the inventory-to-dialog transfer is silent. */
+    public void rememberPlayer(Player player) {
+        if (!this.rememberLastPage(player)) return;
+        this.sessions.remember(player.getUniqueId(), GuiSession.of(player).snapshot());
+    }
+
+    /** 搜索对话框拥有独立生命周期；从背包切换到对话框时不播放关闭音效。 */
     public void leaveForSearch(Player player) {
+        this.leaveForDialog(player);
+    }
+
+    /** Dialog 窗口拥有独立生命周期；从背包切换到对话框时不播放关闭音效。 */
+    public void leaveForDialog(Player player) {
         this.lifecycle.forget(player.getUniqueId());
         this.viewers.put(player.getUniqueId(), player);
         player.closeInventory();
     }
 
+    private boolean rememberLastPage(Player player) {
+        return this.plugin.playerPreferences() != null && this.plugin.playerPreferences().enabled()
+                ? this.plugin.playerPreferences().rememberLastPage(player.getUniqueId())
+                : this.config.rememberLastPage();
+    }
+
     private void openEmptyContent(Player player) {
-        List<Item> content = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
-        Gui gui = this.buildLayout(player, content, null, 0, false);
-        this.openWindow(Window.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.browserTitle(), "category", this.plugin.lang().text("ui.common.all-items")))
-                .setUpperGui(gui)
-                .build());
+        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
+            List<Item> content = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
+            Gui gui = this.buildLayout(player, content, null, 0, 0, false);
+            this.openWindow(Window.builder().setViewer(player)
+                    .setTitle(this.config.mm(this.config.browserTitle(), "category", this.plugin.lang().text("ui.common.all-items")))
+                    .setUpperGui(gui)
+                    .build());
+        }
     }
 
     public void openCategory(Player player, Key categoryId, int categoryPage) {
-        if (!this.claim(player)) return;
-        Category category = this.data.category(categoryId).orElse(null);
-        if (category == null || this.data.namespaces().isCategoryHidden(categoryId.toString())) {
-            player.sendMessage(this.plugin.lang().message("messages.category-not-found", "id", categoryId.toString()));
-            return;
+        this.openCategory(player, categoryId, categoryPage, 0);
+    }
+
+    private void openCategory(Player player, Key categoryId, int categoryPage, int contentPage) {
+        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
+            if (!this.claim(player)) return;
+            Category category = this.data.category(categoryId).orElse(null);
+            if (category == null || this.data.namespaces().isCategoryHidden(categoryId.toString())) {
+                player.sendMessage(this.plugin.lang().message("messages.category-not-found", "id", categoryId.toString()));
+                return;
+            }
+            if (!this.data.namespaces().canView(player, category.id().namespace())) {
+                player.sendMessage(this.accessDeniedComponent(player, category.id().namespace()));
+                return;
+            }
+            List<ContentEntry> entries = this.collectEntries(category, player);
+            List<Item> contentItems = new LazyItems<>(entries,
+                    entry -> lazyItem(() -> entry.toItem(this, player, category)));
+            boolean showBack = !this.isTopLevel(categoryId);
+            GuiSession session = GuiSession.of(player);
+            session.enter(categoryId, categoryPage, showBack ? this.findParentOf(categoryId) : null, contentPage);
+            Gui gui = this.buildLayout(player, contentItems, categoryId, categoryPage, contentPage, showBack);
+            this.openWindow(Window.builder().setViewer(player)
+                    .setTitle(this.config.mm(this.config.browserTitle(), "category", this.plainName(category)))
+                    .setUpperGui(gui)
+                    .build());
         }
-        if (!this.data.namespaces().canView(player, category.id().namespace())) {
-            player.sendMessage(this.accessDeniedComponent(player, category.id().namespace()));
-            return;
-        }
-        List<ContentEntry> entries = this.collectEntries(category, player);
-        List<Item> contentItems = new LazyItems<>(entries,
-                entry -> lazyItem(() -> entry.toItem(this, player, category)));
-        boolean showBack = !this.isTopLevel(categoryId);
-        GuiSession session = GuiSession.of(player);
-        session.enter(categoryId, categoryPage, showBack ? this.findParentOf(categoryId) : null);
-        Gui gui = this.buildLayout(player, contentItems, categoryId, categoryPage, showBack);
-        this.openWindow(Window.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.browserTitle(), "category", this.plainName(category)))
-                .setUpperGui(gui)
-                .build());
     }
 
     public void openItemList(Player player, Key parentCategory, String title, int categoryPage, String keyword) {
-        if (!this.claim(player)) return;
-        GuiSession.of(player).leaveWorkstations();
-        boolean searching = keyword != null && !keyword.isBlank();
-        List<ItemKeyEntry> entries = new ArrayList<>();
-        if (searching) {
-            Set<Key> scope = this.visibleItemIds(player);
-            int max = this.config.searchMaxResults();
-            for (Key id : this.data.searchIndex().search(keyword, max, scope::contains)) {
-                entries.add(new ItemKeyEntry(id));
-            }
-        } else {
-            for (Key id : this.data.items().keySet()) {
-                entries.add(new ItemKeyEntry(id));
-            }
-        }
-        Category owner = parentCategory == null ? null : this.data.category(parentCategory).orElse(null);
-        List<Item> contentItems = new LazyItems<>(entries,
-                entry -> lazyItem(() -> entry.toItem(this, player, owner)));
-        if (contentItems.isEmpty()) {
-            contentItems = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
-        }
-        Gui gui = this.buildLayout(player, contentItems, parentCategory, categoryPage, parentCategory != null);
-        Component titleComponent = searching
-                ? this.config.mmEscaped(this.config.searchResultTitle(), "keyword", keyword)
-                : this.config.mm(this.config.browserTitle(), "category", title);
-        this.openWindow(Window.builder().setViewer(player)
-                .setTitle(titleComponent)
-                .setUpperGui(gui)
-                .build());
+        this.openItemList(player, parentCategory, title, categoryPage, keyword, null);
     }
 
-    /** Each window owns its lazy items; player-dependent stacks are never shared between players. */
+    private void openItemList(Player player, Key parentCategory, String title, int categoryPage, String keyword,
+                              Set<Key> restrictedItems) {
+        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
+            if (!this.claim(player)) return;
+            GuiSession.of(player).leaveWorkstations();
+            boolean searching = keyword != null && !keyword.isBlank();
+            List<ItemKeyEntry> entries = new ArrayList<>();
+            if (searching) {
+                Set<Key> scope = this.visibleItemIds(player);
+                int max = this.config.searchMaxResults();
+                for (Key id : this.searchItems(keyword, max,
+                        key -> scope.contains(key) && (restrictedItems == null || restrictedItems.contains(key)))) {
+                    entries.add(new ItemKeyEntry(id));
+                }
+            } else if (restrictedItems != null) {
+                for (Key id : restrictedItems) entries.add(new ItemKeyEntry(id));
+            } else {
+                for (Key id : this.data.items().keySet()) {
+                    entries.add(new ItemKeyEntry(id));
+                }
+                for (Key id : this.additionalItemIds(player)) {
+                    if (!this.data.items().containsKey(id)) entries.add(new ItemKeyEntry(id));
+                }
+            }
+            Category owner = parentCategory == null ? null : this.data.category(parentCategory).orElse(null);
+            List<Item> contentItems = new LazyItems<>(entries,
+                    entry -> lazyItem(() -> entry.toItem(this, player, owner)));
+            if (contentItems.isEmpty()) {
+                contentItems = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
+            }
+            Gui gui = this.buildLayout(player, contentItems, parentCategory,
+                    GuiSession.of(player).categoryPage(), categoryPage, parentCategory != null);
+            Component titleComponent = searching
+                    ? this.config.mmEscaped(this.config.searchResultTitle(), "keyword", keyword)
+                    : this.config.mm(this.config.browserTitle(), "category", title);
+            this.openWindow(Window.builder().setViewer(player)
+                    .setTitle(titleComponent)
+                    .setUpperGui(gui)
+                    .build());
+        }
+    }
+
+    private void openVanillaItems(Player player) {
+        this.openVanillaItems(player, 0);
+    }
+
+    private void openVanillaItems(Player player, int contentPage) {
+        CategoryNamespaces.NamespaceEntry namespace = this.data.namespaces().findNamespace("minecraft");
+        Set<Key> items = prepareVanillaItems(vanillaItemKeys(this.data.items().keySet()),
+                namespace != null && namespace.sortByNamespace(),
+                namespace != null && namespace.hideItemsWithoutRecipes(),
+                id -> this.recipeGui.hasContent(player, id, false));
+        GuiSession.of(player).enter(null, 0, null, contentPage);
+        String configured = this.data.namespaces().iconNameOf("minecraft");
+        String name = configured == null || configured.isBlank()
+                ? this.plugin.lang().text("ui.vanilla-items.name") : configured;
+        name = name.replace("<name>", this.plugin.lang().text("ui.vanilla-items.name"));
+        this.openItemList(player, null, name, contentPage, null, items);
+    }
+
+    static Set<Key> vanillaItemKeys(Collection<Key> itemIds) {
+        return vanillaItemKeys(itemIds, List.of(Material.values()));
+    }
+
+    static Set<Key> vanillaItemKeys(Collection<Key> itemIds, Collection<Material> materials) {
+        LinkedHashSet<Key> keys = materials.stream()
+                .filter(material -> !material.isLegacy() && material.isItem() && !material.isAir())
+                .map(material -> Key.of(material.getKey().toString()))
+                .filter(id -> "minecraft".equals(id.namespace()))
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        itemIds.stream()
+                .filter(id -> "minecraft".equals(id.namespace()))
+                .forEach(keys::add);
+        return java.util.Collections.unmodifiableSet(keys);
+    }
+
+    static Set<Key> prepareVanillaItems(Collection<Key> itemIds, boolean sortByNamespace,
+                                        boolean hideWithoutRecipes, Predicate<Key> hasRecipe) {
+        java.util.stream.Stream<Key> stream = itemIds.stream();
+        if (sortByNamespace) {
+            stream = stream.sorted(Comparator.comparing(Key::namespace).thenComparing(Key::value));
+        }
+        if (hideWithoutRecipes) stream = stream.filter(hasRecipe);
+        return stream.collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    /** 每个窗口拥有自己的懒加载物品；依赖玩家的物品堆绝不会在玩家之间共享。 */
     static Item lazyItem(Supplier<Item> factory) {
         Supplier<Item> memoized = new Supplier<>() {
             private Item value;
@@ -344,8 +537,9 @@ public final class BrowserService {
                 .build();
     }
 
-    /** Reload waits for entity cleanup without ever waiting synchronously on another region. */
+    /** 重载会等待实体清理完成，但绝不同步等待其他区域线程。 */
     public CompletableFuture<Void> closeAll() {
+        this.actions.clear();
         List<CompletableFuture<Void>> pending = new ArrayList<>();
         List<Player> viewers;
         synchronized (this.viewerLock) {
@@ -354,7 +548,7 @@ public final class BrowserService {
         for (Player player : viewers) {
             pending.add(this.plugin.tasks().player(player, () -> {
                 boolean inventory = this.lifecycle.contains(player.getUniqueId());
-                this.forgetPlayer(player); // silence callbacks before closing
+                this.forgetPlayer(player); // 关闭前先静默相关回调
                 this.recipeGui.cancelRotation(player);
                 GuiSession.clear(player);
                 if (inventory) {
@@ -371,14 +565,18 @@ public final class BrowserService {
         return CompletableFuture.allOf(pending.toArray(CompletableFuture[]::new));
     }
 
-    /** Plugin disable cannot enqueue work owned by an already-disabled plugin. */
+    /** 插件禁用后无法再提交由该插件拥有的任务。 */
     public void shutdown() {
+        this.actions.clear();
         this.recipeGui.shutdown();
         for (Player player : List.copyOf(this.viewers.values())) {
             boolean inventory = this.lifecycle.contains(player.getUniqueId());
+            boolean ownedRegion = Bukkit.isOwnedByCurrentRegion(player);
             this.forgetPlayer(player);
-            if (Bukkit.isOwnedByCurrentRegion(player)) {
-                if (inventory) player.closeInventory();
+            if (ownedRegion) {
+                if (inventory) {
+                    if (WindowManager.getInstance().getOpenWindow(player) != null) player.closeInventory();
+                }
                 else player.closeDialog();
             }
         }
@@ -387,7 +585,8 @@ public final class BrowserService {
         GuiSession.clearAll();
     }
 
-    private Gui buildLayout(Player player, List<Item> contentItems, Key activeCategory, int categoryPage, boolean showBack) {
+    private Gui buildLayout(Player player, List<Item> contentItems, Key activeCategory,
+                            int categoryPage, int contentPage, boolean showBack) {
         String[] structure = this.normalizeLayout();
         List<Integer> catSlots = slotsOf(structure, this.config.categoryIconChar());
         int perPage = Math.max(1, catSlots.size());
@@ -400,29 +599,40 @@ public final class BrowserService {
         Key active = activeCategory;
         List<Integer> slots = catSlots;
         builder.addModifier(gui -> this.fillCategoryBar(gui, player, active, page, slots));
-        return builder.build();
+        builder.addPageChangeHandler((previous, current) -> GuiSession.of(player).contentPage(current));
+        PagedGui<Item> gui = builder.build();
+        gui.setPage(Math.max(0, Math.min(contentPage, gui.getPageCount() - 1)));
+        return gui;
     }
 
-    /** Both browser modes share content paging and the same configurable bottom-bar buttons. */
+    /** 两种浏览模式共用内容分页和同一套可配置底栏按钮。 */
     PagedGui.Builder<Item> contentBuilder(List<Item> contentItems, String[] structure, Item back, Item search) {
         PagedGui.Builder<Item> builder = PagedGui.itemsBuilder()
                 .setStructure(structure)
                 .setContent(contentItems)
                 .setBackground(new ItemWrapper(ItemBridge.emptySlot()));
-        builder.addIngredient(EMPTY_CHAR, Item.EMPTY);
+        builder.addIngredient(EMPTY_CHAR, this.reservedItem());
         builder.addIngredient(this.config.contentAreaChar(), Markers.CONTENT_LIST_SLOT_HORIZONTAL);
         this.bind(builder, this.config.prevPage(), this.pageNavItem(false));
         this.bind(builder, this.config.nextPage(), this.pageNavItem(true));
         this.bind(builder, this.config.search(), search);
         this.bind(builder, this.config.hand(), this.shortcutItem(this.config.hand(), this::openHeldRecipe));
+        this.bind(builder, this.config.query(), this.queryShortcutItem(this.config.query()));
+        this.bind(builder, this.config.close(), this.shortcutItem(this.config.close(), Player::closeInventory));
         this.bind(builder, this.config.info(), this.shortcutItem(this.config.info(), null));
-        this.bind(builder, this.config.workstations(), this.shortcutItem(this.config.workstations(), player -> {
-            Sounds.play(player, this.config.sounds().click());
-            this.workstations.open(player);
-        }));
+        this.bind(builder, this.config.workstations(), this.workstationsShortcutItem(this.config.workstations()));
         this.bind(builder, this.config.glasses(), this.shortcutItem(this.config.glasses(), this::openTargetBlockRecipe));
         if (back != null) this.bind(builder, this.config.back(), back);
         return builder;
+    }
+
+    private Item reservedItem() {
+        if (this.config.reservedMaterial() == Material.AIR
+                && (this.config.reservedItemModel() == null || this.config.reservedItemModel().isBlank())) {
+            return Item.EMPTY;
+        }
+        return Item.simple(ItemBridge.icon(this.config.reservedItemModel(), this.config.reservedMaterial(),
+                Component.empty(), List.of()));
     }
 
     private String[] normalizeLayout() {
@@ -444,18 +654,90 @@ public final class BrowserService {
         }
     }
 
-    Set<Key> visibleItemIds(Player player) {
-        if (this.data.categoriesById().isEmpty()) return this.data.items().keySet();
-        return this.data.categoryGraph().visible(this.visibleCategories(player),
+    public Set<Key> visibleItemIds(Player player) {
+        return this.visibleItemIds(player, this.visibility(player));
+    }
+
+    public Set<Key> visibleItemIds(Player player, BrowserVisibility visibility) {
+        Set<Key> visible = new LinkedHashSet<>();
+        if (this.data.categoriesById().isEmpty()) visible.addAll(this.data.items().keySet());
+        else visible.addAll(this.data.categoryGraph().visible(this.visibleCategories(player),
                 category -> !this.data.namespaces().isCategoryHidden(category.id().toString())
                         && this.data.namespaces().canView(player, category.id().namespace()),
-                category -> this.data.namespaces().hiddenItems(category.id().toString()));
+                category -> this.data.namespaces().hiddenItems(category.id().toString())));
+        visible.addAll(visibility.additionalItems());
+        return Set.copyOf(visible);
+    }
+
+    static boolean nativeItemVisible(Key id, boolean catalogVisible, boolean registered,
+                                     boolean referenced, boolean namespaceConfigured,
+                                     boolean namespaceVisible) {
+        return BrowserVisibility.nativeItemVisible(id, catalogVisible, registered, referenced,
+                namespaceConfigured, namespaceVisible);
+    }
+
+    /** 每次动作都会重新创建：权限和来源检查绝不跨点击缓存。 */
+    public BrowserVisibility visibility(Player player) {
+        return new BrowserVisibility(this.plugin, this.data, this, player);
+    }
+
+    public Predicate<RecipeEntry> recipeVisibility(Player player) { return this.visibility(player)::canView; }
+
+    public boolean canViewRecipe(RecipeEntry entry, Player player) { return this.visibility(player).canView(entry); }
+
+    public Predicate<RecipeEntry> workstationRecipeVisibility(Player player) {
+        return this.visibility(player)::canViewWorkstation;
+    }
+
+    public boolean canQueryItem(Key id, Player player) { return this.visibility(player).canQuery(id); }
+
+    private Set<Key> additionalItemIds(Player player) { return this.visibility(player).additionalItems(); }
+
+    private boolean hasAdditionalRecipes(Player player) { return this.visibility(player).hasAdditional(); }
+
+    static boolean isStandaloneMinecraftRecipe(String id) {
+        return id.startsWith("minecraft_cultivation:")
+                || id.startsWith("cultivation_")
+                || id.startsWith("minecraft_data:");
+    }
+
+    public List<Key> searchItems(String keyword, int limit, Predicate<Key> allowed) {
+        var result = new LinkedHashSet<>(this.data.searchIndex().search(keyword, limit, allowed));
+        result.addAll(this.plugin.externalRecipes().snapshot().search().search(keyword, limit, allowed));
+        return result.stream().limit(limit).toList();
+    }
+
+    private Key externalItemId(ItemStack stack) {
+        for (var item : this.plugin.externalRecipes().snapshot().items().entrySet()) {
+            if (!"cer_external".equals(item.getKey().namespace())) continue;
+            ItemStack exemplar = item.getValue().icon();
+            if (exemplar != null && exemplar.isSimilar(stack)) return item.getKey();
+        }
+        return null;
+    }
+
+    void openAdditionalRecipes(Player player) {
+        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
+            if (!this.claim(player)) return;
+            GuiSession session = GuiSession.of(player);
+            session.leaveWorkstations();
+            session.externalCatalog(true);
+            List<Item> content = new LazyItems<>(List.copyOf(this.additionalItemIds(player)),
+                    id -> lazyItem(() -> this.itemEntry(player, id, null)));
+            if (content.isEmpty()) {
+                content = List.of(Item.simple(ItemBridge.button(this.config.empty().material(),
+                        this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
+            }
+            Gui gui = this.buildLayout(player, content, null, session.categoryPage(), session.contentPage(), false);
+            this.openWindow(Window.builder().setViewer(player)
+                    .setTitle(this.plugin.lang().component("ui.additional-recipes.title")).setUpperGui(gui).build());
+        }
     }
 
     /**
      * 全部待显示的顶层分类（含无权限时的占位分类），按 CraftEngine 自然顺序。
      */
-    private List<Category> allTopCategories() {
+    List<Category> allTopCategories() {
         List<Category> out = new ArrayList<>();
         if (this.config.categoryFollowCe()) {
             for (Category c : this.data.topCategories()) {
@@ -477,7 +759,9 @@ public final class BrowserService {
     /**
      * 分类栏条目（分类 + 自定义按钮），按当前来源（categories.yml 或 categories-unapplied.yml）排列。
      */
-    private List<BarEntry> barEntries(Player player) {
+    private List<BarEntry> barEntries(Player player) { return this.barEntries(player, true); }
+
+    private List<BarEntry> barEntries(Player player, boolean includeAdditional) {
         Map<String, List<Category>> byNamespace = new LinkedHashMap<>();
         for (Category c : this.allTopCategories()) {
             byNamespace.computeIfAbsent(c.id().namespace(), k -> new ArrayList<>()).add(c);
@@ -491,8 +775,11 @@ public final class BrowserService {
         List<BarEntry> out = new ArrayList<>();
         for (CategoryNamespaces.Entry entry : sourceEntries) {
             if (entry instanceof CategoryNamespaces.NamespaceEntry ns) {
+                if (!ns.categoryEntry()) continue;
                 List<Category> cats = byNamespace.get(ns.id());
-                if (cats != null) {
+                if ("minecraft".equals(ns.id()) && (cats == null || cats.isEmpty())) {
+                    out.add(new VanillaItemsEntry(ns));
+                } else if (cats != null) {
                     for (Category c : cats) {
                         out.add(new CategoryEntry(c));
                     }
@@ -501,6 +788,7 @@ public final class BrowserService {
                 out.add(new ButtonEntry(button));
             }
         }
+        if (includeAdditional && this.hasAdditionalRecipes(player)) out.add(new AdditionalRecipesEntry());
         return out;
     }
 
@@ -509,7 +797,7 @@ public final class BrowserService {
      */
     private List<Category> visibleCategories(Player player) {
         List<Category> out = new ArrayList<>();
-        for (BarEntry entry : this.barEntries(player)) {
+        for (BarEntry entry : this.barEntries(player, false)) {
             if (entry instanceof CategoryEntry ce) {
                 if (this.data.namespaces().canView(player, ce.category().id().namespace())) {
                     out.add(ce.category());
@@ -520,7 +808,11 @@ public final class BrowserService {
     }
 
     private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage, List<Integer> slots) {
-        List<BarEntry> entries = this.barEntries(player);
+        this.fillCategoryBar(gui, player, activeCategory, categoryPage, slots, this.barEntries(player));
+    }
+
+    private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage,
+                                 List<Integer> slots, List<BarEntry> entries) {
         int perPage = Math.max(1, slots.size());
         int maxOffset = Math.max(0, entries.size() - perPage);
         int offset = Math.max(0, Math.min(categoryPage, maxOffset));
@@ -542,8 +834,38 @@ public final class BrowserService {
                     continue;
                 }
                 gui.setSlotElement(slot, new SlotElement.Item(this.buttonEntryItem(player, be.button())));
+            } else if (entry instanceof VanillaItemsEntry vanilla) {
+                if (this.data.namespaces().canView(player, "minecraft")) {
+                    gui.setSlotElement(slot, new SlotElement.Item(this.vanillaItemsIcon(player, vanilla.namespace())));
+                } else {
+                    gui.setSlotElement(slot, new SlotElement.Item(Item.simple(ItemBridge.button(
+                            Material.BARRIER, this.accessDeniedComponent(player, "minecraft"), List.of()))));
+                }
+            } else if (entry instanceof AdditionalRecipesEntry) {
+                ItemStack icon = ItemBridge.button(Material.KNOWLEDGE_BOOK,
+                        this.plugin.lang().component("ui.additional-recipes.name"), List.of());
+                gui.setSlotElement(slot, new SlotElement.Item(Item.builder().setItemProvider(icon)
+                        .addClickHandler(click -> this.handleClick(click.player(), () -> {
+                            Sounds.play(click.player(), this.config.sounds().click());
+                            this.openAdditionalRecipes(click.player());
+                        })).build()));
             }
         }
+    }
+
+    private Item vanillaItemsIcon(Player player, CategoryNamespaces.NamespaceEntry namespace) {
+        String raw = namespace.iconName();
+        String fallback = this.plugin.lang().text("ui.vanilla-items.name");
+        Component name = this.config.mm((raw == null || raw.isBlank() ? fallback : raw).replace("<name>", fallback));
+        int count = (int) this.data.items().keySet().stream()
+                .filter(id -> "minecraft".equals(id.namespace())).count();
+        List<Component> lore = namespace.iconLore().stream()
+                .map(line -> this.config.mm(line, "count", String.valueOf(count))).toList();
+        ItemStack stack = ItemBridge.button(Material.GRASS_BLOCK, name, lore);
+        return Item.builder().setItemProvider(stack).addClickHandler(click -> this.handleClick(click.player(), () -> {
+            Sounds.play(click.player(), this.config.sounds().click());
+            this.openVanillaItems(click.player());
+        })).build();
     }
 
     private Item categoryIcon(Player player, Category category, boolean active) {
@@ -564,11 +886,11 @@ public final class BrowserService {
             lore.add(this.config.mm(line, "count", String.valueOf(count)));
         }
         ItemStack decorated = new ItemBuilder(icon).setName(name).setLore(lore).setGlint(active ? Boolean.TRUE : null).build();
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> {
+        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             Sounds.play(p, this.config.sounds().click());
             this.openCategory(p, category.id(), GuiSession.of(p).categoryPage());
-        }).build();
+        })).build();
     }
 
     private Item subCategoryIcon(Player player, Category sub) {
@@ -580,11 +902,11 @@ public final class BrowserService {
             lore.add(this.config.mm(line, "count", String.valueOf(count)));
         }
         ItemStack decorated = ItemBridge.decorate(icon, name, lore);
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> {
+        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             Sounds.play(p, this.config.sounds().click());
             this.openCategory(p, sub.id(), GuiSession.of(p).categoryPage());
-        }).build();
+        })).build();
     }
 
     private Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button) {
@@ -602,8 +924,8 @@ public final class BrowserService {
             lore.add(CerConfig.noItalic(LegacyComponentSerializer.legacyAmpersand().deserialize(line)));
         }
         ItemStack decorated = ItemBridge.decorate(icon, name, lore);
-        return Item.builder().setItemProvider(decorated).addClickHandler(click ->
-                ButtonActions.run(click.player(), button, click.clickType())).build();
+        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () ->
+                ButtonActions.run(click.player(), button, click.clickType()))).build();
     }
 
     private Component categoryName(Category category) {
@@ -637,13 +959,13 @@ public final class BrowserService {
         for (String line : this.itemLoreFor(owner)) {
             lore.add(this.config.mm(line));
         }
-        ItemStack decorated = ItemBridge.decorate(icon, null, lore);
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> {
+        ItemStack decorated = ItemBridge.appendLore(icon, lore);
+        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             boolean usage = click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT;
             boolean opened = this.recipeGui.open(p, id, usage, 0);
             Sounds.play(p, opened ? this.config.sounds().click() : this.config.sounds().queryFailure());
-        }).build();
+        })).build();
     }
 
     private List<String> itemLoreFor(Category owner) {
@@ -679,7 +1001,7 @@ public final class BrowserService {
     private Item categoryNavItem(boolean next, int perPage, Key activeCategory) {
         CerConfig.ButtonDef def = next ? this.config.nextCategory() : this.config.prevCategory();
         ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), this.config.mm(def.name()), this.buttonLore(def));
-        return BoundItem.pagedBuilder().setItemProvider(stack).addClickHandler((item, gui, click) -> {
+        return BoundItem.pagedBuilder().setItemProvider(stack).addClickHandler((item, gui, click) -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             GuiSession session = GuiSession.of(p);
             int curOffset = session.categoryPage();
@@ -692,80 +1014,94 @@ public final class BrowserService {
                 return;
             }
             session.categoryPage(target);
-            this.fillCategoryBar(gui, p, activeCategory, target, slots);
+            this.fillCategoryBar(gui, p, activeCategory, target, slots, entries);
             Sounds.play(p, this.config.sounds().changeCategory());
-        }).build();
+        })).build();
     }
 
     private Item pageNavItem(boolean next) {
-        CerConfig.ButtonDef def = next ? this.config.nextPage() : this.config.prevPage();
-        return BoundItem.pagedBuilder().setItemProvider((player, gui) -> {
-            boolean available = next ? gui.getPage() + 1 < gui.getPageCount() : gui.getPage() > 0;
-            Component name = available
-                    ? this.config.mm(def.name())
-                    : this.plugin.lang().component(next ? "ui.common.last-page" : "ui.common.first-page");
-            String model = available ? def.itemModel() : CerConfig.DISABLED_ITEM_MODEL;
-            ItemStack stack = ItemBridge.icon(model, def.material(), name, this.buttonLore(def));
-            return new ItemWrapper(stack);
-        }).addClickHandler((item, gui, click) -> {
-            int target = gui.getPage() + (next ? 1 : -1);
-            if (target < 0 || target >= gui.getPageCount()) {
-                Sounds.play(click.player(), this.config.sounds().queryFailure());
-                return;
-            }
-            gui.setPage(target);
-            Sounds.play(click.player(), this.config.sounds().changePage());
-        }).build();
+        return this.actionItems.pageNavItem(next);
     }
 
     private Item searchItem() {
-        return this.searchItem(player -> this.plugin.searchDialog().open(player));
+        return this.actionItems.searchItem();
     }
 
     Item searchItem(Consumer<Player> action) {
-        return this.shortcutItem(this.config.search(), action);
+        return this.actionItems.searchItem(action);
     }
 
     private Item shortcutItem(CerConfig.ButtonDef def, Consumer<Player> action) {
-        List<Component> lore = this.buttonLore(def);
-        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), this.config.mm(def.name()), lore);
-        if (action == null) return Item.simple(stack);
-        return Item.builder().setItemProvider(stack).addClickHandler(click -> {
-            action.accept(click.player());
-        }).build();
+        return this.actionItems.shortcutItem(def, action);
     }
 
-    /** Recipe windows return to their originating workstation list or CraftEngine category. */
+    private Item queryShortcutItem(CerConfig.ButtonDef def) {
+        return this.actionItems.queryShortcutItem(def);
+    }
+
+    private Item workstationsShortcutItem(CerConfig.ButtonDef def) {
+        return this.actionItems.workstationsShortcutItem(def);
+    }
+
+    /** 配方窗口返回打开它的合成器列表或 CraftEngine 分类。 */
     void returnToBrowser(Player player) {
-        if (GuiSession.of(player).workstation() != null) this.workstations.reopen(player);
+        GuiSession session = GuiSession.of(player);
+        session.clearRecipeContext();
+        if (session.workstationId() != null) this.workstations.reopen(player);
         else this.returnToCategories(player);
     }
 
     void returnToCategories(Player player) {
         GuiSession session = GuiSession.of(player);
         session.leaveWorkstations();
+        if (session.externalCatalog()) {
+            this.openAdditionalRecipes(player);
+            return;
+        }
         Key category = session.currentCategory();
         if (category != null && this.data.category(category).isPresent()) {
-            this.openCategory(player, category, session.categoryPage());
+            this.openCategory(player, category, session.categoryPage(), session.contentPage());
+        } else if (category == null && this.isVanillaHome(player)) {
+            this.openVanillaItems(player, session.contentPage());
         } else {
             this.openDefault(player);
         }
     }
 
-    private Item backItem() {
-        CerConfig.ButtonDef def = this.config.back();
-        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), this.config.mm(def.name()), this.buttonLore(def));
-        return Item.builder().setItemProvider(stack).addClickHandler(click -> {
-            Player p = click.player();
-            GuiSession session = GuiSession.of(p);
-            Key parent = session.exit();
-            Sounds.play(p, this.config.sounds().back());
-            if (parent != null) {
-                this.openCategory(p, parent, session.categoryPage());
-            } else {
-                this.openDefault(p);
+    private boolean isVanillaHome(Player player) {
+        for (BarEntry entry : this.barEntries(player, false)) {
+            if (entry instanceof VanillaItemsEntry) {
+                return this.data.namespaces().canView(player, "minecraft");
             }
-        }).build();
+            if (entry instanceof CategoryEntry category
+                    && this.data.namespaces().canView(player, category.category().id().namespace())) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /** 在配方外右键会返回打开该配方时的主视图。 */
+    void returnToOriginHome(Player player) {
+        GuiSession session = GuiSession.of(player);
+        session.clearRecipeContext();
+        if (session.workstationId() != null) {
+            this.workstations.reopen(player);
+        } else {
+            this.returnToCategories(player);
+        }
+    }
+
+    private Item backItem() {
+        return this.actionItems.backItem();
+    }
+
+    void openOrToggleWorkstations(Player player) {
+        if (this.config.workstationsToggle() && GuiSession.of(player).workstationId() != null) {
+            this.returnToCategories(player);
+        } else {
+            this.workstations.open(player);
+        }
     }
 
     private List<ContentEntry> collectEntries(Category category, Player player) {
@@ -815,13 +1151,18 @@ public final class BrowserService {
         return this.config.categoryIconName().replace("<name>", category.id().value());
     }
 
-    private sealed interface BarEntry permits CategoryEntry, ButtonEntry {
+    private sealed interface BarEntry permits CategoryEntry, ButtonEntry, VanillaItemsEntry, AdditionalRecipesEntry {
     }
+
+    private record AdditionalRecipesEntry() implements BarEntry {}
 
     private record CategoryEntry(Category category) implements BarEntry {
     }
 
     private record ButtonEntry(CategoryNamespaces.ButtonEntry button) implements BarEntry {
+    }
+
+    private record VanillaItemsEntry(CategoryNamespaces.NamespaceEntry namespace) implements BarEntry {
     }
 
     private sealed interface ContentEntry permits ItemKeyEntry, SubCategoryEntry, MissingCategoryEntry {

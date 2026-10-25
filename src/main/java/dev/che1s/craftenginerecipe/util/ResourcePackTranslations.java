@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-/** Reads the generated resource pack without accessing server or player APIs. */
+/** 读取生成的资源包，不访问服务器或玩家 API。 */
 public final class ResourcePackTranslations {
     private static final List<String> DEFAULT_LANGUAGES = List.of("zh_cn", "en_us");
     private static final Pattern LANGUAGE = Pattern.compile("[a-z0-9]+(?:_[a-z0-9]+)*");
@@ -53,7 +53,7 @@ public final class ResourcePackTranslations {
         }
     }
 
-    /** Invalid or empty preferences use the default Chinese/English fallback order. */
+    /** 无效或空的偏好列表使用默认的中文、英文回退顺序。 */
     public static List<String> normalizeLanguages(List<String> languages) {
         LinkedHashSet<String> normalized = new LinkedHashSet<>();
         if (languages != null) {
@@ -67,9 +67,9 @@ public final class ResourcePackTranslations {
     }
 
     /**
-     * Reads preferred locales in order. Within a locale, minecraft takes precedence,
-     * followed by other namespaces in lexical order. Failed files never contribute partial entries.
-     * {@code files} counts successfully parsed language files, including empty files.
+     * 按顺序读取首选语言。在同一语言内，minecraft 优先，其他命名空间按字典序排列。
+     * 解析失败的文件绝不会贡献部分条目。{@code files} 统计成功解析的语言文件，
+     * 包括空文件。
      */
     public static ReadResult read(Path zip, List<String> languages) throws IOException {
         Objects.requireNonNull(zip, "zip");
@@ -80,7 +80,7 @@ public final class ResourcePackTranslations {
         int consumedBytes = 0;
 
         try (ZipFile archive = new ZipFile(zip.toFile(), StandardCharsets.UTF_8)) {
-            // Keep the best candidates even if a ZIP lists a preferred locale/namespace last.
+            // 即使 ZIP 将首选语言或命名空间列在最后，也要保留最佳候选。
             PriorityQueue<LanguageFile> candidates = new PriorityQueue<>(MAX_FILES, FILE_ORDER.reversed());
             boolean tooManyFiles = false;
             Enumeration<? extends ZipEntry> entries = archive.entries();
@@ -127,7 +127,7 @@ public final class ResourcePackTranslations {
                         break;
                     }
                     Map<String, String> parsed = parse(contents);
-                    // Limit the merged map before adding any part of this file.
+                    // 在加入当前文件的任何内容前先检查合并映射大小限制。
                     long added = parsed.keySet().stream().filter(key -> !translations.containsKey(key)).count();
                     if (translations.size() + added > MAX_TRANSLATIONS) {
                         throw new IOException("merged translation limit exceeded (" + MAX_TRANSLATIONS + ")");
@@ -181,7 +181,7 @@ public final class ResourcePackTranslations {
         reader.endObject();
     }
 
-    /** Skip non-string values while retaining a bound on deeply nested arrays/objects. */
+    /** 跳过非字符串值，同时限制深层嵌套数组和对象的大小。 */
     private static void skipValue(JsonReader reader, int depth) throws IOException {
         checkDepth(depth);
         switch (reader.peek()) {

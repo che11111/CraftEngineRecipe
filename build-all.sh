@@ -1,7 +1,7 @@
 #!/bin/sh
-# Build each Minecraft target from clean sources, then collect all three release JARs in dist/.
-# JAVA_HOME selects JDK 25. CER_MAVEN optionally selects a Maven executable outside PATH.
-# Additional arguments are passed to Maven, e.g. ./build-all.sh -o -Dmaven.repo.local=/path/to/repository
+# 从干净源码依次构建每个 Minecraft 目标，再将三个发行版 JAR 收集到 dist/。
+# JAVA_HOME 用于选择 JDK 25；CER_MAVEN 可指定 PATH 之外的 Maven 可执行文件。
+# 额外参数会原样传给 Maven，例如：./build-all.sh -o -Dmaven.repo.local=/path/to/repository
 set -eu
 
 cer_project=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -14,6 +14,14 @@ fi
 cer_stage=$(mktemp -d "${TMPDIR:-/tmp}/cer-build-all.XXXXXX")
 trap 'rm -rf "$cer_stage"' 0
 trap 'exit 1' HUP INT TERM
+
+# 在构建任何目标前统一刷新一次按版本归档的原版配方资源。
+printf 'Extracting vanilla recipes from lib/*.jar...\n'
+sh "$cer_project/scripts/extract-vanilla-recipes.sh"
+printf 'Extracting vanilla cultivation data from lib/*.jar...\n'
+sh "$cer_project/scripts/extract-vanilla-cultivation.sh"
+printf 'Preparing versioned vanilla zh_cn translations...\n'
+sh "$cer_project/scripts/extract-vanilla-translations.sh"
 
 for cer_label in 26.1 26.2 26.3; do
     printf '\nBuilding Minecraft %s...\n' "$cer_label"
@@ -35,7 +43,7 @@ for cer_label in 26.1 26.2 26.3; do
     cp "$cer_jar" "$cer_stage/"
 done
 
-# Publish the collected outputs only after every target has built and passed verification.
+# 只有所有目标均构建并通过校验后才发布收集的产物。
 mkdir -p "$cer_project/dist"
 for cer_jar in "$cer_stage"/*.jar; do
     cp "$cer_jar" "$cer_project/dist/"

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Pure layout rules shared by menu construction and category-bar refreshes. */
+/** 菜单构建和分类栏刷新共用的纯布局规则。 */
 final class BrowserLayout {
     static final int WIDTH = 9;
     static final int ROWS = 6;
@@ -22,7 +22,7 @@ final class BrowserLayout {
                 config.prevPage().symbol(), config.nextPage().symbol(),
                 config.search().symbol(), config.back().symbol(),
                 config.hand().symbol(), config.info().symbol(), config.workstations().symbol(),
-                config.glasses().symbol()));
+                config.glasses().symbol(), config.query().symbol(), config.close().symbol()));
     }
 
     static String[] normalize(List<String> raw, char category, char content, List<Character> buttons) {
@@ -48,7 +48,7 @@ final class BrowserLayout {
     }
 
     static String[] workstations(CerConfig config) {
-        // Workstations use the same category slots and navigation buttons as the CE browser.
+        // 合成器页面使用与 CE 浏览页面相同的分类槽位和导航按钮。
         return normalize(config);
     }
 

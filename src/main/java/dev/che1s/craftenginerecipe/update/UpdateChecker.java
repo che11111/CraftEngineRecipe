@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Network work stays on the async scheduler; player notices follow their entity scheduler. */
+/** 网络任务保持在异步调度器上；玩家通知通过其所属实体调度器发送。 */
 public final class UpdateChecker implements Listener {
     private final CraftEngineRecipePlugin plugin;
     private final GitHubReleaseClient client = new GitHubReleaseClient();
@@ -30,7 +30,7 @@ public final class UpdateChecker implements Listener {
         this.installedVersion = plugin.getPluginMeta().getVersion();
     }
 
-    /** Reloading an enabled checker keeps its timer and cached result without extra requests. */
+    /** 重载已启用的检查器时保留计时器和缓存结果，不发起额外请求。 */
     public synchronized void reload() {
         if (!this.plugin.getConfig().getBoolean("check-for-updates", true)) {
             this.shutdown();
@@ -45,7 +45,7 @@ public final class UpdateChecker implements Listener {
             this.active = null;
             throw error;
         }
-        this.plugin.getLogger().info(this.plugin.lang().text("logs.update-check-enabled"));
+        this.plugin.getLogger().info("已开启更新检查。");
     }
 
     public synchronized void shutdown() {
@@ -63,7 +63,7 @@ public final class UpdateChecker implements Listener {
             this.complete(run, () -> this.accept(run, release));
         } catch (IOException | RuntimeException error) {
             this.complete(run, () -> {
-                // Warn once per failure streak; a successful check permits a future warning.
+                // 每段连续失败只警告一次；成功检查后允许下次失败再次警告。
                 if (!run.failureReported) {
                     run.failureReported = true;
                     this.plugin.getLogger().warning(this.plugin.lang().text("logs.update-check-failed",
@@ -79,15 +79,15 @@ public final class UpdateChecker implements Listener {
         if (this.active != run) return;
         try {
             this.plugin.tasks().global(() -> {
-                // A request finishing after disable/re-enable must not publish an old result.
+                // 在禁用或重新启用后结束的旧请求不得发布过期结果。
                 if (this.active == run) action.run();
             });
         } catch (IllegalPluginAccessException ignored) {
-            // Plugin shutdown may have stopped the dispatcher after the active-run check.
+            // 插件关闭可能已在活动请求检查之后停止调度器。
         }
     }
 
-    /** Called on the global scheduler; only newly discovered releases notify online admins. */
+    /** 在全局调度器上调用；只有新发现的版本才会通知在线管理员。 */
     private void accept(CheckRun run, GitHubReleaseClient.Release release) {
         run.failureReported = false;
         GitHubReleaseClient.Release previous = run.available;
@@ -112,7 +112,7 @@ public final class UpdateChecker implements Listener {
         CheckRun run = this.active;
         if (run == null || run.available == null) return;
         Player player = event.getPlayer();
-        // Joining only reads the cached result; it never causes a network request.
+        // 玩家加入时只读取缓存结果，绝不会因此发起网络请求。
         this.plugin.tasks().playerLater(player, () -> {
             GitHubReleaseClient.Release release = run.available;
             if (release != null) this.notifyPlayer(player, run, release);

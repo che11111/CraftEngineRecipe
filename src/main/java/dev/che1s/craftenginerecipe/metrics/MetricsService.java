@@ -10,9 +10,9 @@ import java.util.Set;
 
 
 public final class MetricsService {
-    // Fork project: https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772
+    // 本项目统计页：https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772
     private static final int CRAFT_ENGINE_RECIPE_SERVICE_ID = 34772;
-    // Original project: https://bstats.org/plugin/bukkit/CEGUI/34637
+    // 原项目统计页：https://bstats.org/plugin/bukkit/CEGUI/34637
     private static final int CEGUI_SERVICE_ID = 34637;
 
     private final CraftEngineRecipePlugin plugin;
@@ -34,7 +34,7 @@ public final class MetricsService {
                 this.reporters.add(new RegionMetrics(this.plugin, id));
             }
             this.activeIds = ids;
-            if (!ids.isEmpty()) this.plugin.getLogger().info(this.plugin.lang().text("logs.metrics-ready", "ids", ids.toString()));
+            if (!ids.isEmpty()) this.plugin.getLogger().info("bStats 已初始化。");
         } catch (RuntimeException | IOException e) {
             this.shutdown();
             this.plugin.getLogger().warning(this.plugin.lang().text("logs.metrics-failed", "error", e.getMessage()));

@@ -1,6 +1,7 @@
 package dev.che1s.craftenginerecipe.listener;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
+import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,10 +26,11 @@ public final class HotkeyListener implements Listener {
         if (this.plugin.config().hotkeyRequireSneak() && !player.isSneaking()) {
             return;
         }
-        if (!this.plugin.data().isReady()) {
-            return;
-        }
         event.setCancelled(true);
-        this.plugin.browser().openApplied(player);
+        this.plugin.browser(player).deferMenuAction(player, () -> {
+            try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.HOTKEY)) {
+                this.plugin.browser(player).openApplied(player);
+            }
+        });
     }
 }

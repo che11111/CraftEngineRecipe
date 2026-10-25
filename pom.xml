@@ -6,7 +6,7 @@
 
     <groupId>dev.che1s</groupId>
     <artifactId>craftenginerecipe</artifactId>
-    <version>1.0.17</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>CraftEngineRecipe</name>
     <description>基于 CraftEngine 物品的高级配方浏览器（常驻分类栏 + 搜索）</description>
@@ -23,6 +23,8 @@
         <craftengine.version>26.8.1</craftengine.version>
         <invui.version>2.3.2</invui.version>
         <pinyin4j.version>2.5.1</pinyin4j.version>
+        <sqlite.version>3.49.1.0</sqlite.version>
+        <vanilla.recipe.directory>minecraft-${mc.label}</vanilla.recipe.directory>
 
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.6.2</maven.shade.plugin.version>
@@ -93,6 +95,12 @@
             <artifactId>pinyin4j</artifactId>
             <version>${pinyin4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${sqlite.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -148,7 +156,25 @@
                 <filtering>false</filtering>
                 <excludes>
                     <exclude>plugin.yml</exclude>
+                    <exclude>recipes/minecraft-*/**</exclude>
+                    <exclude>recipes/cultivation/minecraft-*/**</exclude>
+                    <exclude>vanilla-lang/minecraft-*/**</exclude>
                 </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources/recipes/${vanilla.recipe.directory}</directory>
+                <targetPath>recipes/${vanilla.recipe.directory}</targetPath>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources/recipes/cultivation/${vanilla.recipe.directory}</directory>
+                <targetPath>recipes/cultivation/${vanilla.recipe.directory}</targetPath>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources/vanilla-lang/${vanilla.recipe.directory}</directory>
+                <targetPath>vanilla-lang/${vanilla.recipe.directory}</targetPath>
+                <filtering>false</filtering>
             </resource>
         </resources>
 

@@ -1,0 +1,187 @@
+Title: 原版·营火
+Layout:
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+Options:
+  Page: campfire
+Workstation:
+  id: minecraft:campfire_cooking
+  name: 原版·营火
+  icon:
+    Material: minecraft:campfire
+Recipes:
+  minecraft_data:baked_potato_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:potato
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:baked_potato
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_beef_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:beef
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_beef
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_chicken_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:chicken
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_chicken
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_cod_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cod
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_cod
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_mutton_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mutton
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_mutton
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_porkchop_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:porkchop
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_porkchop
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_rabbit_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:rabbit
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_rabbit
+        Usage: result
+        Amount: 1
+  minecraft_data:cooked_salmon_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:salmon
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cooked_salmon
+        Usage: result
+        Amount: 1
+  minecraft_data:dried_kelp_from_campfire_cooking:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:kelp
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:dried_kelp
+        Usage: result
+        Amount: 1

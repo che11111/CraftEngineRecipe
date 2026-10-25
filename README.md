@@ -4,7 +4,9 @@
 
 <h1 align="center">CraftEngineRecipe</h1>
 
-<p align="center">An item and recipe browser for CraftEngine, with category navigation, pinyin search, and recipe usage lookup.</p>
+<p align="center">An item and recipe browser for CraftEngine with category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
+
+> This README describes the unreleased 1.1.0 version. If you are using version 1.0.17, you can refer to the Wiki for its documentation first.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Minecraft-26.1.2%20%2F%2026.2%20%2F%2026.3-3fb950" alt="Minecraft 26.1.2 / 26.2 / 26.3">
@@ -22,8 +24,8 @@
 
 <table>
   <tr>
-    <td align="center"><strong>Menu Showcase</strong><br><small>Browse by namespace or workstation type</small></td>
-    <td align="center"><strong>Feature Showcase</strong><br><small>Find recipes for held items and targeted blocks, and use search</small></td>
+    <td align="center"><strong>Menu Showcase</strong><br><small>Namespace-based and workstation-based navigation</small></td>
+    <td align="center"><strong>Feature Showcase</strong><br><small>Held-item lookup, targeted-block lookup, and search</small></td>
   </tr>
   <tr>
     <td align="center">
@@ -37,29 +39,34 @@
 
 ## Features
 
-- A clear, ready-to-use UI, with assets **automatically installed** in CraftEngine's resource pack directory.
-- Two browsing modes: **CraftEngine categories** and **workstation types**.
-- **Left-click** an item to view its **recipes**; **right-click** to view recipes that **use it**.
-- **Customize** category order, visibility permissions, hiding rules, and menu **buttons**.
-- Custom buttons can run any command to open other menus or pages.
+- A clear, ready-to-use UI whose resources are **installed automatically** into CraftEngine's resource-pack directory.
+- Two browsing modes: **browse by namespace** and **browse by workstation**.
+- Left-click an item to view its **recipes**; right-click to view recipes that **use it**.
+- Customize category order, visibility permissions, hiding rules, and menu **buttons**.
+- Custom buttons can run commands to open other menus or pages.
 - Search by item ID, name, translation key, Chinese pinyin, or pinyin initials.
-- Look up recipes for the item in your `main hand` or the block under your `crosshair`, using commands or menu shortcuts.
-- Open the recipe menu quickly with the configurable `Shift+F` shortcut.
+- Bundled vanilla Chinese names make searches such as `小麦` and `木剑` work; recipe-file polling does not continuously occupy the server thread.
+- TrMenu-like custom recipe files are supported. FarmersDelight, the FarmersDelight skillet, Kaleidoscope Cookery, and CustomCrops pot recipes are exported to `recipes/` on first use and then loaded from files.
+- Fixed-result CraftEngine recipes are exported to `recipes/craftengine/` on first use and then read only from files. Vanilla recipes, vanilla cultivation data, CraftEngine cultivation data, and integration-specific cultivation data have independent source switches.
+- Edited files under `recipes/` reload automatically. Pressing ESC remembers the current page and recipe back-stack for three minutes by default; right-clicking outside a menu returns to the main view corresponding to where it was opened.
+- Right-click **Browse by workstation** to open Personalization. Each player can choose a main menu style and whether the last browsing position should be restored. Preferences are stored in the SQLite database `player-preferences.db`.
+- During startup indexing, online administrators are told which recipe sources were detected. After CraftEngine reloads its configuration and resource packs, CER re-exports CraftEngine recipes and refreshes its index automatically.
+- Look up recipes for the item in your **main hand** or the block under your **crosshair**, using commands or menu shortcuts.
+- The **Shift+F** shortcut opens the menu quickly. It is enabled by default, requires sneaking by default, and is configurable.
 
 ## Requirements
 
 Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a compatible **CraftEngine** release.
 
-
 ## Quick Start
 
-1. Install a version of CraftEngine compatible with your server, load the items, categories, and recipes, then install the corresponding version of CraftEngineRecipe.
+1. Install a compatible version of CraftEngine, load its items, categories, and recipes, then install the matching CraftEngineRecipe version.
 
-2. On its first run, the plugin automatically installs the background and button assets into `plugins/CraftEngine/resources/cer_resource/`. No manual copying is required, and subsequent restarts or reloads will not install them again. Use CraftEngine to generate and distribute the resource pack (for example, `/ce reload all`, depending on your version), then have clients accept it. See [Applying the Resource Pack](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/getting-started/#applying-the-resource-pack).
+2. On first run, enabled menu packs plus `cer_kc_gui` and `cer_fd_gui` are installed as subpacks under `CraftEngine/resources/CraftEngineRecipe/subpacks/`. Cute, rough, vanilla-material, and map styles are enabled by default. Players can open a style with `/cer open <pack>`.
 
-3. Wait for the data to be ready, then run `/cer unapplied` as an administrator to preview categories that have not yet been applied.
+3. Wait for data initialization to finish, then run `/cer unapplied` as an administrator to preview categories that have not yet been applied.
 
-4. Copy the namespace entries you want from `plugins/CraftEngineRecipe/categories-unapplied.yml` into `entries` in `categories.yml`, for example:
+4. Copy the desired namespace entries from `plugins/CraftEngineRecipe/categories-unapplied.yml` into `entries` in `categories.yml`, for example:
 
    ```yaml
    entries:
@@ -68,37 +75,74 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
        permission: ''
    ```
 
-   Replace `farmersdelight` with an existing namespace. If `entries` already exists, append the entries to it.
+   Replace `farmersdelight` with an existing namespace. If `entries` already exists, append the entry.
 
-5. Run `/cer reload`. Once it finishes, open the menu with `/cer` or Shift+F. Left-click an item to view its recipes; right-click to view recipes that use it.
+   Addons containing only one item or only recipe data can use `category-entry: false`. This omits the namespace category button while keeping items in search, direct queries, and workstation output pages.
 
-If the main menu is empty on the first run, apply your categories first. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for detailed instructions.
+5. Run `/cer reload`, then open the menu with `/cer` or Shift+F. Left-click an item for its recipes; right-click to see recipes that use it.
+
+6. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style and whether reopening restores the previous position. Preferences are stored in `player-preferences.db`.
+
+7. By default, online administrators receive the detected recipe-source list when startup indexing begins. After CraftEngine reloads its configuration and resource packs, CER automatically re-exports CE recipes and refreshes its index.
+
+If the main menu is empty on first use, apply the desired categories first. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for details.
 
 ## Common Commands
 
 | Command | Purpose |
 | --- | --- |
-| `/cer` | Open the main menu; aliases: `/cg`, `/browser`; shortcut: `Shift+F` |
+| `/cer` | Open the main menu; aliases `/cg` and `/browser`; shortcut `Shift+F` |
 | `/cer search` | Search for items |
-| `/cer hand` | View recipes producing your main-hand vanilla or CE item, respecting configured category restrictions |
-| `/cer target` | View recipes producing the vanilla or CE block under your crosshair, respecting configured category restrictions |
+| `/cer hand` | View recipes producing the vanilla or CraftEngine item in your main hand, respecting configured category restrictions |
+| `/cer target` | View recipes producing the vanilla or CraftEngine block under your crosshair, respecting configured category restrictions |
+| `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | Re-read a source and replace its data under `recipes/` (administrator) |
 | `/cer unapplied` | Preview unapplied categories (administrator) |
-| `/cer reload` | Reload configuration and indexes (administrator) |
+| `/cer reload` | Reload configuration and indexes (administrator; recipe-file edits reload automatically) |
+| `/cer open <pack>` | Open the menu using an enabled UI pack |
+| `/cer menu` | Show the default, enabled, and available UI packs (administrator) |
+| `/cer menu enable <pack\|all>` | Enable one style or every `cer_menu_*` style (administrator) |
+| `/cer menu disable <pack>` | Disable a non-default style (administrator) |
+| `/cer menu default <pack>` | Set the default style used by `/cer` and Shift+F (administrator) |
+| `/cer debug recipes` | Save all currently registered recipes as a local JSON diagnostic file (administrator) |
+| `/cer debug performance` | Show plugin operation timings, menu session/click counts, and server TPS/MSPT (administrator) |
+| `/cer debug performance reset` | Reset the plugin timing window before reproducing a problem (administrator) |
 
-The `Shift+F` shortcut is enabled by default and can be disabled in `config.yml`.
+Debug commands also work from the console and require `craftenginerecipe.admin`. Recipe exports are saved under `plugins/CraftEngineRecipe/debug/recipes-*.json` and contain separate Bukkit, CraftEngine, and `recipes/` display sections. Capture runs in short batches and file writing is asynchronous. Only one export may run at a time, followed by a 30-second cooldown. No data is uploaded. The file is a diagnostic snapshot, not an importable backup. Keep Bukkit/CE overlapping registrations in their respective sections and avoid reloading recipes during capture.
 
-The administrator permission is `craftenginerecipe.admin`. OPs have it by default.
+For lag diagnosis, run `/cer debug performance reset`, reproduce the slow menu action, then run `/cer debug performance`. Timings cover instrumented plugin operations only, may be nested, and must not be added together as a server CPU percentage. Use [spark](https://spark.lucko.me/) for full call stacks. Global TPS/MSPT may be unavailable on Folia. See [Diagnostics](docs/DEBUG.md) for field details.
+
+`Shift+F` is enabled by default and requires sneaking by default. Both settings can be changed in `config.yml`.
+
+Setting `sources.reexport-on-reload` to `true` deletes and regenerates every enabled source folder after each successful plugin reload.
+
+`sources.reexport-craftengine-on-ce-reload` defaults to `true`. After CraftEngine reloads its configuration and resource packs, CER re-exports `recipes/craftengine/` and refreshes its index. Set it to `false` to disable this behavior.
+
+`indexing.notify-admins-on-startup` defaults to `true` and controls whether online administrators receive the startup index-build notice.
+
+The administrator permission is `craftenginerecipe.admin`; OPs have it by default.
 
 ## Configuration Guide
 
 [Categories and Permissions](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Hide Items](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/#hide-items-and-keep-the-category-button) · [Hide Category Buttons](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/#hide-category-buttons-and-contents) · [Custom Buttons](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/custom-buttons/) · [Sounds](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menu-sounds/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
 
+Local extension docs: [Custom recipes](docs/custom-recipes.md) · [FarmersDelight / Kaleidoscope Cookery integrations](docs/integrations.md)
+
 ## Usage Statistics
 
-[View usage statistics on bStats](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772). 
+[View usage statistics on bStats](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772).
+
+## License
+
+The source code of this project is open source under the **GNU General Public License v3.0 (GPL-3.0)**. 
+
+Texture files in this project are licensed separately: they are authorized **only for use by the CraftEngineRecipe (CER) plugin**. Without explicit permission, other plugins may not copy, modify, distribute, or reuse the texture files from this project.
 
 ## Credits
 
-This project is a derivative work of nsoer’s CEGUI-1.0.0.jar, with many additional features and improvements. Special thanks to nsoer for granting permission to use portions of the original code and texture assets.
+Thank you to HuiDu_OwO for drawing the GUI textures used by the `cer_menu_cute` layout for this project without charge.
 
-Thanks to ChatGPT Astra for its help, and especially to DeepSeek, whose outage on October 15 resulted in a CNY 160 credit for me.
+Thank you to SnowCutieOwO for drawing the GUI textures used by the `cer_menu_map` layout for this project.
+
+Thank you to nsoer for providing CEGUI-1.0.0.jar and for authorizing the use of portions of the `cer_menu_rough` texture assets.
+
+Thank you to ChatGPT Astra for its help, and especially to DeepSeek, whose outage on October 15 resulted in a CNY 160 credit for me.

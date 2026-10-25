@@ -1,0 +1,6077 @@
+Title: 原版·切石机
+Layout:
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+Options:
+  Page: stonecutting
+Workstation:
+  id: minecraft:stonecutting
+  name: 原版·切石机
+  icon:
+    Material: minecraft:stonecutter
+Recipes:
+  minecraft_data:andesite_slab_from_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:andesite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:andesite_stairs_from_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:andesite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:andesite_wall_from_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:andesite_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:blackstone_slab_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:blackstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:blackstone_stairs_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:blackstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:blackstone_wall_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:blackstone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:brick_slab_from_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:brick_stairs_from_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:brick_wall_from_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_cinnabar_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_cinnabar
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_copper_from_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:chiseled_copper_from_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_deepslate_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_deepslate
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_deepslate_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_deepslate
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_nether_bricks_from_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_nether_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_polished_blackstone_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_polished_blackstone
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_polished_blackstone_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_polished_blackstone
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_quartz_block_from_quartz_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:quartz_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_quartz_block
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_red_sandstone_from_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_red_sandstone
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_resin_bricks_from_resin_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:resin_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_resin_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_sandstone_from_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_sandstone
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_stone_bricks_from_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_stone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_stone_bricks_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_stone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_sulfur_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_sulfur
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_tuff_bricks_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_tuff_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_tuff_bricks_from_tuff_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_tuff_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_tuff_bricks_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_tuff_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:chiseled_tuff_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:chiseled_tuff
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_brick_slab_from_cinnabar_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cinnabar_brick_slab_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cinnabar_brick_slab_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cinnabar_brick_stairs_from_cinnabar_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_brick_stairs_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_brick_stairs_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_brick_wall_from_cinnabar_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_brick_wall_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_brick_wall_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_bricks_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_bricks_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_slab_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cinnabar_stairs_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cinnabar_wall_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cinnabar_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cobbled_deepslate_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: result
+        Amount: 1
+  minecraft_data:cobbled_deepslate_slab_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cobbled_deepslate_slab_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cobbled_deepslate_stairs_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cobbled_deepslate_stairs_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cobbled_deepslate_wall_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cobbled_deepslate_wall_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobbled_deepslate_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cobblestone_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone
+        Usage: result
+        Amount: 1
+  minecraft_data:cobblestone_slab_from_cobblestone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cobblestone_slab_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cobblestone_stairs_from_cobblestone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cobblestone_stairs_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cobblestone_wall_from_cobblestone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:cobblestone_wall_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cobblestone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:copper_grate_from_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:cut_copper_from_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:cut_copper_slab_from_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:cut_copper_slab_from_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cut_copper_stairs_from_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:cut_copper_stairs_from_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:cut_red_sandstone_from_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_red_sandstone
+        Usage: result
+        Amount: 1
+  minecraft_data:cut_red_sandstone_slab_from_cut_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cut_red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_red_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cut_red_sandstone_slab_from_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_red_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cut_sandstone_from_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_sandstone
+        Usage: result
+        Amount: 1
+  minecraft_data:cut_sandstone_slab_from_cut_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cut_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:cut_sandstone_slab_from_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:cut_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:dark_prismarine_slab_from_dark_prismarine_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:dark_prismarine
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:dark_prismarine_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:dark_prismarine_stairs_from_dark_prismarine_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:dark_prismarine
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:dark_prismarine_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_slab_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_brick_slab_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_brick_slab_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_brick_slab_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_brick_stairs_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_stairs_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_stairs_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_stairs_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_wall_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_wall_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_wall_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_brick_wall_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_bricks_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_bricks_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_bricks_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_slab_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_tile_slab_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_tile_slab_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_tile_slab_from_deepslate_tiles_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_tile_slab_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:deepslate_tile_stairs_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_stairs_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_stairs_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_stairs_from_deepslate_tiles_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_stairs_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_wall_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_wall_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_wall_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_wall_from_deepslate_tiles_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tile_wall_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tile_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tiles_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tiles_from_deepslate_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tiles_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: result
+        Amount: 1
+  minecraft_data:deepslate_tiles_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:deepslate_tiles
+        Usage: result
+        Amount: 1
+  minecraft_data:diorite_slab_from_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diorite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:diorite_stairs_from_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diorite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:diorite_wall_from_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diorite_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:end_stone_brick_slab_from_end_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:end_stone_brick_slab_from_end_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:end_stone_brick_stairs_from_end_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:end_stone_brick_stairs_from_end_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:end_stone_brick_wall_from_end_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:end_stone_brick_wall_from_end_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:end_stone_bricks_from_end_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:end_stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:end_stone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:exposed_chiseled_copper_from_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:exposed_chiseled_copper_from_exposed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:exposed_copper_grate_from_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:exposed_cut_copper_from_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:exposed_cut_copper_slab_from_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:exposed_cut_copper_slab_from_exposed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:exposed_cut_copper_stairs_from_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:exposed_cut_copper_stairs_from_exposed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:exposed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:exposed_cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:granite_slab_from_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:granite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:granite_stairs_from_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:granite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:granite_wall_from_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:granite_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:mossy_cobblestone_slab_from_mossy_cobblestone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mossy_cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mossy_cobblestone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:mossy_cobblestone_stairs_from_mossy_cobblestone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mossy_cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mossy_cobblestone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:mossy_cobblestone_wall_from_mossy_cobblestone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mossy_cobblestone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mossy_cobblestone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:mossy_stone_brick_slab_from_mossy_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mossy_stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mossy_stone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:mossy_stone_brick_stairs_from_mossy_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mossy_stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mossy_stone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:mossy_stone_brick_wall_from_mossy_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mossy_stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mossy_stone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:mud_brick_slab_from_mud_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mud_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mud_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:mud_brick_stairs_from_mud_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mud_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mud_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:mud_brick_wall_from_mud_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:mud_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:mud_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:nether_brick_slab_from_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:nether_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:nether_brick_stairs_from_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:nether_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:nether_brick_wall_from_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:nether_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:oxidized_chiseled_copper_from_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:oxidized_chiseled_copper_from_oxidized_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:oxidized_copper_grate_from_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:oxidized_cut_copper_from_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:oxidized_cut_copper_slab_from_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:oxidized_cut_copper_slab_from_oxidized_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:oxidized_cut_copper_stairs_from_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:oxidized_cut_copper_stairs_from_oxidized_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:oxidized_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:oxidized_cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_andesite_from_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_andesite
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_andesite_slab_from_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_andesite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_andesite_slab_from_polished_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_andesite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_andesite_stairs_from_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_andesite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_andesite_stairs_from_polished_andesite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_andesite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_andesite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_basalt_from_basalt_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:basalt
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_basalt
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_brick_slab_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_blackstone_brick_slab_from_polished_blackstone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_blackstone_brick_slab_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_blackstone_brick_stairs_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_brick_stairs_from_polished_blackstone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_brick_stairs_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_brick_wall_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_brick_wall_from_polished_blackstone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_brick_wall_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_bricks_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_bricks_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_slab_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_blackstone_slab_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_blackstone_stairs_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_stairs_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_wall_from_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_blackstone_wall_from_polished_blackstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_blackstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_blackstone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_cinnabar_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_cinnabar_slab_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_cinnabar_slab_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_cinnabar_stairs_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_cinnabar_stairs_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_cinnabar_wall_from_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_cinnabar_wall_from_polished_cinnabar_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_cinnabar
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_cinnabar_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_slab_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_deepslate_slab_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_deepslate_slab_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_deepslate_stairs_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_stairs_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_stairs_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_wall_from_cobbled_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:cobbled_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_wall_from_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_deepslate_wall_from_polished_deepslate_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_deepslate
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_deepslate_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_diorite_from_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_diorite
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_diorite_slab_from_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_diorite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_diorite_slab_from_polished_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_diorite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_diorite_stairs_from_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_diorite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_diorite_stairs_from_polished_diorite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_diorite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_diorite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_granite_from_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_granite
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_granite_slab_from_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_granite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_granite_slab_from_polished_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_granite_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_granite_stairs_from_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_granite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_granite_stairs_from_polished_granite_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_granite
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_granite_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_sulfur_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_sulfur_slab_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_sulfur_slab_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_sulfur_stairs_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_sulfur_stairs_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_sulfur_wall_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_sulfur_wall_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_sulfur_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_tuff_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_tuff_slab_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_tuff_slab_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:polished_tuff_stairs_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_tuff_stairs_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_tuff_wall_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:polished_tuff_wall_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:polished_tuff_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:prismarine_brick_slab_from_prismarine_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:prismarine_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:prismarine_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:prismarine_brick_stairs_from_prismarine_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:prismarine_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:prismarine_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:prismarine_slab_from_prismarine_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:prismarine
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:prismarine_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:prismarine_stairs_from_prismarine_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:prismarine
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:prismarine_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:prismarine_wall_from_prismarine_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:prismarine
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:prismarine_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:purpur_pillar_from_purpur_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:purpur_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:purpur_pillar
+        Usage: result
+        Amount: 1
+  minecraft_data:purpur_slab_from_purpur_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:purpur_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:purpur_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:purpur_stairs_from_purpur_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:purpur_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:purpur_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:quartz_bricks_from_quartz_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:quartz_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:quartz_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:quartz_pillar_from_quartz_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:quartz_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:quartz_pillar
+        Usage: result
+        Amount: 1
+  minecraft_data:quartz_slab_from_quartz_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:quartz_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:quartz_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:quartz_stairs_from_quartz_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:quartz_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:quartz_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:red_nether_brick_slab_from_red_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_nether_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:red_nether_brick_stairs_from_red_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_nether_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:red_nether_brick_wall_from_red_nether_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_nether_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_nether_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:red_sandstone_slab_from_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:red_sandstone_stairs_from_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_sandstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:red_sandstone_wall_from_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:red_sandstone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:resin_brick_slab_from_resin_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:resin_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:resin_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:resin_brick_stairs_from_resin_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:resin_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:resin_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:resin_brick_wall_from_resin_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:resin_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:resin_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:sandstone_slab_from_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:sandstone_stairs_from_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sandstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:sandstone_wall_from_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sandstone_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_quartz_slab_from_smooth_quartz_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_quartz
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_quartz_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:smooth_quartz_stairs_from_smooth_quartz_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_quartz
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_quartz_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_red_sandstone_slab_from_smooth_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_red_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:smooth_red_sandstone_stairs_from_smooth_red_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_red_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_red_sandstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_sandstone_slab_from_smooth_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_sandstone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:smooth_sandstone_stairs_from_smooth_sandstone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_sandstone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_sandstone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:smooth_stone_slab_from_smooth_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:smooth_stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:smooth_stone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:stone_brick_slab_from_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:stone_brick_slab_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:stone_brick_stairs_from_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:stone_brick_stairs_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:stone_brick_wall_from_stone_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:stone_brick_wall_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:stone_bricks_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:stone_slab_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:stone_stairs_from_stone_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:stone
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:stone_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_brick_slab_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:sulfur_brick_slab_from_sulfur_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:sulfur_brick_slab_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:sulfur_brick_stairs_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_brick_stairs_from_sulfur_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_brick_stairs_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_brick_wall_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_brick_wall_from_sulfur_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_brick_wall_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_bricks_from_polished_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_bricks_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_slab_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:sulfur_stairs_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:sulfur_wall_from_sulfur_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:sulfur
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:sulfur_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_brick_slab_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:tuff_brick_slab_from_tuff_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:tuff_brick_slab_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:tuff_brick_stairs_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_brick_stairs_from_tuff_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_brick_stairs_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_brick_wall_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_brick_wall_from_tuff_bricks_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff_bricks
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_brick_wall_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_brick_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_bricks_from_polished_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:polished_tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_bricks_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_bricks
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_slab_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:tuff_stairs_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:tuff_wall_from_tuff_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:tuff
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:tuff_wall
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_chiseled_copper_from_waxed_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_chiseled_copper_from_waxed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_copper_grate_from_waxed_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_cut_copper_from_waxed_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_cut_copper_slab_from_waxed_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:waxed_cut_copper_slab_from_waxed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:waxed_cut_copper_stairs_from_waxed_copper_block_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_copper_block
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_cut_copper_stairs_from_waxed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_exposed_chiseled_copper_from_waxed_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_exposed_chiseled_copper_from_waxed_exposed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_exposed_copper_grate_from_waxed_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_exposed_cut_copper_from_waxed_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_exposed_cut_copper_slab_from_waxed_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:waxed_exposed_cut_copper_slab_from_waxed_exposed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:waxed_exposed_cut_copper_stairs_from_waxed_exposed_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_exposed_cut_copper_stairs_from_waxed_exposed_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_exposed_cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_oxidized_chiseled_copper_from_waxed_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_oxidized_chiseled_copper_from_waxed_oxidized_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_oxidized_copper_grate_from_waxed_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_oxidized_cut_copper_from_waxed_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_oxidized_cut_copper_slab_from_waxed_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:waxed_oxidized_cut_copper_slab_from_waxed_oxidized_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:waxed_oxidized_cut_copper_stairs_from_waxed_oxidized_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_oxidized_cut_copper_stairs_from_waxed_oxidized_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_oxidized_cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_weathered_chiseled_copper_from_waxed_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_weathered_chiseled_copper_from_waxed_weathered_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:waxed_weathered_copper_grate_from_waxed_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_weathered_cut_copper_from_waxed_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_weathered_cut_copper_slab_from_waxed_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:waxed_weathered_cut_copper_slab_from_waxed_weathered_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:waxed_weathered_cut_copper_stairs_from_waxed_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:waxed_weathered_cut_copper_stairs_from_waxed_weathered_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:waxed_weathered_cut_copper_stairs
+        Usage: result
+        Amount: 1
+  minecraft_data:weathered_chiseled_copper_from_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_chiseled_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:weathered_chiseled_copper_from_weathered_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_chiseled_copper
+        Usage: result
+        Amount: 1
+  minecraft_data:weathered_copper_grate_from_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_copper_grate
+        Usage: result
+        Amount: 4
+  minecraft_data:weathered_cut_copper_from_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_cut_copper
+        Usage: result
+        Amount: 4
+  minecraft_data:weathered_cut_copper_slab_from_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_cut_copper_slab
+        Usage: result
+        Amount: 8
+  minecraft_data:weathered_cut_copper_slab_from_weathered_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_cut_copper_slab
+        Usage: result
+        Amount: 2
+  minecraft_data:weathered_cut_copper_stairs_from_weathered_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_cut_copper_stairs
+        Usage: result
+        Amount: 4
+  minecraft_data:weathered_cut_copper_stairs_from_weathered_cut_copper_stonecutting:
+    Layout:
+    - '         '
+    - '         '
+    - ' A    B  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:weathered_cut_copper
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:weathered_cut_copper_stairs
+        Usage: result
+        Amount: 1

@@ -1,0 +1,6 @@
+images:
+  cer_fd_gui:fd_pot_menu:
+    file: cer_fd_gui:gui/fd_pot_menu.png
+    height: 108
+    ascent: -4
+    font: farmersdelight:custom

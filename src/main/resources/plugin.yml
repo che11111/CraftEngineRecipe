@@ -5,13 +5,14 @@ api-version: '${mc.api.version}'
 authors: [ che1s, nsoer ]
 description: Recipe browser for CraftEngine with categories and search
 depend: [ CraftEngine ]
+softdepend: [ FarmersDelight, KaleidoscopeCookeryPlugin, CustomCrops ]
 folia-supported: true
 commands:
   cer:
     description: Open the CraftEngineRecipe recipe browser
-    usage: /cer [search|hand|target|reload|unapplied]
+    usage: /cer [open <menu>|search|hand|target|export <source|all>|reload|unapplied|menu|debug]
     aliases: [ cg, browser ]
 permissions:
   craftenginerecipe.admin:
-    description: 查看管理分类及执行管理命令 / View admin categories and use /cer unapplied and /cer reload
+    description: 查看管理分类及执行管理命令 / View admin categories and use /cer unapplied, reload and debug
     default: op

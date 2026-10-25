@@ -1,0 +1,364 @@
+Title: 原版·锻造台
+Layout:
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+- '         '
+Options:
+  Page: smithing
+Workstation:
+  id: minecraft:smithing
+  name: 原版·锻造台
+  icon:
+    Material: minecraft:smithing_table
+Recipes:
+  minecraft_data:netherite_axe_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_axe
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_axe
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_boots_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_boots
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_boots
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_chestplate_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_chestplate
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_chestplate
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_helmet_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_helmet
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_helmet
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_hoe_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_hoe
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_hoe
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_horse_armor_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_horse_armor
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_horse_armor
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_leggings_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_leggings
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_leggings
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_nautilus_armor_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_nautilus_armor
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_nautilus_armor
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_pickaxe_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_pickaxe
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_pickaxe
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_shovel_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_shovel
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_shovel
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_spear_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_spear
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_spear
+        Usage: result
+        Amount: 1
+  minecraft_data:netherite_sword_smithing:
+    Layout:
+    - '         '
+    - ' ABC     '
+    - '      D  '
+    - '         '
+    - '         '
+    - '         '
+    Icons:
+      A:
+        Display:
+          Material: minecraft:netherite_upgrade_smithing_template
+        Usage: ingredient
+        Amount: 1
+      B:
+        Display:
+          Material: minecraft:diamond_sword
+        Usage: ingredient
+        Amount: 1
+      C:
+        Display:
+          Material: minecraft:netherite_ingot
+        Usage: ingredient
+        Amount: 1
+      D:
+        Display:
+          Material: minecraft:netherite_sword
+        Usage: result
+        Amount: 1

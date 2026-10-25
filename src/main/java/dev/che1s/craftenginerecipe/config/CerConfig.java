@@ -11,8 +11,14 @@ import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,30 +28,12 @@ import java.util.regex.Pattern;
 public final class CerConfig {
 
     public static final int ROWS = 6;
-    public static final String DISABLED_ITEM_MODEL = "cer:blank_items";
     private static final Pattern FULL_ID = Pattern.compile("[a-z0-9_.-]+:[a-z0-9/._-]+");
     private static final Pattern ID_PATH = Pattern.compile("[a-z0-9/._-]+");
     private static final List<String> BUTTON_PATHS = List.of("category-bar.prev-category", "category-bar.next-category",
             "content.prev-page", "content.next-page", "content.back", "content.search", "content.hand",
-            "content.info", "content.workstations", "content.glasses", "content.empty");
-
-    private static final List<String> LEGACY_DEFAULT_LAYOUT_ROWS = List.of(
-            "<CCCCCCC>",
-            "XXXXXXXXX",
-            "XXXXXXXXX",
-            "XXXXXXXXX",
-            "XXXXXXXXX",
-            "B#L#S#R##"
-    );
-
-    private static final List<String> PREVIOUS_DEFAULT_LAYOUT_ROWS = List.of(
-            "<CCCCCCC>",
-            "XXXXXXXXX",
-            "XXXXXXXXX",
-            "XXXXXXXXX",
-            "XXXXXXXXX",
-            "BHLIS#RT#"
-    );
+            "content.query", "content.close", "content.info", "content.workstations", "content.glasses",
+            "content.empty");
 
     private static final List<String> DEFAULT_LAYOUT_ROWS = List.of(
             "<CCCCCCC>",
@@ -57,11 +45,20 @@ public final class CerConfig {
     );
 
     private final CraftEngineRecipePlugin plugin;
+    private final String requestedMenuPack;
+    private String menuPackId;
+    private String menuDisplayName;
 
     private String browserTitle;
+    private String workstationTitle;
+    private int browserTitleOffset;
+    private int browserTitleShift;
     private List<String> layoutRows;
     private char categoryIconChar;
     private char contentAreaChar;
+    private Material reservedMaterial;
+    private String reservedItemModel;
+    private String disabledItemModel;
     private boolean categoryFollowCe;
     private List<String> categoryList;
     private String categoryIconName;
@@ -74,6 +71,8 @@ public final class CerConfig {
     private ButtonDef back;
     private ButtonDef search;
     private ButtonDef hand;
+    private ButtonDef query;
+    private ButtonDef close;
     private ButtonDef info;
     private ButtonDef workstations;
     private ButtonDef glasses;
@@ -92,53 +91,74 @@ public final class CerConfig {
     private SoundSettings sounds;
     private boolean hotkeyEnabled;
     private boolean hotkeyRequireSneak;
+    private boolean rememberLastPage;
+    private long rememberLastPageMinutes;
+    private boolean workstationsToggle;
+    private boolean disableBackButton;
     private String adminOnlyHint;
     private String noPermissionHint;
 
     public CerConfig(CraftEngineRecipePlugin plugin) {
+        this(plugin, null);
+    }
+
+    public CerConfig(CraftEngineRecipePlugin plugin, String menuPack) {
         this.plugin = plugin;
+        this.requestedMenuPack = menuPack;
     }
 
     public void load() {
         this.plugin.saveDefaultConfig();
         try {
             YamlDefaultsUpdater.update(this.plugin.getDataFolder().toPath().resolve("config.yml"),
-                    this.plugin.getResource("config.yml"), Map.of("language", "locale",
-                            "sounds.open-menu", "sounds.open"),
-                    Map.of("sounds.open-menu", List.of("Open"), "sounds.close-menu", List.of("Close")));
+                    this.plugin.getResource("config.yml"));
         } catch (IOException | InvalidConfigurationException e) {
             this.plugin.getLogger().warning(this.plugin.lang().text("logs.config-update-failed", "error", e.getMessage()));
         }
         this.plugin.reloadConfig();
         FileConfiguration c = this.plugin.getConfig();
+        this.menuPackId = this.requestedMenuPack == null || this.requestedMenuPack.isBlank()
+                ? this.plugin.menuPacks().defaultPack() : this.requestedMenuPack;
+        this.menuDisplayName = this.menuPackId;
+        FileConfiguration ui = this.loadMenuConfig(this.menuPackId);
+        this.menuDisplayName = ui.getString("display-name", this.menuPackId);
         LanguageManager lang = this.plugin.lang();
-        lang.load(c.contains("language", true) ? c.getString("language") : c.getString("locale", "zh_CN"));
+        lang.load(c.getString("language", "zh_CN"));
 
-        this.browserTitle = lang.uiText(c, "browser.title");
-        this.loadLayout(c);
+        this.browserTitleOffset = ui.getInt("browser.title-offset", -8);
+        this.browserTitleShift = ui.getInt("browser.title-shift", -168);
+        this.browserTitle = this.menuTitle(ui.getString("browser.title"), lang.text("ui.browser.title"));
+        this.workstationTitle = this.menuTitle(ui.getString("browser.workstations-title"),
+                lang.text("ui.workstations.title"));
+        this.loadLayout(ui);
+        this.reservedMaterial = parseMaterial(ui.getString("browser.reserved.material", "air"));
+        this.reservedItemModel = ui.getString("browser.reserved.item-model", "");
+        this.disabledItemModel = ui.getString("browser.disabled-item-model", "");
 
-        String source = c.getString("category-bar.source", "ce");
+        String source = ui.getString("category-bar.source", "ce");
         this.categoryFollowCe = !"custom".equalsIgnoreCase(source == null ? "" : source.trim());
-        this.categoryList = List.copyOf(c.getStringList("category-bar.list"));
-        this.categoryIconName = lang.uiText(c, "category-bar.icon-name");
-        this.categoryIconLore = lang.uiList(c, "category-bar.icon-lore");
-        this.subIconLore = lang.uiList(c, "category-bar.sub-icon-lore");
-        this.prevCategory = ButtonDef.of(c, lang, "category-bar.prev-category", Material.ARROW);
-        this.nextCategory = ButtonDef.of(c, lang, "category-bar.next-category", Material.ARROW);
-        this.adminOnlyHint = lang.uiText(c, "category-bar.admin-only-hint");
-        this.noPermissionHint = lang.uiText(c, "category-bar.no-permission-hint");
+        this.categoryList = List.copyOf(ui.getStringList("category-bar.list"));
+        this.categoryIconName = lang.uiText(ui, "category-bar.icon-name");
+        this.categoryIconLore = lang.uiList(ui, "category-bar.icon-lore");
+        this.subIconLore = lang.uiList(ui, "category-bar.sub-icon-lore");
+        this.prevCategory = ButtonDef.of(ui, lang, "category-bar.prev-category", Material.ARROW);
+        this.nextCategory = ButtonDef.of(ui, lang, "category-bar.next-category", Material.ARROW);
+        this.adminOnlyHint = lang.uiText(ui, "category-bar.admin-only-hint");
+        this.noPermissionHint = lang.uiText(ui, "category-bar.no-permission-hint");
 
-        this.prevPage = ButtonDef.of(c, lang, "content.prev-page", Material.SPECTRAL_ARROW);
-        this.nextPage = ButtonDef.of(c, lang, "content.next-page", Material.SPECTRAL_ARROW);
-        this.back = ButtonDef.of(c, lang, "content.back", Material.BARRIER);
-        this.search = ButtonDef.of(c, lang, "content.search", Material.COMPASS);
-        this.hand = ButtonDef.of(c, lang, "content.hand", Material.PAPER, "cer:palm_blue_cuff", 'H');
-        this.info = ButtonDef.of(c, lang, "content.info", Material.PAPER, "cer:info_icon", 'I');
-        this.workstations = ButtonDef.of(c, lang, "content.workstations", Material.CRAFTING_TABLE,
+        this.prevPage = ButtonDef.of(ui, lang, "content.prev-page", Material.SPECTRAL_ARROW);
+        this.nextPage = ButtonDef.of(ui, lang, "content.next-page", Material.SPECTRAL_ARROW);
+        this.back = ButtonDef.of(ui, lang, "content.back", Material.BARRIER);
+        this.search = ButtonDef.of(ui, lang, "content.search", Material.COMPASS);
+        this.hand = ButtonDef.of(ui, lang, "content.hand", Material.PAPER, "cer:palm_blue_cuff", 'H');
+        this.query = ButtonDef.of(ui, lang, "content.query", Material.PAPER, "cer:palm_blue_cuff", '\u0000');
+        this.close = ButtonDef.of(ui, lang, "content.close", Material.BARRIER);
+        this.info = ButtonDef.of(ui, lang, "content.info", Material.PAPER, "cer:info_icon", 'I');
+        this.workstations = ButtonDef.of(ui, lang, "content.workstations", Material.CRAFTING_TABLE,
                 "cer:crafting_table", 'T');
-        this.glasses = ButtonDef.of(c, lang, "content.glasses", Material.PAPER, "cer:glasses", 'G');
-        this.itemLore = lang.uiList(c, "content.item-lore");
-        this.empty = ButtonDef.of(c, lang, "content.empty", Material.BARRIER);
+        this.glasses = ButtonDef.of(ui, lang, "content.glasses", Material.PAPER, "cer:glasses", 'G');
+        this.itemLore = lang.uiList(ui, "content.item-lore");
+        this.empty = ButtonDef.of(ui, lang, "content.empty", Material.BARRIER);
 
         this.recipeRotateInterval = clamp(c.getInt("recipe.rotate-interval", 30), 5, 200);
         this.recipeTitle = lang.uiText(c, "recipe.title");
@@ -156,16 +176,43 @@ public final class CerConfig {
         this.searchDialogTitle = lang.uiText(c, "search.dialog-title");
         this.searchDialogLabel = lang.uiText(c, "search.dialog-label");
         this.searchDialogHint = lang.uiText(c, "search.dialog-hint");
-        this.searchResultTitle = lang.uiText(c, "search.result-title");
+        this.searchResultTitle = this.menuTitle(ui.getString("browser.search-title"),
+                lang.text("ui.search.result-title"));
         this.searchMaxLength = clamp(c.getInt("search.max-length", 32), 1, 64);
         this.searchMaxResults = clamp(c.getInt("search.max-results", 200), 1, 1000);
         this.searchLanguages = ResourcePackTranslations.normalizeLanguages(c.getStringList("search.languages"));
 
-        this.sounds = SoundSettings.load(c);
+        this.sounds = SoundSettings.load(ui);
 
         this.hotkeyEnabled = c.getBoolean("hotkey.enabled", true);
         this.hotkeyRequireSneak = c.getBoolean("hotkey.require-sneak", true);
-        this.diagnose(c);
+        this.rememberLastPage = c.getBoolean("browser.remember-last-page", true);
+        this.rememberLastPageMinutes = Math.max(1,
+                c.getLong("browser.remember-last-page-minutes", 3));
+        this.workstationsToggle = ui.getBoolean("behavior.workstations-toggle", false);
+        this.disableBackButton = ui.getBoolean("behavior.disable-back-button", false);
+        this.diagnose(ui);
+    }
+
+    private FileConfiguration loadMenuConfig(String packId) {
+        Path file = this.plugin.getDataFolder().toPath().resolve("resources").resolve(packId).resolve("menu.yml");
+        YamlConfiguration menu = new YamlConfiguration();
+        try {
+            try (InputStream bundled = this.plugin.getResource("resources/" + packId + "/menu.yml")) {
+                if (bundled != null) YamlDefaultsUpdater.update(file, bundled);
+            }
+            if (Files.isRegularFile(file)) {
+                menu.load(file.toFile());
+            } else {
+                try (InputStream input = this.plugin.getResource("resources/" + packId + "/menu.yml")) {
+                    if (input == null) throw new IOException("Missing menu.yml");
+                    menu.load(new InputStreamReader(input, StandardCharsets.UTF_8));
+                }
+            }
+        } catch (IOException | InvalidConfigurationException | RuntimeException error) {
+            this.plugin.getLogger().warning("Cannot load menu pack " + packId + ": " + error.getMessage());
+        }
+        return menu;
     }
 
     private void diagnose(FileConfiguration config) {
@@ -188,7 +235,7 @@ public final class CerConfig {
         }
     }
 
-    /** Called once a new CraftEngine category snapshot is available; diagnostics never alter config. */
+    /** 在取得新的 CraftEngine 分类快照后调用；诊断过程绝不会修改配置。 */
     public void validateReferences(Set<Key> categories) {
         if (this.categoryFollowCe) return;
         for (int i = 0; i < this.categoryList.size(); i++) {
@@ -209,9 +256,7 @@ public final class CerConfig {
 
     private void loadLayout(FileConfiguration c) {
         List<String> rows = c.getStringList("browser.layout");
-        // Migrate only the exact shipped layout, in memory; preserve custom layouts and user files.
-        this.layoutRows = rows.isEmpty() || rows.equals(LEGACY_DEFAULT_LAYOUT_ROWS) || rows.equals(PREVIOUS_DEFAULT_LAYOUT_ROWS)
-                ? DEFAULT_LAYOUT_ROWS : List.copyOf(rows);
+        this.layoutRows = rows.isEmpty() ? DEFAULT_LAYOUT_ROWS : List.copyOf(rows);
         this.categoryIconChar = firstChar(c.getString("category-bar.icon-char"), 'C');
         this.contentAreaChar = firstChar(c.getString("content.area-char"), 'X');
     }
@@ -222,10 +267,23 @@ public final class CerConfig {
         return value.isBlank() ? fallback : value.charAt(0);
     }
 
+    private String menuTitle(String template, String content) {
+        return resolveMenuTitle(template, content, this.browserTitleOffset, this.browserTitleShift);
+    }
+
+    static String resolveMenuTitle(String template, String content, int offset, int shift) {
+        if (template == null || template.isBlank()) return content;
+        String rendered = template
+                .replace("<offset>", String.valueOf(offset))
+                .replace("<shift>", String.valueOf(shift));
+        // 图片前缀和位移由菜单包负责，本地化标题仍保留在 lang/ 中。
+        return rendered.contains("<title>") ? rendered.replace("<title>", content) : rendered;
+    }
+
     public Component mm(String miniMessage) {
         String raw = miniMessage == null ? "" : miniMessage;
         if (raw.contains("<image:") || raw.contains("<shift:") || raw.contains("<l10n:")) {
-            // CraftEngine relocates Adventure. JSON bridges its custom tags to Paper's components.
+            // CraftEngine 会重定位 Adventure。这里通过 JSON 将其自定义标签转换为 Paper 组件。
             return noItalic(GsonComponentSerializer.gson().deserialize(
                     AdventureHelper.componentToJson(AdventureHelper.miniMessage().deserialize(raw))));
         }
@@ -279,6 +337,18 @@ public final class CerConfig {
         return this.browserTitle;
     }
 
+    public String workstationTitle() {
+        return this.workstationTitle;
+    }
+
+    public String menuPackId() {
+        return this.menuPackId;
+    }
+
+    public String menuDisplayName() {
+        return this.menuDisplayName;
+    }
+
     public List<String> layoutRows() {
         return this.layoutRows;
     }
@@ -289,6 +359,18 @@ public final class CerConfig {
 
     public char contentAreaChar() {
         return this.contentAreaChar;
+    }
+
+    public Material reservedMaterial() {
+        return this.reservedMaterial;
+    }
+
+    public String reservedItemModel() {
+        return this.reservedItemModel;
+    }
+
+    public String disabledItemModel() {
+        return this.disabledItemModel;
     }
 
     public boolean categoryFollowCe() {
@@ -345,6 +427,14 @@ public final class CerConfig {
 
     public ButtonDef hand() {
         return this.hand;
+    }
+
+    public ButtonDef query() {
+        return this.query;
+    }
+
+    public ButtonDef close() {
+        return this.close;
     }
 
     public ButtonDef info() {
@@ -413,6 +503,22 @@ public final class CerConfig {
 
     public boolean hotkeyRequireSneak() {
         return this.hotkeyRequireSneak;
+    }
+
+    public boolean rememberLastPage() {
+        return this.rememberLastPage;
+    }
+
+    public long rememberLastPageMinutes() {
+        return this.rememberLastPageMinutes;
+    }
+
+    public boolean workstationsToggle() {
+        return this.workstationsToggle;
+    }
+
+    public boolean disableBackButton() {
+        return this.disableBackButton;
     }
 
     public record ButtonDef(Material material, String itemModel, char symbol, String name, List<String> lore) {

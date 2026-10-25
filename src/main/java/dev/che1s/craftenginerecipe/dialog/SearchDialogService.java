@@ -36,13 +36,13 @@ public final class SearchDialogService {
     }
 
     public void open(Player player) {
-        this.open(player, keyword -> this.plugin.browser().openItemList(player, null, keyword, 0, keyword),
-                () -> this.plugin.browser().openDefault(player));
+        this.open(player, keyword -> this.plugin.browser(player).openItemList(player, null, keyword, 0, keyword),
+                () -> this.plugin.browser(player).openDefault(player));
     }
 
-    /** The caller owns its destination, including workstation type and return-page context. */
+    /** 目标页面由调用方负责，包括合成器类型与返回页面上下文。 */
     public void open(Player player, Consumer<String> results, Runnable cancel) {
-        if (!this.plugin.browser().claim(player)) return;
+        if (!this.plugin.browser(player).claim(player)) return;
         long generation = this.plugin.data().generation();
         CerConfig c = this.plugin.config();
         int maxLength = c.searchMaxLength();
@@ -79,7 +79,7 @@ public final class SearchDialogService {
                         .inputs(List.of(input))
                         .build())
                 .type(DialogType.confirmation(confirm, cancelButton)));
-        this.plugin.browser().leaveForSearch(player);
+        this.plugin.browser(player).leaveForDialog(player);
         player.showDialog(dialog);
         Sounds.play(player, this.config.sounds().search());
     }
@@ -104,7 +104,7 @@ public final class SearchDialogService {
         this.schedule(player, generation, () -> results.accept(finalKw));
     }
 
-    /** Reject forged oversized responses instead of silently searching a truncated keyword. */
+    /** 拒绝伪造的超长响应，避免静默使用被截断的关键字进行搜索。 */
     static String validatedKeyword(String keyword, int maxLength) {
         return keyword == null || keyword.length() > maxLength ? "" : keyword.trim();
     }

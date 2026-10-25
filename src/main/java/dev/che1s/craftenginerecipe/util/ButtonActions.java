@@ -1,7 +1,7 @@
 package dev.che1s.craftenginerecipe.util;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
-import dev.che1s.craftenginerecipe.data.CategoryNamespaces;
+import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
 import dev.che1s.craftenginerecipe.gui.Sounds;
 import dev.che1s.craftenginerecipe.scheduler.TaskDispatcher;
 import org.bukkit.Bukkit;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.plugin.IllegalPluginAccessException;
 
-/** Executes administrator-configured actions with the originating button's authorization. */
+/** 使用原按钮的授权状态执行管理员配置的动作。 */
 public final class ButtonActions {
     private ButtonActions() {}
 
@@ -38,8 +38,8 @@ public final class ButtonActions {
 
         @Override
         public boolean mayExecuteConsole() {
-            // Paper's global task owns player state and can recheck at dispatch. On Folia only
-            // the last entity-thread check authorizes this handoff; never inspect Player here.
+            // Paper 的全局任务可访问玩家状态，并能在派发时重新检查。在 Folia 中，
+            // 只有最后一次实体线程检查构成移交授权；这里绝不能访问 Player。
             return this.isFolia() || this.isPlayerAuthorized();
         }
 
@@ -65,7 +65,7 @@ public final class ButtonActions {
             try {
                 submission.run();
             } catch (IllegalPluginAccessException error) {
-                // Disabling can race with the lifecycle check immediately before submission.
+                // 插件禁用可能与提交前的生命周期检查发生竞争。
                 if (this.plugin.isEnabled()) throw error;
             }
         }

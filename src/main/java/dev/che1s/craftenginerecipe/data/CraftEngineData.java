@@ -1,9 +1,15 @@
 package dev.che1s.craftenginerecipe.data;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
+import dev.che1s.craftenginerecipe.category.CategoryGraph;
+import dev.che1s.craftenginerecipe.category.CategoryIndex;
+import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
+import dev.che1s.craftenginerecipe.recipe.RecipeSnapshot;
+import dev.che1s.craftenginerecipe.recipe.SearchIndex;
 import dev.che1s.craftenginerecipe.util.DisplayNames;
 import dev.che1s.craftenginerecipe.util.ResourcePackTranslations;
 import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
+import dev.che1s.craftenginerecipe.util.VanillaTranslations;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.api.event.CraftEngineReloadEvent;
 import net.momirealms.craftengine.core.item.ItemDefinition;
@@ -12,6 +18,7 @@ import net.momirealms.craftengine.core.plugin.config.Config;
 import net.momirealms.craftengine.core.plugin.gui.category.Category;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -45,6 +52,8 @@ public final class CraftEngineData implements Listener {
     private static final Pattern MEMBER_ID = Pattern.compile("(?:[a-z0-9_.-]+:)?[a-z0-9/._-]+");
     private final AtomicLong reloadRevision = new AtomicLong();
     private volatile Snapshot snapshot;
+    private volatile Map<String, String> resourcePackTranslations = Map.of();
+    private volatile long translationRevision;
     private volatile boolean ready;
     private volatile long generation;
     private volatile boolean stopped;
@@ -73,8 +82,12 @@ public final class CraftEngineData implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onCraftEngineReload(CraftEngineReloadEvent event) {
         this.reloadRevision.incrementAndGet();
-        // Configuration reads are global; viewer inventories belong to their entity schedulers.
-        this.plugin.tasks().global(() -> this.rebuild(ok -> {}));
+        // 配置读取属于全局任务；查看者背包只能在各自的实体调度器上访问。
+        this.plugin.tasks().global(() -> this.rebuild(ok -> {
+            if (ok && this.plugin.externalRecipes().reexportCraftEngineOnCeReload()) {
+                this.plugin.externalRecipes().reexport(List.of("craftengine"), ignored -> {});
+            }
+        }));
     }
 
     public void rebuild(Consumer<Boolean> callback) { this.rebuild(false, callback); }
@@ -84,11 +97,11 @@ public final class CraftEngineData implements Listener {
         if (this.stopped) return;
         this.ready = false;
         this.cancelTasks();
-        this.finish(false); // notify a superseded request instead of leaving it pending
+        this.finish(false); // 通知已被替代的请求，避免其一直处于等待状态
         long version = ++this.generation;
         long started = System.nanoTime();
         this.completion = callback;
-        this.plugin.browser().closeAll().whenComplete((ignored, error) -> {
+        this.plugin.closeAllBrowsers().whenComplete((ignored, error) -> {
             if (!this.isCurrent(version) || !this.plugin.isEnabled()) return;
             this.plugin.tasks().global(() -> {
                 if (!this.isCurrent(version)) return;
@@ -131,7 +144,7 @@ public final class CraftEngineData implements Listener {
                 if (!referenced.contains(category.id()) && !category.hidden()) tops.add(category);
             }
             tops.sort(null);
-            // Do not expose hidden categories when the graph has no roots (e.g. a cycle).
+            // 分类图没有根节点时（例如存在循环）不得暴露隐藏分类。
             Set<String> discovered = new LinkedHashSet<>();
             categories.keySet().forEach(id -> discovered.add(id.namespace()));
             if (!this.stable(revision)) {
@@ -184,12 +197,12 @@ public final class CraftEngineData implements Listener {
         var roots = browser.categories();
         ArrayDeque<Category> queue = new ArrayDeque<>();
         if (roots != null) queue.addAll(roots);
-        // Keep explicit CER restrictions effective even for detached, hidden CE categories.
+        // 即使是脱离分类图或已隐藏的 CE 分类，也要保持 CER 的显式限制生效。
         for (String id : namespaces.filteredCategoryIds()) {
             try {
                 browser.byId(Key.of(id)).ifPresent(queue::add);
             } catch (IllegalArgumentException ignored) {
-                // Invalid configured IDs are diagnosed by validateReferences below.
+                // 无效的配置 ID 会由下方的 validateReferences 检查并报告。
             }
         }
         Set<Key> attempted = new HashSet<>();
@@ -216,7 +229,7 @@ public final class CraftEngineData implements Listener {
     }
 
     private void loadTranslations(long version, long started, Captured captured) {
-        // Resolve CraftEngine configuration here; the worker only receives a path and plain locale names.
+        // 在这里解析 CraftEngine 配置；工作线程只接收路径和普通语言名称。
         Path zip = this.resourcePackPath();
         List<String> languages = this.plugin.config().searchLanguages();
         this.indexTask = this.plugin.tasks().async(() -> {
@@ -246,10 +259,12 @@ public final class CraftEngineData implements Listener {
                             this.plugin.getLogger().warning(this.plugin.lang().text("logs.search-pack-skipped", "error", skipped));
                         }
                     }
+                    this.resourcePackTranslations = loaded.translations();
+                    ++this.translationRevision;
                     this.captureNames(version, started, captured, loaded.translations());
                 });
             } catch (IllegalPluginAccessException ignored) {
-                // Plugin shutdown raced with worker completion.
+                // 插件关闭与工作线程完成发生了竞争。
             }
         });
     }
@@ -258,7 +273,7 @@ public final class CraftEngineData implements Listener {
         Path dataFolder = this.plugin.getDataFolder().toPath().toAbsolutePath();
         Path serverRoot = dataFolder.getParent().getParent();
         try {
-            // Shared by both legacy pack generation and newer workflow-based CraftEngine versions.
+            // 兼容旧版资源包生成流程和较新的工作流式 CraftEngine 版本。
             Path configured = Config.resourcePackPath();
             if (configured != null) return configured.isAbsolute() ? configured : serverRoot.resolve(configured).normalize();
         } catch (RuntimeException | LinkageError ignored) {
@@ -268,6 +283,15 @@ public final class CraftEngineData implements Listener {
     }
 
     private void captureNames(long version, long started, Captured captured, Map<String, String> translations) {
+        Map<String, String> vanillaTranslations;
+        try {
+            vanillaTranslations = VanillaTranslations.read(this.plugin.jarPath(),
+                    this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh"));
+        } catch (IOException | RuntimeException error) {
+            CompatibilityWarnings.warn("VanillaTranslations.read", error);
+            vanillaTranslations = Map.of();
+        }
+        Map<String, String> finalVanillaTranslations = vanillaTranslations;
         Iterator<Map.Entry<Key, ItemDefinition>> itemIterator = captured.items().entrySet().iterator();
         Iterator<Map.Entry<Key, Category>> categoryIterator = captured.categories().entrySet().iterator();
         Map<Key, String> itemNames = new LinkedHashMap<>();
@@ -304,10 +328,21 @@ public final class CraftEngineData implements Listener {
             }
 
             private void buildIndexes() {
-                // Hand off plain text only: no CraftEngine managers or ItemStacks on this worker.
+                // 只向工作线程传递纯文本：不得在该线程访问 CraftEngine 管理器或 ItemStack。
                 indexTask = plugin.tasks().async(() -> {
                     try {
-                        SearchIndex search = SearchIndex.fromNames(itemNames, translationKeys);
+                        Map<Key, String> searchNames = new LinkedHashMap<>(itemNames);
+                        Map<Key, String> searchKeys = new LinkedHashMap<>(translationKeys);
+                        for (Material material : Material.values()) {
+                            if (!material.isItem()) continue;
+                            Key id = Key.of("minecraft:" + material.getKey().getKey());
+                            String vanillaName = VanillaTranslations.itemName(finalVanillaTranslations, id.toString());
+                            if (vanillaName != null && !vanillaName.isBlank()) {
+                                searchNames.putIfAbsent(id, vanillaName);
+                            }
+                            searchKeys.putIfAbsent(id, material.getTranslationKey());
+                        }
+                        SearchIndex search = SearchIndex.fromNames(searchNames, searchKeys);
                         CategoryIndex categorySearch = CategoryIndex.fromNames(categoryNames);
                         if (!isCurrent(version)) return;
                         plugin.tasks().global(() -> {
@@ -324,7 +359,7 @@ public final class CraftEngineData implements Listener {
                             finish(true);
                         });
                     } catch (IllegalPluginAccessException ignored) {
-                        // Plugin shutdown raced with worker completion.
+                        // 插件关闭与工作线程完成发生了竞争。
                     } catch (Exception | LinkageError e) {
                         if (isCurrent(version)) {
                             try {
@@ -372,6 +407,26 @@ public final class CraftEngineData implements Listener {
         return state == null ? this.emptyNamespaces : state.captured().namespaces();
     }
     public long generation() { return this.generation; }
+
+    /** 从生成的 CraftEngine 资源包读取的纯文本翻译。 */
+    public String resourcePackTranslation(String key) {
+        return key == null ? null : this.resourcePackTranslations.get(key);
+    }
+
+    /** 解析已加载 CraftEngine 物品的原始名称组件与资源包翻译。 */
+    public String itemDisplayName(String id) {
+        try {
+            Key key = Key.of(id);
+            ItemDefinition definition = this.items().get(key);
+            return definition == null ? null : DisplayNames.of(definition, this.resourcePackTranslations);
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("CraftEngineData.itemDisplayName", error);
+            return null;
+        }
+    }
+
+    public long translationRevision() { return this.translationRevision; }
+
     public boolean isReady() { return this.ready; }
     public Map<Key, ItemDefinition> items() {
         Snapshot state = this.snapshot;

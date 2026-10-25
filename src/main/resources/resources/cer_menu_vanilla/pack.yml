@@ -1,0 +1,5 @@
+author: che1s
+version: 1.0.0
+description: CraftEngineRecipe vanilla-material menu layout
+namespace: cer_vanilla
+enable: true

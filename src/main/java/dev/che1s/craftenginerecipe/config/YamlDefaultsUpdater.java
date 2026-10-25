@@ -26,24 +26,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-/** Adds absent YAML defaults while retaining user values, comments and explicit nulls. */
+/** 补齐缺失的 YAML 默认值，同时保留用户值、注释和显式 null。 */
 public final class YamlDefaultsUpdater {
     private YamlDefaultsUpdater() {}
 
     public static int update(Path file, InputStream defaults) throws IOException, InvalidConfigurationException {
-        return update(file, defaults, Map.of(), Map.of());
-    }
-
-    /**
-     * Aliases copy an existing old value into an absent new key. Legacy overrides instead leave
-     * the new key absent so the caller can keep interpreting an older, differently shaped value.
-     */
-    static int update(Path file, InputStream defaults, Map<String, String> aliases,
-                      Map<String, List<String>> legacyOverrides) throws IOException, InvalidConfigurationException {
         if (defaults == null) throw new IOException("Missing bundled YAML defaults");
         String bundled;
         try (defaults) {
@@ -63,7 +52,7 @@ public final class YamlDefaultsUpdater {
         MappingNode fallback = mapping(parser, bundled);
         validate(current, Collections.newSetFromMap(new IdentityHashMap<>()));
         validate(fallback, Collections.newSetFromMap(new IdentityHashMap<>()));
-        int added = merge(current, fallback, current, "", aliases, legacyOverrides);
+        int added = merge(current, fallback, "");
         if (added == 0) return 0;
 
         DumperOptions dumping = new DumperOptions();
@@ -82,7 +71,7 @@ public final class YamlDefaultsUpdater {
         Path temporary = Files.createTempFile(target.getParent(), ".cer-yaml-", ".tmp");
         try {
             Files.writeString(temporary, updated, StandardCharsets.UTF_8);
-            // Do not replace an edit made while the new document was being prepared.
+            // 生成新文档期间若用户已修改文件，则不要覆盖这次修改。
             if (existed ? !Files.readString(target, StandardCharsets.UTF_8).equals(original)
                     : Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
                 throw new IOException("YAML file changed during default update: " + target);
@@ -103,7 +92,7 @@ public final class YamlDefaultsUpdater {
             Node node = parser.compose(new StringReader(text));
             if (node == null) return new MappingNode(Tag.MAP, new ArrayList<>(), DumperOptions.FlowStyle.BLOCK);
             if (node instanceof MappingNode map) {
-                // SnakeYAML uses an immutable, specially tagged empty map for comment-only files.
+                // 对于只有注释的文件，SnakeYAML 会使用不可变的特殊标记空映射。
                 if (Tag.COMMENT.equals(map.getTag())) map.setTag(Tag.MAP);
                 map.setValue(new ArrayList<>(map.getValue()));
                 return map;
@@ -132,8 +121,7 @@ public final class YamlDefaultsUpdater {
         }
     }
 
-    private static int merge(MappingNode current, MappingNode defaults, MappingNode root, String prefix,
-                             Map<String, String> aliases, Map<String, List<String>> legacyOverrides) {
+    private static int merge(MappingNode current, MappingNode defaults, String prefix) {
         int added = 0;
         for (NodeTuple fallback : defaults.getValue()) {
             String key = ((ScalarNode) fallback.getKeyNode()).getValue();
@@ -141,16 +129,16 @@ public final class YamlDefaultsUpdater {
             Node existing = local(current, key);
             if (existing != null) {
                 if (existing instanceof MappingNode section && fallback.getValueNode() instanceof MappingNode children) {
-                    added += merge(section, children, root, path, aliases, legacyOverrides);
+                    added += merge(section, children, path);
                 }
                 continue;
             }
             Node inherited = lookup(current, key, Collections.newSetFromMap(new IdentityHashMap<>()));
             if (inherited != null) {
-                // Extend an inherited section locally so its anchor's source remains unchanged.
+                // 在本地扩展继承来的配置段，确保其锚点来源保持不变。
                 if (inherited instanceof MappingNode section && fallback.getValueNode() instanceof MappingNode children) {
                     MappingNode extended = (MappingNode) copy(section, new IdentityHashMap<>());
-                    int childAdditions = merge(extended, children, root, path, aliases, legacyOverrides);
+                    int childAdditions = merge(extended, children, path);
                     if (childAdditions > 0) {
                         current.getValue().add(new NodeTuple(fallback.getKeyNode(), extended));
                         added += childAdditions;
@@ -158,12 +146,10 @@ public final class YamlDefaultsUpdater {
                 }
                 continue;
             }
-            if (legacyOverrides.getOrDefault(path, List.of()).stream().anyMatch(old -> at(root, old) != null)) continue;
-            Node old = aliases.containsKey(path) ? at(root, aliases.get(path)) : null;
-            Node value = old == null ? fallback.getValueNode() : copy(old, new IdentityHashMap<>());
-            if (value instanceof MappingNode children && old == null && !children.getValue().isEmpty()) {
+            Node value = fallback.getValueNode();
+            if (value instanceof MappingNode children && !children.getValue().isEmpty()) {
                 MappingNode section = new MappingNode(children.getTag(), new ArrayList<>(), children.getFlowStyle());
-                int childAdditions = merge(section, children, root, path, aliases, legacyOverrides);
+                int childAdditions = merge(section, children, path);
                 if (childAdditions == 0) continue;
                 current.getValue().add(new NodeTuple(fallback.getKeyNode(), section));
                 added += childAdditions;
@@ -200,15 +186,6 @@ public final class YamlDefaultsUpdater {
         result.setInLineComments(source.getInLineComments());
         result.setEndComments(source.getEndComments());
         return result;
-    }
-
-    private static Node at(MappingNode root, String path) {
-        Node current = root;
-        for (String key : path.split("\\.")) {
-            if (!(current instanceof MappingNode section)) return null;
-            current = lookup(section, key, Collections.newSetFromMap(new IdentityHashMap<>()));
-        }
-        return current;
     }
 
     private static Node local(MappingNode map, String key) {

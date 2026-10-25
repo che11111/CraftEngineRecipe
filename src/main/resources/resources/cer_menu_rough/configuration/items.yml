@@ -1,0 +1,51 @@
+items:
+  # 上一页 / 上一组分类 / 上一个配方 | Previous page / category group / recipe
+  cer_rough:prev:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6>上一页</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/prev
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/prev
+
+  # 上一个配方 / Previous recipe
+  cer_rough:next:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6>下一页</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/next
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/next
+
+  # 空白占位 / Blank placeholder
+  cer_rough:blank_items:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6> </#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/blank_items
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/blank_items
+
+  cer_rough:back:
+    material: paper
+    data:
+      item_name: "<!i><#EEF2F6>返回</#EEF2F6>"
+    model:
+      type: minecraft:model
+      path: cer_rough:item/back
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_rough:item/back
