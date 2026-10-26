@@ -41,10 +41,12 @@
 
 - A clear, ready-to-use UI whose resources are **installed automatically** into CraftEngine's resource-pack directory.
 - Two browsing modes: **browse by namespace** and **browse by workstation**.
+- Workstation order and custom buttons are configured in `navigation/workstations.yml`; newly discovered workstations are appended automatically.
 - Left-click an item to view its **recipes**; right-click to view recipes that **use it**.
 - Customize category order, visibility permissions, hiding rules, and menu **buttons**.
 - Custom buttons can run commands to open other menus or pages.
 - Search by item ID, name, translation key, Chinese pinyin, or pinyin initials.
+- Right-click **Search items** to list recipe outputs that can currently be completed with the player's inventory. Right-click again or press ESC to return to normal browsing.
 - Bundled vanilla Chinese names make searches such as `小麦` and `木剑` work; recipe-file polling does not continuously occupy the server thread.
 - TrMenu-like custom recipe files are supported. FarmersDelight, the FarmersDelight skillet, Kaleidoscope Cookery, and CustomCrops pot recipes are exported to `recipes/` on first use and then loaded from files.
 - Fixed-result CraftEngine recipes are exported to `recipes/craftengine/` on first use and then read only from files. Vanilla recipes, vanilla cultivation data, CraftEngine cultivation data, and integration-specific cultivation data have independent source switches.
@@ -66,7 +68,7 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 3. Wait for data initialization to finish, then run `/cer unapplied` as an administrator to preview categories that have not yet been applied.
 
-4. Copy the desired namespace entries from `plugins/CraftEngineRecipe/categories-unapplied.yml` into `entries` in `categories.yml`, for example:
+4. Copy the desired namespace entries from `plugins/CraftEngineRecipe/navigation/categories-unapplied.yml` into `entries` in `navigation/categories.yml`, for example:
 
    ```yaml
    entries:
@@ -87,6 +89,33 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 If the main menu is empty on first use, apply the desired categories first. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for details.
 
+## Configuration Layout
+
+```text
+plugins/CraftEngineRecipe/
+├── config.yml
+├── navigation/
+│   ├── categories.yml
+│   ├── categories-unapplied.yml
+│   ├── workstations.yml
+│   └── examples/
+│       └── categories.yml
+├── lang/
+├── recipes/
+└── resources/
+```
+
+Each `cer_menu_*` pack uses complete layout files under `menu/` and declares the pages each file serves. File names are arbitrary; CER reads only the `pages` declarations and performs no inheritance or merging:
+
+```text
+cer_menu_cute/
+├── menu/
+│   ├── browse.yml
+│   └── utility.yml
+├── configuration/gui.yml
+└── resourcepack/
+```
+
 ## Common Commands
 
 | Command | Purpose |
@@ -96,7 +125,8 @@ If the main menu is empty on first use, apply the desired categories first. See 
 | `/cer hand` | View recipes producing the vanilla or CraftEngine item in your main hand, respecting configured category restrictions |
 | `/cer target` | View recipes producing the vanilla or CraftEngine block under your crosshair, respecting configured category restrictions |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | Re-read a source and replace its data under `recipes/` (administrator) |
-| `/cer unapplied` | Preview unapplied categories (administrator) |
+| `/cer manage` | Open Category Management to view applied/unapplied namespaces and edit unapplied entries (administrator) |
+| `/cer unapplied` | Browse recipes using category entries from `categories-unapplied.yml` (administrator) |
 | `/cer reload` | Reload configuration and indexes (administrator; recipe-file edits reload automatically) |
 | `/cer open <pack>` | Open the menu using an enabled UI pack |
 | `/cer menu` | Show the default, enabled, and available UI packs (administrator) |

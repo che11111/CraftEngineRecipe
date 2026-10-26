@@ -25,6 +25,11 @@ messages:
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
   personalization-saved: '<#98C69A>Preferences saved: menu {menu}, restore position: {remember}.</#98C69A>'
+  unapplied-updated: '<#98C69A>Updated the unapplied namespace configuration for {namespace}.</#98C69A>'
+  unapplied-update-failed: '<#E58B8B>Unapplied namespace {namespace} was not found; nothing was changed.</#E58B8B>'
+  unapplied-permission-required: '<#E58B8B>A permission node is required when visibility is set to permission.</#E58B8B>'
+  management-applied-readonly: '<#E4D397>This namespace is already in categories.yml; edit the active configuration directly.</#E4D397>'
+  management-no-category-page: '<#8793A5>Namespace {namespace} has no browsable namespace category page.</#8793A5>'
   index-build-started: '<#E4D397>Detected {plugins}; building the recipe index...</#E4D397>'
   recipe-export-usage: '<#E4D397>Usage: /cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
   recipe-export-started: '<#E4D397>Reading source plugins and regenerating recipe files, please wait.</#E4D397>'
@@ -47,9 +52,6 @@ messages:
 command:
   description: Open the CraftEngineRecipe recipe browser
 ui:
-  additional-recipes:
-    name: '<#79CFC9>Additional recipes</#79CFC9>'
-    title: '<#287F82>Additional recipes</#287F82>'
   browser:
     title: '<bold><#374151>Recipe Browser</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
   category-bar:
@@ -77,6 +79,8 @@ ui:
       name: <#D8B278>Search items</#D8B278>
       lore:
       - <#B8C0CC>Click to search by keyword</#B8C0CC>
+      craftable-lore: '<#79CFC9>Right-click: craftable items in your inventory</#79CFC9>'
+      exit-craftable-lore: '<#79CFC9>Right-click: exit the craftable-items list</#79CFC9>'
     hand:
       name: <#79CFC9>Main-hand recipes</#79CFC9>
       lore:
@@ -126,6 +130,34 @@ ui:
     save-tooltip: <#B8C0CC>Save these personalization settings</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
     cancel-tooltip: <#B8C0CC>Discard changes and return to the menu</#B8C0CC>
+  craftable:
+    name: <#79CFC9>Craftable Items</#79CFC9>
+    title: '<bold><#374151>Craftable Items</#374151> <#465D70>»</#465D70> <#293341>Current Inventory</#293341></bold>'
+  management:
+    name: <#D8B278>Category Management</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: '<#98C69A>Applied: present in categories.yml</#98C69A>'
+    unapplied-lore: '<#B8C0CC>Not applied: present only in categories-unapplied.yml</#B8C0CC>'
+    no-category-button-lore: '<#8793A5>This entry does not show a namespace category button</#8793A5>'
+    category-bar-lore: <#B8C0CC>View applied and unapplied namespaces</#B8C0CC>
+  unapplied-editor:
+    title: '<bold><#D8B278>Edit Unapplied Category</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
+    description: <#B8C0CC>Only categories-unapplied.yml is changed; the active categories.yml is not modified.</#B8C0CC>
+    edit-lore: '<#79CFC9>Right-click: edit this unapplied namespace</#79CFC9>'
+    visibility: <#79CFC9>Visibility</#79CFC9>
+    visibility-admin: Administrators only
+    visibility-player: All players
+    visibility-permission: Permission-based
+    permission: <#79CFC9>Permission node</#79CFC9>
+    icon-name: <#79CFC9>Category name template</#79CFC9>
+    category-entry: <#79CFC9>Show namespace category entry</#79CFC9>
+    sort-by-namespace: <#79CFC9>Sort by namespace and path</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>Hide items without CER recipes</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>Apply hiding rules to workstations</#79CFC9>
+    save: <#98C69A>Save changes</#98C69A>
+    save-tooltip: <#B8C0CC>Save to categories-unapplied.yml</#B8C0CC>
+    cancel: <#E58B8B>Cancel</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Discard changes and return to unapplied categories</#B8C0CC>
   # The cultivation data is controlled by the separate vanilla and CraftEngine cultivation source flags.
   workstations:
     title: '<bold><#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
@@ -227,7 +259,7 @@ headers:
 
     将需要的条目复制到 categories.yml 的 entries 中，调整可见性后 /cer reload
 
-    Copy desired entries into categories.yml, adjust visibility, then run /cer reload
+    Copy desired entries into navigation/categories.yml, adjust visibility, then run /cer reload
 
     已应用的条目在重载后移除，其他条目保留原有属性
 

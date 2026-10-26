@@ -1,0 +1,94 @@
+id: cer_menu_cute
+display-name: '<#F48FB1>CER 可爱版界面'
+pages:
+  - management
+  - unapplied
+  - craftable
+
+browser:
+  # 标题图片、位移和边框由当前菜单包控制；<title> 会替换为 lang/<语言>.yml 中的本地化标题。
+  # This menu pack owns the title image, shifts and frame; <title> is replaced by the localized lang/<locale>.yml title.
+  title-offset: -2
+  title-shift: -163
+  title: "<#FFFFFF><shift:<offset>><image:cer_cute:main><shift:<shift>><title>"
+  workstations-title: "<#FFFFFF><shift:<offset>><image:cer_cute:main><shift:<shift>><title>"
+  search-title: "<#FFFFFF><shift:<offset>><image:cer_cute:main><shift:<shift>><title>"
+  disabled-item-model: minecraft:air
+  layout:
+    - '<CCCCCCC>'
+    - 'XXXXXXXXX'
+    - 'XXXXXXXXX'
+    - 'XXXXXXXXX'
+    - 'XXXXXXXXX'
+    - 'TBLHSGRI#'
+
+behavior:
+  workstations-toggle: true
+  disable-back-button: true
+
+category-bar:
+  source: ce
+  list: []
+  icon-char: C
+  icon-name: '<gray><name>'
+  icon-lore: []
+  sub-icon-lore: []
+  prev-category:
+    char: '<'
+    item-model: minecraft:air
+    material: minecraft:arrow
+  next-category:
+    char: '>'
+    item-model: minecraft:air
+    material: minecraft:arrow
+  admin-only-hint: '<red>仅管理员可查看'
+  no-permission-hint: '<red>无权限查看'
+
+content:
+  area-char: X
+  prev-page:
+    char: L
+    item-model: minecraft:air
+    material: minecraft:spectral_arrow
+  next-page:
+    char: R
+    item-model: minecraft:air
+    material: minecraft:spectral_arrow
+  back:
+    char: B
+    item-model: minecraft:air
+    material: minecraft:barrier
+  search:
+    char: S
+    item-model: minecraft:air
+    material: minecraft:compass
+  hand:
+    char: H
+    item-model: minecraft:air
+    material: minecraft:paper
+  info:
+    char: I
+    item-model: minecraft:air
+    material: minecraft:paper
+  workstations:
+    char: T
+    item-model: minecraft:air
+    material: minecraft:crafting_table
+  glasses:
+    char: G
+    item-model: minecraft:air
+    material: minecraft:paper
+  empty:
+    material: minecraft:barrier
+  item-lore: []
+
+sounds:
+  change-category: 'UI_BUTTON_CLICK-1-2'
+  change-page: minecraft:item.book.page_turn
+  click: minecraft:ui.button.click
+  back: minecraft:item.book.page_turn
+  search: minecraft:ui.toast.in
+  query-success: 'UI_BUTTON_CLICK-1-2'
+  query-failure: 'BLOCK_NOTE_BLOCK_BASS-1-1'
+  open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2'
+  close-menu: 'BLOCK_IRON_DOOR_CLOSE-1-2'

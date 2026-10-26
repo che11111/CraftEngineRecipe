@@ -10,6 +10,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -21,6 +22,15 @@ public final class ResourcePackInstaller {
     public static final String MENU_CUTE_DIRECTORY = "cer_menu_cute";
     public static final String GUI_PACK_DIRECTORY = "cer_kc_gui";
     public static final String FD_PACK_DIRECTORY = "cer_fd_gui";
+    public static final String CUSTOMCROPS_PACK_DIRECTORY = "cer_ccrops_gui";
+    public static final String CULTIVATION_PACK_DIRECTORY = "cer_cultivation_gui";
+    public static final String API_PACK_DIRECTORY = "cer_api_gui";
+    public static final List<String> REQUIRED_GUI_PACKS = List.of(
+            GUI_PACK_DIRECTORY,
+            FD_PACK_DIRECTORY,
+            CUSTOMCROPS_PACK_DIRECTORY,
+            CULTIVATION_PACK_DIRECTORY,
+            API_PACK_DIRECTORY);
 
     private ResourcePackInstaller() {}
 
@@ -136,13 +146,19 @@ public final class ResourcePackInstaller {
         Files.writeString(bundle.resolve("pack.yml"), metadata.toString(), StandardCharsets.UTF_8);
     }
 
-    private static void deleteRecursively(Path directory) throws IOException {
+    static void deleteRecursively(Path directory) throws IOException {
         if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) return;
         try (var paths = Files.walk(directory)) {
             for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
                 Files.deleteIfExists(path);
             }
         }
+    }
+
+    /** 删除早期测试结构，避免旧 menu.yml 与 pages/ 混入新的 menu/ 声明文件。 */
+    static void removeLegacyMenuLayouts(Path packRoot) throws IOException {
+        Files.deleteIfExists(packRoot.resolve("menu.yml"));
+        deleteRecursively(packRoot.resolve("pages"));
     }
 
     private static int replenish(Path jarPath, Path localRoot, String packDirectory) throws IOException {

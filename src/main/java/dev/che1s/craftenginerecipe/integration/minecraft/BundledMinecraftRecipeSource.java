@@ -230,7 +230,8 @@ public final class BundledMinecraftRecipeSource {
     }
 
     private List<DisplayRecipe> cultivationRecipes(JsonObject rootJson, String source) {
-        String stationName = this.translations.apply("ui.workstations.categories.cultivation");
+        String localizedName = this.translations.apply("ui.workstations.categories.cultivation");
+        String stationName = (this.chinese ? "原版·" : "Vanilla · ") + localizedName;
         RecipeWorkstation station = new RecipeWorkstation(CULTIVATION_STATION,
                 this.named(RecipeItem.of("minecraft:farmland")), stationName);
         JsonArray crops = rootJson.getAsJsonArray("crops");
@@ -247,27 +248,34 @@ public final class BundledMinecraftRecipeSource {
                     "<#98C69A>种植基质：</#98C69A><white>见旁边的基质图标</white>");
             RecipeIngredient seed = new RecipeIngredient(seeds.stream()
                     .map(item -> new RecipeItem(item.provider(), item.id(), null, item.name(), seedLore)).toList(),
-                    1, 20, RecipeIngredient.Role.INGREDIENT);
+                    1, 19, RecipeIngredient.Role.INGREDIENT);
             List<RecipeIngredient> ingredients = new ArrayList<>();
             ingredients.add(seed);
             List<RecipeItem> substrates = this.items(crop.getAsJsonArray("substrates")).stream()
                     .map(BundledMinecraftRecipeSource::displayableSubstrate)
                     .map(this::named).toList();
             if (!substrates.isEmpty()) {
-                ingredients.add(new RecipeIngredient(substrates, 1, 22, RecipeIngredient.Role.INFO));
+                ingredients.add(new RecipeIngredient(substrates, 1, 21, RecipeIngredient.Role.INFO));
             }
             List<RecipeResult> results = new ArrayList<>();
             for (int index = 0; index < products.size(); index++) {
                 RecipeItem product = products.get(index);
                 List<String> lore = note.isBlank() ? List.of() : List.of("<#B8C0CC>" + note + "</#B8C0CC>");
                 RecipeItem decorated = new RecipeItem(product.provider(), product.id(), null, product.name(), lore);
-                results.add(new RecipeResult(decorated, 1, 24 + Math.min(4, index), null));
+                int slot = switch (index) {
+                    case 0 -> 23;
+                    case 1 -> 24;
+                    case 2 -> 32;
+                    case 3 -> 33;
+                    default -> -1;
+                };
+                results.add(new RecipeResult(decorated, 1, slot, null));
             }
             String id = string(crop, "id");
             String path = id.contains(":") ? id.substring(id.indexOf(':') + 1) : id;
             String prefix = source.equals("minecraft") ? "minecraft_cultivation" : "cultivation_" + source;
             recipes.add(new DisplayRecipe(prefix + ":" + sanitize(path),
-                    station, new RecipeLayout(6, stationName, 4, 49, 45, 48, 53),
+                    station, new RecipeLayout(6, stationName, -1, 49, 45, 48, 53),
                     ingredients, results, List.of(), null, player -> true));
         }
         return List.copyOf(recipes);

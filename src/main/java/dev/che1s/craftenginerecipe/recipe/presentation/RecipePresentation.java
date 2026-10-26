@@ -9,6 +9,9 @@ public final class RecipePresentation {
 
     public static String backgroundImage(String workstationId) {
         if (workstationId == null) return null;
+        if (workstationId.startsWith("customcrops:pot/")) {
+            return "cer_ccrops_gui:customcrops_gui";
+        }
         return switch (workstationId) {
             case "kc:chopping_board" -> "cer_kc_gui:chopping_board_gui";
             case "kc:millstone" -> "cer_kc_gui:millstone_gui";
@@ -18,6 +21,7 @@ public final class RecipePresentation {
             case "kc:steamer" -> "cer_kc_gui:steamer_full_lid";
             case "kc:teapot" -> "cer_kc_gui:teapot_gui";
             case "farmersdelight:skillet" -> "cer_fd_gui:fd_pot_menu";
+            case "minecraft:cultivation" -> "cer_cultivation_gui:cultivation_gui";
             default -> null;
         };
     }

@@ -28,11 +28,23 @@ public final class MenuPackManager {
             return paths.filter(Files::isDirectory)
                     .map(path -> path.getFileName().toString())
                     .filter(name -> name.matches("cer_menu_[a-z0-9_-]+"))
-                    .filter(name -> Files.isRegularFile(root.resolve(name).resolve("menu.yml")))
+                    .filter(name -> this.hasMenuDefinitions(root.resolve(name).resolve("menu")))
                     .sorted().toList();
         } catch (IOException error) {
             plugin.getLogger().warning("Cannot list menu packs: " + error.getMessage());
             return List.of();
+        }
+    }
+
+    private boolean hasMenuDefinitions(Path directory) {
+        if (!Files.isDirectory(directory)) return false;
+        try (var files = Files.list(directory)) {
+            return files.anyMatch(path -> {
+                String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+                return Files.isRegularFile(path) && (name.endsWith(".yml") || name.endsWith(".yaml"));
+            });
+        } catch (IOException error) {
+            return false;
         }
     }
 
@@ -65,17 +77,19 @@ public final class MenuPackManager {
     /** 使用 FD、KC 及全部已启用菜单包重建受管子包集合。 */
     public void installEnabled() throws IOException {
         LinkedHashSet<String> selected = new LinkedHashSet<>();
-        selected.add(ResourcePackInstaller.FD_PACK_DIRECTORY);
-        selected.add(ResourcePackInstaller.GUI_PACK_DIRECTORY);
+        selected.addAll(ResourcePackInstaller.REQUIRED_GUI_PACKS);
         selected.addAll(enabled());
         for (String id : enabled()) {
             Path local = localRoot().resolve(id);
             ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id);
         }
-        Path fd = localRoot().resolve(ResourcePackInstaller.FD_PACK_DIRECTORY);
-        ResourcePackInstaller.replenishBundled(plugin.jarPath(), fd, ResourcePackInstaller.FD_PACK_DIRECTORY);
-        Path kc = localRoot().resolve(ResourcePackInstaller.GUI_PACK_DIRECTORY);
-        ResourcePackInstaller.replenishBundled(plugin.jarPath(), kc, ResourcePackInstaller.GUI_PACK_DIRECTORY);
+        for (String id : ResourcePackInstaller.REQUIRED_GUI_PACKS) {
+            Path local = localRoot().resolve(id);
+            ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id);
+        }
+        for (String id : enabled()) {
+            ResourcePackInstaller.removeLegacyMenuLayouts(localRoot().resolve(id));
+        }
         ResourcePackInstaller.installBundle(localRoot(), targetResourcesRoot(), selected);
     }
 

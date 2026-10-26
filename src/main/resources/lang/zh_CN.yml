@@ -16,7 +16,7 @@ messages:
   debug-performance-header: '<#79CFC9>性能统计（启动或上次 reset 后 {seconds} 秒）</#79CFC9>'
   debug-performance-reset: '<#98C69A>已重置插件操作计时与计数；缓存与服务器性能统计保持原样。</#98C69A>'
   debug-performance-server: '<#B8C0CC>服务器 TPS（1/5/15 分钟）：{tps}，平均 MSPT：{mspt}，Folia：{folia}</#B8C0CC>'
-  debug-performance-data: '<#B8C0CC>索引 ready={ready} generation={generation}；CE 物品 {items}、分类 {categories}、配方 {native}；附加配方 {external}、物品 {externalItems}</#B8C0CC>'
+  debug-performance-data: '<#B8C0CC>索引 ready={ready} generation={generation}；CE 物品 {items}、分类 {categories}、配方 {native}；文件配方 {external}、物品 {externalItems}</#B8C0CC>'
   debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
   debug-performance-operation: '<#B8C0CC>{name}: {count} 次，总计 {total} ms，平均 {average} ms，最高 {max} ms</#B8C0CC>'
   debug-performance-empty: '<#8793A5>暂无操作计时，请实际操作菜单后再次查看。</#8793A5>'
@@ -24,6 +24,11 @@ messages:
   no-permission: <#E58B8B>你没有权限执行此操作。</#E58B8B>
   player-only: <#E58B8B>该指令只能由玩家执行。</#E58B8B>
   personalization-saved: '<#98C69A>个性化设置已保存：主页面 {menu}，恢复浏览位置：{remember}。</#98C69A>'
+  unapplied-updated: '<#98C69A>已更新未应用命名空间 {namespace} 的配置。</#98C69A>'
+  unapplied-update-failed: '<#E58B8B>未找到未应用命名空间 {namespace}，配置未修改。</#E58B8B>'
+  unapplied-permission-required: '<#E58B8B>可见性设为 permission 时必须填写权限节点。</#E58B8B>'
+  management-applied-readonly: '<#E4D397>该命名空间已写入正式 categories.yml，请直接编辑正式配置。</#E4D397>'
+  management-no-category-page: '<#8793A5>命名空间 {namespace} 没有可浏览的命名空间分类页面。</#8793A5>'
   index-build-started: '<#E4D397>已检测到 {plugins}，正在构建配方索引...</#E4D397>'
   recipe-export-usage: '<#E4D397>用法：/cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
   recipe-export-started: '<#E4D397>正在读取来源插件并重新生成配方文件，请稍候。</#E4D397>'
@@ -47,9 +52,6 @@ messages:
 command:
   description: 打开 CraftEngineRecipe 配方浏览器
 ui:
-  additional-recipes:
-    name: '<#79CFC9>附加配方</#79CFC9>'
-    title: '<#287F82>附加配方</#287F82>'
   browser:
     title: '<bold><#374151>配方浏览器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
   category-bar:
@@ -77,6 +79,8 @@ ui:
       name: <#D8B278>搜索物品</#D8B278>
       lore:
       - <#B8C0CC>点击输入关键字搜索</#B8C0CC>
+      craftable-lore: <#79CFC9>右键：查看当前背包可合成物品</#79CFC9>
+      exit-craftable-lore: <#79CFC9>右键：退出可合成物品列表</#79CFC9>
     hand:
       name: <#79CFC9>查询主手配方</#79CFC9>
       lore:
@@ -128,6 +132,34 @@ ui:
     save-tooltip: <#B8C0CC>保存本次个性化选择</#B8C0CC>
     cancel: <#E58B8B>取消</#E58B8B>
     cancel-tooltip: <#B8C0CC>放弃修改并返回菜单</#B8C0CC>
+  craftable:
+    name: <#79CFC9>可合成物品</#79CFC9>
+    title: '<bold><#374151>可合成物品</#374151> <#465D70>»</#465D70> <#293341>当前背包</#293341></bold>'
+  management:
+    name: <#D8B278>分类管理</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: <#98C69A>已应用：存在于 categories.yml</#98C69A>
+    unapplied-lore: <#B8C0CC>未应用：仅存在于 categories-unapplied.yml</#B8C0CC>
+    no-category-button-lore: <#8793A5>该条目不显示命名空间分类按钮</#8793A5>
+    category-bar-lore: <#B8C0CC>查看已应用与未应用的命名空间</#B8C0CC>
+  unapplied-editor:
+    title: '<bold><#D8B278>编辑未应用分类</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
+    description: <#B8C0CC>这里只修改 categories-unapplied.yml；正式 categories.yml 不会被改动。</#B8C0CC>
+    edit-lore: <#79CFC9>右键：编辑此未应用命名空间</#79CFC9>
+    visibility: <#79CFC9>可见性</#79CFC9>
+    visibility-admin: 仅管理员
+    visibility-player: 所有玩家
+    visibility-permission: 按权限
+    permission: <#79CFC9>权限节点</#79CFC9>
+    icon-name: <#79CFC9>分类名称模板</#79CFC9>
+    category-entry: <#79CFC9>显示命名空间分类入口</#79CFC9>
+    sort-by-namespace: <#79CFC9>按命名空间和路径排序</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>隐藏没有 CER 配方的物品</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>隐藏规则影响合成器页面</#79CFC9>
+    save: <#98C69A>保存修改</#98C69A>
+    save-tooltip: <#B8C0CC>保存到 categories-unapplied.yml</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放弃修改并返回未应用分类页面</#B8C0CC>
   # 首行展示 8 种原版合成器；两个 cultivation 开关分别控制原版与 CE 栽培入口。
   workstations:
     title: '<bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
@@ -227,7 +259,7 @@ headers:
 
     Lists namespaces not configured in categories.yml
 
-    将需要的条目复制到 categories.yml 的 entries 中，调整可见性后 /cer reload
+    将需要的条目复制到 navigation/categories.yml 的 entries 中，调整可见性后 /cer reload
 
     Copy desired entries into categories.yml, adjust visibility, then run /cer reload
 

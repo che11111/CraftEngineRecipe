@@ -38,14 +38,14 @@ public final class CustomCropsRecipeSource implements RecipeSource {
     public static final String PLUGIN_NAME = "CustomCrops";
     public static final String SOURCE_ID = "customcrops";
 
-    private static final int WORKSTATION_SLOT = 4;
     private static final int SEED_SLOT = 10;
-    private static final int FERTILIZER_SLOT = 12;
-    private static final int WATER_SLOT = 14;
-    private static final int SPRINKLER_SLOT = 16;
-    private static final int GREENHOUSE_SLOT = 20;
-    private static final int SCARECROW_SLOT = 24;
-    private static final int RESULT_SLOT = 31;
+    private static final int PLANT_BLOCK_SLOT = 12;
+    private static final List<Integer> RESULT_SLOTS = List.of(14, 15, 23, 24);
+    private static final int WATER_SLOT = 36;
+    private static final int SPRINKLER_SLOT = 38;
+    private static final int FERTILIZER_SLOT = 40;
+    private static final int GREENHOUSE_SLOT = 42;
+    private static final int SCARECROW_SLOT = 44;
     private static final Set<String> FERTILIZER_TYPES = Set.of(
             "QUALITY", "SPEED_GROW", "YIELD_INCREASE", "VARIATION", "SOIL_RETAIN");
     private static final Map<String, String> SEASONS = Map.of(
@@ -187,8 +187,8 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         String potName = this.potName(pot);
         String cropName = this.displayName(output.results().getFirst().item().id());
         String stationName = "<white>" + plain(this.stationName(pot)) + "</white>";
-        String title = "<#F4F6F8><bold>" + plain(potName) + " · " + plain(cropName) + "</bold></#F4F6F8>";
-        RecipeLayout layout = new RecipeLayout(6, title, WORKSTATION_SLOT,
+        String title = this.recipeTitle(pot, cropName);
+        RecipeLayout layout = new RecipeLayout(6, title, -1,
                 -1, -1, -1, -1);
 
         List<RecipeIngredient> ingredients = new ArrayList<>();
@@ -196,11 +196,19 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         List<RecipeItem> seeds = crop.seeds().stream().map(id -> item(id, seedLore)).toList();
         ingredients.add(new RecipeIngredient(seeds, 1, SEED_SLOT, RecipeIngredient.Role.INGREDIENT));
 
+        // CustomCrops 没有独立的土壤条件；种植盆本身就是作物所在的“种植方块”。
+        List<String> plantBlockLore = new ArrayList<>();
+        plantBlockLore.add("<#B8C0CC>种植方块：</#B8C0CC><white>" + potName + "</white>");
+        plantBlockLore.addAll(potWaterLore(pot, wateringTiming));
+        ingredients.add(new RecipeIngredient(
+                List.of(item(potIcon(pot), plantBlockLore)), 1, PLANT_BLOCK_SLOT,
+                RecipeIngredient.Role.INFO));
+
         if (pot.maxFertilizers() > 0 && !fertilizers.isEmpty()) {
             List<RecipeItem> choices = fertilizers.stream()
                     .map(value -> item(value.itemId(), fertilizerLore(value, pot)))
                     .toList();
-            ingredients.add(new RecipeIngredient(choices, 1, FERTILIZER_SLOT, RecipeIngredient.Role.TOOL));
+            ingredients.add(new RecipeIngredient(choices, 1, FERTILIZER_SLOT, RecipeIngredient.Role.INFO));
         }
 
         List<RecipeItem> waterChoices = wateringCans.stream()
@@ -214,13 +222,13 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         if (waterChoices.isEmpty()) {
             waterChoices.add(item("minecraft:water_bucket", potWaterLore(pot, wateringTiming)));
         }
-        ingredients.add(new RecipeIngredient(waterChoices, 1, WATER_SLOT, RecipeIngredient.Role.TOOL));
+        ingredients.add(new RecipeIngredient(waterChoices, 1, WATER_SLOT, RecipeIngredient.Role.INFO));
 
         if (!sprinklers.isEmpty()) {
             List<RecipeItem> choices = sprinklers.stream()
                     .map(value -> item(value.itemId(), sprinklerLore(value, pot, wateringTiming)))
                     .toList();
-            ingredients.add(new RecipeIngredient(choices, 1, SPRINKLER_SLOT, RecipeIngredient.Role.TOOL));
+            ingredients.add(new RecipeIngredient(choices, 1, SPRINKLER_SLOT, RecipeIngredient.Role.INFO));
         }
 
         if (mechanics.greenhouse().enabled() && crop.seasonalDeath()) {
@@ -291,7 +299,7 @@ public final class CustomCropsRecipeSource implements RecipeSource {
             else note += " · 数量 " + drop.minimum() + "～" + drop.maximum();
             results.add(new RecipeResult(item(drop.itemId(), resultLore(crop, drop, qualityNames)),
                     Math.min(64, Math.max(1, drop.minimum())),
-                    RESULT_SLOT + Math.min(4, results.size()), note));
+                    results.size() < RESULT_SLOTS.size() ? RESULT_SLOTS.get(results.size()) : -1, note));
         }
         return new OutputData(List.copyOf(results));
     }
@@ -567,6 +575,22 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         return this.chinese.getAsBoolean() ? "星露谷·" + name : "CustomCrop · " + name;
     }
 
+    private String recipeTitle(PotData pot, String cropName) {
+        String plainCrop = plain(cropName);
+        if (!this.chinese.getAsBoolean()) {
+            String suffix = pot.id().equalsIgnoreCase("default") ? "" : " " + this.potName(pot);
+            return "<#F4F6F8><bold>CustomCrops·" + plainCrop + suffix + "</bold></#F4F6F8>";
+        }
+        String suffix = switch (pot.id().toLowerCase(Locale.ROOT)) {
+            case "default" -> "种植盆";
+            case "aquatic_crops" -> "水生盆栽";
+            case "nether" -> "下界种植盆";
+            case "end" -> "末地种植盆";
+            default -> this.potName(pot);
+        };
+        return "<#F4F6F8><bold>星露谷·" + plainCrop + suffix + "</bold></#F4F6F8>";
+    }
+
     private String returnItemName(String itemId) {
         if ("minecraft:bucket".equals(itemId)) return this.chinese.getAsBoolean() ? "空桶" : "Empty Bucket";
         return this.displayName(itemId);
@@ -622,7 +646,7 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         if (pot.absorbNearbyWater()) {
             lore.add("<#98C69A>近水：</#98C69A><white>附近 4 格内有水时停止消耗并自动补水</white>");
         }
-        lore.add("<#8793A5>实际周期以作物所在世界的 CustomCrops 设置为准</#8793A5>");
+        lore.add("<#8793A5>实际周期以相关设置为准</#8793A5>");
         return List.copyOf(lore);
     }
 

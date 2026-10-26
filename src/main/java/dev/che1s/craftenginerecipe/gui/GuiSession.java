@@ -27,9 +27,10 @@ public final class GuiSession {
     private Key recipeItem;
     private boolean recipeUsageMode;
     private boolean unapplied;
+    private boolean craftableMode;
+    private boolean managerMode;
     private RecipeType workstation;
     private String workstationId;
-    private boolean externalCatalog;
     private int workstationPage;
     private int workstationCategoryOffset;
     private String workstationKeyword;
@@ -45,7 +46,7 @@ public final class GuiSession {
 
     public record Snapshot(String category, int categoryPage, String parentCategory, boolean unapplied,
                            String workstationId, int workstationPage, String workstationKeyword,
-                           boolean externalCatalog, String recipeItem, int recipeIndex, boolean recipeUsageMode,
+                           String recipeItem, int recipeIndex, boolean recipeUsageMode,
                            boolean recipeWorkstationSelection, List<HistoryPage> recipeHistory, int contentPage) {
         public Snapshot {
             recipeHistory = recipeHistory == null ? List.of() : List.copyOf(recipeHistory);
@@ -73,8 +74,9 @@ public final class GuiSession {
 
     public void enter(Key category, int categoryPage, Key parent, int contentPage) {
         this.leaveWorkstations();
+        this.craftableMode = false;
+        this.managerMode = false;
         this.currentCategory = category;
-        this.externalCatalog = false;
         this.categoryPage = categoryPage;
         this.contentPage = Math.max(0, contentPage);
         this.parentCategory = parent;
@@ -113,6 +115,22 @@ public final class GuiSession {
 
     public void unapplied(boolean unapplied) {
         this.unapplied = unapplied;
+    }
+
+    public boolean craftableMode() {
+        return this.craftableMode;
+    }
+
+    public void craftableMode(boolean craftableMode) {
+        this.craftableMode = craftableMode;
+    }
+
+    public boolean managerMode() {
+        return this.managerMode;
+    }
+
+    public void managerMode(boolean managerMode) {
+        this.managerMode = managerMode;
     }
 
     public Key parentCategory() {
@@ -171,7 +189,6 @@ public final class GuiSession {
                 this.workstationId,
                 this.workstationPage,
                 this.workstationKeyword,
-                this.externalCatalog,
                 this.recipeItem == null ? null : this.recipeItem.toString(),
                 this.recipeIndex,
                 this.recipeUsageMode,
@@ -186,6 +203,8 @@ public final class GuiSession {
     }
 
     public void restore(Snapshot snapshot, Function<String, RecipeEntry.Output> selectionResolver, long generation) {
+        this.craftableMode = false;
+        this.managerMode = false;
         this.currentCategory = snapshot.category() == null ? null : Key.of(snapshot.category());
         this.categoryPage = Math.max(0, snapshot.categoryPage());
         this.contentPage = Math.max(0, snapshot.contentPage());
@@ -195,7 +214,6 @@ public final class GuiSession {
         this.workstation = RecipeIndex.nativeType(this.workstationId);
         this.workstationPage = Math.max(0, snapshot.workstationPage());
         this.workstationKeyword = snapshot.workstationKeyword();
-        this.externalCatalog = snapshot.externalCatalog();
         this.recipeItem = snapshot.recipeItem() == null ? null : Key.of(snapshot.recipeItem());
         this.recipeIndex = Math.max(0, snapshot.recipeIndex());
         this.recipeUsageMode = snapshot.recipeUsageMode();
@@ -249,8 +267,6 @@ public final class GuiSession {
     }
 
     public String workstationId() { return this.workstationId; }
-    public boolean externalCatalog() { return this.externalCatalog; }
-    public void externalCatalog(boolean externalCatalog) { this.externalCatalog = externalCatalog; }
     public RecipeEntry.Output entrySelection() { return this.entrySelection; }
     public void entrySelection(RecipeEntry.Output selection, long generation) {
         this.entrySelection = selection;

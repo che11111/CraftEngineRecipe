@@ -1,5 +1,8 @@
 id: cer_menu_cute
 display-name: '<#F48FB1>CER 可爱版界面'
+pages:
+  - namespaces
+  - workstations
 
 browser:
   # 标题图片、位移和边框由当前菜单包控制；<title> 会替换为 lang/<语言>.yml 中的本地化标题。

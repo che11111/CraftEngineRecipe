@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -46,6 +47,7 @@ public final class CerConfig {
 
     private final CraftEngineRecipePlugin plugin;
     private final String requestedMenuPack;
+    private final MenuView view;
     private String menuPackId;
     private String menuDisplayName;
 
@@ -103,19 +105,31 @@ public final class CerConfig {
     }
 
     public CerConfig(CraftEngineRecipePlugin plugin, String menuPack) {
+        this(plugin, menuPack, MenuView.NAMESPACES);
+    }
+
+    public CerConfig(CraftEngineRecipePlugin plugin, String menuPack, MenuView view) {
         this.plugin = plugin;
         this.requestedMenuPack = menuPack;
+        this.view = view == null ? MenuView.NAMESPACES : view;
     }
 
     public void load() {
-        this.plugin.saveDefaultConfig();
-        try {
-            YamlDefaultsUpdater.update(this.plugin.getDataFolder().toPath().resolve("config.yml"),
-                    this.plugin.getResource("config.yml"));
-        } catch (IOException | InvalidConfigurationException e) {
-            this.plugin.getLogger().warning(this.plugin.lang().text("logs.config-update-failed", "error", e.getMessage()));
+        this.load(true);
+    }
+
+    public void load(boolean reloadSharedSettings) {
+        if (reloadSharedSettings) {
+            this.plugin.saveDefaultConfig();
+            try {
+                YamlDefaultsUpdater.update(this.plugin.getDataFolder().toPath().resolve("config.yml"),
+                        this.plugin.getResource("config.yml"));
+            } catch (IOException | InvalidConfigurationException e) {
+                this.plugin.getLogger().warning(this.plugin.lang().text("logs.config-update-failed",
+                        "error", e.getMessage()));
+            }
+            this.plugin.reloadConfig();
         }
-        this.plugin.reloadConfig();
         FileConfiguration c = this.plugin.getConfig();
         this.menuPackId = this.requestedMenuPack == null || this.requestedMenuPack.isBlank()
                 ? this.plugin.menuPacks().defaultPack() : this.requestedMenuPack;
@@ -123,7 +137,7 @@ public final class CerConfig {
         FileConfiguration ui = this.loadMenuConfig(this.menuPackId);
         this.menuDisplayName = ui.getString("display-name", this.menuPackId);
         LanguageManager lang = this.plugin.lang();
-        lang.load(c.getString("language", "zh_CN"));
+        if (reloadSharedSettings) lang.load(c.getString("language", "zh_CN"));
 
         this.browserTitleOffset = ui.getInt("browser.title-offset", -8);
         this.browserTitleShift = ui.getInt("browser.title-shift", -168);
@@ -195,22 +209,56 @@ public final class CerConfig {
     }
 
     private FileConfiguration loadMenuConfig(String packId) {
-        Path file = this.plugin.getDataFolder().toPath().resolve("resources").resolve(packId).resolve("menu.yml");
+        Path directory = this.plugin.getDataFolder().toPath().resolve("resources")
+                .resolve(packId).resolve("menu");
+        if (Files.isDirectory(directory)) {
+            try (var paths = Files.list(directory)) {
+                for (Path path : paths.filter(Files::isRegularFile)
+                        .filter(value -> {
+                            String name = value.getFileName().toString().toLowerCase(Locale.ROOT);
+                            return name.endsWith(".yml") || name.endsWith(".yaml");
+                        })
+                        .sorted().toList()) {
+                    String relative = "menu/" + path.getFileName();
+                    FileConfiguration candidate = this.loadMenuFile(packId, relative);
+                    if (this.declares(candidate, this.view)) return candidate;
+                }
+            } catch (IOException error) {
+                this.plugin.getLogger().warning("Cannot list menu files for " + packId
+                        + ": " + error.getMessage());
+            }
+        }
+        throw new IllegalStateException("No menu file declares page " + this.view.name().toLowerCase(Locale.ROOT));
+    }
+
+    private boolean declares(FileConfiguration config, MenuView page) {
+        String expected = page.name().toLowerCase(Locale.ROOT);
+        for (String value : config.getStringList("pages")) {
+            if (value != null && value.trim().equalsIgnoreCase(expected)) return true;
+        }
+        return false;
+    }
+
+    private FileConfiguration loadMenuFile(String packId, String relative) {
+        Path file = this.plugin.getDataFolder().toPath().resolve("resources")
+                .resolve(packId).resolve(relative);
         YamlConfiguration menu = new YamlConfiguration();
+        String resource = "resources/" + packId + "/" + relative;
         try {
-            try (InputStream bundled = this.plugin.getResource("resources/" + packId + "/menu.yml")) {
+            try (InputStream bundled = this.plugin.getResource(resource)) {
                 if (bundled != null) YamlDefaultsUpdater.update(file, bundled);
             }
             if (Files.isRegularFile(file)) {
                 menu.load(file.toFile());
             } else {
-                try (InputStream input = this.plugin.getResource("resources/" + packId + "/menu.yml")) {
-                    if (input == null) throw new IOException("Missing menu.yml");
+                try (InputStream input = this.plugin.getResource(resource)) {
+                    if (input == null) throw new IOException("Missing " + relative);
                     menu.load(new InputStreamReader(input, StandardCharsets.UTF_8));
                 }
             }
         } catch (IOException | InvalidConfigurationException | RuntimeException error) {
-            this.plugin.getLogger().warning("Cannot load menu pack " + packId + ": " + error.getMessage());
+            this.plugin.getLogger().warning("Cannot load menu pack " + packId + " " + relative
+                    + ": " + error.getMessage());
         }
         return menu;
     }

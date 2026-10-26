@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.ClickType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +51,6 @@ public final class CategoryNamespaces {
     }
 
     public sealed interface Entry {
-        String id();
     }
 
     public record NamespaceEntry(
@@ -66,7 +66,8 @@ public final class CategoryNamespaces {
             boolean hideItemsWithoutRecipes,
             Map<String, Set<String>> hiddenItems,
             Set<String> hiddenCategories,
-            boolean hiddenRulesAffectWorkstations) implements Entry {
+            boolean hiddenRulesAffectWorkstations,
+            boolean hideInaccessible) implements Entry {
         public NamespaceEntry {
             itemLore = immutableList(itemLore);
             iconLore = immutableList(iconLore);
@@ -79,7 +80,8 @@ public final class CategoryNamespaces {
         }
     }
 
-    public record ButtonEntry(String id, ButtonDisplay display, Map<String, List<String>> actions, Visibility visibility, String permission) implements Entry {
+    public record ButtonEntry(ButtonDisplay display, Map<String, List<String>> actions, Visibility visibility,
+                              String permission, boolean hideInaccessible) implements Entry {
         public ButtonEntry {
             Map<String, List<String>> copied = new LinkedHashMap<>();
             actions.forEach((click, lines) -> copied.put(click, immutableList(lines)));
@@ -114,6 +116,8 @@ public final class CategoryNamespaces {
     private final Logger logger;
     private final File file;
     private final File extraFile;
+    private final File targetFile;
+    private final File targetExtraFile;
     private final Map<String, NamespaceEntry> namespaceIndex = new LinkedHashMap<>();
     private final List<Entry> entries = new ArrayList<>();
     private final List<NamespaceEntry> extra = new ArrayList<>();
@@ -132,8 +136,13 @@ public final class CategoryNamespaces {
     CategoryNamespaces(File dataFolder, LanguageManager language, Logger logger) {
         this.language = language;
         this.logger = logger;
-        this.file = new File(dataFolder, "categories.yml");
-        this.extraFile = new File(dataFolder, "categories-unapplied.yml");
+        this.targetFile = new File(dataFolder, "navigation/categories.yml");
+        File legacyFile = new File(dataFolder, "categories.yml");
+        this.file = this.targetFile.exists() || !legacyFile.exists() ? this.targetFile : legacyFile;
+        this.targetExtraFile = new File(dataFolder, "navigation/categories-unapplied.yml");
+        File legacyExtraFile = new File(dataFolder, "categories-unapplied.yml");
+        this.extraFile = this.targetExtraFile.exists() || !legacyExtraFile.exists()
+                ? this.targetExtraFile : legacyExtraFile;
     }
 
     public void load() {
@@ -152,6 +161,10 @@ public final class CategoryNamespaces {
             this.loadExtraFile();
         }
         this.rebuildFilters();
+        if (!this.extraFile.equals(this.targetExtraFile) && this.extraFile.exists()
+                && !this.targetExtraFile.exists()) {
+            this.saveExtra();
+        }
     }
 
     private void loadCategoriesFile() {
@@ -168,7 +181,7 @@ public final class CategoryNamespaces {
                 if (!(o instanceof Map<?, ?> m)) continue;
                 this.diagnoseEntry(m, this.file, listPath + "[" + index + "]");
                 if (m.get("display") instanceof Map<?, ?>) {
-                    ButtonEntry button = parseButton(m);
+                    ButtonEntry button = parseButtonEntry(m);
                     if (button != null) {
                         this.entries.add(button);
                     }
@@ -347,11 +360,11 @@ public final class CategoryNamespaces {
                 parseBoolean(m.get("sort-by-namespace"), false),
                 parseBoolean(m.get("hide-items-without-recipes"), false),
                 parseHiddenItems(m.get("hidden-items")), parseHiddenCategories(m.get("hidden-categories")),
-                parseBoolean(m.get("hidden-rules-affect-workstations"), true));
+                parseBoolean(m.get("hidden-rules-affect-workstations"), true),
+                parseBoolean(m.get("hide-inaccessible"), false));
     }
 
-    private ButtonEntry parseButton(Map<?, ?> m) {
-        String id = str(m.get("id"));
+    public static ButtonEntry parseButtonEntry(Map<?, ?> m) {
         Map<?, ?> displayMap = (Map<?, ?>) m.get("display");
         String material = str(displayMap.get("material"));
         String name = str(displayMap.get("name"));
@@ -365,10 +378,11 @@ public final class CategoryNamespaces {
         Map<String, List<String>> actions = parseActions(m.get("actions"));
         Visibility visibility = parseButtonVisibility(m.get("visibility"));
         String permission = str(m.get("permission"));
-        return new ButtonEntry(id, display, actions, visibility, permission);
+        return new ButtonEntry(display, actions, visibility, permission,
+                parseBoolean(m.get("hide-inaccessible"), false));
     }
 
-    private Map<String, List<String>> parseActions(Object actionsObj) {
+    private static Map<String, List<String>> parseActions(Object actionsObj) {
         Map<String, List<String>> actions = new LinkedHashMap<>();
         if (actionsObj instanceof Map<?, ?> am) {
             for (Map.Entry<?, ?> ae : am.entrySet()) {
@@ -412,7 +426,7 @@ public final class CategoryNamespaces {
             NamespaceEntry e = existing.get(ns);
             if (e == null) {
                 e = new NamespaceEntry(ns, Visibility.ADMIN, "", true, "", List.of(), List.of(), List.of(),
-                        false, false, Map.of(), Set.of(), true);
+                        false, false, Map.of(), Set.of(), true, false);
             }
             next.add(e);
         }
@@ -428,7 +442,7 @@ public final class CategoryNamespaces {
         if (extraChanged) {
             this.saveExtra();
         }
-        if (!this.file.exists()) {
+        if (!this.targetFile.exists()) {
             this.save();
         }
     }
@@ -455,6 +469,34 @@ public final class CategoryNamespaces {
 
     public List<NamespaceEntry> unappliedEntries() {
         return List.copyOf(this.extra);
+    }
+
+    public NamespaceEntry unappliedEntry(String namespace) {
+        for (NamespaceEntry entry : this.extra) {
+            if (entry.id().equals(namespace)) return entry;
+        }
+        return null;
+    }
+
+    /** 管理员编辑器只更新命中文件中的未应用条目，不触碰正式 entries。 */
+    public synchronized boolean updateUnapplied(String namespace, Visibility visibility, String permission,
+                                                 boolean categoryEntry, String iconName, boolean sortByNamespace,
+                                                 boolean hideItemsWithoutRecipes,
+                                                 boolean hiddenRulesAffectWorkstations) {
+        for (int index = 0; index < this.extra.size(); index++) {
+            NamespaceEntry current = this.extra.get(index);
+            if (!current.id().equals(namespace)) continue;
+            NamespaceEntry updated = new NamespaceEntry(current.id(), visibility, permission,
+                    categoryEntry, iconName, current.itemLore(), current.iconLore(), current.subIconLore(),
+                    sortByNamespace, hideItemsWithoutRecipes, current.hiddenItems(), current.hiddenCategories(),
+                    hiddenRulesAffectWorkstations, current.hideInaccessible());
+            this.extra.set(index, updated);
+            this.namespaceIndex.put(namespace, updated);
+            this.rebuildFilters();
+            this.saveExtra();
+            return true;
+        }
+        return false;
     }
 
     public NamespaceEntry findNamespace(String ns) {
@@ -621,6 +663,9 @@ public final class CategoryNamespaces {
         if (!n.hiddenRulesAffectWorkstations()) {
             m.put("hidden-rules-affect-workstations", false);
         }
+        if (n.hideInaccessible()) {
+            m.put("hide-inaccessible", true);
+        }
         return m;
     }
 
@@ -642,39 +687,44 @@ public final class CategoryNamespaces {
             if (e instanceof NamespaceEntry n) {
                 list.add(toMap(n));
             } else if (e instanceof ButtonEntry b) {
-                Map<String, Object> m = new LinkedHashMap<>();
-                if (!b.id().isBlank()) {
-                    m.put("id", b.id());
-                }
-                Map<String, Object> d = new LinkedHashMap<>();
-                d.put("material", b.display().material());
-                d.put("name", b.display().name());
-                if (!b.display().lore().isEmpty()) {
-                    d.put("lore", new ArrayList<>(b.display().lore()));
-                }
-                m.put("display", d);
-                if (b.visibility() != Visibility.PLAYER) {
-                    m.put("visibility", b.visibility().name().toLowerCase(Locale.ROOT));
-                }
-                if (b.permission() != null && !b.permission().isBlank()) {
-                    m.put("permission", b.permission());
-                }
-                if (!b.actions().isEmpty()) {
-                    Map<String, Object> am = new LinkedHashMap<>();
-                    for (Map.Entry<String, List<String>> ae : b.actions().entrySet()) {
-                        am.put(ae.getKey(), new ArrayList<>(ae.getValue()));
-                    }
-                    m.put("actions", am);
-                }
-                list.add(m);
+                list.add(buttonMap(b));
             }
         }
         yaml.set("entries", list);
         try {
-            yaml.save(this.file);
+            Files.createDirectories(this.targetFile.toPath().getParent());
+            yaml.save(this.targetFile);
         } catch (IOException e) {
             this.logger.severe(this.language.text("logs.category-save-failed", "error", e.getMessage()));
         }
+    }
+
+    public static Map<String, Object> buttonMap(ButtonEntry button) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> display = new LinkedHashMap<>();
+        display.put("material", button.display().material());
+        display.put("name", button.display().name());
+        if (!button.display().lore().isEmpty()) {
+            display.put("lore", new ArrayList<>(button.display().lore()));
+        }
+        map.put("display", display);
+        if (button.visibility() != Visibility.PLAYER) {
+            map.put("visibility", button.visibility().name().toLowerCase(Locale.ROOT));
+        }
+        if (button.permission() != null && !button.permission().isBlank()) {
+            map.put("permission", button.permission());
+        }
+        if (button.hideInaccessible()) {
+            map.put("hide-inaccessible", true);
+        }
+        if (!button.actions().isEmpty()) {
+            Map<String, Object> actions = new LinkedHashMap<>();
+            for (Map.Entry<String, List<String>> entry : button.actions().entrySet()) {
+                actions.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+            map.put("actions", actions);
+        }
+        return map;
     }
 
     private void saveExtra() {
@@ -686,7 +736,8 @@ public final class CategoryNamespaces {
         }
         yaml.set("entries", list);
         try {
-            yaml.save(this.extraFile);
+            Files.createDirectories(this.targetExtraFile.toPath().getParent());
+            yaml.save(this.targetExtraFile);
         } catch (IOException e) {
             this.logger.severe(this.language.text("logs.unapplied-save-failed", "error", e.getMessage()));
         }

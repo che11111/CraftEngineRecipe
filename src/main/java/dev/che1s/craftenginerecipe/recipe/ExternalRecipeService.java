@@ -351,6 +351,7 @@ public final class ExternalRecipeService implements Listener {
             this.snapshot = next;
             this.lastFileState = fileState;
             ++this.generation;
+            if (this.plugin.recipeIndex() != null) this.plugin.recipeIndex().syncWorkstations();
             this.failures.remove("recipes");
             String files = changedFiles.isEmpty() ? "-" : summarizeFiles(changedFiles);
             this.plugin.getLogger().info(this.plugin.lang().text(

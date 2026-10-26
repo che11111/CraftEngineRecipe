@@ -75,8 +75,8 @@ public final class GuiSessionStore {
                         yaml.getInt(path + "category-page", 0), parent,
                         yaml.getBoolean(path + "unapplied", false), workstation,
                         yaml.getInt(path + "workstation-page", 0), yaml.getString(path + "workstation-keyword"),
-                        yaml.getBoolean(path + "external-catalog", false), item,
-                        yaml.getInt(path + "recipe-index", 0), yaml.getBoolean(path + "recipe-usage", false),
+                        item, yaml.getInt(path + "recipe-index", 0),
+                        yaml.getBoolean(path + "recipe-usage", false),
                         yaml.getBoolean(path + "recipe-workstation-selection", false),
                         history, yaml.getInt(path + "content-page", 0));
                 this.sessions.put(player, new Remembered(snapshot, yaml.getLong(path + "saved-at", 0L)));
@@ -100,7 +100,6 @@ public final class GuiSessionStore {
             yaml.set(path + "workstation-id", snapshot.workstationId());
             yaml.set(path + "workstation-page", snapshot.workstationPage());
             yaml.set(path + "workstation-keyword", snapshot.workstationKeyword());
-            yaml.set(path + "external-catalog", snapshot.externalCatalog());
             yaml.set(path + "recipe-item", snapshot.recipeItem());
             yaml.set(path + "recipe-index", snapshot.recipeIndex());
             yaml.set(path + "recipe-usage", snapshot.recipeUsageMode());

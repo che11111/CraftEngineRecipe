@@ -1,0 +1,5 @@
+author: CraftEngineRecipe,che1s
+version: 1.0.0
+description: CraftEngineRecipe 自定义与 API 配方 GUI 资源包
+namespace: cer_api_gui
+enable: true

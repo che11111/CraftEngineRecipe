@@ -5,11 +5,14 @@ import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.debug.DebugService;
 import dev.che1s.craftenginerecipe.listener.MenuItemSafetyListener;
 import dev.che1s.craftenginerecipe.config.CerConfig;
+import dev.che1s.craftenginerecipe.config.MenuView;
+import dev.che1s.craftenginerecipe.config.WorkstationConfig;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
 import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
 import dev.che1s.craftenginerecipe.recipe.ExternalRecipeService;
 import dev.che1s.craftenginerecipe.dialog.PersonalizationDialogService;
 import dev.che1s.craftenginerecipe.dialog.SearchDialogService;
+import dev.che1s.craftenginerecipe.dialog.UnappliedCategoryDialogService;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSessionStore;
 import dev.che1s.craftenginerecipe.integration.common.PluginFingerprints;
@@ -55,13 +58,16 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private LanguageManager language;
     private CraftEngineData data;
     private RecipeIndex recipeIndex;
+    private WorkstationConfig workstationConfig;
     private ExternalRecipeService externalRecipes;
     private MenuPackManager menuPacks;
     private BrowserService browserService;
     private GuiSessionStore sessions;
     private PlayerPreferences playerPreferences;
     private PersonalizationDialogService personalizationDialog;
+    private UnappliedCategoryDialogService unappliedCategoryDialog;
     private final Map<String, CerConfig> menuConfigs = new LinkedHashMap<>();
+    private final Map<String, Map<MenuView, CerConfig>> menuViewConfigs = new LinkedHashMap<>();
     private final Map<String, BrowserService> menuBrowsers = new LinkedHashMap<>();
     private SearchDialogService dialogService;
     private MetricsService metrics;
@@ -91,6 +97,8 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.playerPreferences = new PlayerPreferences(this.getDataFolder().toPath(), this.getLogger());
         this.reloadPlayerPreferences();
         this.saveExampleFile();
+        this.workstationConfig = new WorkstationConfig(this.getDataFolder().toPath(), this.getLogger());
+        this.workstationConfig.load();
         this.data = new CraftEngineData(this);
         this.externalRecipes = new ExternalRecipeService(this);
         CompatibilityWarnings.install(this.getLogger(), this.language, this.data::generation);
@@ -99,6 +107,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.data.attachListener();
         this.dialogService = new SearchDialogService(this);
         this.personalizationDialog = new PersonalizationDialogService(this);
+        this.unappliedCategoryDialog = new UnappliedCategoryDialogService(this);
         this.externalRecipes.start();
         this.debug = new DebugService(this);
         this.debug.registerGauge("menu.viewers", this::viewerCount);
@@ -127,8 +136,9 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private void installResourcePacks() {
         Path localRoot = this.getDataFolder().toPath().resolve(ResourcePackInstaller.RESOURCES_DIRECTORY);
         try {
-            populateBundled(localRoot, ResourcePackInstaller.FD_PACK_DIRECTORY);
-            populateBundled(localRoot, ResourcePackInstaller.GUI_PACK_DIRECTORY);
+            for (String pack : ResourcePackInstaller.REQUIRED_GUI_PACKS) {
+                populateBundled(localRoot, pack);
+            }
             for (String menuPack : ResourcePackInstaller.bundledMenuPacks(this.jarPath())) {
                 populateBundled(localRoot, menuPack);
             }
@@ -140,9 +150,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     private void replenishResourcePacks() {
         Path localRoot = this.getDataFolder().toPath().resolve(ResourcePackInstaller.RESOURCES_DIRECTORY);
-        List<String> packs = new ArrayList<>();
-        packs.add(ResourcePackInstaller.GUI_PACK_DIRECTORY);
-        packs.add(ResourcePackInstaller.FD_PACK_DIRECTORY);
+        List<String> packs = new ArrayList<>(ResourcePackInstaller.REQUIRED_GUI_PACKS);
         try {
             packs.addAll(ResourcePackInstaller.bundledMenuPacks(this.jarPath()));
         } catch (IOException error) {
@@ -171,13 +179,26 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     }
 
     private void saveExampleFile() {
-        File categories = new File(this.getDataFolder(), "categories.yml");
-        if (!categories.exists()) {
-            this.saveResource("categories.yml", false);
+        Path navigation = this.getDataFolder().toPath().resolve("navigation");
+        try {
+            Files.createDirectories(navigation);
+            Files.createDirectories(navigation.resolve("examples"));
+        } catch (IOException error) {
+            this.getLogger().warning(this.language.text("logs.config-update-failed", "error", error.getMessage()));
         }
-        File example = new File(this.getDataFolder(), "categories-example.yml");
+        File categories = navigation.resolve("categories.yml").toFile();
+        File legacyCategories = new File(this.getDataFolder(), "categories.yml");
+        if (!categories.exists() && !legacyCategories.exists()) {
+            this.saveResource("navigation/categories.yml", false);
+        }
+        File example = navigation.resolve("examples/categories.yml").toFile();
         if (!example.exists()) {
-            this.saveResource("categories-example.yml", false);
+            this.saveResource("navigation/examples/categories.yml", false);
+        }
+        File workstations = navigation.resolve("workstations.yml").toFile();
+        File legacyWorkstations = new File(this.getDataFolder(), "workstations.yml");
+        if (!workstations.exists() && !legacyWorkstations.exists()) {
+            this.saveResource("navigation/workstations.yml", false);
         }
         Path recipes = this.getDataFolder().toPath().resolve("recipes");
         Path recipeExample = recipes.resolve("example.yml");
@@ -237,6 +258,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     /** 仅在所有查看者都关闭旧菜单后，于全局调度器调用。 */
     public void reloadSettings() {
         this.shutdownBrowsers();
+        if (this.workstationConfig != null) this.workstationConfig.load();
         this.loadMenuConfigs();
         this.reloadPlayerPreferences();
         this.createBrowsers();
@@ -272,6 +294,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public RecipeIndex recipeIndex() {
         return this.recipeIndex;
+    }
+
+    public WorkstationConfig workstationConfig() {
+        return this.workstationConfig;
     }
 
     public ExternalRecipeService externalRecipes() { return this.externalRecipes; }
@@ -328,26 +354,42 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     }
 
     private void loadMenuConfigs() {
-        Map<String, CerConfig> configs = new LinkedHashMap<>();
+        Map<String, CerConfig> defaults = new LinkedHashMap<>();
+        Map<String, Map<MenuView, CerConfig>> viewConfigs = new LinkedHashMap<>();
+        boolean sharedSettingsLoaded = false;
         for (String pack : this.menuPacks.enabled()) {
             try {
-                CerConfig menuConfig = new CerConfig(this, pack);
-                menuConfig.load();
-                configs.put(pack, menuConfig);
+                Map<MenuView, CerConfig> views = new java.util.EnumMap<>(MenuView.class);
+                for (MenuView view : MenuView.values()) {
+                    CerConfig menuConfig = new CerConfig(this, pack, view);
+                    menuConfig.load(!sharedSettingsLoaded);
+                    sharedSettingsLoaded = true;
+                    views.put(view, menuConfig);
+                }
+                defaults.put(pack, views.get(MenuView.NAMESPACES));
+                viewConfigs.put(pack, Map.copyOf(views));
             } catch (RuntimeException | LinkageError error) {
                 this.getLogger().warning("Cannot load menu pack " + pack + ": " + error.getMessage());
             }
         }
-        if (configs.isEmpty()) {
-            CerConfig fallback = new CerConfig(this, ResourcePackInstaller.MENU_CUTE_DIRECTORY);
-            fallback.load();
-            configs.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY, fallback);
+        if (defaults.isEmpty()) {
+            Map<MenuView, CerConfig> views = new java.util.EnumMap<>(MenuView.class);
+            for (MenuView view : MenuView.values()) {
+                CerConfig fallback = new CerConfig(this, ResourcePackInstaller.MENU_CUTE_DIRECTORY, view);
+                fallback.load(!sharedSettingsLoaded);
+                sharedSettingsLoaded = true;
+                views.put(view, fallback);
+            }
+            defaults.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY, views.get(MenuView.NAMESPACES));
+            viewConfigs.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY, Map.copyOf(views));
         }
         this.menuConfigs.clear();
-        this.menuConfigs.putAll(configs);
+        this.menuConfigs.putAll(defaults);
+        this.menuViewConfigs.clear();
+        this.menuViewConfigs.putAll(viewConfigs);
         String defaultPack = this.menuPacks.defaultPack();
-        if (!configs.containsKey(defaultPack)) defaultPack = configs.keySet().iterator().next();
-        this.config = configs.get(defaultPack);
+        if (!defaults.containsKey(defaultPack)) defaultPack = defaults.keySet().iterator().next();
+        this.config = defaults.get(defaultPack);
     }
 
     private void reloadPlayerPreferences() {
@@ -360,15 +402,16 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         Map<String, BrowserService> browsers = new LinkedHashMap<>();
         for (var entry : this.menuConfigs.entrySet()) {
             try {
-                browsers.put(entry.getKey(), new BrowserService(this, entry.getValue(), this.data, this.recipeIndex));
+                browsers.put(entry.getKey(), new BrowserService(this,
+                        this.menuViewConfigs.get(entry.getKey()), this.data, this.recipeIndex));
             } catch (RuntimeException | LinkageError error) {
                 this.getLogger().warning("Cannot create menu browser " + entry.getKey() + ": " + error.getMessage());
             }
         }
         if (browsers.isEmpty()) {
-            CerConfig fallback = this.menuConfigs.values().iterator().next();
+            Map<MenuView, CerConfig> fallbackViews = this.menuViewConfigs.values().iterator().next();
             browsers.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY,
-                    new BrowserService(this, fallback, this.data, this.recipeIndex));
+                    new BrowserService(this, fallbackViews, this.data, this.recipeIndex));
         }
         String defaultPack = this.menuPacks.defaultPack();
         if (!browsers.containsKey(defaultPack)) defaultPack = browsers.keySet().iterator().next();
@@ -382,6 +425,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         for (BrowserService browser : this.menuBrowsers.values()) browser.shutdown();
         this.menuBrowsers.clear();
         this.menuConfigs.clear();
+        this.menuViewConfigs.clear();
         this.browserService = null;
         this.config = null;
     }
@@ -392,6 +436,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public PersonalizationDialogService personalizationDialog() {
         return this.personalizationDialog;
+    }
+
+    public UnappliedCategoryDialogService unappliedCategoryDialog() {
+        return this.unappliedCategoryDialog;
     }
 
     private void notifyAdminsIndexBuildStarted() {

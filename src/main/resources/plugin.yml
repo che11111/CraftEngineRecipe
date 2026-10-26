@@ -10,9 +10,9 @@ folia-supported: true
 commands:
   cer:
     description: Open the CraftEngineRecipe recipe browser
-    usage: /cer [open <menu>|search|hand|target|export <source|all>|reload|unapplied|menu|debug]
+    usage: /cer [open <menu>|search|hand|target|export <source|all>|reload|manage|unapplied|menu|debug]
     aliases: [ cg, browser ]
 permissions:
   craftenginerecipe.admin:
-    description: 查看管理分类及执行管理命令 / View admin categories and use /cer unapplied, reload and debug
+    description: 分类管理、未应用分类浏览及管理员命令 / Category management, unapplied-category browsing and admin commands
     default: op

@@ -32,7 +32,7 @@ public final class BrowserVisibility implements RecipeAccessPolicy {
     private final Map<RecipeEntry, Boolean> allowed = new IdentityHashMap<>();
     private Set<Key> applied;
     private Set<Key> workstationApplied;
-    private Set<Key> additional;
+    private Set<Key> external;
 
     BrowserVisibility(CraftEngineRecipePlugin plugin, CraftEngineData data, BrowserService browser, Player player) {
         this.plugin = plugin;
@@ -130,12 +130,8 @@ public final class BrowserVisibility implements RecipeAccessPolicy {
         });
     }
 
-    boolean hasAdditional() {
-        return this.snapshot.entries().stream().anyMatch(this::canView);
-    }
-
-    Set<Key> additionalItems() {
-        if (this.additional != null) return this.additional;
+    Set<Key> externalItems() {
+        if (this.external != null) return this.external;
         Set<Key> visible = new LinkedHashSet<>();
         for (RecipeEntry entry : this.snapshot.entries()) {
             if (!this.canView(entry)) continue;
@@ -150,7 +146,7 @@ public final class BrowserVisibility implements RecipeAccessPolicy {
                 }
             }
         }
-        return this.additional = java.util.Collections.unmodifiableSet(visible);
+        return this.external = java.util.Collections.unmodifiableSet(visible);
     }
 
     private boolean nativeItemVisible(Key id, Set<Key> visible) {

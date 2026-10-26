@@ -42,10 +42,12 @@
 
 - 自带清晰易用的 UI 画面，资源会**自动安装**到 CraftEngine 资源包目录。
 - 两种分类逻辑页面：**按命名空间分类** 与 **按合成器分类**。
+- 合成器按钮顺序可在 `navigation/workstations.yml` 中独立配置；支持混排自定义按钮，新发现的合成器会自动追加。
 - 菜单中的物品，左键查看其**配方**、右键查看可**参与配方**。
 - **自定义**分类顺序、可见权限、隐藏规则，自定义菜单**按钮**。
 - 自定义按钮可执行任意指令，以前往其他页面。
 - 按物品 ID、名称、翻译键、中文拼音或首字母搜索。
+- 右键“搜索物品”按钮可列出当前背包材料足以完成的配方产物；再次右键或按 ESC 返回普通浏览。
 - 内置原版中文名称索引，可直接搜索“小麦”“木剑”等；配方文件监听不会持续占用主线程。
 - 支持 TrMenu 风格的自定义配方文件；农夫乐事、农夫乐事煎锅、森罗物语和 CustomCrops 种植盆配方首次自动导出到 `recipes/`，之后统一从文件加载。
 - CE 固定产物配方首次导出到 `recipes/craftengine/`，之后只读取文件；原版配方、原版栽培、CE 栽培及各集成栽培数据均有独立开关。
@@ -68,7 +70,7 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 3. 等待数据就绪，管理员执行 `/cer unapplied` 预览待应用分类。
 
-4. 将 `plugins/CraftEngineRecipe/categories-unapplied.yml` 中需要的命名空间条目复制到 `categories.yml` 的 `entries` 下，例如：
+4. 将 `plugins/CraftEngineRecipe/navigation/categories-unapplied.yml` 中需要的命名空间条目复制到 `navigation/categories.yml` 的 `entries` 下，例如：
 
    ```yaml
    entries:
@@ -89,6 +91,33 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 首次正式菜单为空时，请先完成分类应用。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
 
+## 配置目录
+
+```text
+plugins/CraftEngineRecipe/
+├── config.yml
+├── navigation/
+│   ├── categories.yml
+│   ├── categories-unapplied.yml
+│   ├── workstations.yml
+│   └── examples/
+│       └── categories.yml
+├── lang/
+├── recipes/
+└── resources/
+```
+
+每个 `cer_menu_*` 菜单包通过 `menu/` 下的完整布局文件声明它负责的页面。文件名任意，代码只读取文件中的 `pages` 声明，不使用继承或合并：
+
+```text
+cer_menu_cute/
+├── menu/
+│   ├── browse.yml
+│   └── utility.yml
+├── configuration/gui.yml
+└── resourcepack/
+```
+
 ## 常用命令
 
 | 命令 | 用途 |
@@ -98,7 +127,8 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 | `/cer hand` | 查看主手原版或 CE 物品的合成配方，遵循已配置的分类限制 |
 | `/cer target` | 查看准星所指原版或 CE 方块的合成配方，遵循已配置的分类限制 |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | 重新获取对应来源并替换 `recipes/` 下的数据（管理员） |
-| `/cer unapplied` | 预览待应用分类（管理员） |
+| `/cer manage` | 打开分类管理：查看已应用/未应用命名空间并编辑未应用条目（管理员） |
+| `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面（管理员） |
 | `/cer reload` | 手动重载配置与索引（管理员；配方文件修改会自动加载） |
 | `/cer open <包名>` | 使用指定且已启用的 UI 样式打开菜单 |
 | `/cer menu` | 查看默认、已启用和全部可用样式（管理员） |

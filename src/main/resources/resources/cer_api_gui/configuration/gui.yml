@@ -1,0 +1,6 @@
+images:
+  cer_api_gui:default_recipe_gui:
+    file: cer_api_gui:gui/default_recipe_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui

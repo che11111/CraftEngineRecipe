@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import dev.che1s.craftenginerecipe.api.RecipeItem;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import org.bukkit.entity.Player;
@@ -70,6 +71,35 @@ public final class RecipeIndex {
     }
 
     public List<RecipeWorkstation> workstations(Player player) {
+        Map<String, RecipeWorkstation> available = this.availableWorkstations();
+        this.plugin.workstationConfig().sync(available.keySet());
+        Set<String> nativeIds = new java.util.LinkedHashSet<>();
+        Map<String, RecipeWorkstation> stations = new LinkedHashMap<>();
+        String[] icons = {"crafting_table", "furnace", "blast_furnace", "smoker", "campfire", "stonecutter", "smithing_table", "brewing_stand"};
+        RecipeType[] types = {RecipeType.CRAFTING, RecipeType.SMELTING, RecipeType.BLASTING, RecipeType.SMOKING,
+                RecipeType.CAMPFIRE_COOKING, RecipeType.STONECUTTING, RecipeType.SMITHING, RecipeType.BREWING};
+        for (int i = 0; i < types.length; i++) {
+            String id = stationId(types[i]);
+            nativeIds.add(id);
+            stations.put(id, new RecipeWorkstation(id, RecipeItem.of("minecraft:" + icons[i]),
+                    this.plugin.lang().text("ui.workstations.categories." + types[i].name().toLowerCase(Locale.ROOT))));
+        }
+        var snapshot = this.plugin.externalRecipes().snapshot();
+        var policy = this.plugin.browser(player).recipeVisibility(player);
+        available.forEach((id, definition) -> {
+            if (nativeIds.contains(id) || snapshot.stations().getOrDefault(id, List.of()).stream().anyMatch(policy)) {
+                stations.putIfAbsent(id, definition);
+            }
+        });
+        return this.plugin.workstationConfig().sort(stations.values());
+    }
+
+    /** 在配方快照刷新后同步 workstations.yml，不依赖某个玩家是否已打开页面。 */
+    public int syncWorkstations() {
+        return this.plugin.workstationConfig().sync(this.availableWorkstations().keySet());
+    }
+
+    private Map<String, RecipeWorkstation> availableWorkstations() {
         Map<String, RecipeWorkstation> stations = new LinkedHashMap<>();
         String[] icons = {"crafting_table", "furnace", "blast_furnace", "smoker", "campfire", "stonecutter", "smithing_table", "brewing_stand"};
         RecipeType[] types = {RecipeType.CRAFTING, RecipeType.SMELTING, RecipeType.BLASTING, RecipeType.SMOKING,
@@ -79,14 +109,8 @@ public final class RecipeIndex {
             stations.put(id, new RecipeWorkstation(id, RecipeItem.of("minecraft:" + icons[i]),
                     this.plugin.lang().text("ui.workstations.categories." + types[i].name().toLowerCase(Locale.ROOT))));
         }
-        var snapshot = this.plugin.externalRecipes().snapshot();
-        var policy = this.plugin.browser(player).recipeVisibility(player);
-        snapshot.workstations().forEach((id, definition) -> {
-            if (snapshot.stations().get(id).stream().anyMatch(policy)) {
-                stations.putIfAbsent(id, definition);
-            }
-        });
-        return List.copyOf(stations.values());
+        this.plugin.externalRecipes().snapshot().workstations().forEach(stations::putIfAbsent);
+        return stations;
     }
 
     public static String stationId(RecipeType type) { return "minecraft:" + type.name().toLowerCase(Locale.ROOT); }

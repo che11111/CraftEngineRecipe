@@ -53,7 +53,24 @@ final class BrowserActionItems {
     }
 
     Item searchItem(Consumer<Player> action) {
-        return this.shortcutItem(this.config.search(), action);
+        CerConfig.ButtonDef def = this.config.search();
+        // 条目会绑定当前查看者，因此按钮文本在点击时按实时模式更新。
+        return Item.builder().setItemProvider(player -> {
+            GuiSession current = GuiSession.of(player);
+            List<Component> currentLore = new ArrayList<>(this.buttonLore(def));
+            currentLore.add(this.plugin.lang().component(current.craftableMode()
+                    ? "ui.content.search.exit-craftable-lore"
+                    : "ui.content.search.craftable-lore"));
+            return new ItemWrapper(ItemBridge.icon(def.itemModel(), def.material(),
+                    this.config.mm(def.name()), currentLore));
+        }).addClickHandler(click -> this.browser.handleClick(click.player(), () -> {
+            ClickType type = click.clickType();
+            if (type == ClickType.RIGHT || type == ClickType.SHIFT_RIGHT) {
+                this.browser.toggleCraftableView(click.player());
+            } else {
+                action.accept(click.player());
+            }
+        })).build();
     }
 
     Item shortcutItem(CerConfig.ButtonDef def, Consumer<Player> action) {

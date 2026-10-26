@@ -1,6 +1,9 @@
 package dev.che1s.craftenginerecipe.gui;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
+import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
+import dev.che1s.craftenginerecipe.config.WorkstationConfig;
+import dev.che1s.craftenginerecipe.config.MenuView;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.config.CerConfig;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
@@ -97,12 +100,15 @@ final class WorkstationBrowserService {
             String[] structure = BrowserLayout.workstations(this.config);
             List<Integer> categorySlots = BrowserLayout.slotsOf(structure, this.config.categoryIconChar());
             PagedGui.Builder<Item> builder = this.browser.contentBuilder(content, structure,
-                    this.backItem(), this.browser.searchItem(viewer -> this.plugin.searchDialog().open(viewer,
+                    this.backItem(), this.browser.searchItem(MenuView.WORKSTATIONS,
+                            viewer -> this.plugin.searchDialog().open(viewer,
                             query -> this.browser.openItemList(viewer, null, query, 0, query),
-                            () -> this.reopen(viewer))));
+                            () -> this.reopen(viewer))), MenuView.WORKSTATIONS);
             builder.addIngredient(this.config.categoryIconChar(), Item.EMPTY);
-            this.browser.bind(builder, this.config.prevCategory(), this.categoryNavItem(false, type, categorySlots));
-            this.browser.bind(builder, this.config.nextCategory(), this.categoryNavItem(true, type, categorySlots));
+            this.browser.bind(builder, this.config, this.config.prevCategory(),
+                    this.categoryNavItem(false, type, categorySlots));
+            this.browser.bind(builder, this.config, this.config.nextCategory(),
+                    this.categoryNavItem(true, type, categorySlots));
             builder.addPageChangeHandler((previous, current) -> session.workstationPage(current));
             builder.addModifier(gui -> this.fillCategoryBar(gui, player, type, categorySlots));
             PagedGui<Item> gui = builder.build();
@@ -130,15 +136,54 @@ final class WorkstationBrowserService {
     }
 
     private void fillCategoryBar(Gui gui, Player player, String type, List<Integer> slots) {
-        List<RecipeWorkstation> stations = this.recipes.workstations(player);
+        List<WorkstationBarEntry> entries = this.barEntries(player);
         GuiSession session = GuiSession.of(player);
-        int offset = BrowserLayout.categoryOffset(session.workstationCategoryOffset(), stations.size(), slots.size());
+        int offset = BrowserLayout.categoryOffset(session.workstationCategoryOffset(), entries.size(), slots.size());
         session.workstationCategoryOffset(offset);
         for (int index = 0; index < slots.size(); index++) {
-            int stationIndex = offset + index;
-            gui.setSlotElement(slots.get(index), stationIndex < stations.size()
-                    ? new SlotElement.Item(this.stationItem(stations.get(stationIndex), type, player)) : null);
+            int entryIndex = offset + index;
+            if (entryIndex >= entries.size()) {
+                gui.setSlotElement(slots.get(index), null);
+                continue;
+            }
+            WorkstationBarEntry entry = entries.get(entryIndex);
+            if (entry instanceof StationBarEntry station) {
+                gui.setSlotElement(slots.get(index), new SlotElement.Item(
+                        this.stationItem(station.station(), type, player)));
+            } else if (entry instanceof ButtonBarEntry button) {
+                if (!this.data.namespaces().canViewButton(player, button.button())) {
+                    gui.setSlotElement(slots.get(index), null);
+                    continue;
+                }
+                gui.setSlotElement(slots.get(index), new SlotElement.Item(
+                        this.browser.buttonEntryItem(player, button.button())));
+            }
         }
+    }
+
+    private List<WorkstationBarEntry> barEntries(Player player) {
+        Map<String, RecipeWorkstation> stations = new LinkedHashMap<>();
+        for (RecipeWorkstation station : this.recipes.workstations(player)) {
+            stations.put(station.id(), station);
+        }
+        Set<String> consumed = new java.util.LinkedHashSet<>();
+        List<WorkstationBarEntry> entries = new java.util.ArrayList<>();
+        for (WorkstationConfig.Entry entry : this.plugin.workstationConfig().entries()) {
+            if (entry instanceof WorkstationConfig.StationEntry station) {
+                RecipeWorkstation definition = stations.get(station.id());
+                if (definition == null || !consumed.add(station.id())) continue;
+                entries.add(new StationBarEntry(definition));
+            } else if (entry instanceof WorkstationConfig.ButtonEntry button) {
+                CategoryNamespaces.ButtonEntry definition = button.button();
+                if (definition.hideInaccessible()
+                        && !this.data.namespaces().canViewButton(player, definition)) continue;
+                entries.add(new ButtonBarEntry(definition));
+            }
+        }
+        stations.forEach((id, station) -> {
+            if (consumed.add(id)) entries.add(new StationBarEntry(station));
+        });
+        return List.copyOf(entries);
     }
 
     private Item stationItem(RecipeWorkstation station, String active, Player player) {
@@ -172,9 +217,9 @@ final class WorkstationBrowserService {
                 def.lore().stream().map(this.config::mm).toList());
         return BoundItem.pagedBuilder().setItemProvider(icon).addClickHandler((item, gui, click) -> this.browser.handleClick(click.player(), () -> {
             GuiSession session = GuiSession.of(click.player());
-            List<RecipeWorkstation> stations = this.recipes.workstations(click.player());
+            List<WorkstationBarEntry> entries = this.barEntries(click.player());
             int current = session.workstationCategoryOffset();
-            int target = BrowserLayout.categoryOffset(current + (next ? 1 : -1), stations.size(), slots.size());
+            int target = BrowserLayout.categoryOffset(current + (next ? 1 : -1), entries.size(), slots.size());
             if (target == current) {
                 Sounds.play(click.player(), this.config.sounds().queryFailure());
                 return;
@@ -200,5 +245,14 @@ final class WorkstationBrowserService {
     private String name(String id, Player player) {
         return this.recipes.workstations(player).stream().filter(station -> station.id().equals(id))
                 .map(station -> station.name() == null ? station.id() : station.name()).findFirst().orElse(id);
+    }
+
+    private sealed interface WorkstationBarEntry permits StationBarEntry, ButtonBarEntry {
+    }
+
+    private record StationBarEntry(RecipeWorkstation station) implements WorkstationBarEntry {
+    }
+
+    private record ButtonBarEntry(CategoryNamespaces.ButtonEntry button) implements WorkstationBarEntry {
     }
 }

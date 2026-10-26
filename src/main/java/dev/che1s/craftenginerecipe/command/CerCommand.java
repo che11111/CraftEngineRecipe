@@ -172,6 +172,14 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(this.plugin.lang().message("messages.data-not-ready", "reason", this.plugin.data().notReadyReason()));
             return true;
         }
+        if (args.length > 0 && args[0].equalsIgnoreCase("manage")) {
+            if (!player.hasPermission("craftenginerecipe.admin")) {
+                player.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                return true;
+            }
+            this.plugin.browser(player).openNamespaceManager(player);
+            return true;
+        }
         if (args.length > 0 && args[0].equalsIgnoreCase("unapplied")) {
             if (!player.hasPermission("craftenginerecipe.admin")) {
                 player.sendMessage(this.plugin.lang().message("messages.no-permission"));
@@ -213,6 +221,9 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "unapplied".startsWith(prefix)) {
                 out.add("unapplied");
+            }
+            if (sender.hasPermission("craftenginerecipe.admin") && "manage".startsWith(prefix)) {
+                out.add("manage");
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "debug".startsWith(prefix)) out.add("debug");
             if (sender.hasPermission("craftenginerecipe.admin") && "menu".startsWith(prefix)) out.add("menu");

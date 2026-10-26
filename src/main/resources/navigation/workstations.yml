@@ -1,0 +1,17 @@
+# “按合成器浏览”页面的有序条目 / Ordered workstation browser entries
+# 合成器条目使用 id；自定义按钮使用 display + actions，可与合成器混排。
+# Workstation entries use id; custom buttons use display + actions and can be mixed with workstations.
+# 自定义按钮支持 visibility、permission、hide-inaccessible 和 actions。
+# Custom buttons support visibility, permission, hide-inaccessible and actions.
+# 新发现的合成器会自动追加到末尾，不会覆盖此处已有顺序。
+# Newly discovered workstations are appended without replacing the order configured here.
+entries:
+- id: minecraft:crafting
+- id: minecraft:smelting
+- id: minecraft:blasting
+- id: minecraft:smoking
+- id: minecraft:campfire_cooking
+- id: minecraft:stonecutting
+- id: minecraft:smithing
+- id: minecraft:brewing
+- id: minecraft:cultivation

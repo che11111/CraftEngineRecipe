@@ -1,0 +1,6 @@
+images:
+  cer_ccrops_gui:customcrops_gui:
+    file: cer_ccrops_gui:gui/customcrops_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui

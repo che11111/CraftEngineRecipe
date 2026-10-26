@@ -2,6 +2,7 @@ package dev.che1s.craftenginerecipe.gui;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.config.CerConfig;
+import dev.che1s.craftenginerecipe.config.MenuView;
 import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
 import dev.che1s.craftenginerecipe.category.CategoryItems;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
@@ -9,6 +10,7 @@ import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
 import dev.che1s.craftenginerecipe.recipe.RecipeEntry;
 import dev.che1s.craftenginerecipe.recipe.ExternalRecipeSnapshot;
 import dev.che1s.craftenginerecipe.recipe.access.RecipeAccessPolicy;
+import dev.che1s.craftenginerecipe.recipe.query.CraftableRecipeService;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.util.ButtonActions;
 import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
@@ -54,7 +56,6 @@ import java.util.LinkedHashSet;
 import java.util.function.Predicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import java.util.function.Consumer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,9 +63,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BrowserService {
 
     private static final char EMPTY_CHAR = '#';
+    static final char CONTENT_BLANK_CHAR = '\u0001';
 
     private final CraftEngineRecipePlugin plugin;
+    private final Map<MenuView, CerConfig> configs;
     private final CerConfig config;
+    private final Map<MenuView, BrowserActionItems> viewActionItems;
     private final CraftEngineData data;
     private final RecipeIndex recipeIndex;
     private final RecipeGuiService recipeGui;
@@ -74,6 +78,7 @@ public final class BrowserService {
     private final MenuLifecycle lifecycle = new MenuLifecycle();
     private final MenuActionGate<UUID> actions = new MenuActionGate<>();
     private final Map<UUID, Player> viewers = new ConcurrentHashMap<>();
+    private final Map<UUID, GuiSession.Snapshot> craftableReturnViews = new ConcurrentHashMap<>();
     private final Object viewerLock = new Object();
 
     /** 同时登记正在构建的窗口，避免重载在构建途中改变配置。 */
@@ -85,15 +90,52 @@ public final class BrowserService {
         }
     }
 
-    public BrowserService(CraftEngineRecipePlugin plugin, CerConfig config, CraftEngineData data, RecipeIndex recipeIndex) {
+    public BrowserService(CraftEngineRecipePlugin plugin, Map<MenuView, CerConfig> configs,
+                          CraftEngineData data, RecipeIndex recipeIndex) {
         this.plugin = plugin;
-        this.config = config;
+        this.configs = Map.copyOf(configs);
+        this.config = this.configs.getOrDefault(MenuView.NAMESPACES, this.configs.values().iterator().next());
         this.data = data;
         this.recipeIndex = recipeIndex;
         this.sessions = plugin.sessions();
-        this.recipeGui = new RecipeGuiService(plugin, config, data, recipeIndex, this);
-        this.workstations = new WorkstationBrowserService(plugin, this, config, data, recipeIndex, this.recipeGui);
-        this.actionItems = new BrowserActionItems(plugin, config, this);
+        this.recipeGui = new RecipeGuiService(plugin, this.config, data, recipeIndex, this);
+        this.workstations = new WorkstationBrowserService(plugin, this,
+                this.configs.getOrDefault(MenuView.WORKSTATIONS, this.config), data, recipeIndex, this.recipeGui);
+        Map<MenuView, BrowserActionItems> actions = new java.util.EnumMap<>(MenuView.class);
+        this.configs.forEach((view, viewConfig) ->
+                actions.put(view, new BrowserActionItems(plugin, viewConfig, this)));
+        this.viewActionItems = Map.copyOf(actions);
+        this.actionItems = this.viewActionItems.getOrDefault(MenuView.NAMESPACES,
+                new BrowserActionItems(plugin, this.config, this));
+    }
+
+    private CerConfig ui(MenuView view) {
+        return this.configs.getOrDefault(view, this.config);
+    }
+
+    private BrowserActionItems actions(MenuView view) {
+        return this.viewActionItems.getOrDefault(view, this.actionItems);
+    }
+
+    Item searchItem(MenuView view, java.util.function.Consumer<Player> action) {
+        return this.actions(view).searchItem(action);
+    }
+
+    private MenuView browserView(Player player) {
+        return GuiSession.of(player).unapplied() ? MenuView.UNAPPLIED : MenuView.NAMESPACES;
+    }
+
+    private MenuView currentView(Player player) {
+        GuiSession session = GuiSession.of(player);
+        if (session.managerMode()) return MenuView.MANAGEMENT;
+        if (session.craftableMode()) return MenuView.CRAFTABLE;
+        if (session.workstationId() != null) return MenuView.WORKSTATIONS;
+        if (session.unapplied()) return MenuView.UNAPPLIED;
+        return MenuView.NAMESPACES;
+    }
+
+    private CerConfig currentUi(Player player) {
+        return this.ui(this.currentView(player));
     }
 
     public int viewerCount() { return this.viewers.size(); }
@@ -127,9 +169,12 @@ public final class BrowserService {
     }
 
     public void openDefault(Player player) {
+        this.clearCraftableMode(player);
         if (!this.claim(player)) return;
-        GuiSession.of(player).leaveWorkstations();
-        for (BarEntry entry : this.barEntries(player, false)) {
+        GuiSession session = GuiSession.of(player);
+        session.managerMode(false);
+        session.leaveWorkstations();
+        for (BarEntry entry : this.barEntries(player)) {
             if (entry instanceof VanillaItemsEntry && this.data.namespaces().canView(player, "minecraft")) {
                 this.openVanillaItems(player);
                 return;
@@ -144,8 +189,7 @@ public final class BrowserService {
             if (this.data.categoriesById().isEmpty()) {
                 this.openItemList(player, null, this.plugin.lang().text("ui.common.all-items"), 0, null);
             } else {
-                if (this.hasAdditionalRecipes(player)) this.openAdditionalRecipes(player);
-                else this.openEmptyContent(player);
+                this.openEmptyContent(player);
             }
             return;
         }
@@ -153,14 +197,136 @@ public final class BrowserService {
     }
 
     public void openApplied(Player player) {
-        GuiSession.of(player).unapplied(false);
+        GuiSession session = GuiSession.of(player);
+        session.unapplied(false);
+        session.craftableMode(false);
+        this.craftableReturnViews.remove(player.getUniqueId());
         if (this.rememberLastPage(player) && this.openRemembered(player)) return;
         this.openEntry(player);
     }
 
     public void openUnapplied(Player player) {
-        GuiSession.of(player).unapplied(true);
+        GuiSession session = GuiSession.of(player);
+        session.unapplied(true);
+        session.craftableMode(false);
+        this.craftableReturnViews.remove(player.getUniqueId());
         this.openEntry(player);
+    }
+
+    public void toggleCraftableView(Player player) {
+        GuiSession session = GuiSession.of(player);
+        if (!session.craftableMode()) {
+            // 进入临时视图前保存当前浏览位置，再次右键时原样恢复。
+            this.craftableReturnViews.put(player.getUniqueId(), session.snapshot());
+            this.openCraftableView(player);
+            return;
+        }
+        session.craftableMode(false);
+        GuiSession.Snapshot previous = this.craftableReturnViews.remove(player.getUniqueId());
+        if (previous == null || !this.openSnapshot(player, previous)) this.openDefault(player);
+    }
+
+    private void openCraftableView(Player player) {
+        if (!this.claim(player)) return;
+        CerConfig ui = this.ui(MenuView.CRAFTABLE);
+        GuiSession session = GuiSession.of(player);
+        this.craftableReturnViews.putIfAbsent(player.getUniqueId(), session.snapshot());
+        // 可合成列表不属于分类导航，统一使用空分类上下文。
+        session.enter(null, 0, null, 0);
+        session.craftableMode(true);
+        List<Key> craftable = CraftableRecipeService.find(player,
+                this.plugin.externalRecipes().snapshot(), this.visibility(player)::canView,
+                this::inventoryItemKey);
+        List<Item> content = new LazyItems<>(craftable,
+                id -> lazyItem(() -> this.itemEntry(player, id, null)));
+        if (content.isEmpty()) {
+            content = List.of(Item.simple(ItemBridge.button(ui.empty().material(),
+                    ui.mm(ui.empty().name()), this.buttonLore(ui, ui.empty()))));
+        }
+        Gui gui = this.buildContentOnlyLayout(player, content, MenuView.CRAFTABLE, this.craftableBackItem(ui));
+        this.openWindow(Window.builder().setViewer(player).setUpperGui(gui)
+                .setTitle(ui.mm(ui.browserTitle(), "category",
+                        this.plugin.lang().text("ui.craftable.name"))).build());
+    }
+
+    public void openNamespaceManager(Player player) {
+        if (!player.hasPermission("craftenginerecipe.admin") || !this.claim(player)) return;
+        CerConfig ui = this.ui(MenuView.MANAGEMENT);
+        GuiSession session = GuiSession.of(player);
+        session.enter(null, 0, null, 0);
+        session.managerMode(true);
+        Set<String> applied = new java.util.LinkedHashSet<>();
+        this.data.namespaces().entries().stream()
+                .filter(CategoryNamespaces.NamespaceEntry.class::isInstance)
+                .map(CategoryNamespaces.NamespaceEntry.class::cast)
+                .map(CategoryNamespaces.NamespaceEntry::id)
+                .forEach(applied::add);
+        LinkedHashMap<String, CategoryNamespaces.NamespaceEntry> namespaces = new LinkedHashMap<>();
+        for (CategoryNamespaces.Entry entry : this.data.namespaces().allEntries()) {
+            if (entry instanceof CategoryNamespaces.NamespaceEntry namespace) {
+                namespaces.putIfAbsent(namespace.id(), namespace);
+            }
+        }
+        List<Item> content = namespaces.values().stream()
+                .map(entry -> this.namespaceManagerItem(player, entry, applied.contains(entry.id())))
+                .toList();
+        if (content.isEmpty()) {
+            content = List.of(Item.simple(ItemBridge.button(ui.empty().material(),
+                    ui.mm(ui.empty().name()), this.buttonLore(ui, ui.empty()))));
+        }
+        Gui gui = this.buildContentOnlyLayout(player, content, MenuView.MANAGEMENT, this.backItem(MenuView.MANAGEMENT));
+        this.openWindow(Window.builder().setViewer(player)
+                .setUpperGui(gui)
+                .setTitle(ui.mm(ui.browserTitle(), "category",
+                        this.plugin.lang().text("ui.management.name"))).build());
+    }
+
+    private Item namespaceManagerItem(Player player, CategoryNamespaces.NamespaceEntry entry, boolean applied) {
+        CerConfig ui = this.currentUi(player);
+        Category category = this.allTopCategories().stream()
+                .filter(candidate -> candidate.id().namespace().equals(entry.id()))
+                .findFirst().orElse(null);
+        ItemStack stack;
+        try {
+            stack = category == null
+                    ? new ItemStack(Material.COMPASS)
+                    : ItemBridge.build(category.icon(), player);
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("Browser.namespaceManagerItem", error);
+            stack = new ItemStack(Material.COMPASS);
+        }
+        String name = this.plugin.lang().text("ui.management.entry-name", "namespace", entry.id());
+        List<Component> lore = new ArrayList<>();
+        lore.add(this.plugin.lang().component(applied
+                ? "ui.management.applied-lore" : "ui.management.unapplied-lore"));
+        if (!entry.categoryEntry()) lore.add(this.plugin.lang().component("ui.management.no-category-button-lore"));
+        ItemStack decorated = new ItemBuilder(stack)
+                .setName(ui.mm(name))
+                .setLore(lore)
+                .setGlint(applied ? Boolean.TRUE : null)
+                .build();
+        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
+            Player viewer = click.player();
+            boolean edit = click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT;
+            if (edit) {
+                if (!applied && this.plugin.unappliedCategoryDialog() != null
+                        && this.plugin.unappliedCategoryDialog().open(viewer, entry.id())) {
+                    Sounds.play(viewer, ui.sounds().click());
+                } else if (applied) {
+                    viewer.sendMessage(this.plugin.lang().message("messages.management-applied-readonly"));
+                    Sounds.play(viewer, ui.sounds().queryFailure());
+                }
+                return;
+            }
+            if (category == null) {
+                viewer.sendMessage(this.plugin.lang().message("messages.management-no-category-page",
+                        "namespace", entry.id()));
+                Sounds.play(viewer, ui.sounds().queryFailure());
+                return;
+            }
+            Sounds.play(viewer, ui.sounds().click());
+            this.openCategory(viewer, category.id(), 0);
+        })).build();
     }
 
     /** 查询产出主手物品的配方，绝不打开材料用途视图。 */
@@ -202,9 +368,7 @@ public final class BrowserService {
         }
         Key id;
         try {
-            id = this.externalItemId(held);
-            if (id == null) id = CraftEngineItems.getCustomItemId(held);
-            if (id == null) id = Key.of(held.getType().getKey().toString());
+            id = this.inventoryItemKey(held);
         } catch (RuntimeException | LinkageError error) {
             this.plugin.getLogger().warning(this.plugin.lang().text("logs.hand-resolve-failed", "error", error.toString()));
             player.sendMessage(this.plugin.lang().message("messages.hand-resolve-failed"));
@@ -310,10 +474,6 @@ public final class BrowserService {
             this.workstations.reopen(player);
             return true;
         }
-        if (session.externalCatalog()) {
-            this.openAdditionalRecipes(player);
-            return true;
-        }
         Key category = session.currentCategory();
         if (category != null && this.data.category(category).isPresent()
                 && !this.data.namespaces().isCategoryHidden(category.toString())
@@ -332,10 +492,11 @@ public final class BrowserService {
     public void openWindow(Window window) {
         Player player = window.getViewer();
         if (!this.claim(player)) return;
+        CerConfig ui = this.currentUi(player);
         Object token = new Object();
         window.addOpenHandler(() -> {
             if (this.lifecycle.opened(player.getUniqueId(), token)) {
-                for (var sound : this.config.sounds().openMenu()) {
+                for (var sound : ui.sounds().openMenu()) {
                     Sounds.play(player, sound.spec(), sound.defaultVolume());
                 }
             }
@@ -350,7 +511,7 @@ public final class BrowserService {
             // 用于区分内部导航与真正离开本插件菜单。
             this.plugin.tasks().playerLater(player, () -> {
                 if (this.lifecycle.closed(player.getUniqueId(), token) && player.isOnline()) {
-                    for (var sound : this.config.sounds().closeMenu()) {
+                    for (var sound : ui.sounds().closeMenu()) {
                         Sounds.play(player, sound.spec(), sound.defaultVolume());
                     }
                     if (reason == InventoryCloseEvent.Reason.PLAYER) this.rememberPlayer(player);
@@ -365,9 +526,15 @@ public final class BrowserService {
         this.actions.cancel(player.getUniqueId());
         this.lifecycle.forget(player.getUniqueId());
         this.viewers.remove(player.getUniqueId(), player);
+        this.craftableReturnViews.remove(player.getUniqueId());
     }
 
     public void rememberPlayer(Player player) {
+        if (GuiSession.of(player).craftableMode()) {
+            this.craftableReturnViews.remove(player.getUniqueId());
+            this.sessions.clear(player.getUniqueId());
+            return;
+        }
         if (!this.rememberLastPage(player)) return;
         this.sessions.remember(player.getUniqueId(), GuiSession.of(player).snapshot());
     }
@@ -390,12 +557,21 @@ public final class BrowserService {
                 : this.config.rememberLastPage();
     }
 
+    private void clearCraftableMode(Player player) {
+        // 离开临时视图时同步清理模式标记和待恢复快照，避免泄漏到下一次打开。
+        GuiSession.of(player).craftableMode(false);
+        this.craftableReturnViews.remove(player.getUniqueId());
+    }
+
     private void openEmptyContent(Player player) {
         try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
-            List<Item> content = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
-            Gui gui = this.buildLayout(player, content, null, 0, 0, false);
+            MenuView view = this.browserView(player);
+            CerConfig ui = this.ui(view);
+            List<Item> content = List.of(Item.simple(ItemBridge.button(ui.empty().material(),
+                    ui.mm(ui.empty().name()), this.buttonLore(ui, ui.empty()))));
+            Gui gui = this.buildLayout(player, content, null, 0, 0, false, view);
             this.openWindow(Window.builder().setViewer(player)
-                    .setTitle(this.config.mm(this.config.browserTitle(), "category", this.plugin.lang().text("ui.common.all-items")))
+                    .setTitle(ui.mm(ui.browserTitle(), "category", this.plugin.lang().text("ui.common.all-items")))
                     .setUpperGui(gui)
                     .build());
         }
@@ -406,6 +582,7 @@ public final class BrowserService {
     }
 
     private void openCategory(Player player, Key categoryId, int categoryPage, int contentPage) {
+        this.clearCraftableMode(player);
         try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
             if (!this.claim(player)) return;
             Category category = this.data.category(categoryId).orElse(null);
@@ -414,7 +591,7 @@ public final class BrowserService {
                 return;
             }
             if (!this.data.namespaces().canView(player, category.id().namespace())) {
-                player.sendMessage(this.accessDeniedComponent(player, category.id().namespace()));
+                player.sendMessage(this.accessDeniedComponent(player, category.id().namespace(), this.currentUi(player)));
                 return;
             }
             List<ContentEntry> entries = this.collectEntries(category, player);
@@ -423,9 +600,11 @@ public final class BrowserService {
             boolean showBack = !this.isTopLevel(categoryId);
             GuiSession session = GuiSession.of(player);
             session.enter(categoryId, categoryPage, showBack ? this.findParentOf(categoryId) : null, contentPage);
-            Gui gui = this.buildLayout(player, contentItems, categoryId, categoryPage, contentPage, showBack);
+            MenuView view = this.browserView(player);
+            CerConfig ui = this.ui(view);
+            Gui gui = this.buildLayout(player, contentItems, categoryId, categoryPage, contentPage, showBack, view);
             this.openWindow(Window.builder().setViewer(player)
-                    .setTitle(this.config.mm(this.config.browserTitle(), "category", this.plainName(category)))
+                    .setTitle(ui.mm(ui.browserTitle(), "category", this.plainName(category, ui)))
                     .setUpperGui(gui)
                     .build());
         }
@@ -437,6 +616,7 @@ public final class BrowserService {
 
     private void openItemList(Player player, Key parentCategory, String title, int categoryPage, String keyword,
                               Set<Key> restrictedItems) {
+        this.clearCraftableMode(player);
         try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
             if (!this.claim(player)) return;
             GuiSession.of(player).leaveWorkstations();
@@ -455,7 +635,7 @@ public final class BrowserService {
                 for (Key id : this.data.items().keySet()) {
                     entries.add(new ItemKeyEntry(id));
                 }
-                for (Key id : this.additionalItemIds(player)) {
+                for (Key id : this.visibility(player).externalItems()) {
                     if (!this.data.items().containsKey(id)) entries.add(new ItemKeyEntry(id));
                 }
             }
@@ -463,13 +643,18 @@ public final class BrowserService {
             List<Item> contentItems = new LazyItems<>(entries,
                     entry -> lazyItem(() -> entry.toItem(this, player, owner)));
             if (contentItems.isEmpty()) {
-                contentItems = List.of(Item.simple(ItemBridge.button(this.config.empty().material(), this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
+                MenuView view = this.browserView(player);
+                CerConfig ui = this.ui(view);
+                contentItems = List.of(Item.simple(ItemBridge.button(ui.empty().material(),
+                        ui.mm(ui.empty().name()), this.buttonLore(ui, ui.empty()))));
             }
+            MenuView view = this.browserView(player);
+            CerConfig ui = this.ui(view);
             Gui gui = this.buildLayout(player, contentItems, parentCategory,
-                    GuiSession.of(player).categoryPage(), categoryPage, parentCategory != null);
+                    GuiSession.of(player).categoryPage(), categoryPage, parentCategory != null, view);
             Component titleComponent = searching
-                    ? this.config.mmEscaped(this.config.searchResultTitle(), "keyword", keyword)
-                    : this.config.mm(this.config.browserTitle(), "category", title);
+                    ? ui.mmEscaped(ui.searchResultTitle(), "keyword", keyword)
+                    : ui.mm(ui.browserTitle(), "category", title);
             this.openWindow(Window.builder().setViewer(player)
                     .setTitle(titleComponent)
                     .setUpperGui(gui)
@@ -586,66 +771,107 @@ public final class BrowserService {
     }
 
     private Gui buildLayout(Player player, List<Item> contentItems, Key activeCategory,
-                            int categoryPage, int contentPage, boolean showBack) {
-        String[] structure = this.normalizeLayout();
-        List<Integer> catSlots = slotsOf(structure, this.config.categoryIconChar());
+                            int categoryPage, int contentPage, boolean showBack, MenuView view) {
+        CerConfig ui = this.ui(view);
+        String[] structure = this.normalizeLayout(ui);
+        List<Integer> catSlots = slotsOf(structure, ui.categoryIconChar());
         int perPage = Math.max(1, catSlots.size());
         PagedGui.Builder<Item> builder = this.contentBuilder(contentItems, structure,
-                showBack ? this.backItem() : null, this.searchItem());
-        builder.addIngredient(this.config.categoryIconChar(), Item.EMPTY);
-        this.bind(builder, this.config.prevCategory(), this.categoryNavItem(false, perPage, activeCategory));
-        this.bind(builder, this.config.nextCategory(), this.categoryNavItem(true, perPage, activeCategory));
+                showBack ? this.backItem(view) : null, view);
+        builder.addIngredient(ui.categoryIconChar(), Item.EMPTY);
+        this.bind(builder, ui, ui.prevCategory(), this.categoryNavItem(false, perPage, activeCategory, view));
+        this.bind(builder, ui, ui.nextCategory(), this.categoryNavItem(true, perPage, activeCategory, view));
         int page = categoryPage;
         Key active = activeCategory;
         List<Integer> slots = catSlots;
-        builder.addModifier(gui -> this.fillCategoryBar(gui, player, active, page, slots));
+        builder.addModifier(gui -> this.fillCategoryBar(gui, player, active, page, slots, view));
         builder.addPageChangeHandler((previous, current) -> GuiSession.of(player).contentPage(current));
         PagedGui<Item> gui = builder.build();
         gui.setPage(Math.max(0, Math.min(contentPage, gui.getPageCount() - 1)));
         return gui;
     }
 
+    private Gui buildContentOnlyLayout(Player player, List<Item> contentItems, MenuView view) {
+        return this.buildContentOnlyLayout(player, contentItems, view, null);
+    }
+
+    private Gui buildContentOnlyLayout(Player player, List<Item> contentItems, MenuView view, Item back) {
+        CerConfig ui = this.ui(view);
+        // 顶部分类和目录翻页区域清空，保持底部操作栏不变。
+        String[] structure = contentOnlyStructure(ui);
+        PagedGui.Builder<Item> builder = this.contentBuilder(contentItems, structure, back, view);
+        builder.addIngredient(CONTENT_BLANK_CHAR, Item.EMPTY);
+        builder.addPageChangeHandler((previous, current) -> GuiSession.of(player).contentPage(current));
+        PagedGui<Item> gui = builder.build();
+        gui.setPage(Math.max(0, Math.min(GuiSession.of(player).contentPage(), gui.getPageCount() - 1)));
+        return gui;
+    }
+
+    static String[] contentOnlyStructure(CerConfig ui) {
+        String[] structure = BrowserLayout.normalize(ui).clone();
+        for (int row = 0; row < structure.length; row++) {
+            StringBuilder line = new StringBuilder(structure[row]);
+            for (int column = 0; column < line.length(); column++) {
+                char symbol = line.charAt(column);
+                if (symbol == ui.categoryIconChar()
+                        || symbol == ui.prevCategory().symbol()
+                        || symbol == ui.nextCategory().symbol()) {
+                    line.setCharAt(column, CONTENT_BLANK_CHAR);
+                }
+            }
+            structure[row] = line.toString();
+        }
+        return structure;
+    }
+
     /** 两种浏览模式共用内容分页和同一套可配置底栏按钮。 */
-    PagedGui.Builder<Item> contentBuilder(List<Item> contentItems, String[] structure, Item back, Item search) {
+    PagedGui.Builder<Item> contentBuilder(List<Item> contentItems, String[] structure, Item back, MenuView view) {
+        return this.contentBuilder(contentItems, structure, back, this.actions(view).searchItem(), view);
+    }
+
+    PagedGui.Builder<Item> contentBuilder(List<Item> contentItems, String[] structure, Item back, Item search,
+                                          MenuView view) {
+        CerConfig ui = this.ui(view);
+        BrowserActionItems items = this.actions(view);
         PagedGui.Builder<Item> builder = PagedGui.itemsBuilder()
                 .setStructure(structure)
                 .setContent(contentItems)
                 .setBackground(new ItemWrapper(ItemBridge.emptySlot()));
-        builder.addIngredient(EMPTY_CHAR, this.reservedItem());
-        builder.addIngredient(this.config.contentAreaChar(), Markers.CONTENT_LIST_SLOT_HORIZONTAL);
-        this.bind(builder, this.config.prevPage(), this.pageNavItem(false));
-        this.bind(builder, this.config.nextPage(), this.pageNavItem(true));
-        this.bind(builder, this.config.search(), search);
-        this.bind(builder, this.config.hand(), this.shortcutItem(this.config.hand(), this::openHeldRecipe));
-        this.bind(builder, this.config.query(), this.queryShortcutItem(this.config.query()));
-        this.bind(builder, this.config.close(), this.shortcutItem(this.config.close(), Player::closeInventory));
-        this.bind(builder, this.config.info(), this.shortcutItem(this.config.info(), null));
-        this.bind(builder, this.config.workstations(), this.workstationsShortcutItem(this.config.workstations()));
-        this.bind(builder, this.config.glasses(), this.shortcutItem(this.config.glasses(), this::openTargetBlockRecipe));
-        if (back != null) this.bind(builder, this.config.back(), back);
+        builder.addIngredient(EMPTY_CHAR, this.reservedItem(ui));
+        builder.addIngredient(ui.contentAreaChar(), Markers.CONTENT_LIST_SLOT_HORIZONTAL);
+        this.bind(builder, ui, ui.prevPage(), items.pageNavItem(false));
+        this.bind(builder, ui, ui.nextPage(), items.pageNavItem(true));
+        this.bind(builder, ui, ui.search(), search);
+        this.bind(builder, ui, ui.hand(), items.shortcutItem(ui.hand(), this::openHeldRecipe));
+        this.bind(builder, ui, ui.query(), items.queryShortcutItem(ui.query()));
+        this.bind(builder, ui, ui.close(), items.shortcutItem(ui.close(), Player::closeInventory));
+        this.bind(builder, ui, ui.info(), items.shortcutItem(ui.info(), null));
+        this.bind(builder, ui, ui.workstations(), items.workstationsShortcutItem(ui.workstations()));
+        this.bind(builder, ui, ui.glasses(), items.shortcutItem(ui.glasses(), this::openTargetBlockRecipe));
+        if (back != null) this.bind(builder, ui, ui.back(), back);
         return builder;
     }
 
-    private Item reservedItem() {
-        if (this.config.reservedMaterial() == Material.AIR
-                && (this.config.reservedItemModel() == null || this.config.reservedItemModel().isBlank())) {
+    private Item reservedItem(CerConfig ui) {
+        if (ui.reservedMaterial() == Material.AIR
+                && (ui.reservedItemModel() == null || ui.reservedItemModel().isBlank())) {
             return Item.EMPTY;
         }
-        return Item.simple(ItemBridge.icon(this.config.reservedItemModel(), this.config.reservedMaterial(),
+        return Item.simple(ItemBridge.icon(ui.reservedItemModel(), ui.reservedMaterial(),
                 Component.empty(), List.of()));
     }
 
-    private String[] normalizeLayout() {
-        return BrowserLayout.normalize(this.config);
+    private String[] normalizeLayout(CerConfig ui) {
+        return BrowserLayout.normalize(ui);
     }
 
     private static List<Integer> slotsOf(String[] structure, char symbol) {
         return BrowserLayout.slotsOf(structure, symbol);
     }
 
-    void bind(PagedGui.Builder<Item> builder, CerConfig.ButtonDef def, Item item) {
+    void bind(PagedGui.Builder<Item> builder, CerConfig ui, CerConfig.ButtonDef def, Item item) {
         char symbol = def.symbol();
-        switch (BrowserLayout.binding(symbol, this.config.categoryIconChar(), this.config.contentAreaChar())) {
+        switch (BrowserLayout.binding(symbol, ui.categoryIconChar(), ui.contentAreaChar())) {
             case DISABLED -> { }
             case RESERVED -> this.plugin.getLogger().warning(this.plugin.lang().text("logs.layout-reserved"));
             case CONFLICT -> this.plugin.getLogger().warning(this.plugin.lang().text("logs.layout-conflict",
@@ -665,7 +891,7 @@ public final class BrowserService {
                 category -> !this.data.namespaces().isCategoryHidden(category.id().toString())
                         && this.data.namespaces().canView(player, category.id().namespace()),
                 category -> this.data.namespaces().hiddenItems(category.id().toString())));
-        visible.addAll(visibility.additionalItems());
+        visible.addAll(visibility.externalItems());
         return Set.copyOf(visible);
     }
 
@@ -691,10 +917,6 @@ public final class BrowserService {
 
     public boolean canQueryItem(Key id, Player player) { return this.visibility(player).canQuery(id); }
 
-    private Set<Key> additionalItemIds(Player player) { return this.visibility(player).additionalItems(); }
-
-    private boolean hasAdditionalRecipes(Player player) { return this.visibility(player).hasAdditional(); }
-
     static boolean isStandaloneMinecraftRecipe(String id) {
         return id.startsWith("minecraft_cultivation:")
                 || id.startsWith("cultivation_")
@@ -716,22 +938,12 @@ public final class BrowserService {
         return null;
     }
 
-    void openAdditionalRecipes(Player player) {
-        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
-            if (!this.claim(player)) return;
-            GuiSession session = GuiSession.of(player);
-            session.leaveWorkstations();
-            session.externalCatalog(true);
-            List<Item> content = new LazyItems<>(List.copyOf(this.additionalItemIds(player)),
-                    id -> lazyItem(() -> this.itemEntry(player, id, null)));
-            if (content.isEmpty()) {
-                content = List.of(Item.simple(ItemBridge.button(this.config.empty().material(),
-                        this.config.mm(this.config.empty().name()), this.buttonLore(this.config.empty()))));
-            }
-            Gui gui = this.buildLayout(player, content, null, session.categoryPage(), session.contentPage(), false);
-            this.openWindow(Window.builder().setViewer(player)
-                    .setTitle(this.plugin.lang().component("ui.additional-recipes.title")).setUpperGui(gui).build());
-        }
+    private Key inventoryItemKey(ItemStack stack) {
+        if (stack == null || stack.getType().isAir()) return null;
+        Key id = this.externalItemId(stack);
+        if (id == null) id = CraftEngineItems.getCustomItemId(stack);
+        if (id == null) id = Key.of(stack.getType().getKey().toString());
+        return id;
     }
 
     /**
@@ -759,9 +971,7 @@ public final class BrowserService {
     /**
      * 分类栏条目（分类 + 自定义按钮），按当前来源（categories.yml 或 categories-unapplied.yml）排列。
      */
-    private List<BarEntry> barEntries(Player player) { return this.barEntries(player, true); }
-
-    private List<BarEntry> barEntries(Player player, boolean includeAdditional) {
+    private List<BarEntry> barEntries(Player player) {
         Map<String, List<Category>> byNamespace = new LinkedHashMap<>();
         for (Category c : this.allTopCategories()) {
             byNamespace.computeIfAbsent(c.id().namespace(), k -> new ArrayList<>()).add(c);
@@ -775,7 +985,9 @@ public final class BrowserService {
         List<BarEntry> out = new ArrayList<>();
         for (CategoryNamespaces.Entry entry : sourceEntries) {
             if (entry instanceof CategoryNamespaces.NamespaceEntry ns) {
-                if (!ns.categoryEntry()) continue;
+                if (ns.hideInaccessible() && !this.data.namespaces().canView(player, ns.id())) continue;
+                // 未应用页面同时承担管理员编辑器入口，隐藏分类按钮的条目也必须可见。
+                if (!ns.categoryEntry() && !GuiSession.of(player).unapplied()) continue;
                 List<Category> cats = byNamespace.get(ns.id());
                 if ("minecraft".equals(ns.id()) && (cats == null || cats.isEmpty())) {
                     out.add(new VanillaItemsEntry(ns));
@@ -785,10 +997,10 @@ public final class BrowserService {
                     }
                 }
             } else if (entry instanceof CategoryNamespaces.ButtonEntry button) {
+                if (button.hideInaccessible() && !this.data.namespaces().canViewButton(player, button)) continue;
                 out.add(new ButtonEntry(button));
             }
         }
-        if (includeAdditional && this.hasAdditionalRecipes(player)) out.add(new AdditionalRecipesEntry());
         return out;
     }
 
@@ -797,7 +1009,7 @@ public final class BrowserService {
      */
     private List<Category> visibleCategories(Player player) {
         List<Category> out = new ArrayList<>();
-        for (BarEntry entry : this.barEntries(player, false)) {
+        for (BarEntry entry : this.barEntries(player)) {
             if (entry instanceof CategoryEntry ce) {
                 if (this.data.namespaces().canView(player, ce.category().id().namespace())) {
                     out.add(ce.category());
@@ -807,12 +1019,14 @@ public final class BrowserService {
         return out;
     }
 
-    private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage, List<Integer> slots) {
-        this.fillCategoryBar(gui, player, activeCategory, categoryPage, slots, this.barEntries(player));
+    private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage, List<Integer> slots,
+                                 MenuView view) {
+        this.fillCategoryBar(gui, player, activeCategory, categoryPage, slots, this.barEntries(player), view);
     }
 
     private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage,
-                                 List<Integer> slots, List<BarEntry> entries) {
+                                 List<Integer> slots, List<BarEntry> entries, MenuView view) {
+        CerConfig ui = this.ui(view);
         int perPage = Math.max(1, slots.size());
         int maxOffset = Math.max(0, entries.size() - perPage);
         int offset = Math.max(0, Math.min(categoryPage, maxOffset));
@@ -827,7 +1041,8 @@ public final class BrowserService {
             BarEntry entry = entries.get(idx);
             if (entry instanceof CategoryEntry ce) {
                 Category cat = ce.category();
-                gui.setSlotElement(slot, new SlotElement.Item(this.categoryIcon(player, cat, cat.id().equals(activeCategory))));
+                gui.setSlotElement(slot, new SlotElement.Item(this.categoryIcon(player, cat,
+                        cat.id().equals(activeCategory), ui)));
             } else if (entry instanceof ButtonEntry be) {
                 if (!this.data.namespaces().canViewButton(player, be.button())) {
                     gui.setSlotElement(slot, null);
@@ -836,80 +1051,83 @@ public final class BrowserService {
                 gui.setSlotElement(slot, new SlotElement.Item(this.buttonEntryItem(player, be.button())));
             } else if (entry instanceof VanillaItemsEntry vanilla) {
                 if (this.data.namespaces().canView(player, "minecraft")) {
-                    gui.setSlotElement(slot, new SlotElement.Item(this.vanillaItemsIcon(player, vanilla.namespace())));
+                    gui.setSlotElement(slot, new SlotElement.Item(this.vanillaItemsIcon(player, vanilla.namespace(), ui)));
                 } else {
                     gui.setSlotElement(slot, new SlotElement.Item(Item.simple(ItemBridge.button(
-                            Material.BARRIER, this.accessDeniedComponent(player, "minecraft"), List.of()))));
+                            Material.BARRIER, this.accessDeniedComponent(player, "minecraft", ui), List.of()))));
                 }
-            } else if (entry instanceof AdditionalRecipesEntry) {
-                ItemStack icon = ItemBridge.button(Material.KNOWLEDGE_BOOK,
-                        this.plugin.lang().component("ui.additional-recipes.name"), List.of());
-                gui.setSlotElement(slot, new SlotElement.Item(Item.builder().setItemProvider(icon)
-                        .addClickHandler(click -> this.handleClick(click.player(), () -> {
-                            Sounds.play(click.player(), this.config.sounds().click());
-                            this.openAdditionalRecipes(click.player());
-                        })).build()));
             }
         }
     }
 
-    private Item vanillaItemsIcon(Player player, CategoryNamespaces.NamespaceEntry namespace) {
+    private Item vanillaItemsIcon(Player player, CategoryNamespaces.NamespaceEntry namespace, CerConfig ui) {
         String raw = namespace.iconName();
         String fallback = this.plugin.lang().text("ui.vanilla-items.name");
-        Component name = this.config.mm((raw == null || raw.isBlank() ? fallback : raw).replace("<name>", fallback));
+        Component name = ui.mm((raw == null || raw.isBlank() ? fallback : raw).replace("<name>", fallback));
         int count = (int) this.data.items().keySet().stream()
                 .filter(id -> "minecraft".equals(id.namespace())).count();
         List<Component> lore = namespace.iconLore().stream()
-                .map(line -> this.config.mm(line, "count", String.valueOf(count))).toList();
+                .map(line -> ui.mm(line, "count", String.valueOf(count))).toList();
         ItemStack stack = ItemBridge.button(Material.GRASS_BLOCK, name, lore);
         return Item.builder().setItemProvider(stack).addClickHandler(click -> this.handleClick(click.player(), () -> {
-            Sounds.play(click.player(), this.config.sounds().click());
+            Sounds.play(click.player(), ui.sounds().click());
             this.openVanillaItems(click.player());
         })).build();
     }
 
-    private Item categoryIcon(Player player, Category category, boolean active) {
+    private Item categoryIcon(Player player, Category category, boolean active, CerConfig ui) {
         if (!this.data.namespaces().canView(player, category.id().namespace())) {
-            return this.categoryPlaceholder(player, category);
+            return this.categoryPlaceholder(player, category, ui);
         }
         ItemStack icon;
         try {
             icon = ItemBridge.build(category.icon(), player);
         } catch (RuntimeException | LinkageError t) {
             CompatibilityWarnings.warn("Browser.categoryIcon", t);
-            icon = new ItemStack(this.config.empty().material());
+            icon = new ItemStack(ui.empty().material());
         }
-        Component name = this.categoryName(category);
+        Component name = this.categoryName(category, ui);
         List<Component> lore = new ArrayList<>();
         int count = this.countMembers(category);
-        for (String line : this.iconLoreFor(category)) {
-            lore.add(this.config.mm(line, "count", String.valueOf(count)));
+        for (String line : this.iconLoreFor(category, ui)) {
+            lore.add(ui.mm(line, "count", String.valueOf(count)));
+        }
+        if (GuiSession.of(player).unapplied() && player.hasPermission("craftenginerecipe.admin")) {
+            lore.add(this.plugin.lang().component("ui.unapplied-editor.edit-lore"));
         }
         ItemStack decorated = new ItemBuilder(icon).setName(name).setLore(lore).setGlint(active ? Boolean.TRUE : null).build();
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
-            Sounds.play(p, this.config.sounds().click());
+            boolean edit = GuiSession.of(p).unapplied()
+                    && (click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT);
+            if (edit && this.plugin.unappliedCategoryDialog() != null
+                    && this.plugin.unappliedCategoryDialog().open(p, category.id().namespace())) {
+                Sounds.play(p, this.config.sounds().click());
+                return;
+            }
+            Sounds.play(p, ui.sounds().click());
             this.openCategory(p, category.id(), GuiSession.of(p).categoryPage());
         })).build();
     }
 
     private Item subCategoryIcon(Player player, Category sub) {
+        CerConfig ui = this.currentUi(player);
         ItemStack icon = ItemBridge.build(sub.icon(), player);
-        Component name = this.categoryName(sub);
+        Component name = this.categoryName(sub, ui);
         List<Component> lore = new ArrayList<>();
         int count = this.countMembers(sub);
-        for (String line : this.subIconLoreFor(sub)) {
-            lore.add(this.config.mm(line, "count", String.valueOf(count)));
+        for (String line : this.subIconLoreFor(sub, ui)) {
+            lore.add(ui.mm(line, "count", String.valueOf(count)));
         }
         ItemStack decorated = ItemBridge.decorate(icon, name, lore);
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
-            Sounds.play(p, this.config.sounds().click());
+            Sounds.play(p, ui.sounds().click());
             this.openCategory(p, sub.id(), GuiSession.of(p).categoryPage());
         })).build();
     }
 
-    private Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button) {
+    Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button) {
         String material = button.display().material();
         ItemStack icon;
         if (material == null || material.isBlank()) {
@@ -928,79 +1146,82 @@ public final class BrowserService {
                 ButtonActions.run(click.player(), button, click.clickType()))).build();
     }
 
-    private Component categoryName(Category category) {
+    private Component categoryName(Category category, CerConfig ui) {
         String template = this.data.namespaces().iconNameOf(category.id().namespace());
         if (template == null || template.isBlank()) {
-            return this.config.mm(DisplayNames.expandL10n(this.plainName(category)));
+            return ui.mm(DisplayNames.expandL10n(this.plainName(category, ui)));
         }
         String name = DisplayNames.of(category);
         if (name == null || name.isBlank()) {
             name = category.id().value();
         }
-        return this.config.mm(DisplayNames.expandL10n(template).replace("<name>", name));
+        return ui.mm(DisplayNames.expandL10n(template).replace("<name>", name));
     }
 
-    private Item categoryPlaceholder(Player player, Category category) {
-        ItemStack stack = ItemBridge.button(Material.BARRIER, this.accessDeniedComponent(player, category.id().namespace()), List.of());
+    private Item categoryPlaceholder(Player player, Category category, CerConfig ui) {
+        ItemStack stack = ItemBridge.button(Material.BARRIER,
+                this.accessDeniedComponent(player, category.id().namespace(), ui), List.of());
         return Item.simple(stack);
     }
 
-    private Component accessDeniedComponent(Player player, String namespace) {
+    private Component accessDeniedComponent(Player player, String namespace, CerConfig ui) {
         if (this.data.namespaces().visibilityOf(namespace) == CategoryNamespaces.Visibility.PERMISSION) {
             String permission = this.data.namespaces().permissionOf(namespace);
-            return this.config.mm(this.config.noPermissionHint(), "permission", permission == null ? "" : permission);
+            return ui.mm(ui.noPermissionHint(), "permission", permission == null ? "" : permission);
         }
-        return this.config.mm(this.config.adminOnlyHint());
+        return ui.mm(ui.adminOnlyHint());
     }
 
     private Item itemEntry(Player player, Key id, Category owner) {
+        CerConfig ui = this.currentUi(player);
         ItemStack icon = ItemBridge.build(id, player);
         List<Component> lore = new ArrayList<>();
-        for (String line : this.itemLoreFor(owner)) {
-            lore.add(this.config.mm(line));
+        for (String line : this.itemLoreFor(owner, ui)) {
+            lore.add(ui.mm(line));
         }
         ItemStack decorated = ItemBridge.appendLore(icon, lore);
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             boolean usage = click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT;
             boolean opened = this.recipeGui.open(p, id, usage, 0);
-            Sounds.play(p, opened ? this.config.sounds().click() : this.config.sounds().queryFailure());
+            Sounds.play(p, opened ? ui.sounds().click() : ui.sounds().queryFailure());
         })).build();
     }
 
-    private List<String> itemLoreFor(Category owner) {
+    private List<String> itemLoreFor(Category owner, CerConfig ui) {
         if (owner != null) {
             List<String> custom = this.data.namespaces().itemLoreOf(owner.id().namespace());
             if (custom != null && !custom.isEmpty()) {
                 return custom;
             }
         }
-        return this.config.itemLore();
+        return ui.itemLore();
     }
 
-    private List<String> iconLoreFor(Category category) {
+    private List<String> iconLoreFor(Category category, CerConfig ui) {
         List<String> custom = this.data.namespaces().iconLoreOf(category.id().namespace());
         if (custom != null && !custom.isEmpty()) {
             return custom;
         }
-        return this.config.categoryIconLore();
+        return ui.categoryIconLore();
     }
 
-    private List<String> subIconLoreFor(Category category) {
+    private List<String> subIconLoreFor(Category category, CerConfig ui) {
         List<String> custom = this.data.namespaces().subIconLoreOf(category.id().namespace());
         if (custom != null && !custom.isEmpty()) {
             return custom;
         }
-        return this.config.subIconLore();
+        return ui.subIconLore();
     }
 
-    private List<Component> buttonLore(CerConfig.ButtonDef def) {
-        return def.lore().stream().map(this.config::mm).toList();
+    private List<Component> buttonLore(CerConfig ui, CerConfig.ButtonDef def) {
+        return def.lore().stream().map(ui::mm).toList();
     }
 
-    private Item categoryNavItem(boolean next, int perPage, Key activeCategory) {
-        CerConfig.ButtonDef def = next ? this.config.nextCategory() : this.config.prevCategory();
-        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), this.config.mm(def.name()), this.buttonLore(def));
+    private Item categoryNavItem(boolean next, int perPage, Key activeCategory, MenuView view) {
+        CerConfig ui = this.ui(view);
+        CerConfig.ButtonDef def = next ? ui.nextCategory() : ui.prevCategory();
+        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), ui.mm(def.name()), this.buttonLore(ui, def));
         return BoundItem.pagedBuilder().setItemProvider(stack).addClickHandler((item, gui, click) -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             GuiSession session = GuiSession.of(p);
@@ -1008,39 +1229,15 @@ public final class BrowserService {
             List<BarEntry> entries = this.barEntries(p);
             int maxOffset = Math.max(0, entries.size() - perPage);
             int target = next ? curOffset + 1 : curOffset - 1;
-            List<Integer> slots = slotsOf(this.normalizeLayout(), this.config.categoryIconChar());
+            List<Integer> slots = slotsOf(this.normalizeLayout(ui), ui.categoryIconChar());
             if (slots.isEmpty() || target < 0 || target > maxOffset) {
-                Sounds.play(p, this.config.sounds().queryFailure());
+                Sounds.play(p, ui.sounds().queryFailure());
                 return;
             }
             session.categoryPage(target);
-            this.fillCategoryBar(gui, p, activeCategory, target, slots, entries);
-            Sounds.play(p, this.config.sounds().changeCategory());
+            this.fillCategoryBar(gui, p, activeCategory, target, slots, entries, view);
+            Sounds.play(p, ui.sounds().changeCategory());
         })).build();
-    }
-
-    private Item pageNavItem(boolean next) {
-        return this.actionItems.pageNavItem(next);
-    }
-
-    private Item searchItem() {
-        return this.actionItems.searchItem();
-    }
-
-    Item searchItem(Consumer<Player> action) {
-        return this.actionItems.searchItem(action);
-    }
-
-    private Item shortcutItem(CerConfig.ButtonDef def, Consumer<Player> action) {
-        return this.actionItems.shortcutItem(def, action);
-    }
-
-    private Item queryShortcutItem(CerConfig.ButtonDef def) {
-        return this.actionItems.queryShortcutItem(def);
-    }
-
-    private Item workstationsShortcutItem(CerConfig.ButtonDef def) {
-        return this.actionItems.workstationsShortcutItem(def);
     }
 
     /** 配方窗口返回打开它的合成器列表或 CraftEngine 分类。 */
@@ -1053,11 +1250,16 @@ public final class BrowserService {
 
     void returnToCategories(Player player) {
         GuiSession session = GuiSession.of(player);
-        session.leaveWorkstations();
-        if (session.externalCatalog()) {
-            this.openAdditionalRecipes(player);
+        if (session.craftableMode()) {
+            this.openCraftableView(player);
             return;
         }
+        if (session.managerMode()) {
+            session.managerMode(false);
+            this.openDefault(player);
+            return;
+        }
+        session.leaveWorkstations();
         Key category = session.currentCategory();
         if (category != null && this.data.category(category).isPresent()) {
             this.openCategory(player, category, session.categoryPage(), session.contentPage());
@@ -1069,7 +1271,7 @@ public final class BrowserService {
     }
 
     private boolean isVanillaHome(Player player) {
-        for (BarEntry entry : this.barEntries(player, false)) {
+        for (BarEntry entry : this.barEntries(player)) {
             if (entry instanceof VanillaItemsEntry) {
                 return this.data.namespaces().canView(player, "minecraft");
             }
@@ -1085,6 +1287,10 @@ public final class BrowserService {
     void returnToOriginHome(Player player) {
         GuiSession session = GuiSession.of(player);
         session.clearRecipeContext();
+        if (session.craftableMode()) {
+            this.openCraftableView(player);
+            return;
+        }
         if (session.workstationId() != null) {
             this.workstations.reopen(player);
         } else {
@@ -1092,11 +1298,22 @@ public final class BrowserService {
         }
     }
 
-    private Item backItem() {
-        return this.actionItems.backItem();
+    private Item backItem(MenuView view) {
+        return this.actions(view).backItem();
+    }
+
+    private Item craftableBackItem(CerConfig ui) {
+        CerConfig.ButtonDef def = ui.back();
+        ItemStack icon = ItemBridge.icon(def.itemModel(), def.material(),
+                ui.mm(def.name()), this.buttonLore(ui, def));
+        return Item.builder().setItemProvider(icon).addClickHandler(click -> this.handleClick(click.player(), () -> {
+            Sounds.play(click.player(), ui.sounds().back());
+            this.toggleCraftableView(click.player());
+        })).build();
     }
 
     void openOrToggleWorkstations(Player player) {
+        this.clearCraftableMode(player);
         if (this.config.workstationsToggle() && GuiSession.of(player).workstationId() != null) {
             this.returnToCategories(player);
         } else {
@@ -1143,18 +1360,16 @@ public final class BrowserService {
         return this.data.categoryGraph().members(category.id()).size();
     }
 
-    private String plainName(Category category) {
+    private String plainName(Category category, CerConfig ui) {
         String n = category.displayName();
         if (n != null && !n.isBlank()) {
             return n;
         }
-        return this.config.categoryIconName().replace("<name>", category.id().value());
+        return ui.categoryIconName().replace("<name>", category.id().value());
     }
 
-    private sealed interface BarEntry permits CategoryEntry, ButtonEntry, VanillaItemsEntry, AdditionalRecipesEntry {
+    private sealed interface BarEntry permits CategoryEntry, ButtonEntry, VanillaItemsEntry {
     }
-
-    private record AdditionalRecipesEntry() implements BarEntry {}
 
     private record CategoryEntry(Category category) implements BarEntry {
     }
@@ -1181,14 +1396,15 @@ public final class BrowserService {
         public Item toItem(BrowserService service, Player player, Category owner) {
             return service.data.namespaces().canView(player, this.category.id().namespace())
                     ? service.subCategoryIcon(player, this.category)
-                    : service.categoryPlaceholder(player, this.category);
+                    : service.categoryPlaceholder(player, this.category, service.currentUi(player));
         }
     }
 
     private record MissingCategoryEntry(String id) implements ContentEntry {
         @Override
         public Item toItem(BrowserService service, Player player, Category owner) {
-            ItemStack stack = ItemBridge.button(Material.BARRIER, service.config.mm("<#E58B8B>" + this.id + "</#E58B8B>"), List.of());
+            ItemStack stack = ItemBridge.button(Material.BARRIER,
+                    service.currentUi(player).mm("<#E58B8B>" + this.id + "</#E58B8B>"), List.of());
             return Item.simple(stack);
         }
     }

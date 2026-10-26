@@ -1,0 +1,6 @@
+images:
+  cer_cultivation_gui:cultivation_gui:
+    file: cer_cultivation_gui:gui/cultivation_gui.png
+    height: 256
+    ascent: 13
+    font: minecraft:gui

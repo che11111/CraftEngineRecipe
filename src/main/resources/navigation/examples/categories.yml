@@ -1,13 +1,16 @@
 # ============================================================================
 #  CraftEngineRecipe 菜单条目语法示例 / CraftEngineRecipe menu entry examples
-#  本文件仅用于教学，复制所需部分到 plugins/CraftEngineRecipe/categories.yml / Examples only: copy desired entries into plugins/CraftEngineRecipe/categories.yml
+#  本文件仅用于教学，复制所需部分到 plugins/CraftEngineRecipe/navigation/categories.yml / Examples only: copy desired entries into plugins/CraftEngineRecipe/navigation/categories.yml
 #  的 entries: 列表下即可。删除本文件不影响插件运行。 / under entries:. This example file can be removed safely.
 #
 #  categories.yml 结构（与本示例不同，实际文件为）： / Actual categories.yml structure (unlike this example list):
 #    entries:        # 有序列表，顺序即菜单显示顺序，命名空间与按钮可自由混排 / Ordered list; mix namespaces and buttons in display order
+#  按钮条目通过 display 区分，不使用 id；id 只属于命名空间条目。 / Buttons are identified by display and never use id; id belongs only to namespaces.
 #  未写进 categories.yml 的命名空间会自动写入 categories-unapplied.yml； / Unconfigured namespaces are written to categories-unapplied.yml.
 #  管理员用 /cer unapplied 预览，正式 /cer 菜单仅显示 categories.yml 的条目。 / Admins preview with /cer unapplied; /cer shows only applied entries.
 #  如需启用某个命名空间，把它从 categories-unapplied.yml 复制到 categories.yml 的 entries 即可。 / To apply a namespace, copy it into entries in categories.yml.
+#  可选 hide-inaccessible：写在单个命名空间或按钮条目内；true 时无权查看就隐藏且不占位，默认 false。
+#  Optional hide-inaccessible: set on one namespace or button entry; true hides it without occupying a slot when inaccessible.
 # ============================================================================
 
 # ----------------------------------------------------------------------------
