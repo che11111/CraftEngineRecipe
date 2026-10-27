@@ -64,9 +64,15 @@ final class WorkstationBrowserService {
                 session.workstationPage(), session.workstationKeyword());
     }
 
+    void openById(Player player, String type) {
+        this.open(player, type, 0, null);
+    }
+
     private void open(Player player, String type, int page, String keyword) {
         try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.WORKSTATION_OPEN)) {
             if (!this.browser.claim(player)) return;
+            // 记录当前配方代数：点击产物时校验代数未变，避免重载后
+            // 用旧列表里的 Output 对象打开已失效的配方。
             long generation = this.recipes.generation();
             List<RecipeEntry.Output> outputs = this.recipes.outputs(type, player);
             if (keyword != null && !keyword.isBlank()) {

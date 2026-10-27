@@ -13,6 +13,7 @@ import dev.che1s.craftenginerecipe.recipe.ExternalRecipeService;
 import dev.che1s.craftenginerecipe.dialog.PersonalizationDialogService;
 import dev.che1s.craftenginerecipe.dialog.SearchDialogService;
 import dev.che1s.craftenginerecipe.dialog.UnappliedCategoryDialogService;
+import dev.che1s.craftenginerecipe.dialog.ButtonEditorDialogService;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSessionStore;
 import dev.che1s.craftenginerecipe.integration.common.PluginFingerprints;
@@ -66,6 +67,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private PlayerPreferences playerPreferences;
     private PersonalizationDialogService personalizationDialog;
     private UnappliedCategoryDialogService unappliedCategoryDialog;
+    private ButtonEditorDialogService buttonEditorDialog;
     private final Map<String, CerConfig> menuConfigs = new LinkedHashMap<>();
     private final Map<String, Map<MenuView, CerConfig>> menuViewConfigs = new LinkedHashMap<>();
     private final Map<String, BrowserService> menuBrowsers = new LinkedHashMap<>();
@@ -108,6 +110,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.dialogService = new SearchDialogService(this);
         this.personalizationDialog = new PersonalizationDialogService(this);
         this.unappliedCategoryDialog = new UnappliedCategoryDialogService(this);
+        this.buttonEditorDialog = new ButtonEditorDialogService(this);
         this.externalRecipes.start();
         this.debug = new DebugService(this);
         this.debug.registerGauge("menu.viewers", this::viewerCount);
@@ -440,6 +443,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public UnappliedCategoryDialogService unappliedCategoryDialog() {
         return this.unappliedCategoryDialog;
+    }
+
+    public ButtonEditorDialogService buttonEditorDialog() {
+        return this.buttonEditorDialog;
     }
 
     private void notifyAdminsIndexBuildStarted() {

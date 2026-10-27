@@ -24,9 +24,17 @@ messages:
   no-permission: <#E58B8B>你没有权限执行此操作。</#E58B8B>
   player-only: <#E58B8B>该指令只能由玩家执行。</#E58B8B>
   personalization-saved: '<#98C69A>个性化设置已保存：主页面 {menu}，恢复浏览位置：{remember}。</#98C69A>'
-  unapplied-updated: '<#98C69A>已更新未应用命名空间 {namespace} 的配置。</#98C69A>'
-  unapplied-update-failed: '<#E58B8B>未找到未应用命名空间 {namespace}，配置未修改。</#E58B8B>'
+  unapplied-updated: '<#98C69A>已更新 {file} 中的命名空间 {namespace}。</#98C69A>'
+  unapplied-update-failed: '<#E58B8B>未找到命名空间 {namespace}，{file} 未修改。</#E58B8B>'
   unapplied-permission-required: '<#E58B8B>可见性设为 permission 时必须填写权限节点。</#E58B8B>'
+  button-updated: '<#98C69A>已更新 {file} 中的自定义按钮。</#98C69A>'
+  button-update-failed: '<#E58B8B>自定义按钮已不存在或 {file} 保存失败。</#E58B8B>'
+  button-permission-required: '<#E58B8B>按钮可见性设为 permission 时必须填写权限节点。</#E58B8B>'
+  management-saved: '<#98C69A>管理修改已保存，菜单已立即刷新。</#98C69A>'
+  management-save-failed: '<#E58B8B>没有找到目标条目，或配置保存失败。</#E58B8B>'
+  management-applied: '<#98C69A>已将 {namespace} 应用到 categories.yml，可在列表中继续调整顺序。</#98C69A>'
+  management-moved: '<#98C69A>显示顺序已更新。</#98C69A>'
+  management-edge: '<#8793A5>已经到达列表边界，无法继续移动。</#8793A5>'
   management-applied-readonly: '<#E4D397>该命名空间已写入正式 categories.yml，请直接编辑正式配置。</#E4D397>'
   management-no-category-page: '<#8793A5>命名空间 {namespace} 没有可浏览的命名空间分类页面。</#8793A5>'
   index-build-started: '<#E4D397>已检测到 {plugins}，正在构建配方索引...</#E4D397>'
@@ -136,30 +144,92 @@ ui:
     name: <#79CFC9>可合成物品</#79CFC9>
     title: '<bold><#374151>可合成物品</#374151> <#465D70>»</#465D70> <#293341>当前背包</#293341></bold>'
   management:
-    name: <#D8B278>分类管理</#D8B278>
+    name: <#D8B278>配置管理中心</#D8B278>
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>管理已应用的命名空间与自定义按钮</#B8C0CC>
+    categories-summary: '<#8793A5>共 {entries} 项：{namespaces} 个命名空间、{buttons} 个按钮</#8793A5>'
+    unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>检查、编辑并应用尚未进入正式菜单的命名空间</#B8C0CC>
+    unapplied-summary: '<#8793A5>共 {count} 个待应用命名空间</#8793A5>'
+    workstations-name: <#D8B278>workstations.yml</#D8B278>
+    workstations-lore: <#B8C0CC>调整合成器与自定义按钮的显示顺序</#B8C0CC>
+    workstations-summary: '<#8793A5>共 {count} 个合成器页条目</#8793A5>'
+    workstations-shortcut: <#79CFC9>点击进入合成器配置</#79CFC9>
+    hidden-name: <#D8B278>分类与物品隐藏</#D8B278>
+    items-name: <#D8B278>隐藏分类物品</#D8B278>
     entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
     applied-lore: <#98C69A>已应用：存在于 categories.yml</#98C69A>
     unapplied-lore: <#B8C0CC>未应用：仅存在于 categories-unapplied.yml</#B8C0CC>
+    visibility-admin: 仅管理员
+    visibility-player: 所有玩家
+    visibility-permission: 按权限
+    visibility-value: '<#8793A5>可见性：{visibility}  权限：{permission}</#8793A5>'
+    category-state: '<#8793A5>分类入口：{entry}  排序：{sort}  隐藏规则：{hide}</#8793A5>'
+    namespace-browse: <#79CFC9>左键：浏览此命名空间的分类</#79CFC9>
+    namespace-edit: <#79CFC9>右键：编辑名称、权限、提示与排序选项</#79CFC9>
+    namespace-hide: <#79CFC9>中键：管理分类隐藏与物品隐藏</#79CFC9>
+    namespace-hide-unapplied: <#79CFC9>Shift+左键：管理分类隐藏与物品隐藏</#79CFC9>
+    namespace-order: '<#E4D397>Shift+左键上移 / Shift+右键下移</#E4D397>'
+    namespace-apply: <#98C69A>中键：应用此命名空间到 categories.yml</#98C69A>
     no-category-button-lore: <#8793A5>该条目不显示命名空间分类按钮</#8793A5>
     category-bar-lore: <#B8C0CC>查看已应用与未应用的命名空间</#B8C0CC>
+    button-name: 自定义按钮
+    button-type: <#8793A5>类型：自定义按钮</#8793A5>
+    button-use: <#79CFC9>左键：执行按钮动作</#79CFC9>
+    button-edit: <#79CFC9>右键：编辑图标、文案、权限与动作</#79CFC9>
+    category-hidden: <#E58B8B>分类入口已隐藏（含其浏览路径）</#E58B8B>
+    category-visible: <#98C69A>分类入口可见</#98C69A>
+    category-count: '<#8793A5>直接物品 {items} 个，子分类 {children} 个</#8793A5>'
+    category-open-items: <#79CFC9>左键：管理此分类的直接物品</#79CFC9>
+    category-toggle: <#79CFC9>右键：隐藏 / 显示分类入口及路径</#79CFC9>
+    items-all-hidden: <#E58B8B>该分类全部直接物品已隐藏</#E58B8B>
+    items-toggle-all: <#79CFC9>Shift+左键或右键：隐藏 / 显示全部直接物品</#79CFC9>
+    item-hidden: <#E58B8B>当前已隐藏</#E58B8B>
+    item-visible: <#98C69A>当前可见</#98C69A>
+    item-id: '<#8793A5>{id}</#8793A5>'
+    item-toggle: <#79CFC9>点击切换隐藏状态</#79CFC9>
+    workstation-id: '<#8793A5>{id}</#8793A5>'
+    workstation-use: <#79CFC9>左键：打开此合成器页面</#79CFC9>
+    workstation-order: '<#E4D397>Shift+左键上移 / Shift+右键下移</#E4D397>'
   unapplied-editor:
-    title: '<bold><#D8B278>编辑未应用分类</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
-    description: <#B8C0CC>这里只修改 categories-unapplied.yml；正式 categories.yml 不会被改动。</#B8C0CC>
-    edit-lore: <#79CFC9>右键：编辑此未应用命名空间</#79CFC9>
+    title: '<bold><#D8B278>编辑分类命名空间</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
+    description: '<#B8C0CC>修改 {file}；保存后菜单立即刷新，并在同目录保留上一版 .bak。</#B8C0CC>'
+    edit-lore: <#79CFC9>右键：编辑此命名空间</#79CFC9>
     visibility: <#79CFC9>可见性</#79CFC9>
     visibility-admin: 仅管理员
     visibility-player: 所有玩家
     visibility-permission: 按权限
     permission: <#79CFC9>权限节点</#79CFC9>
     icon-name: <#79CFC9>分类名称模板</#79CFC9>
+    item-lore: <#79CFC9>物品提示（每行一条）</#79CFC9>
+    icon-lore: <#79CFC9>顶层分类提示（每行一条）</#79CFC9>
+    sub-icon-lore: <#79CFC9>子分类提示（每行一条）</#79CFC9>
     category-entry: <#79CFC9>显示命名空间分类入口</#79CFC9>
     sort-by-namespace: <#79CFC9>按命名空间和路径排序</#79CFC9>
     hide-items-without-recipes: <#79CFC9>隐藏没有 CER 配方的物品</#79CFC9>
     hidden-rules-affect-workstations: <#79CFC9>隐藏规则影响合成器页面</#79CFC9>
+    hide-inaccessible: <#79CFC9>无权查看时隐藏并让出菜单位置</#79CFC9>
     save: <#98C69A>保存修改</#98C69A>
-    save-tooltip: <#B8C0CC>保存到 categories-unapplied.yml</#B8C0CC>
+    save-tooltip: <#B8C0CC>保存到当前分类配置文件</#B8C0CC>
     cancel: <#E58B8B>取消</#E58B8B>
-    cancel-tooltip: <#B8C0CC>放弃修改并返回未应用分类页面</#B8C0CC>
+    cancel-tooltip: <#B8C0CC>放弃修改并返回配置管理中心</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>编辑自定义按钮</#D8B278></bold>
+    description: '<#B8C0CC>修改 {file}。动作每行写成“点击类型 | 动作”，点击类型可省略并默认为 all。</#B8C0CC>'
+    material: <#79CFC9>材质或物品 ID</#79CFC9>
+    name: <#79CFC9>按钮名称</#79CFC9>
+    lore: <#79CFC9>按钮提示（每行一条）</#79CFC9>
+    visibility: <#79CFC9>可见性</#79CFC9>
+    visibility-admin: 仅管理员
+    visibility-player: 所有玩家
+    visibility-permission: 按权限
+    permission: <#79CFC9>权限节点</#79CFC9>
+    hide-inaccessible: <#79CFC9>无权查看时隐藏并让出菜单位置</#79CFC9>
+    actions: <#79CFC9>按钮动作（每行：点击类型 | 动作）</#79CFC9>
+    save: <#98C69A>保存按钮</#98C69A>
+    save-tooltip: <#B8C0CC>写回当前配置文件</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放弃修改并返回配置中心</#B8C0CC>
   # 首行展示 8 种原版合成器；两个 cultivation 开关分别控制原版与 CE 栽培入口。
   workstations:
     title: '<bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'

@@ -1,0 +1,7 @@
+separator: "、"
+yes: "是"
+no: "否"
+unit.ticks: "{value} 刻"
+unit.seconds: "{value} 秒"
+unit.points: "{value} 点"
+unit.blocks: "{value} 格"

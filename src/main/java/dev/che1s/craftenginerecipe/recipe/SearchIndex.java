@@ -73,6 +73,8 @@ public final class SearchIndex {
         String nsStripped = kw.contains(":") ? kw.substring(kw.indexOf(':') + 1) : kw;
         RankedMatches matches = new RankedMatches(maxResults);
 
+        // 分级匹配：等级越小越靠前。同一等级内按插入顺序保持稳定。
+        // 0 精确 ID / 1 精确名 / 2 前缀 / 3 拼音首字母 / 4 包含 / 5 翻译键 / 6 ID 子串。
         for (Entry entry : this.entries) {
             if (!allowed.test(entry.id)) continue;
             if (entry.idFull.equals(kw) || entry.idPath.equals(nsStripped)) {

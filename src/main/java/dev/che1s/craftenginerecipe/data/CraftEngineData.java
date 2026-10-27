@@ -44,6 +44,13 @@ import java.util.logging.Level;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * 捕获 CraftEngine 的分类、物品、配方和资源包翻译，并发布不可变快照。
+ *
+ * <p>重建分阶段执行：全局线程读取 Bukkit/CraftEngine 管理器，工作线程仅处理
+ * 纯数据索引，最后回到全局线程发布结果。{@link #generation} 用于丢弃重载期间
+ * 已经过期的异步回调，避免旧数据覆盖新数据。</p>
+ */
 public final class CraftEngineData implements Listener {
     public static final Key ALL_ITEMS_CATEGORY = Key.of("internal:all");
     private final CraftEngineRecipePlugin plugin;
@@ -92,6 +99,12 @@ public final class CraftEngineData implements Listener {
 
     public void rebuild(Consumer<Boolean> callback) { this.rebuild(false, callback); }
 
+    /**
+     * 启动一次完整重建。调用方必须位于全局调度线程。
+     *
+     * <p>新版本号会在关闭旧菜单前生效，任何旧回调都会因 {@link #isCurrent(long)}
+     * 失败而退出。</p>
+     */
     public void rebuild(boolean reloadSettings, Consumer<Boolean> callback) {
         if (!Bukkit.isGlobalTickThread()) throw new IllegalStateException("rebuild must run on the global scheduler");
         if (this.stopped) return;
@@ -115,6 +128,7 @@ public final class CraftEngineData implements Listener {
         try {
             if (reloadSettings) this.plugin.reloadSettings();
             if (CraftEngine.instance().isReloading()) {
+                // CE 重载期间其管理器只处于半完成状态，等下一个全局 tick 再试。
                 this.retryCapture(version, started);
                 return;
             }
@@ -167,6 +181,10 @@ public final class CraftEngineData implements Listener {
         return this.reloadRevision.get() == revision && !CraftEngine.instance().isReloading();
     }
 
+    /**
+     * 校验分类 members 的格式与引用：普通成员需符合 ID 规则；以 '#' 开头的成员
+     * 表示引用子分类，必须指向真实存在的分类。失败只记录警告，不阻断加载。
+     */
     private void validateMembers(Map<Key, Category> categories) {
         for (Category category : categories.values()) {
             if (category.members() == null) continue;
@@ -185,12 +203,18 @@ public final class CraftEngineData implements Listener {
 
     private void retryCapture(long version, long started) {
         if (this.isCurrent(version)) {
+            // 使用全局延迟任务而不是忙等，既让出重载线程也保持 CE API 的线程约束。
             this.pendingTask = this.plugin.tasks().globalLater(() -> {
                 if (this.isCurrent(version)) this.capture(version, started, false);
             }, 1);
         }
     }
 
+    /**
+     * 收集本次要纳入 CER 的全部分类：从 CE 的根分类出发沿 members 中的 '#id'
+     * 引用做 BFS，另外把显式 hidden-items / hidden-categories 规则指向的分类
+     * 也拉进来（它们可能不在 CE 的顶层浏览列表里）。结果按首次遇到顺序去重。
+     */
     private Map<Key, Category> captureCategories(CategoryNamespaces namespaces) {
         Map<Key, Category> categories = new LinkedHashMap<>();
         var browser = CraftEngine.instance().itemBrowserManager();
@@ -306,6 +330,7 @@ public final class CraftEngineData implements Listener {
                     return;
                 }
                 try {
+                    // 每批最多占用全局线程约 2 毫秒或处理 128 项，避免大型整合包卡 tick。
                     long deadline = System.nanoTime() + 2_000_000L;
                     int remaining = 128;
                     do {
@@ -351,6 +376,8 @@ public final class CraftEngineData implements Listener {
                                 retryCapture(version, started);
                                 return;
                             }
+                            // 单次原子替换：读线程要么看到完整的旧快照，要么看到
+                            // 完整的新快照，不会观察到半构建的索引。
                             snapshot = new Snapshot(captured, search, categorySearch);
                             ready = true;
                             plugin.getLogger().info(plugin.lang().text("logs.data-ready", "items", String.valueOf(captured.items().size()),
@@ -375,6 +402,7 @@ public final class CraftEngineData implements Listener {
     }
 
     private boolean isCurrent(long version) {
+        // generation 与 stopped 都在主生命周期中维护；版本不符说明已有更新的重建请求。
         return !this.stopped && this.generation == version;
     }
 

@@ -661,7 +661,7 @@ final class RecipeDocumentParser {
         }
         Map<String, Object> item = this.lowerKeys(this.map(configured, path));
         this.keys(item, path, Set.of("material", "id", "provider", "name", "lore", "amount", "data",
-                "item-model"));
+                "item-model", "hide-tooltip"));
         String raw = this.string(item.getOrDefault("id", item.get("material")), path + ".material", true);
         String id = this.materialId(raw, path);
         String provider = item.containsKey("provider")
@@ -683,12 +683,23 @@ final class RecipeDocumentParser {
         }
         Object configuredModel = item.get("item-model");
         boolean airItem = id.equals("minecraft:air");
+        boolean customModel = configuredModel instanceof String model && !model.isBlank()
+                && !model.equalsIgnoreCase("minecraft:air");
         boolean airModel = configuredModel instanceof String model && model.equalsIgnoreCase("minecraft:air");
         if (airItem || airModel) {
             ItemStack carrier = icon == null ? new ItemStack(Material.PAPER) : icon;
             ItemMeta meta = carrier.getItemMeta();
             if (meta != null) {
-                meta.setItemModel(NamespacedKey.minecraft("air"));
+                NamespacedKey model = airItem && customModel
+                        ? NamespacedKey.fromString((String) configuredModel)
+                        : NamespacedKey.minecraft("air");
+                if (model == null) {
+                    throw this.error(path + ".item-model", "invalid item model key");
+                }
+                meta.setItemModel(model);
+                if (Boolean.TRUE.equals(item.get("hide-tooltip"))) {
+                    meta.setHideTooltip(true);
+                }
                 carrier.setItemMeta(meta);
                 icon = carrier;
             }

@@ -40,6 +40,9 @@ import java.util.function.Consumer;
 /**
  * 发布 recipes/ 中的配方。受支持的集成交互只在生成缺失来源目录时读取一次；
  * 生成后绝不会继续把来源插件的实时管理器作为运行时配方来源。
+ *
+ * <p>文件监视在异步定时器上比较轻量指纹；真正加载和替换快照始终切回全局线程。
+ * 连续两次轮询看到相同指纹后才重载，以减少编辑器保存时产生的重复刷新。</p>
  */
 public final class ExternalRecipeService implements Listener {
     private static final List<String> BUILT_IN_SOURCES =
@@ -196,6 +199,7 @@ public final class ExternalRecipeService implements Listener {
 
     private void pollAsync() {
         if (this.stopped || !this.plugin.isEnabled()) return;
+        // 来源插件可能晚于 CER 启用；等待 CE 数据就绪后低频重试导出，直到来源集合稳定。
         if (!this.sourcesSettled && this.plugin.data().isReady() && this.sourceCheckTicks++ % 20 == 0
                 && this.sourceCheckScheduled.compareAndSet(false, true)) {
             this.plugin.tasks().global(() -> {
@@ -348,6 +352,7 @@ public final class ExternalRecipeService implements Listener {
                             || recipe.id().startsWith("minecraft_cultivation:") ? "minecraft" : "recipes",
                             null, recipe, () -> !this.stopped)).toList();
             ExternalRecipeSnapshot next = ExternalRecipeSnapshot.compile(entries);
+            // 先完整构建索引，再一次性发布快照，读者不会观察到半更新的索引集合。
             this.snapshot = next;
             this.lastFileState = fileState;
             ++this.generation;
@@ -371,6 +376,7 @@ public final class ExternalRecipeService implements Listener {
             for (Path path : paths.filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
                     .filter(this::isRecipeFile).sorted().toList()) {
                 state.put(directory.relativize(path).toString().replace('\\', '/'),
+                        // 修改时间与大小足以识别正常编辑；内容哈希会在每次轮询时造成不必要的 I/O。
                         Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS).toMillis()
                                 + ":" + Files.size(path));
             }
@@ -420,6 +426,7 @@ public final class ExternalRecipeService implements Listener {
 
     private void attach(Plugin source) {
         if (!source.isEnabled() || this.adapters.containsKey(source)) return;
+        // 插件名可以伪造，先通过主类和实现特征确认来源，再选择对应的反射适配器。
         PluginFingerprints.Fingerprint fingerprint = PluginFingerprints.identify(source).orElse(null);
         if (fingerprint == null) {
             PluginFingerprints.byPluginName(source.getName()).ifPresent(expected -> this.warnMismatch(source, expected));
@@ -432,11 +439,14 @@ public final class ExternalRecipeService implements Listener {
                 case "farmersdelight" -> this.plugin.getConfig().getBoolean("sources.farmersdelight", true)
                         ? new FarmersDelightRecipeSource(this.plugin, source) : null;
                 case "kaleidoscope" -> this.plugin.getConfig().getBoolean("sources.kaleidoscope", true)
-                        ? new KaleidoscopeRecipeSource(source) : null;
+                        ? new KaleidoscopeRecipeSource(source,
+                        dev.che1s.craftenginerecipe.i18n.IntegrationText.of(
+                                "kaleidoscope", this.plugin.lang())) : null;
                 case "customcrops" -> this.plugin.getConfig().getBoolean("sources.customcrops", true)
                         ? new CustomCropsRecipeSource(source, this.plugin.data()::resourcePackTranslation,
                         this.plugin.data()::itemDisplayName,
-                        () -> this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh")) : null;
+                        () -> this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh"),
+                        dev.che1s.craftenginerecipe.i18n.IntegrationText.of("customcrops", this.plugin.lang())) : null;
                 default -> null;
             };
             if (adapter != null) this.adapters.put(source, new Adapter(adapter));

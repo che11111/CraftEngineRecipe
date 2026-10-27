@@ -8,6 +8,7 @@ import dev.che1s.craftenginerecipe.api.RecipeResult;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -265,11 +266,26 @@ public final class RecipeFileExporter {
     private static Map<String, Object> item(RecipeItem item) {
         Map<String, Object> display = new LinkedHashMap<>();
         display.put("Material", item.id());
+        if (item.provider().equals("cer_fd_gui") && item.id().equals("minecraft:air")
+                && item.name() == null && item.lore() == null) {
+            display.put("Item-Model", "cer_fd_gui:fake_button");
+            display.put("Hide-Tooltip", true);
+            return display;
+        }
         String inferred = item.id().startsWith("minecraft:") ? "minecraft" : "craftengine";
         if (!item.provider().equals(inferred)) display.put("Provider", item.provider());
         if (item.name() != null) display.put("Name", item.name());
         if (item.lore() != null) display.put("Lore", item.lore());
         ItemStack icon = item.icon();
+        if (icon != null) {
+            ItemMeta meta = icon.getItemMeta();
+            if (meta != null && meta.hasItemModel()) {
+                display.put("Item-Model", meta.getItemModel().toString());
+            }
+            if (meta != null && meta.isHideTooltip()) {
+                display.put("Hide-Tooltip", true);
+            }
+        }
         if (icon != null && !item.provider().equals("craftengine") && !item.provider().equals("minecraft")) {
             try {
                 display.put("Data", icon.asOne().serializeAsBytes());

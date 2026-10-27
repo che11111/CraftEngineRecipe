@@ -1,0 +1,7 @@
+separator: ", "
+yes: "Yes"
+no: "No"
+unit.ticks: "{value} ticks"
+unit.seconds: "{value} seconds"
+unit.points: "{value} points"
+unit.blocks: "{value} blocks"

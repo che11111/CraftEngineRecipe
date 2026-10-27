@@ -25,9 +25,17 @@ messages:
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
   personalization-saved: '<#98C69A>Preferences saved: menu {menu}, restore position: {remember}.</#98C69A>'
-  unapplied-updated: '<#98C69A>Updated the unapplied namespace configuration for {namespace}.</#98C69A>'
-  unapplied-update-failed: '<#E58B8B>Unapplied namespace {namespace} was not found; nothing was changed.</#E58B8B>'
+  unapplied-updated: '<#98C69A>Updated namespace {namespace} in {file}.</#98C69A>'
+  unapplied-update-failed: '<#E58B8B>Namespace {namespace} was not found; {file} was not changed.</#E58B8B>'
   unapplied-permission-required: '<#E58B8B>A permission node is required when visibility is set to permission.</#E58B8B>'
+  button-updated: '<#98C69A>Updated the custom button in {file}.</#98C69A>'
+  button-update-failed: '<#E58B8B>The custom button no longer exists or {file} could not be saved.</#E58B8B>'
+  button-permission-required: '<#E58B8B>A permission node is required when button visibility is permission-based.</#E58B8B>'
+  management-saved: '<#98C69A>Management change saved and the menu was refreshed.</#98C69A>'
+  management-save-failed: '<#E58B8B>The target entry was not found or the configuration could not be saved.</#E58B8B>'
+  management-applied: '<#98C69A>{namespace} was applied to categories.yml. You can continue adjusting its order in the list.</#98C69A>'
+  management-moved: '<#98C69A>Display order updated.</#98C69A>'
+  management-edge: '<#8793A5>This entry is already at the edge of the list.</#8793A5>'
   management-applied-readonly: '<#E4D397>This namespace is already in categories.yml; edit the active configuration directly.</#E4D397>'
   management-no-category-page: '<#8793A5>Namespace {namespace} has no browsable namespace category page.</#8793A5>'
   index-build-started: '<#E4D397>Detected {plugins}; building the recipe index...</#E4D397>'
@@ -134,30 +142,92 @@ ui:
     name: <#79CFC9>Craftable Items</#79CFC9>
     title: '<bold><#374151>Craftable Items</#374151> <#465D70>»</#465D70> <#293341>Current Inventory</#293341></bold>'
   management:
-    name: <#D8B278>Category Management</#D8B278>
+    name: <#D8B278>Configuration Center</#D8B278>
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>Manage applied namespaces and custom buttons</#B8C0CC>
+    categories-summary: '<#8793A5>{entries} entries: {namespaces} namespaces and {buttons} buttons</#8793A5>'
+    unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>Review, edit and apply namespaces not yet present in the active menu</#B8C0CC>
+    unapplied-summary: '<#8793A5>{count} namespaces awaiting review</#8793A5>'
+    workstations-name: <#D8B278>workstations.yml</#D8B278>
+    workstations-lore: <#B8C0CC>Adjust workstation and custom button display order</#B8C0CC>
+    workstations-summary: '<#8793A5>{count} workstation-page entries</#8793A5>'
+    workstations-shortcut: <#79CFC9>Click to manage workstations</#79CFC9>
+    hidden-name: '<#D8B278>Category & Item Visibility</#D8B278>'
+    items-name: <#D8B278>Hidden Category Items</#D8B278>
     entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
     applied-lore: '<#98C69A>Applied: present in categories.yml</#98C69A>'
     unapplied-lore: '<#B8C0CC>Not applied: present only in categories-unapplied.yml</#B8C0CC>'
+    visibility-admin: Administrators only
+    visibility-player: All players
+    visibility-permission: Permission-based
+    visibility-value: '<#8793A5>Visibility: {visibility}  Permission: {permission}</#8793A5>'
+    category-state: '<#8793A5>Category entry: {entry}  Sorting: {sort}  Hidden rules: {hide}</#8793A5>'
+    namespace-browse: '<#79CFC9>Left-click: browse this namespace</#79CFC9>'
+    namespace-edit: '<#79CFC9>Right-click: edit names, permissions, lore and sorting</#79CFC9>'
+    namespace-hide: '<#79CFC9>Middle-click: manage category and item visibility</#79CFC9>'
+    namespace-hide-unapplied: '<#79CFC9>Shift+Left: manage category and item visibility</#79CFC9>'
+    namespace-order: '<#E4D397>Shift+Left: move up / Shift+Right: move down</#E4D397>'
+    namespace-apply: '<#98C69A>Middle-click: apply this namespace to categories.yml</#98C69A>'
     no-category-button-lore: '<#8793A5>This entry does not show a namespace category button</#8793A5>'
     category-bar-lore: <#B8C0CC>View applied and unapplied namespaces</#B8C0CC>
+    button-name: Custom button
+    button-type: '<#8793A5>Type: custom button</#8793A5>'
+    button-use: '<#79CFC9>Left-click: run this button</#79CFC9>'
+    button-edit: '<#79CFC9>Right-click: edit icon, text, permission and actions</#79CFC9>'
+    category-hidden: <#E58B8B>Category entry is hidden (including its browsing paths)</#E58B8B>
+    category-visible: <#98C69A>Category entry is visible</#98C69A>
+    category-count: '<#8793A5>{items} direct items and {children} subcategories</#8793A5>'
+    category-open-items: '<#79CFC9>Left-click: manage direct items in this category</#79CFC9>'
+    category-toggle: '<#79CFC9>Right-click: hide / show the category entry and its paths</#79CFC9>'
+    items-all-hidden: <#E58B8B>All direct items in this category are hidden</#E58B8B>
+    items-toggle-all: '<#79CFC9>Shift+Left or Shift+Right: hide / show all direct items</#79CFC9>'
+    item-hidden: <#E58B8B>Currently hidden</#E58B8B>
+    item-visible: <#98C69A>Currently visible</#98C69A>
+    item-id: '<#8793A5>{id}</#8793A5>'
+    item-toggle: <#79CFC9>Click to toggle visibility</#79CFC9>
+    workstation-id: '<#8793A5>{id}</#8793A5>'
+    workstation-use: '<#79CFC9>Left-click: open this workstation page</#79CFC9>'
+    workstation-order: '<#E4D397>Shift+Left: move up / Shift+Right: move down</#E4D397>'
   unapplied-editor:
-    title: '<bold><#D8B278>Edit Unapplied Category</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
-    description: <#B8C0CC>Only categories-unapplied.yml is changed; the active categories.yml is not modified.</#B8C0CC>
-    edit-lore: '<#79CFC9>Right-click: edit this unapplied namespace</#79CFC9>'
+    title: '<bold><#D8B278>Edit Category Namespace</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
+    description: '<#B8C0CC>Changes {file}; the menu refreshes immediately and the previous version is kept as a .bak file.</#B8C0CC>'
+    edit-lore: '<#79CFC9>Right-click: edit this namespace</#79CFC9>'
     visibility: <#79CFC9>Visibility</#79CFC9>
     visibility-admin: Administrators only
     visibility-player: All players
     visibility-permission: Permission-based
     permission: <#79CFC9>Permission node</#79CFC9>
     icon-name: <#79CFC9>Category name template</#79CFC9>
+    item-lore: <#79CFC9>Item lore (one line per row)</#79CFC9>
+    icon-lore: <#79CFC9>Top-level category lore (one line per row)</#79CFC9>
+    sub-icon-lore: <#79CFC9>Subcategory lore (one line per row)</#79CFC9>
     category-entry: <#79CFC9>Show namespace category entry</#79CFC9>
     sort-by-namespace: <#79CFC9>Sort by namespace and path</#79CFC9>
     hide-items-without-recipes: <#79CFC9>Hide items without CER recipes</#79CFC9>
     hidden-rules-affect-workstations: <#79CFC9>Apply hiding rules to workstations</#79CFC9>
+    hide-inaccessible: <#79CFC9>Hide and reclaim the slot when inaccessible</#79CFC9>
     save: <#98C69A>Save changes</#98C69A>
-    save-tooltip: <#B8C0CC>Save to categories-unapplied.yml</#B8C0CC>
+    save-tooltip: <#B8C0CC>Save to the current category configuration</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
-    cancel-tooltip: <#B8C0CC>Discard changes and return to unapplied categories</#B8C0CC>
+    cancel-tooltip: <#B8C0CC>Discard changes and return to the configuration center</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>Edit Custom Button</#D8B278></bold>
+    description: '<#B8C0CC>Changes {file}. Write each action as "click type | action"; the click type defaults to all.</#B8C0CC>'
+    material: <#79CFC9>Material or item ID</#79CFC9>
+    name: <#79CFC9>Button name</#79CFC9>
+    lore: <#79CFC9>Button lore (one line per row)</#79CFC9>
+    visibility: <#79CFC9>Button visibility</#79CFC9>
+    visibility-admin: Administrators only
+    visibility-player: All players
+    visibility-permission: Permission-based
+    permission: <#79CFC9>Permission node</#79CFC9>
+    hide-inaccessible: <#79CFC9>Hide and reclaim the slot when inaccessible</#79CFC9>
+    actions: '<#79CFC9>Button actions (one line: click type | action)</#79CFC9>'
+    save: <#98C69A>Save button</#98C69A>
+    save-tooltip: <#B8C0CC>Write to the current configuration</#B8C0CC>
+    cancel: <#E58B8B>Cancel</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Discard changes and return to the configuration center</#B8C0CC>
   # The cultivation data is controlled by the separate vanilla and CraftEngine cultivation source flags.
   workstations:
     title: '<bold><#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'

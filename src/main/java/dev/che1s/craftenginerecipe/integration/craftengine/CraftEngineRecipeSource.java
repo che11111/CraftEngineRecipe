@@ -8,6 +8,7 @@ import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import dev.che1s.craftenginerecipe.integration.common.RecipeSource;
+import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import net.momirealms.craftengine.core.item.recipe.CustomBrewingRecipe;
 import net.momirealms.craftengine.core.item.recipe.CustomCookingRecipe;
 import net.momirealms.craftengine.core.item.recipe.CustomShapedRecipe;
@@ -33,9 +34,11 @@ public final class CraftEngineRecipeSource implements RecipeSource {
     private static final List<Integer> CRAFTING_SLOTS =
             List.of(10, 11, 12, 19, 20, 21, 28, 29, 30);
     private final CraftEngineRecipePlugin plugin;
+    private final IntegrationText text;
 
     public CraftEngineRecipeSource(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
+        this.text = IntegrationText.of("craftengine", plugin.lang());
     }
 
     @Override public String id() { return SOURCE_ID; }
@@ -55,8 +58,8 @@ public final class CraftEngineRecipeSource implements RecipeSource {
                     if (result == null || result.item() == null || result.item().id() == null) continue;
                     List<RecipeIngredient> ingredients = ingredients(recipe, type);
                     if (ingredients.isEmpty()) continue;
-                    String stationName = this.plugin.lang().text(
-                            "ui.workstations.categories." + page.langKey());
+                    String stationName = this.text.text("station." + page.langKey(),
+                            this.plugin.lang().text("ui.workstations.categories." + page.langKey()));
                     String recipeId = "craftengine:" + page.id() + "/"
                             + recipe.id().toString().replace(':', '/').toLowerCase(Locale.ROOT);
                     RecipeWorkstation station = new RecipeWorkstation(

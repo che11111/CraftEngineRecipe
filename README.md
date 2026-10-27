@@ -66,28 +66,21 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 2. On first run, enabled menu packs plus `cer_kc_gui` and `cer_fd_gui` are installed as subpacks under `CraftEngine/resources/CraftEngineRecipe/subpacks/`. Cute, rough, vanilla-material, and map styles are enabled by default. Players can open a style with `/cer open <pack>`.
 
-3. Wait for data initialization to finish, then run `/cer unapplied` as an administrator to preview categories that have not yet been applied.
+3. Wait for data initialization to finish, then run `/cer manage` as an administrator to open the Configuration Center.
 
-4. Copy the desired namespace entries from `plugins/CraftEngineRecipe/navigation/categories-unapplied.yml` into `entries` in `navigation/categories.yml`, for example:
+4. In `categories.yml`, right-click a namespace to edit visibility, permissions, names, lore, sorting and hiding options. Middle-click opens category and item visibility controls. Entries awaiting review in `categories-unapplied.yml` can be edited there and applied with middle-click.
 
-   ```yaml
-   entries:
-     - id: farmersdelight
-       visibility: player
-       permission: ''
-   ```
+5. On the category page, left-click to manage direct items and click an item to toggle visibility. Right-click toggles the category entry and its paths; `Shift+Left/Right` hides or shows every direct item in that category. Use `Shift+Left/Right` in the namespace list to reorder entries.
 
-   Replace `farmersdelight` with an existing namespace. If `entries` already exists, append the entry.
+6. In `workstations.yml`, left-click opens a workstation preview and `Shift+Left/Right` reorders workstations and custom buttons. Every change is written to `navigation/` and reflected in the menu immediately; no `/cer reload` is required. The previous version is kept as a `.bak` file.
 
-   Addons containing only one item or only recipe data can use `category-entry: false`. This omits the namespace category button while keeping items in search, direct queries, and workstation output pages.
+7. Open the menu with `/cer` or Shift+F. Left-click an item for its recipes; right-click to see recipes that use it.
 
-5. Run `/cer reload`, then open the menu with `/cer` or Shift+F. Left-click an item for its recipes; right-click to see recipes that use it.
+8. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style and whether reopening restores the previous position. Preferences are stored in `player-preferences.db`.
 
-6. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style and whether reopening restores the previous position. Preferences are stored in `player-preferences.db`.
+9. By default, online administrators receive the detected recipe-source list when startup indexing begins. After CraftEngine reloads its configuration and resource packs, CER automatically re-exports CE recipes and refreshes its index.
 
-7. By default, online administrators receive the detected recipe-source list when startup indexing begins. After CraftEngine reloads its configuration and resource packs, CER automatically re-exports CE recipes and refreshes its index.
-
-If the main menu is empty on first use, apply the desired categories first. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for details.
+Addons containing only one item or only recipe data can disable **Show namespace category entry** in the editor while keeping items in search, direct queries and workstation pages. Manual YAML editing remains supported. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for details.
 
 ## Configuration Layout
 
@@ -101,6 +94,14 @@ plugins/CraftEngineRecipe/
 │   └── examples/
 │       └── categories.yml
 ├── lang/
+│   └── integrations/
+│       ├── common/{zh_CN,en_US}.yml
+│       ├── craftengine/{zh_CN,en_US}.yml
+│       ├── farmersdelight/{zh_CN,en_US}.yml
+│       ├── kaleidoscope/{zh_CN,en_US}.yml
+│       ├── customcrops/{zh_CN,en_US}.yml
+│       ├── cultivation/{zh_CN,en_US}.yml
+│       └── minecraft/{zh_CN,en_US}.yml
 ├── recipes/
 └── resources/
 ```
@@ -116,6 +117,8 @@ cer_menu_cute/
 └── resourcepack/
 ```
 
+Exported titles, lore, and descriptions follow `config.yml > language`. Third-party item names remain controlled by the CraftEngine resource pack and the client's language.
+
 ## Common Commands
 
 | Command | Purpose |
@@ -125,7 +128,7 @@ cer_menu_cute/
 | `/cer hand` | View recipes producing the vanilla or CraftEngine item in your main hand, respecting configured category restrictions |
 | `/cer target` | View recipes producing the vanilla or CraftEngine block under your crosshair, respecting configured category restrictions |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | Re-read a source and replace its data under `recipes/` (administrator) |
-| `/cer manage` | Open Category Management to view applied/unapplied namespaces and edit unapplied entries (administrator) |
+| `/cer manage` | Open the Configuration Center to edit categories, hiding rules, ordering and workstation configuration in game (administrator) |
 | `/cer unapplied` | Browse recipes using category entries from `categories-unapplied.yml` (administrator) |
 | `/cer reload` | Reload configuration and indexes (administrator; recipe-file edits reload automatically) |
 | `/cer open <pack>` | Open the menu using an enabled UI pack |

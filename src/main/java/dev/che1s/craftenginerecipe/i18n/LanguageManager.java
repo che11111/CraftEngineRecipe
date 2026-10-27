@@ -22,7 +22,12 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** 每次重载只加载一次翻译。渲染消息时不会再读取文件。 */
+/**
+ * 每次重载只加载一次翻译。渲染消息时不会再读取文件。
+ *
+ * <p>内置语言提供基础键，磁盘文件允许服主覆盖文本或补充其他语言；
+ * 选择非英文语言时仍以英文内置资源补齐缺失项。</p>
+ */
 public final class LanguageManager {
     private static final List<String> BUILT_INS = List.of("zh_CN", "en_US");
     private static final Pattern ARGUMENT = Pattern.compile("\\{([a-zA-Z0-9_-]+)}");
@@ -30,6 +35,7 @@ public final class LanguageManager {
     private final Path directory;
     private final Function<String, InputStream> resources;
     private final Logger logger;
+    private final IntegrationLanguageManager integrations;
     private final Map<String, Map<String, Object>> bundled = new LinkedHashMap<>();
     private volatile Bundle active;
 
@@ -37,6 +43,7 @@ public final class LanguageManager {
         this.directory = dataFolder.resolve("lang");
         this.resources = resources;
         this.logger = logger;
+        this.integrations = new IntegrationLanguageManager(dataFolder, resources, logger);
         for (String locale : BUILT_INS) {
             try (InputStream stream = resources.apply("lang/" + locale + ".yml")) {
                 if (stream == null) throw new IllegalStateException("Missing bundled language: " + locale);
@@ -60,6 +67,7 @@ public final class LanguageManager {
                     }
                 } else {
                     try (InputStream stream = this.resources.apply("lang/" + locale + ".yml")) {
+                        // 仅补齐新版本新增的键，避免覆盖服主已有的自定义翻译。
                         YamlDefaultsUpdater.update(file, stream);
                     } catch (IOException | InvalidConfigurationException | RuntimeException e) {
                         this.logger.warning(this.text("logs.language-update-failed", "file", file.toString(),
@@ -77,6 +85,7 @@ public final class LanguageManager {
             this.logger.warning(this.text("logs.language-unknown", "locale", String.valueOf(requested)));
             locale = "zh_CN";
         }
+        // 英文基础集保证任何支持语言都不会出现大量裸键；selected 与磁盘内容依次覆盖。
         Map<String, Object> values = new LinkedHashMap<>(this.bundled.get("en_US"));
         values.putAll(this.bundled.getOrDefault(locale, Map.of()));
         Path file = this.directory.resolve(locale + ".yml");
@@ -88,6 +97,7 @@ public final class LanguageManager {
             }
         }
         this.active = new Bundle(locale, Map.copyOf(values));
+        this.integrations.load(locale);
     }
 
     private static Map<String, Object> read(java.io.Reader reader) throws IOException, InvalidConfigurationException {
@@ -115,6 +125,14 @@ public final class LanguageManager {
 
     public String locale() {
         return this.active.locale();
+    }
+
+    public String integrationText(String source, String key, Object... arguments) {
+        return this.integrations.text(source, key, arguments);
+    }
+
+    public List<String> integrationList(String source, String key) {
+        return this.integrations.list(source, key);
     }
 
     public String text(String key, String... arguments) {

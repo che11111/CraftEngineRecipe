@@ -180,6 +180,7 @@ public final class GuiSession {
         this.clearRecipeHistory();
     }
 
+    /** 快照是纯数据，可跨重启持久化；不可序列化的引用在 restore() 时重算。 */
     public Snapshot snapshot() {
         return new Snapshot(
                 this.currentCategory == null ? null : this.currentCategory.toString(),
@@ -203,6 +204,8 @@ public final class GuiSession {
     }
 
     public void restore(Snapshot snapshot, Function<String, RecipeEntry.Output> selectionResolver, long generation) {
+        // 恢复只重建“位置”，不重建实时对象：合成器选择通过 selectionResolver
+        // 重新解析，其余引用统一置空，等待页面重新打开时按需重建。
         this.craftableMode = false;
         this.managerMode = false;
         this.currentCategory = snapshot.category() == null ? null : Key.of(snapshot.category());

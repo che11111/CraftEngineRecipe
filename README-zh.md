@@ -68,28 +68,21 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 2. 首次运行时会把已启用菜单包及 `cer_kc_gui`、`cer_fd_gui` 统一放在 `CraftEngine/resources/CraftEngineRecipe/subpacks/` 下。默认启用可爱版、粗版、原版材质版和地图版。玩家用 `/cer open <包名>` 打开对应界面。
 
-3. 等待数据就绪，管理员执行 `/cer unapplied` 预览待应用分类。
+3. 等待数据就绪，管理员执行 `/cer manage` 打开配置管理中心。
 
-4. 将 `plugins/CraftEngineRecipe/navigation/categories-unapplied.yml` 中需要的命名空间条目复制到 `navigation/categories.yml` 的 `entries` 下，例如：
+4. 在 `categories.yml` 页面中右键命名空间可编辑可见性、权限、名称与 Lore、排序及隐藏选项；中键进入分类与物品隐藏页。未应用条目可在 `categories-unapplied.yml` 页面直接编辑，并用中键应用到正式菜单。
 
-   ```yaml
-   entries:
-     - id: farmersdelight
-       visibility: player
-       permission: ''
-   ```
+5. 在分类页左键进入物品管理，点击物品切换隐藏状态；右键切换分类入口隐藏，`Shift+左键/右键` 批量隐藏或显示该分类的直接物品。返回命名空间列表后，使用 `Shift+左键/右键` 调整显示顺序。
 
-   将 `farmersdelight` 换成实际存在的命名空间；已有 `entries` 时追加条目即可。
+6. `workstations.yml` 页面支持直接进入合成器预览，并使用 `Shift+左键/右键` 调整合成器与自定义按钮顺序。所有修改立即写回 `navigation/` 文件并刷新菜单，无需执行 `/cer reload`；写回前同目录会保留上一版 `.bak`。
 
-   只有一个物品、只提供配方的附属包可以设置 `category-entry: false`。这样不会在按命名空间分类页面添加按钮，但物品仍会进入搜索、直接查询和合成器产物页面。
+7. 用 `/cer` 或 Shift+F 打开正式菜单。左键物品查看配方，右键查看可参与配方。
 
-5. 执行 `/cer reload`，完成后用 `/cer` 或 Shift+F 打开菜单。左键物品查看配方，右键查看可参与配方。
+8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择自己的菜单样式，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
 
-6. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择自己的菜单样式，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
+9. 默认情况下，插件启动构建索引时会向在线管理员提示检测到的配方来源插件；CraftEngine 重载配置与资源包后会自动重新导出 CE 配方并刷新索引。
 
-7. 默认情况下，插件启动构建索引时会向在线管理员提示检测到的配方来源插件；CraftEngine 重载配置与资源包后会自动重新导出 CE 配方并刷新索引。
-
-首次正式菜单为空时，请先完成分类应用。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
+只有一个物品、只提供配方的附属包可在编辑器中关闭“显示命名空间分类入口”；物品仍会进入搜索、直接查询和合成器产物页面。也可以继续手工编辑 YAML。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
 
 ## 配置目录
 
@@ -103,6 +96,14 @@ plugins/CraftEngineRecipe/
 │   └── examples/
 │       └── categories.yml
 ├── lang/
+│   └── integrations/
+│       ├── common/{zh_CN,en_US}.yml
+│       ├── craftengine/{zh_CN,en_US}.yml
+│       ├── farmersdelight/{zh_CN,en_US}.yml
+│       ├── kaleidoscope/{zh_CN,en_US}.yml
+│       ├── customcrops/{zh_CN,en_US}.yml
+│       ├── cultivation/{zh_CN,en_US}.yml
+│       └── minecraft/{zh_CN,en_US}.yml
 ├── recipes/
 └── resources/
 ```
@@ -118,6 +119,8 @@ cer_menu_cute/
 └── resourcepack/
 ```
 
+各配方来源导出的标题、Lore 和说明文字统一跟随 `config.yml` 中的 `language`。第三方物品本身的名称仍由 CraftEngine 资源包和客户端语言决定。
+
 ## 常用命令
 
 | 命令 | 用途 |
@@ -127,7 +130,7 @@ cer_menu_cute/
 | `/cer hand` | 查看主手原版或 CE 物品的合成配方，遵循已配置的分类限制 |
 | `/cer target` | 查看准星所指原版或 CE 方块的合成配方，遵循已配置的分类限制 |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | 重新获取对应来源并替换 `recipes/` 下的数据（管理员） |
-| `/cer manage` | 打开分类管理：查看已应用/未应用命名空间并编辑未应用条目（管理员） |
+| `/cer manage` | 打开配置管理中心：在游戏内编辑分类、隐藏规则、显示顺序与合成器配置（管理员） |
 | `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面（管理员） |
 | `/cer reload` | 手动重载配置与索引（管理员；配方文件修改会自动加载） |
 | `/cer open <包名>` | 使用指定且已启用的 UI 样式打开菜单 |

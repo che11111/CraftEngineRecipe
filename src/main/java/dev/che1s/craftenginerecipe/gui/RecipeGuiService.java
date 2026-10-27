@@ -113,15 +113,17 @@ public final class RecipeGuiService {
         int safeIndex = Math.max(0, Math.min(index, recipes.size() - 1));
         RecipeEntry entry = recipes.get(safeIndex);
         GuiSession.of(player).recipeContext(itemId, safeIndex, usageMode);
+        Key usageItem = usageMode ? itemId : null;
         if (entry.nativeRecipe() != null) {
             this.openRecipe(player, entry.nativeRecipe(), List.of(entry.nativeRecipe()), safeIndex, usageMode);
         } else if (entry.display().layout().page() != null) {
-            this.openCerRecipePage(player, entry.display(), entry.display().layout().page());
+            this.openCerRecipePage(player, entry.display(), entry.display().layout().page(), usageItem);
         } else if (isBundledMinecraft(entry.display())) {
-            this.openBundledMinecraft(player, entry.display());
+            this.openBundledMinecraft(player, entry.display(), usageItem);
         } else {
             // 来源配方会被读入 CER 的不可变快照，并由 CER 渲染。
-            this.chestRenderer.open(player, entry, safeIndex, recipes.size(), openIndex, this::clickable);
+            this.chestRenderer.open(player, entry, safeIndex, recipes.size(), usageItem,
+                    openIndex, this::clickable);
         }
         this.scheduleRotation(player, safeIndex, recipes, openIndex);
         return true;
@@ -131,44 +133,45 @@ public final class RecipeGuiService {
         return recipe != null && recipe.id().startsWith("minecraft_data:");
     }
 
-    private void openBundledMinecraft(Player player, DisplayRecipe recipe) {
+    private void openBundledMinecraft(Player player, DisplayRecipe recipe, Key usageItem) {
         String station = recipe.workstation().id();
         switch (station) {
-            case "minecraft:crafting" -> this.openBundledCrafting(player, recipe);
+            case "minecraft:crafting" -> this.openBundledCrafting(player, recipe, usageItem);
             case "minecraft:smelting", "minecraft:blasting", "minecraft:smoking" ->
-                    this.openBundledFurnace(player, recipe, station.substring("minecraft:".length()).toUpperCase());
-            case "minecraft:campfire_cooking" -> this.openBundledCampfire(player, recipe);
-            case "minecraft:stonecutting" -> this.openBundledStonecutting(player, recipe);
-            case "minecraft:smithing" -> this.openBundledSmithing(player, recipe);
+                    this.openBundledFurnace(player, recipe,
+                            station.substring("minecraft:".length()).toUpperCase(), usageItem);
+            case "minecraft:campfire_cooking" -> this.openBundledCampfire(player, recipe, usageItem);
+            case "minecraft:stonecutting" -> this.openBundledStonecutting(player, recipe, usageItem);
+            case "minecraft:smithing" -> this.openBundledSmithing(player, recipe, usageItem);
             default -> this.openNoRecipe(player,
                     ExternalRecipeSnapshot.key(recipe.results().getFirst().item()), false);
         }
     }
 
-    private void openCerRecipePage(Player player, DisplayRecipe recipe, String page) {
+    private void openCerRecipePage(Player player, DisplayRecipe recipe, String page, Key usageItem) {
         switch (page) {
-            case "crafting" -> this.openBundledCrafting(player, recipe);
-            case "smelting" -> this.openBundledFurnace(player, recipe, "SMELTING");
-            case "blasting" -> this.openBundledFurnace(player, recipe, "BLASTING");
-            case "smoking" -> this.openBundledFurnace(player, recipe, "SMOKING");
-            case "campfire" -> this.openBundledCampfire(player, recipe);
-            case "stonecutting" -> this.openBundledStonecutting(player, recipe);
-            case "smithing" -> this.openBundledSmithing(player, recipe);
-            case "brewing" -> this.openBundledBrewing(player, recipe);
+            case "crafting" -> this.openBundledCrafting(player, recipe, usageItem);
+            case "smelting" -> this.openBundledFurnace(player, recipe, "SMELTING", usageItem);
+            case "blasting" -> this.openBundledFurnace(player, recipe, "BLASTING", usageItem);
+            case "smoking" -> this.openBundledFurnace(player, recipe, "SMOKING", usageItem);
+            case "campfire" -> this.openBundledCampfire(player, recipe, usageItem);
+            case "stonecutting" -> this.openBundledStonecutting(player, recipe, usageItem);
+            case "smithing" -> this.openBundledSmithing(player, recipe, usageItem);
+            case "brewing" -> this.openBundledBrewing(player, recipe, usageItem);
             default -> this.openNoRecipe(player,
                     recipe.results().isEmpty() ? null
                             : ExternalRecipeSnapshot.key(recipe.results().getFirst().item()), false);
         }
     }
 
-    private void openBundledCrafting(Player player, DisplayRecipe recipe) {
+    private void openBundledCrafting(Player player, DisplayRecipe recipe, Key usageItem) {
         Gui grid = Gui.builder().setStructure("###", "###", "###")
                 .addIngredient('#', Item.EMPTY).build();
         for (RecipeIngredient ingredient : recipe.ingredients()) {
             int slot = craftingGridSlot(ingredient.slot());
             if (slot < 0) continue;
-            grid.setSlotElement(slot, new SlotElement.Item(this.clickable(firstKey(ingredient),
-                    this.displayIngredientItem(player, ingredient))));
+            grid.setSlotElement(slot, new SlotElement.Item(this.clickable(firstKey(ingredient, usageItem),
+                    this.displayIngredientItem(player, ingredient, usageItem))));
         }
         RecipeResult result = recipe.results().getFirst();
         Key resultId = ExternalRecipeSnapshot.key(result.item());
@@ -184,11 +187,11 @@ public final class RecipeGuiService {
                 .build());
     }
 
-    private void openBundledFurnace(Player player, DisplayRecipe recipe, String type) {
+    private void openBundledFurnace(Player player, DisplayRecipe recipe, String type, Key usageItem) {
         RecipeIngredient ingredient = recipe.ingredients().getFirst();
         Gui input = Gui.builder().setStructure("#", "f")
-                .addIngredient('#', this.clickable(firstKey(ingredient),
-                        this.displayIngredientItem(player, ingredient)))
+                .addIngredient('#', this.clickable(firstKey(ingredient, usageItem),
+                        this.displayIngredientItem(player, ingredient, usageItem)))
                 .addIngredient('f', Item.simple(this.fuelIcon(player))).build();
         RecipeResult result = recipe.results().getFirst();
         Key resultId = ExternalRecipeSnapshot.key(result.item());
@@ -203,11 +206,11 @@ public final class RecipeGuiService {
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
     }
 
-    private void openBundledCampfire(Player player, DisplayRecipe recipe) {
+    private void openBundledCampfire(Player player, DisplayRecipe recipe, Key usageItem) {
         RecipeIngredient ingredient = recipe.ingredients().getFirst();
         Gui input = Gui.builder().setStructure("#", "f")
-                .addIngredient('#', this.clickable(firstKey(ingredient),
-                        this.displayIngredientItem(player, ingredient)))
+                .addIngredient('#', this.clickable(firstKey(ingredient, usageItem),
+                        this.displayIngredientItem(player, ingredient, usageItem)))
                 .addIngredient('f', Item.EMPTY).build();
         RecipeResult result = recipe.results().getFirst();
         Key resultId = ExternalRecipeSnapshot.key(result.item());
@@ -222,11 +225,11 @@ public final class RecipeGuiService {
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
     }
 
-    private void openBundledStonecutting(Player player, DisplayRecipe recipe) {
+    private void openBundledStonecutting(Player player, DisplayRecipe recipe, Key usageItem) {
         RecipeIngredient ingredient = recipe.ingredients().getFirst();
         Gui upper = Gui.builder().setStructure("i#")
-                .addIngredient('i', this.clickable(firstKey(ingredient),
-                        this.displayIngredientItem(player, ingredient)))
+                .addIngredient('i', this.clickable(firstKey(ingredient, usageItem),
+                        this.displayIngredientItem(player, ingredient, usageItem)))
                 .addIngredient('#', Item.EMPTY).build();
         RecipeResult result = recipe.results().getFirst();
         Key resultId = ExternalRecipeSnapshot.key(result.item());
@@ -241,7 +244,7 @@ public final class RecipeGuiService {
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
     }
 
-    private void openBundledSmithing(Player player, DisplayRecipe recipe) {
+    private void openBundledSmithing(Player player, DisplayRecipe recipe, Key usageItem) {
         List<RecipeIngredient> ingredients = recipe.ingredients();
         if (ingredients.size() < 3) {
             this.openNoRecipe(player, ExternalRecipeSnapshot.key(recipe.results().getFirst().item()), false);
@@ -250,12 +253,12 @@ public final class RecipeGuiService {
         RecipeResult result = recipe.results().getFirst();
         Key resultId = ExternalRecipeSnapshot.key(result.item());
         Gui upper = Gui.builder().setStructure("tbar")
-                .addIngredient('t', this.clickable(firstKey(ingredients.get(0)),
-                        this.displayIngredientItem(player, ingredients.get(0))))
-                .addIngredient('b', this.clickable(firstKey(ingredients.get(1)),
-                        this.displayIngredientItem(player, ingredients.get(1))))
-                .addIngredient('a', this.clickable(firstKey(ingredients.get(2)),
-                        this.displayIngredientItem(player, ingredients.get(2))))
+                .addIngredient('t', this.clickable(firstKey(ingredients.get(0), usageItem),
+                        this.displayIngredientItem(player, ingredients.get(0), usageItem)))
+                .addIngredient('b', this.clickable(firstKey(ingredients.get(1), usageItem),
+                        this.displayIngredientItem(player, ingredients.get(1), usageItem)))
+                .addIngredient('a', this.clickable(firstKey(ingredients.get(2), usageItem),
+                        this.displayIngredientItem(player, ingredients.get(2), usageItem)))
                 .addIngredient('r', this.clickable(resultId,
                         ItemBridge.build(result.item(), player, result.amount()))).build();
         this.browser.openWindow(SmithingWindow.builder().setViewer(player)
@@ -265,15 +268,15 @@ public final class RecipeGuiService {
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
     }
 
-    private void openBundledBrewing(Player player, DisplayRecipe recipe) {
+    private void openBundledBrewing(Player player, DisplayRecipe recipe, Key usageItem) {
         if (recipe.ingredients().isEmpty() || recipe.results().isEmpty()) {
             this.openNoRecipe(player, null, false);
             return;
         }
         RecipeIngredient ingredient = recipe.ingredients().getFirst();
         Gui input = Gui.builder().setStructure("i")
-                .addIngredient('i', this.clickable(firstKey(ingredient),
-                        this.displayIngredientItem(player, ingredient))).build();
+                .addIngredient('i', this.clickable(firstKey(ingredient, usageItem),
+                        this.displayIngredientItem(player, ingredient, usageItem))).build();
         Gui fuel = Gui.builder().setStructure("f")
                 .addIngredient('f', Item.simple(new ItemStack(Material.BLAZE_POWDER))).build();
         RecipeResult result = recipe.results().getFirst();
@@ -291,15 +294,17 @@ public final class RecipeGuiService {
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
     }
 
-    private ItemStack displayIngredientItem(Player player, RecipeIngredient ingredient) {
+    private ItemStack displayIngredientItem(Player player, RecipeIngredient ingredient, Key usageItem) {
         if (ingredient.choices().isEmpty()) return ItemBridge.emptySlot();
-        RecipeItem choice = ingredient.choices().getFirst();
+        int choiceIndex = ChestRecipeRenderer.choiceIndex(ingredient.choices(), 0, usageItem);
+        RecipeItem choice = ingredient.choices().get(choiceIndex);
         return ItemBridge.build(choice, player, ingredient.amount());
     }
 
-    private static Key firstKey(RecipeIngredient ingredient) {
+    private static Key firstKey(RecipeIngredient ingredient, Key usageItem) {
         return ingredient.choices().isEmpty() ? null
-                : ExternalRecipeSnapshot.key(ingredient.choices().getFirst());
+                : ExternalRecipeSnapshot.key(ingredient.choices().get(
+                        ChestRecipeRenderer.choiceIndex(ingredient.choices(), 0, usageItem)));
     }
 
     private static int craftingGridSlot(int recipeSlot) {
@@ -313,6 +318,8 @@ public final class RecipeGuiService {
         if (recipes.size() <= 1) {
             return;
         }
+        // 多配方轮播：每个间隔后重开下一份配方。通过窗口身份比较判断
+        // 玩家是否还停留在同一页面，否则停止轮播而不是跳转。
         Window window = WindowManager.getInstance().getOpenWindow(player);
         if (window == null) {
             return;

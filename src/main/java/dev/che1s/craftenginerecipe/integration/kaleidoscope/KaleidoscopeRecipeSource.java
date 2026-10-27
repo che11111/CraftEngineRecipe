@@ -7,6 +7,7 @@ import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import dev.che1s.craftenginerecipe.integration.common.RecipeSource;
+import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.InvocationTargetException;
@@ -43,23 +44,41 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
     private final Object knives;
     private final BooleanSupplier enabled;
     private final RecipeLayout layout;
+    private final IntegrationText text;
 
     public KaleidoscopeRecipeSource(Plugin source) {
-        this(load(source), source::isEnabled, RecipeLayout.patterned(DEFAULT_LAYOUT, null));
+        this(source, IntegrationText.empty());
+    }
+
+    public KaleidoscopeRecipeSource(Plugin source, IntegrationText text) {
+        this(load(source), source::isEnabled, RecipeLayout.patterned(DEFAULT_LAYOUT, null), text);
     }
 
     private KaleidoscopeRecipeSource(Bindings bindings, BooleanSupplier enabled, RecipeLayout layout) {
-        this(bindings.registry(), bindings.appliances(), bindings.style(), bindings.tags(), bindings.knives(), enabled, layout);
+        this(bindings.registry(), bindings.appliances(), bindings.style(), bindings.tags(), bindings.knives(),
+                enabled, layout, IntegrationText.empty());
+    }
+
+    private KaleidoscopeRecipeSource(Bindings bindings, BooleanSupplier enabled, RecipeLayout layout,
+                                     IntegrationText text) {
+        this(bindings.registry(), bindings.appliances(), bindings.style(), bindings.tags(), bindings.knives(),
+                enabled, layout, text);
     }
 
     // 测试注册表夹具无需启动服务器即可验证真实反射边界。
     KaleidoscopeRecipeSource(Object registry, List<?> appliances, Object style, Object tags, Object knives,
                              BooleanSupplier enabled) {
-        this(registry, appliances, style, tags, knives, enabled, RecipeLayout.patterned(DEFAULT_LAYOUT, null));
+        this(registry, appliances, style, tags, knives, enabled,
+                RecipeLayout.patterned(DEFAULT_LAYOUT, null), IntegrationText.empty());
     }
 
     KaleidoscopeRecipeSource(Object registry, List<?> appliances, Object style, Object tags, Object knives,
                              BooleanSupplier enabled, RecipeLayout layout) {
+        this(registry, appliances, style, tags, knives, enabled, layout, IntegrationText.empty());
+    }
+
+    KaleidoscopeRecipeSource(Object registry, List<?> appliances, Object style, Object tags, Object knives,
+                             BooleanSupplier enabled, RecipeLayout layout, IntegrationText text) {
         this.registry = registry;
         this.appliances = List.copyOf(appliances);
         this.style = style;
@@ -67,6 +86,7 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         this.knives = knives;
         this.enabled = enabled;
         this.layout = java.util.Objects.requireNonNull(layout, "layout");
+        this.text = text == null ? IntegrationText.empty() : text;
         requireMethod(registry, "readSnapshot", (Supplier<?>) List::of);
         requireMethod(registry, "generation");
         requireMethod(registry, "choppingRecipes");
@@ -88,6 +108,7 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
     @Override public List<DisplayRecipe> capture() {
         if (!ready()) throw new IllegalStateException("Kaleidoscope Cookery recipes are not ready");
         @SuppressWarnings("unchecked")
+        // KC 在 readSnapshot 内复用其缓存；直接遍历实时集合可能读到重载中的混合状态。
         List<DisplayRecipe> snapshot = (List<DisplayRecipe>) call(registry, "readSnapshot",
                 (Supplier<List<DisplayRecipe>>) this::captureSnapshot);
         return List.copyOf(snapshot);
@@ -109,11 +130,18 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
     }
 
     private DisplayRecipe accurate(Object recipe, Object appliance) {
-        List<String> info = new ArrayList<>(List.of("森罗物语·精准加工", "候选成品按相对权重随机选择一个；权重不是百分比。"));
+        List<String> info = new ArrayList<>(List.of(
+                t("accurate.title", "森罗物语·精准加工"),
+                t("accurate.weight_note", "候选成品按相对权重随机选择一个；权重不是百分比。")));
         String type = applianceName(appliance);
         int cooking = number(optional(recipe, "cookingTime", 0));
-        if (type.equals("steamer") || type.equals("shawarma")) info.add(processing("加工时间", cooking, " tick"));
-        if (type.equals("millstone")) info.add(processing("研磨圈数", number(optional(recipe, "rotations", 0)), " 圈"));
+        if (type.equals("steamer") || type.equals("shawarma")) {
+            info.add(processing(t("label.processing_time", "加工时间"), cooking, t("unit.tick", " tick")));
+        }
+        if (type.equals("millstone")) {
+            info.add(processing(t("label.rotations", "研磨圈数"),
+                    number(optional(recipe, "rotations", 0)), t("unit.round", " 圈")));
+        }
         List<String> resultLore = strings(optional(recipe, "lore", List.of()));
         List<RecipeResult> outputs = new ArrayList<>();
         int amount = Math.max(1, number(call(recipe, "resultCount")));
@@ -121,7 +149,8 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
             RecipeItem output = item(call(result, "key"));
             if (!resultLore.isEmpty()) output = new RecipeItem(output.provider(), output.id(), null, null, resultLore);
             outputs.add(new RecipeResult(output, amount, -1,
-                    "相对权重：" + number(call(result, "weight"))));
+                    t("note.relative_weight", "相对权重：{weight}",
+                            "weight", number(call(result, "weight")))));
         }
         return display("accurate", recipe, appliance,
                 List.of(ingredient(call(recipe, "input"), 1, RecipeIngredient.Role.INGREDIENT)), outputs, info);
@@ -136,28 +165,42 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         if (carrier != null && !key(carrier).equals("minecraft:air")) {
             inputs.add(ingredient(carrier, 1, RecipeIngredient.Role.CONTAINER));
         }
-        List<String> info = new ArrayList<>(List.of("森罗物语·动态烹饪", "原料数量表示理想配比；实际投料可改变成品份数及品质。",
-                "展示基础成品；品质名称、Lore、食物属性由实际烹饪决定。"));
-        if (carrier == null || key(carrier).equals("minecraft:air")) info.add("空手盛出，无需容器。");
-        else info.add("手持盛装容器右键锅盛出。");
-        if (Boolean.TRUE.equals(optional(recipe, "useEquivalentFoods", true))) info.add("允许等效食材替代，以森罗当前食材分组为准。");
-        if (Boolean.TRUE.equals(optional(recipe, "useSeasonings", true))) info.add("允许调味品；调味品不参与理想配比的品质计算。");
-        info.add("投料越接近理想配比，品质越高。");
-        info.add("多放杂料会拉低品质。");
+        List<String> info = new ArrayList<>(List.of(
+                t("flex.title", "森罗物语·动态烹饪"),
+                t("flex.ratio_note", "原料数量表示理想配比；实际投料可改变成品份数及品质。"),
+                t("flex.output_note", "展示基础成品；品质名称、Lore、食物属性由实际烹饪决定。")));
+        if (carrier == null || key(carrier).equals("minecraft:air")) {
+            info.add(t("flex.no_container", "空手盛出，无需容器。"));
+        } else {
+            info.add(t("flex.container", "手持盛装容器右键锅盛出。"));
+        }
+        if (Boolean.TRUE.equals(optional(recipe, "useEquivalentFoods", true))) {
+            info.add(t("flex.equivalent_foods", "允许等效食材替代，以森罗当前食材分组为准。"));
+        }
+        if (Boolean.TRUE.equals(optional(recipe, "useSeasonings", true))) {
+            info.add(t("flex.seasonings", "允许调味品；调味品不参与理想配比的品质计算。"));
+        }
+        info.add(t("flex.quality_ratio", "投料越接近理想配比，品质越高。"));
+        info.add(t("flex.extra_penalty", "多放杂料会拉低品质。"));
         Collection<?> liquids = collection(call(recipe, "liquids"));
-        if (liquids.isEmpty() && applianceName(appliance).equals("stockpot")) info.add("不限汤底。");
+        if (liquids.isEmpty() && applianceName(appliance).equals("stockpot")) {
+            info.add(t("flex.any_liquid", "不限汤底。"));
+        }
         for (Object liquid : liquids) {
             inputs.add(liquid(liquid));
-            info.add("允许汤底之一：" + key(liquid));
+            info.add(t("flex.allowed_liquid", "允许汤底之一：{liquid}", "liquid", key(liquid)));
         }
         if (applianceName(appliance).equals("pot")) {
-            info.add(processing("翻炒次数", number(optional(recipe, "stirFryCount", 0)), " 次"));
-            info.add("默认需要热源与上油；其他插件可动态修改烹饪条件。");
+            info.add(processing(t("label.stir_fry_count", "翻炒次数"),
+                    number(optional(recipe, "stirFryCount", 0)), t("unit.times", " 次")));
+            info.add(t("flex.heat_oil", "默认需要热源与上油；其他插件可动态修改烹饪条件。"));
         } else {
-            info.add(processing("烹饪时间", number(optional(recipe, "cookingTime", 0)), " tick"));
+            info.add(processing(t("label.cooking_time", "烹饪时间"),
+                    number(optional(recipe, "cookingTime", 0)), t("unit.tick", " tick")));
         }
         return display("flex", recipe, appliance, inputs,
-                List.of(new RecipeResult(item(call(recipe, "result")), 1, -1, "示例：1 份，实际份数随投料变化")), info);
+                List.of(new RecipeResult(item(call(recipe, "result")), 1, -1,
+                        t("flex.result_note", "示例：1 份，实际份数随投料变化"))), info);
     }
 
     private DisplayRecipe chopping(Object recipe) {
@@ -166,34 +209,41 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         List<RecipeIngredient> inputs = new ArrayList<>(List.of(ingredient(call(recipe, "input"), 1, RecipeIngredient.Role.INGREDIENT)));
         List<RecipeItem> knifeChoices = knifeChoices();
         if (!knifeChoices.isEmpty()) inputs.add(new RecipeIngredient(knifeChoices, 1, -1, RecipeIngredient.Role.TOOL));
-        List<String> info = new ArrayList<>(List.of("森罗物语·砧板", "需要菜刀；可用工具以实际砧板配置和森罗标签为准。",
-                "切配刀数：" + number(call(recipe, "stage"))));
+        List<String> info = new ArrayList<>(List.of(
+                t("chopping.title", "森罗物语·砧板"),
+                t("chopping.knife_note", "需要菜刀；可用工具以实际砧板配置和森罗标签为准。"),
+                t("chopping.stage", "切配刀数：{stage}", "stage", number(call(recipe, "stage")))));
         List<RecipeResult> outputs = new ArrayList<>();
         boolean independent = mode.equals("MULTI_RANDOM");
         for (Object result : collection(call(recipe, "results"))) outputs.add(choppingResult(result, independent, false));
         switch (mode) {
             case "SINGLE_EXTRA" -> {
-                info.add("主产物按相对权重选一个；副产物分别独立判定。");
+                info.add(t("chopping.single_extra", "主产物按相对权重选一个；副产物分别独立判定。"));
                 for (Object result : collection(call(recipe, "extras"))) outputs.add(choppingResult(result, true, true));
             }
-            case "MULTI_RANDOM" -> info.add("各产物独立判定；全部未命中时按权重保底抽一个。所示百分比不是含保底的最终掉率。");
-            default -> info.add("按相对权重随机选择一个产物；权重不是百分比。");
+            case "MULTI_RANDOM" -> info.add(t("chopping.multi_random",
+                    "各产物独立判定；全部未命中时按权重保底抽一个。所示百分比不是含保底的最终掉率。"));
+            default -> info.add(t("chopping.weighted", "按相对权重随机选择一个产物；权重不是百分比。"));
         }
         return display("chopping", recipe, appliance, inputs, outputs, info);
     }
 
     private RecipeResult choppingResult(Object result, boolean independent, boolean extra) {
         int weight = number(call(result, "weight"));
-        String note = extra ? "副产物 · " : "";
-        note += independent ? "独立判定：" + Math.max(0, Math.min(100, weight)) + "%（配置值 " + weight + "）"
-                : "相对权重：" + weight;
+        String note = extra ? t("note.byproduct_prefix", "副产物 · ") : "";
+        note += independent
+                ? t("note.independent", "独立判定：{percent}%（配置值 {weight}）",
+                "percent", Math.max(0, Math.min(100, weight)), "weight", weight)
+                : t("note.relative_weight", "相对权重：{weight}", "weight", weight);
         return new RecipeResult(item(call(result, "key")), Math.max(1, number(call(result, "count"))), -1, note);
     }
 
     private DisplayRecipe teapot(Object recipe) {
         Object fluid = call(recipe, "fluid");
-        List<String> info = List.of("森罗物语·茶壶", "所需液体：" + key(fluid) + "（图标用于说明液体条件）",
-                processing("煮制时间", number(call(recipe, "time")), " tick"));
+        List<String> info = List.of(
+                t("teapot.title", "森罗物语·茶壶"),
+                t("teapot.liquid", "所需液体：{liquid}（图标用于说明液体条件）", "liquid", key(fluid)),
+                processing(t("label.brew_time", "煮制时间"), number(call(recipe, "time")), t("unit.tick", " tick")));
         return display("teapot", recipe, appliance("teapot"),
                 List.of(ingredient(call(recipe, "input"), number(call(recipe, "ingredientCount")), RecipeIngredient.Role.INGREDIENT), liquid(fluid)),
                 List.of(new RecipeResult(item(call(recipe, "result")), Math.max(1, number(call(recipe, "resultCount"))), -1, "")), info);
@@ -207,7 +257,9 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         Object configuredIcon = optional(style, "applianceIcon", null, appliance);
         String icon = configuredIcon == null ? "kaleidoscopecookery:" + (type.equals("shawarma") ? "shawarma_spit" : type) : key(configuredIcon);
         String name = String.valueOf(optional(style, "applianceName", defaultName(type), appliance));
-        if (!name.startsWith("森罗物语·")) name = "森罗物语·" + name;
+        if (!name.startsWith("森罗物语·")) {
+            name = t("station.prefix", "森罗物语·") + name;
+        }
         RecipeWorkstation station = new RecipeWorkstation("kc:" + type, item(icon), name);
         return new DisplayRecipe("kc:" + family + "/" + type + "/" + key(call(recipe, "id")).replace(':', '/'),
                 station, this.layout, inputs, outputs, info, PERMISSION, player -> true);
@@ -303,6 +355,7 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
     }
 
     private void collectTag(String id, Map<String, Object> keys, Set<String> seen, Set<String> items) {
+        // 标签允许引用自身或其他标签；visited 集合同时防止循环，并限制异常深度的数据。
         if (!seen.add(id) || seen.size() > 64) return;
         Object tag = keys.get(id);
         if (tag == null) return;
@@ -320,21 +373,27 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
 
     private static String applianceName(Object appliance) { return key(appliance).toLowerCase(Locale.ROOT); }
 
-    private static String defaultName(String type) {
+    private String defaultName(String type) {
         return switch (type) {
-            case "pot" -> "炒锅";
-            case "stockpot" -> "高汤锅";
-            case "steamer" -> "蒸笼";
-            case "shawarma" -> "沙威玛烤架";
-            case "millstone" -> "石磨";
-            case "chopping_board" -> "砧板";
-            case "teapot" -> "茶壶";
+            case "pot" -> t("appliance.pot", "炒锅");
+            case "stockpot" -> t("appliance.stockpot", "高汤锅");
+            case "steamer" -> t("appliance.steamer", "蒸笼");
+            case "shawarma" -> t("appliance.shawarma", "沙威玛烤架");
+            case "millstone" -> t("appliance.millstone", "石磨");
+            case "chopping_board" -> t("appliance.chopping_board", "砧板");
+            case "teapot" -> t("appliance.teapot", "茶壶");
             default -> type;
         };
     }
 
-    private static String processing(String label, int value, String unit) {
-        return value > 0 ? label + "：" + value + unit : label + "：继承厨具默认值（0 不表示立即完成）";
+    private String processing(String label, int value, String unit) {
+        return value > 0
+                ? t("processing.value", "{label}：{value}{unit}", "label", label, "value", value, "unit", unit)
+                : t("processing.inherited", "{label}：继承厨具默认值（0 不表示立即完成）", "label", label);
+    }
+
+    private String t(String key, String fallback, Object... arguments) {
+        return this.text.text(key, fallback, arguments);
     }
 
     private static RecipeIngredient ingredient(Object key, int amount, RecipeIngredient.Role role) {
@@ -404,6 +463,7 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
 
     private static Method method(Object target, String name, Object[] args) {
         if (target == null) return null;
+        // KC 会通过不同实现暴露同名重载；按参数类型选择与传入值兼容的第一个方法。
         for (Method method : target.getClass().getMethods()) {
             if (!method.getName().equals(name) || method.getParameterCount() != args.length) continue;
             boolean matches = true;
@@ -418,6 +478,7 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
     private static Object invoke(Object target, Method method, Object[] args) {
         try { return method.invoke(target, args); }
         catch (InvocationTargetException failure) {
+            // 保留 KC 业务异常的原始类型，调用方仍可按 RuntimeException 的正常路径处理。
             Throwable cause = failure.getCause();
             if (cause instanceof RuntimeException runtime) throw runtime;
             if (cause instanceof Error error) throw error;

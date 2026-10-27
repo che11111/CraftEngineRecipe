@@ -55,8 +55,8 @@ final class ChestRecipeRenderer {
         this.config = config;
     }
 
-    void open(Player player, RecipeEntry entry, int recipeIndex, int recipeCount, IntConsumer navigate,
-              BiFunction<Key, ItemStack, Item> clickable) {
+    void open(Player player, RecipeEntry entry, int recipeIndex, int recipeCount, Key usageItem,
+              IntConsumer navigate, BiFunction<Key, ItemStack, Item> clickable) {
         this.cancel(player);
         if (!this.browser.canViewRecipe(entry, player)) {
             this.browser.returnToBrowser(player);
@@ -66,7 +66,7 @@ final class ChestRecipeRenderer {
         String[] structure = new String[recipe.layout().rows()];
         java.util.Arrays.fill(structure, "#########");
         Gui gui = Gui.builder().setStructure(structure).addIngredient('#', Item.EMPTY).build();
-        View view = new View(player, entry, recipeIndex, recipeCount, navigate, clickable, gui,
+        View view = new View(player, entry, recipeIndex, recipeCount, usageItem, navigate, clickable, gui,
                 plan(recipe), this.plugin.recipeIndex().generation());
         Component title = this.title(recipe);
         Window window = Window.builder().setViewer(player).setUpperGui(gui).setTitle(title)
@@ -127,9 +127,14 @@ final class ChestRecipeRenderer {
             var visibility = this.browser.visibility(view.player);
             if (!this.validate(view, visibility)) return;
             view.cycle = view.cycle == Integer.MAX_VALUE ? 0 : view.cycle + 1;
-            // 固定材料和产物已经发送。只有候选物品会随时间变化；
-            // 重建所有槽位还会重复执行 CE 物品生成。
-            for (Placement placement : view.plan.pages().get(view.page).animated()) this.content(view, placement, visibility);
+            // 固定材料和产物已经发送。只有未包含用途查询物品的候选槽会随时间变化；
+            // 查询物品所在的槽位保持固定，确保它从轮播开始到结束始终可见。
+            for (Placement placement : view.plan.pages().get(view.page).animated()) {
+                RecipeIngredient ingredient = view.entry.display().ingredients().get(placement.index());
+                if (shouldAnimateCandidates(ingredient.choices(), view.usageItem)) {
+                    this.content(view, placement, visibility);
+                }
+            }
             this.schedule(view);
         }, 20);
         if (this.views.get(view.player.getUniqueId()) != view || view.token != token) view.cancelTask();
@@ -265,7 +270,7 @@ final class ChestRecipeRenderer {
                 this.put(view.gui, placement.slot(), Item.EMPTY);
                 return;
             }
-            int choice = Math.floorMod(view.cycle, choices.size());
+            int choice = choiceIndex(choices, view.cycle, view.usageItem);
             definition = choices.get(choice);
             amount = ingredient.amount();
         }
@@ -309,6 +314,27 @@ final class ChestRecipeRenderer {
     static Component prepareLoreLine(Component component) {
         if (component == null) return null;
         return component.color() == null ? component.color(TextColor.color(0xB8C0CC)) : component;
+    }
+
+    /**
+     * 用途查询时，包含被查询物品的材料槽固定展示该物品，避免候选轮播切到
+     * 同一材料标签中的其他物品后，页面看起来与刚查询的物品无关。
+     */
+    static int choiceIndex(List<RecipeItem> choices, int cycle, net.momirealms.craftengine.core.util.Key usageItem) {
+        if (usageItem != null) {
+            for (int index = 0; index < choices.size(); index++) {
+                if (usageItem.equals(ExternalRecipeSnapshot.key(choices.get(index)))) return index;
+            }
+        }
+        return Math.floorMod(cycle, choices.size());
+    }
+
+    static boolean shouldAnimateCandidates(List<RecipeItem> choices, Key usageItem) {
+        if (usageItem == null) return true;
+        for (RecipeItem choice : choices) {
+            if (usageItem.equals(ExternalRecipeSnapshot.key(choice))) return false;
+        }
+        return true;
     }
 
     private Item navigation(View view, int direction) {
@@ -504,6 +530,7 @@ final class ChestRecipeRenderer {
         final RecipeEntry entry;
         final int recipeIndex;
         final int recipeCount;
+        final Key usageItem;
         final IntConsumer navigate;
         final BiFunction<Key, ItemStack, Item> clickable;
         final Gui gui;
@@ -515,12 +542,14 @@ final class ChestRecipeRenderer {
         int page;
         int cycle;
 
-        View(Player player, RecipeEntry entry, int recipeIndex, int recipeCount, IntConsumer navigate,
-             BiFunction<Key, ItemStack, Item> clickable, Gui gui, Plan plan, long generation) {
+        View(Player player, RecipeEntry entry, int recipeIndex, int recipeCount, Key usageItem,
+             IntConsumer navigate, BiFunction<Key, ItemStack, Item> clickable, Gui gui, Plan plan,
+             long generation) {
             this.player = player;
             this.entry = entry;
             this.recipeIndex = recipeIndex;
             this.recipeCount = recipeCount;
+            this.usageItem = usageItem;
             this.navigate = navigate;
             this.clickable = clickable;
             this.gui = gui;

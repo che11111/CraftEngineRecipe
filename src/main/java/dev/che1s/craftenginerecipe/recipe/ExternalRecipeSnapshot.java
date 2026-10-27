@@ -23,7 +23,8 @@ public record ExternalRecipeSnapshot(Map<Key, RecipeItem> items, Map<Key, List<R
 
     public static Key key(RecipeItem item) {
         if (item.provider().equals("craftengine") || item.provider().equals("minecraft")) return Key.of(item.id());
-        // 不透明部分可无损表示。compile() 也会拒绝使用相同内部键的 CE ID。
+        // 第三方管理器的物品 ID 不能直接当作 CE Key，转为十六进制形式作为
+        // 不透明内部键；compile() 会拒绝与此冲突的 CE ID。
         return Key.of("cer_external:" + item.provider() + "/"
                 + HexFormat.of().formatHex(item.id().getBytes(StandardCharsets.UTF_8)));
     }

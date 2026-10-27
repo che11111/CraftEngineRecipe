@@ -38,6 +38,8 @@ public final class RecipeIndex {
     }
 
     public long generation() {
+        // 高 32 位来自 CE 数据（物品/分类），低 32 位来自配方文件监视。
+        // 两个来源独立刷新，组合值保证任一侧变化都会让缓存的点击动作失效。
         return (this.plugin.data().generation() << 32) ^ this.plugin.externalRecipes().generation();
     }
 

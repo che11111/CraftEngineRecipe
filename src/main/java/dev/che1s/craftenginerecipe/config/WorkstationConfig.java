@@ -6,8 +6,10 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -35,7 +37,7 @@ public final class WorkstationConfig {
     private final Path legacyFile;
     private Path file;
     private final Logger logger;
-    private List<Entry> entries = List.of();
+    private volatile List<Entry> entries = List.of();
 
     public WorkstationConfig(Path dataFolder, Logger logger) {
         this.targetFile = dataFolder.resolve("navigation/workstations.yml");
@@ -81,6 +83,7 @@ public final class WorkstationConfig {
     }
 
     private Path resolveSource() {
+        // 优先使用 navigation/workstations.yml；仅在旧文件存在且新文件不存在时回退。
         return Files.isRegularFile(this.targetFile) || !Files.isRegularFile(this.legacyFile)
                 ? this.targetFile : this.legacyFile;
     }
@@ -124,7 +127,33 @@ public final class WorkstationConfig {
         return this.entries;
     }
 
-    private void save() {
+    /** 调整 workstations.yml 中的合成器或按钮顺序。 */
+    public synchronized boolean moveEntry(int index, int offset) {
+        if (index < 0 || index >= this.entries.size() || offset == 0) return false;
+        int target = index + offset;
+        if (target < 0 || target >= this.entries.size()) return false;
+        List<Entry> next = new ArrayList<>(this.entries);
+        Entry entry = next.remove(index);
+        next.add(target, entry);
+        this.entries = List.copyOf(next);
+        return this.save();
+    }
+
+    /** 更新 workstations.yml 中的自定义按钮。 */
+    public synchronized boolean updateButton(int index, CategoryNamespaces.ButtonEntry button) {
+        if (button == null || index < 0 || index >= this.entries.size()
+                || !(this.entries.get(index) instanceof ButtonEntry)) return false;
+        List<Entry> next = new ArrayList<>(this.entries);
+        next.set(index, new ButtonEntry(button));
+        this.entries = List.copyOf(next);
+        return this.save();
+    }
+
+    public boolean usesLegacyFile() {
+        return !this.file.equals(this.targetFile);
+    }
+
+    private boolean save() {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.options().header(HEADER);
         List<Map<String, Object>> list = new ArrayList<>();
@@ -139,10 +168,12 @@ public final class WorkstationConfig {
         }
         yaml.set("entries", list);
         try {
-            Files.createDirectories(this.targetFile.getParent());
-            yaml.save(this.targetFile.toFile());
+            writeYaml(yaml, this.targetFile);
+            this.file = this.targetFile;
+            return true;
         } catch (IOException error) {
             this.logger.warning("Cannot save workstations.yml: " + error.getMessage());
+            return false;
         }
     }
 
@@ -169,5 +200,27 @@ public final class WorkstationConfig {
     }
 
     public record ButtonEntry(CategoryNamespaces.ButtonEntry button) implements Entry {
+    }
+
+    /** 保留上一版 workstations.yml，并通过同目录临时文件原子替换。 */
+    private static void writeYaml(YamlConfiguration yaml, Path target) throws IOException {
+        Path parent = target.toAbsolutePath().getParent();
+        Files.createDirectories(parent);
+        if (Files.isRegularFile(target)) {
+            Files.copy(target, target.resolveSibling(target.getFileName() + ".bak"),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
+        Path temporary = Files.createTempFile(parent, target.getFileName().toString(), ".tmp");
+        try {
+            yaml.save(temporary.toFile());
+            try {
+                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
     }
 }

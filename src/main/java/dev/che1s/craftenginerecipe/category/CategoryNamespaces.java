@@ -10,7 +10,10 @@ import org.bukkit.event.inventory.ClickType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -447,7 +450,7 @@ public final class CategoryNamespaces {
         }
     }
 
-    public List<String> orderedNamespaces() {
+    public synchronized List<String> orderedNamespaces() {
         List<String> out = new ArrayList<>();
         for (Entry e : this.allEntries()) {
             if (e instanceof NamespaceEntry n) {
@@ -457,28 +460,67 @@ public final class CategoryNamespaces {
         return out;
     }
 
-    public List<Entry> entries() {
+    public synchronized List<Entry> entries() {
         return List.copyOf(this.entries);
     }
 
-    public List<Entry> allEntries() {
+    public synchronized List<Entry> allEntries() {
         List<Entry> out = new ArrayList<>(this.entries);
         out.addAll(this.extra);
         return List.copyOf(out);
     }
 
-    public List<NamespaceEntry> unappliedEntries() {
+    public synchronized List<NamespaceEntry> unappliedEntries() {
         return List.copyOf(this.extra);
     }
 
-    public NamespaceEntry unappliedEntry(String namespace) {
+    public synchronized NamespaceEntry unappliedEntry(String namespace) {
         for (NamespaceEntry entry : this.extra) {
             if (entry.id().equals(namespace)) return entry;
         }
         return null;
     }
 
-    /** 管理员编辑器只更新命中文件中的未应用条目，不触碰正式 entries。 */
+    public synchronized NamespaceEntry appliedEntry(String namespace) {
+        for (Entry entry : this.entries) {
+            if (entry instanceof NamespaceEntry namespaceEntry && namespaceEntry.id().equals(namespace)) {
+                return namespaceEntry;
+            }
+        }
+        return null;
+    }
+
+    public synchronized boolean isApplied(String namespace) {
+        return this.appliedEntry(namespace) != null;
+    }
+
+    /**
+     * 更新当前加载快照中的正式或未应用命名空间条目，并只写回其来源文件。
+     */
+    public synchronized boolean updateNamespace(String namespace, NamespaceEntry updated) {
+        if (namespace == null || updated == null || !namespace.equals(updated.id())) return false;
+        for (int index = 0; index < this.entries.size(); index++) {
+            Entry current = this.entries.get(index);
+            if (!(current instanceof NamespaceEntry entry) || !entry.id().equals(namespace)) continue;
+            this.entries.set(index, updated);
+            this.namespaceIndex.put(namespace, updated);
+            this.rebuildFilters();
+            this.save();
+            return true;
+        }
+        for (int index = 0; index < this.extra.size(); index++) {
+            NamespaceEntry current = this.extra.get(index);
+            if (!current.id().equals(namespace)) continue;
+            this.extra.set(index, updated);
+            this.namespaceIndex.put(namespace, updated);
+            this.rebuildFilters();
+            this.saveExtra();
+            return true;
+        }
+        return false;
+    }
+
+    /** 兼容旧调用：只更新命中文件中的未应用条目，不触碰正式 entries。 */
     public synchronized boolean updateUnapplied(String namespace, Visibility visibility, String permission,
                                                  boolean categoryEntry, String iconName, boolean sortByNamespace,
                                                  boolean hideItemsWithoutRecipes,
@@ -490,16 +532,127 @@ public final class CategoryNamespaces {
                     categoryEntry, iconName, current.itemLore(), current.iconLore(), current.subIconLore(),
                     sortByNamespace, hideItemsWithoutRecipes, current.hiddenItems(), current.hiddenCategories(),
                     hiddenRulesAffectWorkstations, current.hideInaccessible());
-            this.extra.set(index, updated);
-            this.namespaceIndex.put(namespace, updated);
+            return this.updateNamespace(namespace, updated);
+        }
+        return false;
+    }
+
+    /**
+     * 将未应用条目加入 categories.yml 末尾。加入后仍可通过管理菜单调整位置。
+     */
+    public synchronized boolean applyUnapplied(String namespace) {
+        if (this.appliedEntry(namespace) != null) return false;
+        for (int index = 0; index < this.extra.size(); index++) {
+            NamespaceEntry entry = this.extra.get(index);
+            if (!entry.id().equals(namespace)) continue;
+            this.extra.remove(index);
+            this.entries.add(entry);
+            this.namespaceIndex.put(namespace, entry);
             this.rebuildFilters();
+            this.save();
             this.saveExtra();
             return true;
         }
         return false;
     }
 
-    public NamespaceEntry findNamespace(String ns) {
+    /**
+     * 调整正式 entries 的顺序；索引对应 {@link #entries()}。
+     */
+    public synchronized boolean moveEntry(int index, int offset) {
+        if (index < 0 || index >= this.entries.size() || offset == 0) return false;
+        int target = index + offset;
+        if (target < 0 || target >= this.entries.size()) return false;
+        Entry entry = this.entries.remove(index);
+        this.entries.add(target, entry);
+        this.rebuildFilters();
+        this.save();
+        return true;
+    }
+
+    /** 更新 categories.yml 中的自定义按钮；索引对应 {@link #entries()}。 */
+    public synchronized boolean updateButton(int index, ButtonEntry updated) {
+        if (index < 0 || index >= this.entries.size() || updated == null) return false;
+        if (!(this.entries.get(index) instanceof ButtonEntry)) return false;
+        this.entries.set(index, updated);
+        this.save();
+        return true;
+    }
+
+    /**
+     * 切换某个分类下单个物品的隐藏状态。取消隐藏“全部物品”规则时，
+     * 仅恢复指定物品，其余直接物品继续隐藏。
+     */
+    public synchronized boolean setItemHidden(String namespace, String categoryId, String itemId,
+                                              boolean hidden, Collection<String> directItems) {
+        NamespaceEntry current = this.findNamespace(namespace);
+        if (current == null || categoryId == null || categoryId.isBlank() || itemId == null || itemId.isBlank()) {
+            return false;
+        }
+        Map<String, Set<String>> rules = copyRules(current.hiddenItems());
+        Set<String> items = new LinkedHashSet<>(rules.getOrDefault(categoryId, Set.of()));
+        if (hidden) {
+            items.add(itemId);
+        } else if (items.remove("*")) {
+            items.clear();
+            if (directItems != null) {
+                for (String direct : directItems) {
+                    if (direct != null && !direct.isBlank() && !direct.equals(itemId)) items.add(direct);
+                }
+            }
+        } else {
+            items.remove(itemId);
+        }
+        putRule(rules, categoryId, items);
+        return this.updateHiddenState(current, rules, current.hiddenCategories());
+    }
+
+    /** 隐藏或显示分类中的全部直接物品；不影响子分类入口。 */
+    public synchronized boolean setAllItemsHidden(String namespace, String categoryId, boolean hidden) {
+        NamespaceEntry current = this.findNamespace(namespace);
+        if (current == null || categoryId == null || categoryId.isBlank()) return false;
+        Map<String, Set<String>> rules = copyRules(current.hiddenItems());
+        if (hidden) {
+            LinkedHashSet<String> items = new LinkedHashSet<>(rules.getOrDefault(categoryId, Set.of()));
+            items.add("*");
+            rules.put(categoryId, items);
+        } else {
+            rules.remove(categoryId);
+        }
+        return this.updateHiddenState(current, rules, current.hiddenCategories());
+    }
+
+    /** 隐藏分类入口及经过该分类的全部浏览路径。 */
+    public synchronized boolean setCategoryHidden(String namespace, String categoryId, boolean hidden) {
+        NamespaceEntry current = this.findNamespace(namespace);
+        if (current == null || categoryId == null || categoryId.isBlank()) return false;
+        Set<String> categories = new LinkedHashSet<>(current.hiddenCategories());
+        if (hidden) categories.add(categoryId);
+        else categories.remove(categoryId);
+        return this.updateHiddenState(current, current.hiddenItems(), categories);
+    }
+
+    private boolean updateHiddenState(NamespaceEntry current, Map<String, Set<String>> rules,
+                                      Set<String> categories) {
+        NamespaceEntry updated = new NamespaceEntry(current.id(), current.visibility(), current.permission(),
+                current.categoryEntry(), current.iconName(), current.itemLore(), current.iconLore(),
+                current.subIconLore(), current.sortByNamespace(), current.hideItemsWithoutRecipes(),
+                rules, categories, current.hiddenRulesAffectWorkstations(), current.hideInaccessible());
+        return this.updateNamespace(current.id(), updated);
+    }
+
+    private static Map<String, Set<String>> copyRules(Map<String, Set<String>> source) {
+        Map<String, Set<String>> copied = new LinkedHashMap<>();
+        source.forEach((category, items) -> copied.put(category, new LinkedHashSet<>(items)));
+        return copied;
+    }
+
+    private static void putRule(Map<String, Set<String>> rules, String category, Set<String> items) {
+        if (items.isEmpty()) rules.remove(category);
+        else rules.put(category, items);
+    }
+
+    public synchronized NamespaceEntry findNamespace(String ns) {
         return this.namespaceIndex.get(ns);
     }
 
@@ -559,24 +712,24 @@ public final class CategoryNamespaces {
         return e == null ? List.of() : e.subIconLore();
     }
 
-    public Set<String> hiddenItems(String categoryId) {
+    public synchronized Set<String> hiddenItems(String categoryId) {
         return this.hiddenItems.get(categoryId);
     }
 
-    public boolean isCategoryHidden(String categoryId) {
+    public synchronized boolean isCategoryHidden(String categoryId) {
         return this.hiddenCategories.contains(categoryId);
     }
 
-    public Set<String> hiddenItemsForWorkstations(String categoryId) {
+    public synchronized Set<String> hiddenItemsForWorkstations(String categoryId) {
         return this.workstationHiddenItems.getOrDefault(categoryId, Set.of());
     }
 
-    public boolean isCategoryHiddenForWorkstations(String categoryId) {
+    public synchronized boolean isCategoryHiddenForWorkstations(String categoryId) {
         return this.workstationHiddenCategories.contains(categoryId);
     }
 
     /** 显式过滤器可以指向未出现在 CE 顶层浏览列表中的分类。 */
-    public Set<String> filteredCategoryIds() {
+    public synchronized Set<String> filteredCategoryIds() {
         Set<String> ids = new LinkedHashSet<>(this.hiddenCategories);
         ids.addAll(this.hiddenItems.keySet());
         return Set.copyOf(ids);
@@ -692,8 +845,7 @@ public final class CategoryNamespaces {
         }
         yaml.set("entries", list);
         try {
-            Files.createDirectories(this.targetFile.toPath().getParent());
-            yaml.save(this.targetFile);
+            writeYaml(yaml, this.targetFile.toPath());
         } catch (IOException e) {
             this.logger.severe(this.language.text("logs.category-save-failed", "error", e.getMessage()));
         }
@@ -736,10 +888,31 @@ public final class CategoryNamespaces {
         }
         yaml.set("entries", list);
         try {
-            Files.createDirectories(this.targetExtraFile.toPath().getParent());
-            yaml.save(this.targetExtraFile);
+            writeYaml(yaml, this.targetExtraFile.toPath());
         } catch (IOException e) {
             this.logger.severe(this.language.text("logs.unapplied-save-failed", "error", e.getMessage()));
+        }
+    }
+
+    /** 保留上一次文件为 .bak，并以同目录临时文件原子替换，避免保存中断损坏配置。 */
+    private static void writeYaml(YamlConfiguration yaml, Path target) throws IOException {
+        Path parent = target.toAbsolutePath().getParent();
+        Files.createDirectories(parent);
+        if (Files.isRegularFile(target)) {
+            Path backup = target.resolveSibling(target.getFileName() + ".bak");
+            Files.copy(target, backup, StandardCopyOption.REPLACE_EXISTING);
+        }
+        Path temporary = Files.createTempFile(parent, target.getFileName().toString(), ".tmp");
+        try {
+            yaml.save(temporary.toFile());
+            try {
+                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
         }
     }
 }

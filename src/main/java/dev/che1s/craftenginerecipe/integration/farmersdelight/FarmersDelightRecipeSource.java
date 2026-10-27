@@ -8,6 +8,7 @@ import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import dev.che1s.craftenginerecipe.integration.common.RecipeSource;
+import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.Style;
@@ -49,6 +50,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     private static final String COOKING_POT_TITLE = "农夫乐事·烹饪锅";
     private static final String CUTTING_BOARD_TITLE = "农夫乐事·砧板";
     private static final String SPECIAL_RECIPE_TITLE = "农夫乐事·特殊配方";
+    private static final int FAKE_BUTTON_SLOT = 0;
     public static final String PLUGIN_NAME = "FarmersDelight";
     private static final String ROOT = "com.huidu.farmersdelight.";
     private static final String PERMISSION = "farmersdelight.command.recipe";
@@ -58,6 +60,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     private final JavaPlugin cer;
     private final FDReflection reflection;
     private final Function<String, String> resourcePackTranslations;
+    private final IntegrationText text;
     private final Set<String> warned = new LinkedHashSet<>();
     private long checkedAt;
     private long fingerprint = Long.MIN_VALUE;
@@ -71,6 +74,8 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         this.reflection = new FDReflection(source == null ? getClass().getClassLoader() : source.getClass().getClassLoader());
         this.resourcePackTranslations = key -> cer instanceof CraftEngineRecipePlugin plugin
                 ? plugin.data().resourcePackTranslation(key) : null;
+        this.text = cer instanceof CraftEngineRecipePlugin plugin
+                ? IntegrationText.of("farmersdelight", plugin.lang()) : IntegrationText.empty();
     }
 
     FarmersDelightRecipeSource(Object source, FDReflection reflection, BooleanSupplier enabled) {
@@ -84,6 +89,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         this.reflection = reflection;
         this.enabled = enabled;
         this.resourcePackTranslations = resourcePackTranslations == null ? key -> null : resourcePackTranslations;
+        this.text = IntegrationText.empty();
     }
 
     @Override public String id() { return "farmersdelight"; }
@@ -184,13 +190,15 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         RecipeItem input = item(inputStack);
         RecipeItem result = item(resultStack);
         String inputIdentity = input.provider() + ":" + input.id();
-        String notes = "营火可烹饪：是；烹饪时间：" + Math.max(1, cookingTime)
-                + " tick；经验：" + Math.max(0, experience);
+        String resultIdentity = result.provider() + ":" + result.id();
+        String notes = t("skillet.note",
+                "营火可烹饪：是；烹饪时间：{ticks} tick；经验：{experience}",
+                "ticks", Math.max(1, cookingTime), "experience", Math.max(0, experience));
         RecipeLayout layout = new RecipeLayout(6, null, -1, -1, -1, -1, -1,
                 List.of(), true);
-        return new DisplayRecipe(recipeId("skillet", null, inputIdentity),
+        return new DisplayRecipe(recipeId("skillet", null, inputIdentity + "=>" + resultIdentity),
                 new RecipeWorkstation("farmersdelight:skillet", fromId("farmersdelight:skillet"),
-                        "农夫乐事·煎锅"),
+                        t("title.skillet", COOKING_POT_TITLE.replace("烹饪锅", "煎锅"))),
                 layout,
                 List.of(new RecipeIngredient(List.of(input), 1, 19, RecipeIngredient.Role.INGREDIENT),
                         new RecipeIngredient(List.of(flameDecoration(cookingTime, experience)), 1, 21,
@@ -200,9 +208,11 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     }
 
     private RecipeItem flameDecoration(int cookingTime, float experience) {
-        return new RecipeItem("craftengine", "internal:cooking_info", null, "<gold>配方信息",
-                List.of("<gray>时间：" + Math.max(1, cookingTime) + " 刻",
-                        "<gray>经验：" + decimal(experience)));
+        return new RecipeItem("craftengine", "internal:cooking_info", null,
+                t("flame.name", "<gold>配方信息"),
+                List.of(
+                        t("flame.time", "<gray>时间：{ticks} 刻", "ticks", Math.max(1, cookingTime)),
+                        t("flame.experience", "<gray>经验：{experience}", "experience", decimal(experience))));
     }
 
     private static String decimal(float value) {
@@ -235,16 +245,21 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
             ingredients.add(new RecipeIngredient(List.of(item(container)), Math.max(1, container.getAmount()),
                     slots.potContainerSlot(group), RecipeIngredient.Role.CONTAINER));
         }
+        addFakeButton(ingredients, FAKE_BUTTON_SLOT);
         ItemStack result = stack(reflection.call(raw, "getResult"));
         if (!usable(result)) throw new IllegalStateException("Missing cooking pot result");
         List<String> notes = new ArrayList<>();
-        notes.add("烹饪时间：" + number(reflection.call(raw, "getCookTime"), 0).doubleValue() / 20.0 + " 秒");
-        notes.add("经验：" + number(reflection.call(raw, "getExperience"), 0));
-        if (group != null) notes.add("专用烹饪锅：" + group);
+        notes.add(t("pot.cooking_time", "烹饪时间：{seconds} 秒",
+                "seconds", number(reflection.call(raw, "getCookTime"), 0).doubleValue() / 20.0));
+        notes.add(t("pot.experience", "经验：{experience}",
+                "experience", number(reflection.call(raw, "getExperience"), 0)));
+        if (group != null) notes.add(t("pot.group", "专用烹饪锅：{group}", "group", group));
         String stationId = group == null ? "farmersdelight:cooking_pot" : "farmersdelight:cooking_pot/" + encoded(group);
         return new DisplayRecipe(recipeId("cooking_pot", group, key),
                 station(stationId, "farmersdelight:cooking_pot",
-                        group == null ? "农夫乐事·烹饪锅" : "农夫乐事·烹饪锅 · " + group),
+                        group == null ? t("title.cooking_pot", COOKING_POT_TITLE)
+                                : t("title.cooking_pot_group", COOKING_POT_TITLE + " · {group}",
+                                "group", group)),
                 titles.layout("recipe-detail-cooking-pot", group, key), ingredients,
                 List.of(new RecipeResult(item(result), Math.max(1, result.getAmount()), slots.potResultSlot(group), null)), notes, PERMISSION,
                 unlocked("farmersdelight:cooking_pot", key));
@@ -269,8 +284,11 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         if (!tools.isEmpty()) ingredients.add(new RecipeIngredient(List.copyOf(tools.values()), 1,
                 slots.boardToolSlot(), RecipeIngredient.Role.TOOL));
         else if (!list(reflection.call(raw, "getTools")).isEmpty()) ingredients.add(new RecipeIngredient(List.of(
-                new RecipeItem("minecraft", "minecraft:barrier", null, "所需工具", List.of("工具要求无法展开，请查看 /fd recipe"))),
+                new RecipeItem("minecraft", "minecraft:barrier", null,
+                        t("item.required_tool", "所需工具"),
+                        List.of(t("item.required_tool_lore", "工具要求无法展开，请查看 /fd recipe")))),
                 1, slots.boardToolSlot(), RecipeIngredient.Role.TOOL));
+        addFakeButton(ingredients, FAKE_BUTTON_SLOT);
         List<RecipeResult> results = new ArrayList<>();
         List<Integer> resultSlots = slots.boardResultSlots();
         for (Object entry : list(reflection.call(raw, "getResults"))) {
@@ -279,7 +297,8 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
                     slotAt(resultSlots, results.size()), chanceNote(number(reflection.call(entry, "getChance"), 1).doubleValue())));
         }
         return new DisplayRecipe(recipeId("cutting_board", null, key),
-                station("farmersdelight:cutting_board", "farmersdelight:cutting_board", "农夫乐事·砧板"),
+                station("farmersdelight:cutting_board", "farmersdelight:cutting_board",
+                        t("title.cutting_board", CUTTING_BOARD_TITLE)),
                 titles.layout("recipe-detail-cutting-board", null, key), ingredients, results, List.of(), PERMISSION, unlocked("farmersdelight:cutting_board", key));
     }
 
@@ -292,7 +311,8 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         for (ItemStack candidate : options.resolve(ingredient)) choices.add(options.item(candidate));
         if (choices.isEmpty()) {
             String identity = String.valueOf(reflection.call(ingredient, "stableKey"));
-            choices.add(new RecipeItem("minecraft", "minecraft:barrier", null, "未解析的原料", List.of(identity)));
+            choices.add(new RecipeItem("minecraft", "minecraft:barrier", null,
+                    t("item.unresolved", "未解析的原料"), List.of(identity)));
         }
         return new RecipeIngredient(choices, 1, slot, role);
     }
@@ -385,16 +405,20 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
                 ItemStack choice = choices.get(index);
                 RecipeItem identity = decorated(item(choice), entry);
                 results.add(new RecipeResult(identity, Math.max(1, choice.getAmount()), index == 0 ? slot : -1,
-                        choices.size() > 1 ? "候选产物" : null));
+                        choices.size() > 1 ? t("note.candidate_result", "候选产物") : null));
             }
         }
         if (results.isEmpty()) {
             RecipeItem icon = fromId(text(raw, "iconItemId"));
             boolean descriptionOnly = "item_description".equalsIgnoreCase(text(raw, "displayType"));
-            results.add(new RecipeResult(icon, 1, descriptionOnly ? 16 : -1, "说明展示"));
+            results.add(new RecipeResult(icon, 1, descriptionOnly ? 16 : -1,
+                    t("note.description_display", "说明展示")));
         }
         List<String> notes = new ArrayList<>();
-        if ("item_description".equalsIgnoreCase(text(raw, "displayType"))) notes.add("说明条目；不代表可执行的合成配方");
+        if ("item_description".equalsIgnoreCase(text(raw, "displayType"))) {
+            notes.add(t("note.description_entry", "说明条目；不代表可执行的合成配方"));
+        }
+        addFakeButton(ingredients, Math.max(0, layout.layout().rows() - 1) * 9);
         RecipeItem icon = fromId(text(raw, "iconItemId"));
         return new DisplayRecipe(recipeId("special", null, key),
                 new RecipeWorkstation("farmersdelight:special",
@@ -449,6 +473,24 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         }
     }
 
+    /**
+     * 透明遮罩按钮：空气身份、无名称与 Lore、不可点击，只负责遮住 FD 背景瑕疵。
+     */
+    static RecipeIngredient fakeButton(int slot) {
+        return new RecipeIngredient(List.of(fakeButtonItem()), 1, slot, RecipeIngredient.Role.INFO);
+    }
+
+    private static void addFakeButton(List<RecipeIngredient> ingredients, int slot) {
+        // 假按钮覆盖目标槽位原有的装饰，避免 DisplayRecipe 出现同槽冲突。
+        ingredients.removeIf(ingredient -> ingredient.slot() == slot);
+        ingredients.add(fakeButton(slot));
+    }
+
+    static RecipeItem fakeButtonItem() {
+        // 导出器会将这个内部身份写成空气物品 + cer_fd_gui 物品模型。
+        return new RecipeItem("cer_fd_gui", "minecraft:air", null, null, null);
+    }
+
     private void addSpecialCatalysts(List<RecipeIngredient> target, List<?> entries, List<Integer> slots, Set<Integer> used) {
         List<RecipeItem> choices = new ArrayList<>();
         for (Object entry : entries) {
@@ -461,7 +503,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         for (RecipeItem choice : choices) {
             List<String> lore = new ArrayList<>(choice.lore() == null ? List.of() : choice.lore());
             for (String name : names) lore.add("<gray>- " + name + "</gray>");
-            lore.add("<gray>自动循环显示</gray>");
+            lore.add(t("note.auto_cycle", "<gray>自动循环显示</gray>"));
             annotated.add(new RecipeItem(choice.provider(), choice.id(), choice.icon(), choice.name(), lore));
         }
         target.add(new RecipeIngredient(annotated, 1, takeSlot(slots, used), RecipeIngredient.Role.INFO));
@@ -491,6 +533,9 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         AddonLayout layout = addonLayout(type, stationName);
         if (layout == null) layout = new AddonLayout(nativeUiLayout(null), Map.of(), Map.of());
         List<RecipeIngredient> ingredients = addonIngredients(raw, layout);
+        if (usesFakeButton(typeId)) {
+            addFakeButton(ingredients, FAKE_BUTTON_SLOT);
+        }
         ItemStack icon = stack(reflection.call(type, "icon"));
         ItemStack result = stack(reflection.call(raw, "result"));
         // 部分附属配方只提供图标；当 result() 为 AIR 时保留条目，
@@ -500,8 +545,8 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         RecipeItem stationIcon = usable(icon) ? item(icon) : RecipeItem.of("minecraft:barrier");
         List<String> notes = new ArrayList<>();
         // 与查看者相关的信息刻意交由 FD 在打开 /fd recipe 时自行判断。
-        notes.add("附属配方类型：" + typeId);
-        notes.add("额外条件及玩家专属说明请查看 /fd recipe");
+        notes.add(t("addon.type", "附属配方类型：{type}", "type", typeId));
+        notes.add(t("addon.conditions", "额外条件及玩家专属说明请查看 /fd recipe"));
         RecipeResult addonResult = new RecipeResult(item(result), Math.max(1, result.getAmount()),
                 takeSlot(layout.slots().getOrDefault("result", List.of()), new HashSet<>()), null);
         return new DisplayRecipe(recipeId("addon", typeId, key),
@@ -646,7 +691,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     }
 
     private String specialTitle() {
-        return SPECIAL_RECIPE_TITLE;
+        return t("title.special", SPECIAL_RECIPE_TITLE);
     }
 
     private static String boldTitle(String title) {
@@ -694,15 +739,27 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     }
 
     /** FD 附属配方书会显示所有已注册类型；配方发现仅负责锅和砧板配方。 */
-    private static String addonName(String typeId, String title) {
-        if (typeId == null || typeId.isBlank()) return "农夫乐事·附加配方";
+    private String addonName(String typeId, String title) {
+        if (typeId == null || typeId.isBlank()) return t("title.unknown_addon", "农夫乐事·附加配方");
         String name;
-        if (typeId.startsWith("brewinandchewin:") && typeId.contains("keg")) name = "发酵桶";
-        else if (typeId.startsWith("barbequesdelight:") && typeId.contains("grill")) name = "烧烤架";
-        else if (typeId.startsWith("barbequesdelight:") && typeId.contains("skewer")) name = "配料盆";
+        if (typeId.startsWith("brewinandchewin:") && typeId.contains("keg")) {
+            name = t("addon.keg", "发酵桶");
+        } else if (typeId.startsWith("barbequesdelight:") && typeId.contains("grill")) {
+            name = t("addon.grill", "烧烤架");
+        } else if (typeId.startsWith("barbequesdelight:") && typeId.contains("skewer")) {
+            name = t("addon.skewer", "配料盆");
+        }
         else name = title;
         if (name == null || name.isBlank()) name = typeId.substring(typeId.indexOf(':') + 1);
-        return name.startsWith("农夫乐事·") ? name : "农夫乐事·" + name;
+        String prefix = t("title.addon_prefix", "农夫乐事·");
+        return name.startsWith(prefix) ? name : prefix + name;
+    }
+
+    private static boolean usesFakeButton(String typeId) {
+        if (typeId == null) return false;
+        return typeId.startsWith("brewinandchewin:") && typeId.contains("keg")
+                || typeId.startsWith("barbequesdelight:") && (typeId.contains("grilling")
+                || typeId.contains("skewering"));
     }
 
     public static String backgroundImage(String workstationId) {
@@ -790,7 +847,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
                 pattern.add(symbols.toString());
             }
             if ((!hasInput || !hasOutput) && !hasDescription) return null;
-            String title = title(path, recipeId, placeholders, SPECIAL_RECIPE_TITLE);
+            String title = title(path, recipeId, placeholders, t("title.special", SPECIAL_RECIPE_TITLE));
             if (title == null) title = boldTitle(specialTitle());
             return new AddonLayout(new RecipeLayout(rows, title, -1, -1, -1, -1, -1, pattern, true),
                     slots, Map.of());
@@ -798,8 +855,9 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
 
         private RecipeLayout withTitle(String path, String recipeId, Map<String, String> placeholders) {
             String fixedTitle = path.contains("cooking-pot")
-                    ? COOKING_POT_TITLE
-                    : path.contains("cutting-board") ? CUTTING_BOARD_TITLE : null;
+                    ? t("title.cooking_pot", COOKING_POT_TITLE)
+                    : path.contains("cutting-board")
+                    ? t("title.cutting_board", CUTTING_BOARD_TITLE) : null;
             String title = title(path, recipeId, placeholders, fixedTitle);
             return title == null ? nativeUiLayout(null) : nativeUiLayout(title);
         }
@@ -880,11 +938,15 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     private static RecipeResult result(ItemStack stack, String note, RecipeItem item) { return new RecipeResult(item, Math.max(1, stack.getAmount()), -1, note); }
     private RecipeResult result(ItemStack stack, String note) { return result(stack, note, item(stack)); }
 
-    static String chanceNote(double chance) {
-        if (!Double.isFinite(chance)) return "概率未知";
+    String chanceNote(double chance) {
+        if (!Double.isFinite(chance)) return t("note.probability_unknown", "概率未知");
         if (chance >= 1) return null;
         String percent = java.math.BigDecimal.valueOf(Math.max(0, chance)).multiply(java.math.BigDecimal.valueOf(100)).stripTrailingZeros().toPlainString();
-        return "独立概率：" + percent + "%";
+        return t("note.independent_chance", "独立概率：{percent}%", "percent", percent);
+    }
+
+    private String t(String key, String fallback, Object... arguments) {
+        return this.text.text(key, fallback, arguments);
     }
 
     private List<ItemStack> actionTools(String key) {

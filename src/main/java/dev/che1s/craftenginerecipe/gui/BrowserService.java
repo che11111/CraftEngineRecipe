@@ -73,6 +73,7 @@ public final class BrowserService {
     private final RecipeIndex recipeIndex;
     private final RecipeGuiService recipeGui;
     private final WorkstationBrowserService workstations;
+    private final ManagementBrowserService management;
     private final BrowserActionItems actionItems;
     private final GuiSessionStore sessions;
     private final MenuLifecycle lifecycle = new MenuLifecycle();
@@ -94,6 +95,8 @@ public final class BrowserService {
                           CraftEngineData data, RecipeIndex recipeIndex) {
         this.plugin = plugin;
         this.configs = Map.copyOf(configs);
+        // NAMESPACES 是主浏览界面；其余视图缺少专属配置时回退到它，
+        // 保证任何视图都能拿到一份完整可用的布局与按钮定义。
         this.config = this.configs.getOrDefault(MenuView.NAMESPACES, this.configs.values().iterator().next());
         this.data = data;
         this.recipeIndex = recipeIndex;
@@ -101,6 +104,7 @@ public final class BrowserService {
         this.recipeGui = new RecipeGuiService(plugin, this.config, data, recipeIndex, this);
         this.workstations = new WorkstationBrowserService(plugin, this,
                 this.configs.getOrDefault(MenuView.WORKSTATIONS, this.config), data, recipeIndex, this.recipeGui);
+        this.management = new ManagementBrowserService(plugin, this);
         Map<MenuView, BrowserActionItems> actions = new java.util.EnumMap<>(MenuView.class);
         this.configs.forEach((view, viewConfig) ->
                 actions.put(view, new BrowserActionItems(plugin, viewConfig, this)));
@@ -111,6 +115,10 @@ public final class BrowserService {
 
     private CerConfig ui(MenuView view) {
         return this.configs.getOrDefault(view, this.config);
+    }
+
+    CerConfig managementUi() {
+        return this.ui(MenuView.MANAGEMENT);
     }
 
     private BrowserActionItems actions(MenuView view) {
@@ -126,6 +134,7 @@ public final class BrowserService {
     }
 
     private MenuView currentView(Player player) {
+        // 判定顺序即优先级：管理模式 > 可合成视图 > 合成器页 > 未应用命名空间 > 主浏览页。
         GuiSession session = GuiSession.of(player);
         if (session.managerMode()) return MenuView.MANAGEMENT;
         if (session.craftableMode()) return MenuView.CRAFTABLE;
@@ -250,83 +259,18 @@ public final class BrowserService {
     }
 
     public void openNamespaceManager(Player player) {
-        if (!player.hasPermission("craftenginerecipe.admin") || !this.claim(player)) return;
-        CerConfig ui = this.ui(MenuView.MANAGEMENT);
-        GuiSession session = GuiSession.of(player);
-        session.enter(null, 0, null, 0);
-        session.managerMode(true);
-        Set<String> applied = new java.util.LinkedHashSet<>();
-        this.data.namespaces().entries().stream()
-                .filter(CategoryNamespaces.NamespaceEntry.class::isInstance)
-                .map(CategoryNamespaces.NamespaceEntry.class::cast)
-                .map(CategoryNamespaces.NamespaceEntry::id)
-                .forEach(applied::add);
-        LinkedHashMap<String, CategoryNamespaces.NamespaceEntry> namespaces = new LinkedHashMap<>();
-        for (CategoryNamespaces.Entry entry : this.data.namespaces().allEntries()) {
-            if (entry instanceof CategoryNamespaces.NamespaceEntry namespace) {
-                namespaces.putIfAbsent(namespace.id(), namespace);
-            }
-        }
-        List<Item> content = namespaces.values().stream()
-                .map(entry -> this.namespaceManagerItem(player, entry, applied.contains(entry.id())))
-                .toList();
-        if (content.isEmpty()) {
-            content = List.of(Item.simple(ItemBridge.button(ui.empty().material(),
-                    ui.mm(ui.empty().name()), this.buttonLore(ui, ui.empty()))));
-        }
-        Gui gui = this.buildContentOnlyLayout(player, content, MenuView.MANAGEMENT, this.backItem(MenuView.MANAGEMENT));
-        this.openWindow(Window.builder().setViewer(player)
-                .setUpperGui(gui)
-                .setTitle(ui.mm(ui.browserTitle(), "category",
-                        this.plugin.lang().text("ui.management.name"))).build());
+        if (!player.hasPermission("craftenginerecipe.admin")) return;
+        this.management.openHome(player);
     }
 
-    private Item namespaceManagerItem(Player player, CategoryNamespaces.NamespaceEntry entry, boolean applied) {
-        CerConfig ui = this.currentUi(player);
-        Category category = this.allTopCategories().stream()
-                .filter(candidate -> candidate.id().namespace().equals(entry.id()))
-                .findFirst().orElse(null);
-        ItemStack stack;
-        try {
-            stack = category == null
-                    ? new ItemStack(Material.COMPASS)
-                    : ItemBridge.build(category.icon(), player);
-        } catch (RuntimeException | LinkageError error) {
-            CompatibilityWarnings.warn("Browser.namespaceManagerItem", error);
-            stack = new ItemStack(Material.COMPASS);
-        }
-        String name = this.plugin.lang().text("ui.management.entry-name", "namespace", entry.id());
-        List<Component> lore = new ArrayList<>();
-        lore.add(this.plugin.lang().component(applied
-                ? "ui.management.applied-lore" : "ui.management.unapplied-lore"));
-        if (!entry.categoryEntry()) lore.add(this.plugin.lang().component("ui.management.no-category-button-lore"));
-        ItemStack decorated = new ItemBuilder(stack)
-                .setName(ui.mm(name))
-                .setLore(lore)
-                .setGlint(applied ? Boolean.TRUE : null)
-                .build();
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
-            Player viewer = click.player();
-            boolean edit = click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT;
-            if (edit) {
-                if (!applied && this.plugin.unappliedCategoryDialog() != null
-                        && this.plugin.unappliedCategoryDialog().open(viewer, entry.id())) {
-                    Sounds.play(viewer, ui.sounds().click());
-                } else if (applied) {
-                    viewer.sendMessage(this.plugin.lang().message("messages.management-applied-readonly"));
-                    Sounds.play(viewer, ui.sounds().queryFailure());
-                }
-                return;
-            }
-            if (category == null) {
-                viewer.sendMessage(this.plugin.lang().message("messages.management-no-category-page",
-                        "namespace", entry.id()));
-                Sounds.play(viewer, ui.sounds().queryFailure());
-                return;
-            }
-            Sounds.play(viewer, ui.sounds().click());
-            this.openCategory(viewer, category.id(), 0);
-        })).build();
+    public void reopenManagement(Player player) {
+        if (!player.hasPermission("craftenginerecipe.admin")) return;
+        this.management.reopen(player);
+    }
+
+    public void openWorkstation(Player player, String workstationId) {
+        GuiSession.of(player).managerMode(false);
+        this.workstations.openById(player, workstationId);
     }
 
     /** 查询产出主手物品的配方，绝不打开材料用途视图。 */
@@ -527,6 +471,7 @@ public final class BrowserService {
         this.lifecycle.forget(player.getUniqueId());
         this.viewers.remove(player.getUniqueId(), player);
         this.craftableReturnViews.remove(player.getUniqueId());
+        this.management.forget(player);
     }
 
     public void rememberPlayer(Player player) {
@@ -772,6 +717,10 @@ public final class BrowserService {
 
     private Gui buildLayout(Player player, List<Item> contentItems, Key activeCategory,
                             int categoryPage, int contentPage, boolean showBack, MenuView view) {
+        /**
+         * 组装常规浏览布局：顶部为分类栏（可翻页），底部为可配置操作栏。
+         * contentPage 会被夹紧到合法页码范围，避免历史会话越界。
+         */
         CerConfig ui = this.ui(view);
         String[] structure = this.normalizeLayout(ui);
         List<Integer> catSlots = slotsOf(structure, ui.categoryIconChar());
@@ -808,6 +757,7 @@ public final class BrowserService {
     }
 
     static String[] contentOnlyStructure(CerConfig ui) {
+        // 把分类图标与分类翻页符号替换为空白占位，只保留内容区与底部操作栏。
         String[] structure = BrowserLayout.normalize(ui).clone();
         for (int row = 0; row < structure.length; row++) {
             StringBuilder line = new StringBuilder(structure[row]);
@@ -870,6 +820,7 @@ public final class BrowserService {
     }
 
     void bind(PagedGui.Builder<Item> builder, CerConfig ui, CerConfig.ButtonDef def, Item item) {
+        // 按钮符号与布局冲突时只警告不绑定，避免覆盖内容区或分类栏。
         char symbol = def.symbol();
         switch (BrowserLayout.binding(symbol, ui.categoryIconChar(), ui.contentAreaChar())) {
             case DISABLED -> { }
@@ -918,9 +869,12 @@ public final class BrowserService {
     public boolean canQueryItem(Key id, Player player) { return this.visibility(player).canQuery(id); }
 
     static boolean isStandaloneMinecraftRecipe(String id) {
+        // 煎锅按原版营火规则生成；营火源配方可独立展示，煎锅必须采用相同规则，
+        // 否则未进入 CE 分类图的原版熟食会被工作站可见性过滤。
         return id.startsWith("minecraft_cultivation:")
                 || id.startsWith("cultivation_")
-                || id.startsWith("minecraft_data:");
+                || id.startsWith("minecraft_data:")
+                || id.startsWith("farmersdelight:skillet/");
     }
 
     public List<Key> searchItems(String keyword, int limit, Predicate<Key> allowed) {
@@ -939,6 +893,7 @@ public final class BrowserService {
     }
 
     private Key inventoryItemKey(ItemStack stack) {
+        // 解析顺序：外部配方物品 -> CE 自定义物品 -> 原版物品。
         if (stack == null || stack.getType().isAir()) return null;
         Key id = this.externalItemId(stack);
         if (id == null) id = CraftEngineItems.getCustomItemId(stack);
@@ -1026,6 +981,7 @@ public final class BrowserService {
 
     private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage,
                                  List<Integer> slots, List<BarEntry> entries, MenuView view) {
+        // 只渲染当前翻页窗口内的条目；无权限的分类显示占位图标而不是跳过。
         CerConfig ui = this.ui(view);
         int perPage = Math.max(1, slots.size());
         int maxOffset = Math.max(0, entries.size() - perPage);
@@ -1061,6 +1017,10 @@ public final class BrowserService {
     }
 
     private Item vanillaItemsIcon(Player player, CategoryNamespaces.NamespaceEntry namespace, CerConfig ui) {
+        /**
+         * minecraft 命名空间没有 CE 分类时的回退入口：列出全部原版物品，
+         * 悬浮提示可携带 <name> 与物品数量占位符。
+         */
         String raw = namespace.iconName();
         String fallback = this.plugin.lang().text("ui.vanilla-items.name");
         Component name = ui.mm((raw == null || raw.isBlank() ? fallback : raw).replace("<name>", fallback));
@@ -1128,6 +1088,7 @@ public final class BrowserService {
     }
 
     Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button) {
+        // display.material 支持 source:CraftEngine: 前缀，用于引用 CE 自定义物品。
         String material = button.display().material();
         ItemStack icon;
         if (material == null || material.isBlank()) {
@@ -1159,6 +1120,7 @@ public final class BrowserService {
     }
 
     private Item categoryPlaceholder(Player player, Category category, CerConfig ui) {
+        // 无权限查看时显示屏障占位，保持分类栏不因权限变化而跳动。
         ItemStack stack = ItemBridge.button(Material.BARRIER,
                 this.accessDeniedComponent(player, category.id().namespace(), ui), List.of());
         return Item.simple(stack);

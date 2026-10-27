@@ -7,6 +7,7 @@ import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import dev.che1s.craftenginerecipe.integration.common.RecipeSource;
+import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -91,40 +92,55 @@ public final class CustomCropsRecipeSource implements RecipeSource {
     private final Function<String, String> translations;
     private final Function<String, String> itemNames;
     private final BooleanSupplier chinese;
+    private final IntegrationText text;
 
     public CustomCropsRecipeSource(Plugin source, Function<String, String> translations) {
-        this(source, translations, ignored -> null, () -> true);
+        this(source, translations, ignored -> null, () -> true, IntegrationText.empty());
     }
 
     public CustomCropsRecipeSource(Plugin source, Function<String, String> translations,
                                    Function<String, String> itemNames) {
-        this(source, translations, itemNames, () -> true);
+        this(source, translations, itemNames, () -> true, IntegrationText.empty());
     }
 
     public CustomCropsRecipeSource(Plugin source, Function<String, String> translations,
                                    Function<String, String> itemNames, BooleanSupplier chinese) {
-        this(source.getDataFolder().toPath(), source::isEnabled, translations, itemNames, chinese);
+        this(source, translations, itemNames, chinese, IntegrationText.empty());
+    }
+
+    public CustomCropsRecipeSource(Plugin source, Function<String, String> translations,
+                                   Function<String, String> itemNames, BooleanSupplier chinese,
+                                   IntegrationText text) {
+        this(source.getDataFolder().toPath(), source::isEnabled, translations, itemNames, chinese, text);
     }
 
     CustomCropsRecipeSource(Path dataFolder, BooleanSupplier enabled,
                             Function<String, String> translations) {
-        this(dataFolder, enabled, translations, ignored -> null, () -> true);
+        this(dataFolder, enabled, translations, ignored -> null, () -> true, IntegrationText.empty());
     }
 
     CustomCropsRecipeSource(Path dataFolder, BooleanSupplier enabled,
                             Function<String, String> translations,
                             Function<String, String> itemNames) {
-        this(dataFolder, enabled, translations, itemNames, () -> true);
+        this(dataFolder, enabled, translations, itemNames, () -> true, IntegrationText.empty());
     }
 
     CustomCropsRecipeSource(Path dataFolder, BooleanSupplier enabled,
                             Function<String, String> translations,
                             Function<String, String> itemNames, BooleanSupplier chinese) {
+        this(dataFolder, enabled, translations, itemNames, chinese, IntegrationText.empty());
+    }
+
+    CustomCropsRecipeSource(Path dataFolder, BooleanSupplier enabled,
+                            Function<String, String> translations,
+                            Function<String, String> itemNames, BooleanSupplier chinese,
+                            IntegrationText text) {
         this.dataFolder = dataFolder.toAbsolutePath().normalize();
         this.enabled = enabled;
         this.translations = translations == null ? ignored -> null : translations;
         this.itemNames = itemNames == null ? ignored -> null : itemNames;
         this.chinese = chinese == null ? () -> true : chinese;
+        this.text = text == null ? IntegrationText.empty() : text;
     }
 
     @Override
@@ -198,7 +214,8 @@ public final class CustomCropsRecipeSource implements RecipeSource {
 
         // CustomCrops 没有独立的土壤条件；种植盆本身就是作物所在的“种植方块”。
         List<String> plantBlockLore = new ArrayList<>();
-        plantBlockLore.add("<#B8C0CC>种植方块：</#B8C0CC><white>" + potName + "</white>");
+        plantBlockLore.add(this.t("lore.plant_block",
+                "<#B8C0CC>种植方块：</#B8C0CC><white>{pot}</white>", "pot", potName));
         plantBlockLore.addAll(potWaterLore(pot, wateringTiming));
         ingredients.add(new RecipeIngredient(
                 List.of(item(potIcon(pot), plantBlockLore)), 1, PLANT_BLOCK_SLOT,
@@ -289,14 +306,19 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         List<RecipeResult> results = new ArrayList<>();
         for (int index = 0; index < selected.size(); index++) {
             Drop drop = selected.get(index);
-            String note = "成熟产物";
+            String note = this.t("note.mature", "成熟产物");
             if (quality.contains(drop) && quality.size() > 1) {
-                note += " · 品质：" + String.join(" / ", qualityNames);
+                note += this.t("note.quality", " · 品质：{qualities}",
+                        "qualities", String.join(" / ", qualityNames));
             } else if (index > 0) {
-                note += " · 副产物";
+                note += this.t("note.byproduct", " · 副产物");
             }
-            if (drop.minimum() == drop.maximum()) note += " · 数量 " + drop.minimum();
-            else note += " · 数量 " + drop.minimum() + "～" + drop.maximum();
+            if (drop.minimum() == drop.maximum()) {
+                note += this.t("note.amount_exact", " · 数量 {amount}", "amount", drop.minimum());
+            } else {
+                note += this.t("note.amount_range", " · 数量 {min}～{max}",
+                        "min", drop.minimum(), "max", drop.maximum());
+            }
             results.add(new RecipeResult(item(drop.itemId(), resultLore(crop, drop, qualityNames)),
                     Math.min(64, Math.max(1, drop.minimum())),
                     results.size() < RESULT_SLOTS.size() ? RESULT_SLOTS.get(results.size()) : -1, note));
@@ -557,8 +579,9 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         if (namespaced != null && !namespaced.isBlank()) return namespaced;
         String engineName = this.itemNames.apply(id);
         if (engineName != null && !engineName.isBlank()) return engineName;
-        String vanillaChinese = this.chinese.getAsBoolean() ? VANILLA_NAMES_ZH.get(id) : null;
-        if (vanillaChinese != null) return vanillaChinese;
+        String configured = this.text.text("vanilla." + id.replace(':', '.'),
+                this.chinese.getAsBoolean() ? VANILLA_NAMES_ZH.getOrDefault(id, "") : "");
+        if (!configured.isBlank()) return configured;
         int separator = id.indexOf(':');
         String path = separator >= 0 ? id.substring(separator + 1) : id;
         return path.replace('_', ' ');
@@ -567,32 +590,42 @@ public final class CustomCropsRecipeSource implements RecipeSource {
     private String potName(PotData pot) {
         String known = (this.chinese.getAsBoolean() ? POT_NAMES : POT_NAMES_EN)
                 .get(pot.id().toLowerCase(Locale.ROOT));
-        return known == null ? this.displayName(pot.dryIcon()) : known;
+        String fallback = known == null ? this.displayName(pot.dryIcon()) : known;
+        return this.text.text("pot." + pot.id().toLowerCase(Locale.ROOT), fallback);
     }
 
     private String stationName(PotData pot) {
         String name = this.potName(pot);
-        return this.chinese.getAsBoolean() ? "星露谷·" + name : "CustomCrop · " + name;
+        String fallback = this.chinese.getAsBoolean() ? "星露谷·" + name : "CustomCrops·" + name;
+        return this.text.text("title.station", fallback, "pot", name);
     }
 
     private String recipeTitle(PotData pot, String cropName) {
         String plainCrop = plain(cropName);
-        if (!this.chinese.getAsBoolean()) {
-            String suffix = pot.id().equalsIgnoreCase("default") ? "" : " " + this.potName(pot);
-            return "<#F4F6F8><bold>CustomCrops·" + plainCrop + suffix + "</bold></#F4F6F8>";
-        }
         String suffix = switch (pot.id().toLowerCase(Locale.ROOT)) {
-            case "default" -> "种植盆";
-            case "aquatic_crops" -> "水生盆栽";
-            case "nether" -> "下界种植盆";
-            case "end" -> "末地种植盆";
+            case "default" -> this.text.text("title.suffix.default",
+                    this.chinese.getAsBoolean() ? "种植盆" : "");
+            case "aquatic_crops" -> this.text.text("title.suffix.aquatic_crops",
+                    this.chinese.getAsBoolean() ? "水生盆栽" : " Hydroponic Pot");
+            case "nether" -> this.text.text("title.suffix.nether",
+                    this.chinese.getAsBoolean() ? "下界种植盆" : " Nether Pot");
+            case "end" -> this.text.text("title.suffix.end",
+                    this.chinese.getAsBoolean() ? "末地种植盆" : " End Pot");
             default -> this.potName(pot);
         };
-        return "<#F4F6F8><bold>星露谷·" + plainCrop + suffix + "</bold></#F4F6F8>";
+        String fallback = this.chinese.getAsBoolean()
+                ? "星露谷·" + plainCrop + suffix
+                : "CustomCrops·" + plainCrop + suffix;
+        String title = this.text.text("title.recipe", fallback,
+                "crop", plainCrop, "suffix", suffix);
+        return "<#F4F6F8><bold>" + title + "</bold></#F4F6F8>";
     }
 
     private String returnItemName(String itemId) {
-        if ("minecraft:bucket".equals(itemId)) return this.chinese.getAsBoolean() ? "空桶" : "Empty Bucket";
+        if ("minecraft:bucket".equals(itemId)) {
+            return this.text.text("vanilla.minecraft.bucket",
+                    this.chinese.getAsBoolean() ? "空桶" : "Empty Bucket");
+        }
         return this.displayName(itemId);
     }
 
@@ -603,72 +636,94 @@ public final class CustomCropsRecipeSource implements RecipeSource {
     private List<String> seedLore(CropData crop, MachineSettings mechanics) {
         List<String> lore = new ArrayList<>();
         if (!crop.seasons().isEmpty()) {
-            lore.add("<#98C69A>适宜季节：</#98C69A><white>" + labels(crop.seasons(), SEASONS) + "</white>");
+            lore.add(this.t("lore.season", "<#98C69A>适宜季节：</#98C69A><white>{seasons}</white>",
+                    "seasons", this.labels(crop.seasons(), SEASONS, "season.")));
         } else if (crop.environments().isEmpty()) {
-            lore.add("<#98C69A>季节限制：</#98C69A><white>无特殊季节要求</white>");
+            lore.add(this.t("lore.season_none",
+                    "<#98C69A>季节限制：</#98C69A><white>无特殊季节要求</white>"));
         }
         if (!crop.environments().isEmpty()) {
-            lore.add("<#98C69A>适宜环境：</#98C69A><white>"
-                    + labels(crop.environments(), ENVIRONMENTS) + "</white>");
+            lore.add(this.t("lore.environment", "<#98C69A>适宜环境：</#98C69A><white>{environments}</white>",
+                    "environments", this.labels(crop.environments(), ENVIRONMENTS, "environment.")));
         }
         if (crop.seasonalDeath() && mechanics.greenhouse().enabled()) {
-            lore.add("<#D8B278>非适宜季节：</#D8B278><white>在作物顶部放置"
-                    + plain(this.displayName(mechanics.greenhouse().id()))
-                    + "，可避免季节对作物的影响。</white>");
+            lore.add(this.t("lore.greenhouse",
+                    "<#D8B278>非适宜季节：</#D8B278><white>在作物顶部放置{item}，可避免季节对作物的影响。</white>",
+                    "item", plain(this.displayName(mechanics.greenhouse().id()))));
         }
-        lore.add("<#B8C0CC>成熟阶段：</#B8C0CC><white>" + crop.maxPoints() + " 点</white>");
+        lore.add(this.t("lore.mature_stage",
+                "<#B8C0CC>成熟阶段：</#B8C0CC><white>{points} 点</white>",
+                "points", crop.maxPoints()));
         return List.copyOf(lore);
     }
 
     private List<String> potWaterLore(PotData pot, WateringTiming timing) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#B8C0CC>种植盆储水量：</#B8C0CC><white>" + pot.storage() + " 点</white>");
+        lore.add(this.t("lore.water_storage",
+                "<#B8C0CC>种植盆储水量：</#B8C0CC><white>{points} 点</white>",
+                "points", pot.storage()));
         if (pot.storage() <= 0) {
-            lore.add("<#B8C0CC>浇水：</#B8C0CC><white>此种植盆不启用插件储水机制</white>");
+            lore.add(this.t("lore.water_disabled",
+                    "<#B8C0CC>浇水：</#B8C0CC><white>此种植盆不启用插件储水机制</white>"));
             return List.copyOf(lore);
         }
-        lore.add("<#B8C0CC>自然消耗：</#B8C0CC><white>每 " + timing.potInterval()
-                + " 次种植盆更新消耗 1 点水</white>");
+        lore.add(this.t("lore.water_consumption",
+                "<#B8C0CC>自然消耗：</#B8C0CC><white>每 {updates} 次种植盆更新消耗 1 点水</white>",
+                "updates", timing.potInterval()));
         if (timing.hasScheduledPotUpdate()) {
             long secondsPerLoss = (long) timing.minimumUnit() * timing.potInterval();
             long fullSeconds = secondsPerLoss * pot.storage();
-            String prefix = timing.potMode().equalsIgnoreCase("ALL") ? "按计划更新至少" : "默认约";
-            lore.add("<#B8C0CC>浇水间隔：</#B8C0CC><white>" + prefix + " "
-                    + formatDuration(secondsPerLoss) + "消耗 1 点水</white>");
-            lore.add("<#B8C0CC>满水持续时间：</#B8C0CC><white>" + prefix + " "
-                    + formatDuration(fullSeconds) + "</white>");
+            String prefix = this.t(timing.potMode().equalsIgnoreCase("ALL")
+                            ? "duration.scheduled" : "duration.default",
+                    timing.potMode().equalsIgnoreCase("ALL") ? "按计划更新至少" : "默认约");
+            lore.add(this.t("lore.water_interval",
+                    "<#B8C0CC>浇水间隔：</#B8C0CC><white>{prefix} {duration}消耗 1 点水</white>",
+                    "prefix", prefix, "duration", formatDuration(secondsPerLoss)));
+            lore.add(this.t("lore.water_full",
+                    "<#B8C0CC>满水持续时间：</#B8C0CC><white>{prefix} {duration}</white>",
+                    "prefix", prefix, "duration", formatDuration(fullSeconds)));
         } else {
-            lore.add("<#B8C0CC>浇水间隔：</#B8C0CC><white>由随机 tick 决定，无固定秒数</white>");
+            lore.add(this.t("lore.water_random",
+                    "<#B8C0CC>浇水间隔：</#B8C0CC><white>由随机 tick 决定，无固定秒数</white>"));
         }
         if (pot.absorbRain()) {
-            lore.add("<#98C69A>降雨：</#98C69A><white>下雨时停止消耗并自动补水</white>");
+            lore.add(this.t("lore.rain",
+                    "<#98C69A>降雨：</#98C69A><white>下雨时停止消耗并自动补水</white>"));
         }
         if (pot.absorbNearbyWater()) {
-            lore.add("<#98C69A>近水：</#98C69A><white>附近 4 格内有水时停止消耗并自动补水</white>");
+            lore.add(this.t("lore.nearby_water",
+                    "<#98C69A>近水：</#98C69A><white>附近 4 格内有水时停止消耗并自动补水</white>"));
         }
-        lore.add("<#8793A5>实际周期以相关设置为准</#8793A5>");
+        lore.add(this.t("lore.settings_note", "<#8793A5>实际周期以相关设置为准</#8793A5>"));
         return List.copyOf(lore);
     }
 
     private List<String> wateringCanLore(WateringCanData can, PotData pot, WateringTiming timing) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#B8C0CC>水壶容量：</#B8C0CC><white>" + can.capacity() + " 点水</white>");
-        lore.add("<#B8C0CC>每次补水：</#B8C0CC><white>" + can.water() + " 点</white>");
-        lore.add("<#B8C0CC>兼容种植盆：</#B8C0CC><white>" + this.potName(pot) + "</white>");
-        lore.add("<#8793A5>右键水源可为水壶补水</#8793A5>");
+        lore.add(this.t("lore.can_capacity",
+                "<#B8C0CC>水壶容量：</#B8C0CC><white>{amount} 点水</white>", "amount", can.capacity()));
+        lore.add(this.t("lore.can_refill",
+                "<#B8C0CC>每次补水：</#B8C0CC><white>{amount} 点</white>", "amount", can.water()));
+        lore.add(this.t("lore.compatible_pot",
+                "<#B8C0CC>兼容种植盆：</#B8C0CC><white>{pot}</white>", "pot", this.potName(pot)));
+        lore.add(this.t("lore.can_refill_source", "<#8793A5>右键水源可为水壶补水</#8793A5>"));
         lore.addAll(potWaterLore(pot, timing));
         return List.copyOf(lore);
     }
 
     private List<String> fillMethodLore(FillMethodData fill, PotData pot, WateringTiming timing) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#B8C0CC>使用方式：</#B8C0CC><white>手持"
-                + plain(this.displayName(fill.itemId())) + "右键" + this.potName(pot)
-                + "，每次补充 " + fill.amount() + " 点</white>");
+        lore.add(this.t("lore.fill_usage",
+                "<#B8C0CC>使用方式：</#B8C0CC><white>手持{item}右键{pot}，每次补充 {amount} 点</white>",
+                "item", plain(this.displayName(fill.itemId())),
+                "pot", this.potName(pot), "amount", fill.amount()));
         if (fill.returnedItemId() != null) {
-            lore.add("<#B8C0CC>返还物品：</#B8C0CC><white>"
-                    + (fill.returnedAmount() > 1 ? fill.returnedAmount() + " 个 " : "")
-                    + plain(this.returnItemName(fill.returnedItemId())) + "</white>");
+            String amount = fill.returnedAmount() > 1
+                    ? this.t("lore.return_item_count", "{amount} 个 ", "amount", fill.returnedAmount())
+                    : "";
+            lore.add(this.t("lore.return_item",
+                    "<#B8C0CC>返还物品：</#B8C0CC><white>{amount}{item}</white>",
+                    "amount", amount, "item", plain(this.returnItemName(fill.returnedItemId()))));
         }
         lore.addAll(potWaterLore(pot, timing));
         return List.copyOf(lore);
@@ -676,64 +731,91 @@ public final class CustomCropsRecipeSource implements RecipeSource {
 
     private List<String> fertilizerLore(FertilizerData fertilizer, PotData pot) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#D8B278>可选肥料 / 激素：</#D8B278><white>"
-                + FERTILIZER_NAMES.getOrDefault(fertilizer.type(), fertilizer.type()) + "</white>");
+        String type = this.text.text("fertilizer." + fertilizer.type().toLowerCase(Locale.ROOT),
+                FERTILIZER_NAMES.getOrDefault(fertilizer.type(), fertilizer.type()));
+        lore.add(this.t("lore.fertilizer_optional",
+                "<#D8B278>可选肥料 / 激素：</#D8B278><white>{type}</white>", "type", type));
         if (fertilizer.times() > 0) {
-            lore.add("<#B8C0CC>有效期：</#B8C0CC><white>" + fertilizer.times() + " 次作物更新</white>");
+            lore.add(this.t("lore.fertilizer_duration",
+                    "<#B8C0CC>有效期：</#B8C0CC><white>{times} 次作物更新</white>",
+                    "times", fertilizer.times()));
         }
         if (fertilizer.beforePlant()) {
-            lore.add("<#D8B278>使用时机：</#D8B278><white>需要在播种前使用</white>");
+            lore.add(this.t("lore.fertilizer_before",
+                    "<#D8B278>使用时机：</#D8B278><white>需要在播种前使用</white>"));
         }
-        lore.add("<#B8C0CC>使用上限：</#B8C0CC><white>每盆最多 " + pot.maxFertilizers() + " 个</white>");
+        lore.add(this.t("lore.fertilizer_limit",
+                "<#B8C0CC>使用上限：</#B8C0CC><white>每盆最多 {amount} 个</white>",
+                "amount", pot.maxFertilizers()));
         return List.copyOf(lore);
     }
 
     private List<String> sprinklerLore(SprinklerData sprinkler, PotData pot, WateringTiming timing) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#98C69A>自动灌溉：</#98C69A><white>为范围内兼容种植盆补水</white>");
-        lore.add("<#B8C0CC>兼容种植盆：</#B8C0CC><white>" + this.potName(pot) + "</white>");
-        lore.add("<#B8C0CC>工作范围：</#B8C0CC><white>" + sprinkler.range() + " 格</white>");
-        lore.add("<#B8C0CC>每次补水：</#B8C0CC><white>" + sprinkler.water() + " 点</white>");
-        lore.add("<#B8C0CC>储水量：</#B8C0CC><white>"
-                + (sprinkler.infinite() ? "无限" : sprinkler.storage() + " 点") + "</white>");
-        lore.add("<#8793A5>工作周期：每 " + timing.sprinklerInterval() + " 次灌溉器更新</#8793A5>");
+        lore.add(this.t("lore.sprinkler_auto",
+                "<#98C69A>自动灌溉：</#98C69A><white>为范围内兼容种植盆补水</white>"));
+        lore.add(this.t("lore.compatible_pot",
+                "<#B8C0CC>兼容种植盆：</#B8C0CC><white>{pot}</white>", "pot", this.potName(pot)));
+        lore.add(this.t("lore.sprinkler_range",
+                "<#B8C0CC>工作范围：</#B8C0CC><white>{range} 格</white>", "range", sprinkler.range()));
+        lore.add(this.t("lore.sprinkler_refill",
+                "<#B8C0CC>每次补水：</#B8C0CC><white>{amount} 点</white>", "amount", sprinkler.water()));
+        String storage = sprinkler.infinite()
+                ? this.t("lore.sprinkler_infinite", "无限")
+                : this.t("lore.points", "{points} 点", "points", sprinkler.storage());
+        lore.add(this.t("lore.sprinkler_storage",
+                "<#B8C0CC>储水量：</#B8C0CC><white>{storage}</white>", "storage", storage));
+        lore.add(this.t("lore.sprinkler_cycle",
+                "<#8793A5>工作周期：每 {updates} 次灌溉器更新</#8793A5>",
+                "updates", timing.sprinklerInterval()));
         return List.copyOf(lore);
     }
 
     private List<String> greenhouseLore(BlockRule rule) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#98C69A>季节保护：</#98C69A><white>防止非适宜季节导致作物枯萎</white>");
-        lore.add("<#B8C0CC>放置位置：</#B8C0CC><white>作物顶部或有效范围内</white>");
-        lore.add("<#B8C0CC>生效范围：</#B8C0CC><white>"
-                + (rule.protectChunk() ? "整个区块" : rule.range() + " 格") + "</white>");
+        lore.add(this.t("lore.greenhouse_protect",
+                "<#98C69A>季节保护：</#98C69A><white>防止非适宜季节导致作物枯萎</white>"));
+        lore.add(this.t("lore.greenhouse_place",
+                "<#B8C0CC>放置位置：</#B8C0CC><white>作物顶部或有效范围内</white>"));
+        lore.add(this.t("lore.scope", "<#B8C0CC>生效范围：</#B8C0CC><white>{scope}</white>",
+                "scope", this.scope(rule)));
         return List.copyOf(lore);
     }
 
     private List<String> scarecrowLore(BlockRule rule) {
         List<String> lore = new ArrayList<>();
-        lore.add("<#98C69A>乌鸦防护：</#98C69A><white>防止附近作物受到乌鸦破坏</white>");
-        lore.add("<#B8C0CC>放置位置：</#B8C0CC><white>种植盆附近</white>");
-        lore.add("<#B8C0CC>生效范围：</#B8C0CC><white>"
-                + (rule.protectChunk() ? "整个区块" : rule.range() + " 格") + "</white>");
+        lore.add(this.t("lore.scarecrow_protect",
+                "<#98C69A>乌鸦防护：</#98C69A><white>防止附近作物受到乌鸦破坏</white>"));
+        lore.add(this.t("lore.scarecrow_place",
+                "<#B8C0CC>放置位置：</#B8C0CC><white>种植盆附近</white>"));
+        lore.add(this.t("lore.scope", "<#B8C0CC>生效范围：</#B8C0CC><white>{scope}</white>",
+                "scope", this.scope(rule)));
         return List.copyOf(lore);
     }
 
     private List<String> resultLore(CropData crop, Drop drop, List<String> qualityNames) {
         List<String> lore = new ArrayList<>();
         if (!crop.seasons().isEmpty()) {
-            lore.add("<#98C69A>适宜季节：</#98C69A><white>" + labels(crop.seasons(), SEASONS) + "</white>");
+            lore.add(this.t("lore.season", "<#98C69A>适宜季节：</#98C69A><white>{seasons}</white>",
+                    "seasons", this.labels(crop.seasons(), SEASONS, "season.")));
         }
         if (!crop.environments().isEmpty()) {
-            lore.add("<#98C69A>适宜环境：</#98C69A><white>"
-                    + labels(crop.environments(), ENVIRONMENTS) + "</white>");
+            lore.add(this.t("lore.environment", "<#98C69A>适宜环境：</#98C69A><white>{environments}</white>",
+                    "environments", this.labels(crop.environments(), ENVIRONMENTS, "environment.")));
         }
-        lore.add("<#B8C0CC>成熟阶段：</#B8C0CC><white>" + crop.maxPoints() + " 点</white>");
-        lore.add("<#B8C0CC>收获数量：</#B8C0CC><white>"
-                + (drop.minimum() == drop.maximum()
-                ? String.valueOf(drop.minimum()) : drop.minimum() + "～" + drop.maximum()) + "</white>");
+        lore.add(this.t("lore.mature_stage",
+                "<#B8C0CC>成熟阶段：</#B8C0CC><white>{points} 点</white>", "points", crop.maxPoints()));
+        String amount = drop.minimum() == drop.maximum()
+                ? String.valueOf(drop.minimum())
+                : this.t("amount.range", "{min}～{max}", "min", drop.minimum(), "max", drop.maximum());
+        lore.add(this.t("lore.harvest_amount",
+                "<#B8C0CC>收获数量：</#B8C0CC><white>{amount}</white>", "amount", amount));
         if (qualityNames.size() > 1) {
-            lore.add("<#B8C0CC>品质候选：</#B8C0CC><white>" + String.join("、", qualityNames) + "</white>");
-            lore.add("<#B8C0CC>品质概率：</#B8C0CC><white>受 CustomCrops 品质比例和肥料影响</white>");
+            lore.add(this.t("lore.quality_candidates",
+                    "<#B8C0CC>品质候选：</#B8C0CC><white>{qualities}</white>",
+                    "qualities", String.join(this.t("separator", "、"), qualityNames)));
+            lore.add(this.t("lore.quality_chance",
+                    "<#B8C0CC>品质概率：</#B8C0CC><white>受 CustomCrops 品质比例和肥料影响</white>"));
         }
         return List.copyOf(lore);
     }
@@ -745,15 +827,24 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         return new RecipeItem(provider, normalized, null, null, lore);
     }
 
-    private static String formatDuration(long seconds) {
-        if (seconds < 60) return seconds + " 秒";
+    private String scope(BlockRule rule) {
+        return rule.protectChunk()
+                ? this.t("lore.whole_chunk", "整个区块")
+                : this.t("lore.blocks", "{range} 格", "range", rule.range());
+    }
+
+    private String formatDuration(long seconds) {
+        if (seconds < 60) return this.t("time.seconds", "{value} 秒", "value", seconds);
         if (seconds % 60 == 0) {
             long minutes = seconds / 60;
-            if (minutes < 60) return minutes + " 分钟";
-            if (minutes % 60 == 0) return minutes / 60 + " 小时";
-            return minutes / 60 + " 小时 " + minutes % 60 + " 分钟";
+            if (minutes < 60) return this.t("time.minutes", "{value} 分钟", "value", minutes);
+            if (minutes % 60 == 0) {
+                return this.t("time.hours", "{value} 小时", "value", minutes / 60);
+            }
+            return this.t("time.hours_minutes", "{hours} 小时 {minutes} 分钟",
+                    "hours", minutes / 60, "minutes", minutes % 60);
         }
-        return seconds + " 秒";
+        return this.t("time.seconds", "{value} 秒", "value", seconds);
     }
 
     private long fingerprint(Path path, long seed) {
@@ -772,9 +863,15 @@ public final class CustomCropsRecipeSource implements RecipeSource {
         }
     }
 
-    private static String labels(List<String> values, Map<String, String> known) {
-        return values.stream().map(value -> known.getOrDefault(value.toLowerCase(Locale.ROOT), value))
-                .collect(java.util.stream.Collectors.joining("、"));
+    private String t(String key, String fallback, Object... arguments) {
+        return this.text.text(key, fallback, arguments);
+    }
+
+    private String labels(List<String> values, Map<String, String> known, String keyPrefix) {
+        return values.stream().map(value -> {
+                    String lower = value.toLowerCase(Locale.ROOT);
+                    return this.text.text(keyPrefix + lower, known.getOrDefault(lower, value));
+                }).collect(java.util.stream.Collectors.joining(this.t("separator", "、")));
     }
 
     private static String plain(String value) {

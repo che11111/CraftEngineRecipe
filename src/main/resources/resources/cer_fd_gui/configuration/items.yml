@@ -1,0 +1,12 @@
+items:
+  # 遮罩按钮：配方中仅作为不可点击的装饰槽使用。
+  # Mask button: decoration-only and non-clickable in recipes.
+  cer_fd_gui:fake_button:
+    material: paper
+    model:
+      type: minecraft:model
+      path: cer_fd_gui:item/fake_button
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_fd_gui:item/fake_button

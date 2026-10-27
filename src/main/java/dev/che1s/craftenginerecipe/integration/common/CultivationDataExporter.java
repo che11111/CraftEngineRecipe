@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.integration.customcrops.CustomCropsRecipeSource;
+import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -57,7 +58,8 @@ public final class CultivationDataExporter {
             Path target = target(plugin, entry.getKey());
             if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) continue;
             try {
-                List<JsonObject> crops = namespaceCrops(entry.getValue(), entry.getKey());
+                List<JsonObject> crops = namespaceCrops(entry.getValue(), entry.getKey(),
+                        IntegrationText.of("cultivation", plugin.lang()));
                 if (crops.isEmpty() && !KNOWN_NAMESPACES.contains(entry.getKey())) continue;
                 if (entry.getKey().equals("customcrops") && crops.isEmpty()) continue;
                 write(target, entry.getKey(), "craftengine", crops);
@@ -69,7 +71,8 @@ public final class CultivationDataExporter {
             Path target = customCropsTarget(plugin);
             if (Files.notExists(target, LinkOption.NOFOLLOW_LINKS)) {
                 try {
-                    write(target, "customcrops", "customcrops", customCropsRecords());
+                    write(target, "customcrops", "customcrops",
+                            customCropsRecords(IntegrationText.of("cultivation", plugin.lang())));
                 } catch (IOException | RuntimeException error) {
                     plugin.getLogger().warning("CustomCrops 栽培数据导出失败: " + error.getMessage());
                 }
@@ -80,7 +83,7 @@ public final class CultivationDataExporter {
     /** 刷新某个集成命名空间；未知名称返回 0。 */
     public static int export(CraftEngineRecipePlugin plugin, String source) throws IOException {
         if (source.equals(CustomCropsRecipeSource.SOURCE_ID)) {
-            List<JsonObject> crops = customCropsRecords();
+            List<JsonObject> crops = customCropsRecords(IntegrationText.of("cultivation", plugin.lang()));
             write(customCropsTarget(plugin), "customcrops", "customcrops", crops);
             return crops.size();
         }
@@ -91,16 +94,22 @@ public final class CultivationDataExporter {
         };
         if (namespace == null) return 0;
         List<Path> directories = packs(craftEngineResources(plugin)).getOrDefault(namespace, List.of());
-        List<JsonObject> crops = namespaceCrops(directories, namespace);
+        List<JsonObject> crops = namespaceCrops(directories, namespace,
+                IntegrationText.of("cultivation", plugin.lang()));
         write(target(plugin, namespace), namespace, "craftengine", crops);
         return crops.size();
     }
 
     static List<JsonObject> namespaceCrops(Path namespaceDirectory, String namespace) throws IOException {
-        return namespaceCrops(List.of(namespaceDirectory), namespace);
+        return namespaceCrops(List.of(namespaceDirectory), namespace, IntegrationText.empty());
     }
 
     static List<JsonObject> namespaceCrops(List<Path> namespaceDirectories, String namespace) throws IOException {
+        return namespaceCrops(namespaceDirectories, namespace, IntegrationText.empty());
+    }
+
+    static List<JsonObject> namespaceCrops(List<Path> namespaceDirectories, String namespace,
+                                           IntegrationText text) throws IOException {
         List<JsonObject> records = new ArrayList<>();
         List<Map<String, Object>> documents = new ArrayList<>();
         Map<String, Map<String, Object>> templates = new LinkedHashMap<>();
@@ -113,11 +122,11 @@ public final class CultivationDataExporter {
         }
         for (Map<String, Object> root : documents) {
             blocks(root.get("blocks")).forEach((id, raw) ->
-                    addCandidate(records, id, raw, namespace, templates));
+                    addCandidate(records, id, raw, namespace, templates, text));
             blocks(root.get("items")).forEach((id, raw) -> {
                 Object nested = path(map(raw), "behavior", "block");
                 if (nested instanceof Map<?, ?>) {
-                    addCandidate(records, id, map(nested), namespace, templates);
+                    addCandidate(records, id, map(nested), namespace, templates, text);
                 }
             });
         }
@@ -125,15 +134,19 @@ public final class CultivationDataExporter {
     }
 
     private static void addCandidate(List<JsonObject> out, String id, Map<String, Object> raw,
-                                     String namespace, Map<String, Map<String, Object>> templates) {
+                                     String namespace, Map<String, Map<String, Object>> templates,
+                                     IntegrationText text) {
         if (id == null || id.contains("${") || !cultivationBlock(raw, templates)) return;
         List<String> seeds = seedValues(raw, id, templates);
         if (seeds.isEmpty()) return;
         List<String> products = products(raw, templates);
         if (products.isEmpty()) products = seeds;
         List<String> substrates = substrates(raw, templates);
-        String fallback = namespace.equals("default") ? "特殊基质或液体" : "按 CE 方块配置";
-        out.add(crop(id, seeds, products, substrates, substrates.isEmpty() ? fallback : "按方块放置条件种植"));
+        String fallback = namespace.equals("default")
+                ? text.text("note.special_substrate", "特殊基质或液体")
+                : text.text("note.craftengine_block", "按 CE 方块配置");
+        out.add(crop(id, seeds, products, substrates, substrates.isEmpty()
+                ? fallback : text.text("note.placement", "按方块放置条件种植")));
     }
 
     private static boolean cultivationBlock(Map<String, Object> raw,
@@ -217,9 +230,7 @@ public final class CultivationDataExporter {
     }
 
     static List<JsonObject> customCrops(Path dataFolder) throws IOException {
-        List<JsonObject> records = new ArrayList<>();
-        addCustomCrops(records, dataFolder);
-        return merge(records);
+        return customCrops(dataFolder, IntegrationText.empty());
     }
 
     private static boolean containsType(Object node, Set<String> wanted) {
@@ -326,17 +337,28 @@ public final class CultivationDataExporter {
     private static void addCustomCrops(List<JsonObject> out) throws IOException {
         Plugin source = Bukkit.getPluginManager().getPlugin(CustomCropsRecipeSource.PLUGIN_NAME);
         if (PluginFingerprints.matches(source, CustomCropsRecipeSource.SOURCE_ID)) {
-            addCustomCrops(out, source.getDataFolder().toPath());
+            addCustomCrops(out, source.getDataFolder().toPath(), IntegrationText.empty());
         }
     }
 
     private static List<JsonObject> customCropsRecords() throws IOException {
-        Plugin source = Bukkit.getPluginManager().getPlugin(CustomCropsRecipeSource.PLUGIN_NAME);
-        return PluginFingerprints.matches(source, CustomCropsRecipeSource.SOURCE_ID)
-                ? customCrops(source.getDataFolder().toPath()) : List.of();
+        return customCropsRecords(IntegrationText.empty());
     }
 
-    private static void addCustomCrops(List<JsonObject> out, Path dataFolder) throws IOException {
+    private static List<JsonObject> customCropsRecords(IntegrationText text) throws IOException {
+        Plugin source = Bukkit.getPluginManager().getPlugin(CustomCropsRecipeSource.PLUGIN_NAME);
+        return PluginFingerprints.matches(source, CustomCropsRecipeSource.SOURCE_ID)
+                ? customCrops(source.getDataFolder().toPath(), text) : List.of();
+    }
+
+    private static List<JsonObject> customCrops(Path dataFolder, IntegrationText text) throws IOException {
+        List<JsonObject> out = new ArrayList<>();
+        addCustomCrops(out, dataFolder, text);
+        return merge(out);
+    }
+
+    private static void addCustomCrops(List<JsonObject> out, Path dataFolder,
+                                       IntegrationText text) throws IOException {
         Map<String, List<String>> farmlandPots = new LinkedHashMap<>();
         for (Path file : yamlFiles(dataFolder.resolve("contents/pots"))) {
             for (var entry : readYaml(file).entrySet()) {
@@ -360,7 +382,8 @@ public final class CultivationDataExporter {
                 List<String> products = itemValues(raw.get("points"));
                 if (products.isEmpty()) products = seeds;
                 out.add(crop("customcrops:" + entry.getKey(), seeds, products,
-                        List.copyOf(substrates), "使用 CustomCrops 原版基质种植"));
+                        List.copyOf(substrates), text.text("note.customcrops_farmland",
+                                "使用 CustomCrops 原版基质种植")));
             }
         }
     }

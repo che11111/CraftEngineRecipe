@@ -11,6 +11,7 @@ import dev.che1s.craftenginerecipe.api.RecipeItem;
 import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
+import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import dev.che1s.craftenginerecipe.util.VanillaTranslations;
 
 import java.io.IOException;
@@ -40,6 +41,8 @@ public final class BundledMinecraftRecipeSource {
     private final Path jarPath;
     private final Path dataFolder;
     private final Function<String, String> translations;
+    private final IntegrationText minecraftText;
+    private final IntegrationText cultivationText;
     private final Predicate<String> sourceEnabled;
     private final boolean chinese;
     private Map<String, String> vanillaNames = Map.of();
@@ -47,6 +50,8 @@ public final class BundledMinecraftRecipeSource {
 
     public BundledMinecraftRecipeSource(CraftEngineRecipePlugin plugin) {
         this(plugin.jarPath(), plugin.getDataFolder().toPath(), plugin.lang()::text,
+                IntegrationText.of("minecraft", plugin.lang()),
+                IntegrationText.of("cultivation", plugin.lang()),
                 source -> plugin.getConfig().getBoolean("sources." + source, true),
                 plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh"));
     }
@@ -75,19 +80,30 @@ public final class BundledMinecraftRecipeSource {
     }
 
     BundledMinecraftRecipeSource(Path jarPath, Function<String, String> translations) {
-        this(jarPath, Path.of("."), translations, ignored -> true, false);
+        this(jarPath, Path.of("."), translations, IntegrationText.empty(), IntegrationText.empty(),
+                ignored -> true, false);
     }
 
     BundledMinecraftRecipeSource(Path jarPath, Path dataFolder, Function<String, String> translations,
                                  Predicate<String> sourceEnabled) {
-        this(jarPath, dataFolder, translations, sourceEnabled, false);
+        this(jarPath, dataFolder, translations, IntegrationText.empty(), IntegrationText.empty(),
+                sourceEnabled, false);
     }
 
     BundledMinecraftRecipeSource(Path jarPath, Path dataFolder, Function<String, String> translations,
                                  Predicate<String> sourceEnabled, boolean chinese) {
+        this(jarPath, dataFolder, translations, IntegrationText.empty(), IntegrationText.empty(),
+                sourceEnabled, chinese);
+    }
+
+    BundledMinecraftRecipeSource(Path jarPath, Path dataFolder, Function<String, String> translations,
+                                 IntegrationText minecraftText, IntegrationText cultivationText,
+                                 Predicate<String> sourceEnabled, boolean chinese) {
         this.jarPath = jarPath;
         this.dataFolder = dataFolder;
         this.translations = translations;
+        this.minecraftText = minecraftText == null ? IntegrationText.empty() : minecraftText;
+        this.cultivationText = cultivationText == null ? IntegrationText.empty() : cultivationText;
         this.sourceEnabled = sourceEnabled;
         this.chinese = chinese;
     }
@@ -176,7 +192,8 @@ public final class BundledMinecraftRecipeSource {
         }
         if (parsedIngredients.isEmpty()) return List.of();
 
-        String stationName = this.translations.apply("ui.workstations.categories." + info.langKey());
+        String fallbackStation = this.translations.apply("ui.workstations.categories." + info.langKey());
+        String stationName = this.minecraftText.text("station." + info.langKey(), fallbackStation);
         RecipeWorkstation workstation = new RecipeWorkstation(info.id(),
                 this.named(RecipeItem.of("minecraft:" + info.icon())), stationName);
         RecipeLayout layout = new RecipeLayout(6, stationName, 4, 49, 45, 48, 53);
@@ -231,7 +248,9 @@ public final class BundledMinecraftRecipeSource {
 
     private List<DisplayRecipe> cultivationRecipes(JsonObject rootJson, String source) {
         String localizedName = this.translations.apply("ui.workstations.categories.cultivation");
-        String stationName = (this.chinese ? "原版·" : "Vanilla · ") + localizedName;
+        String stationName = this.cultivationText.text("station",
+                (this.chinese ? "原版·" : "Vanilla · ") + localizedName,
+                "name", localizedName);
         RecipeWorkstation station = new RecipeWorkstation(CULTIVATION_STATION,
                 this.named(RecipeItem.of("minecraft:farmland")), stationName);
         JsonArray crops = rootJson.getAsJsonArray("crops");
@@ -243,9 +262,12 @@ public final class BundledMinecraftRecipeSource {
             List<RecipeItem> seeds = this.items(crop.getAsJsonArray("seeds"));
             List<RecipeItem> products = this.items(crop.getAsJsonArray("products"));
             if (seeds.isEmpty() || products.isEmpty()) continue;
+            String id = string(crop, "id");
+            String path = id.contains(":") ? id.substring(id.indexOf(':') + 1) : id;
             String note = string(crop, "note");
-            List<String> seedLore = List.of(
-                    "<#98C69A>种植基质：</#98C69A><white>见旁边的基质图标</white>");
+            note = this.cultivationText.text("note." + sanitize(path), note);
+            List<String> seedLore = List.of(this.cultivationText.text("seed.lore",
+                    "<#98C69A>种植基质：</#98C69A><white>见旁边的基质图标</white>"));
             RecipeIngredient seed = new RecipeIngredient(seeds.stream()
                     .map(item -> new RecipeItem(item.provider(), item.id(), null, item.name(), seedLore)).toList(),
                     1, 19, RecipeIngredient.Role.INGREDIENT);
@@ -271,8 +293,6 @@ public final class BundledMinecraftRecipeSource {
                 };
                 results.add(new RecipeResult(decorated, 1, slot, null));
             }
-            String id = string(crop, "id");
-            String path = id.contains(":") ? id.substring(id.indexOf(':') + 1) : id;
             String prefix = source.equals("minecraft") ? "minecraft_cultivation" : "cultivation_" + source;
             recipes.add(new DisplayRecipe(prefix + ":" + sanitize(path),
                     station, new RecipeLayout(6, stationName, -1, 49, 45, 48, 53),

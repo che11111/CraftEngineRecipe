@@ -5,8 +5,8 @@
 # Optional: icon-name / item-lore / icon-lore / sub-icon-lore
 # 自定义按钮：display + actions，可与命名空间条目混排；按钮不使用 id 字段
 # Custom buttons: display + actions; mix freely with namespace entries. Buttons do not use id.
-# 未配置的命名空间写入 categories-unapplied.yml，用 /cer unapplied 预览
-# Unconfigured namespaces go to categories-unapplied.yml; preview with /cer unapplied
+# 未配置的命名空间写入 categories-unapplied.yml；管理员用 /cer manage 在游戏内检查、编辑和应用
+# Unconfigured namespaces go to categories-unapplied.yml; admins can review, edit and apply them in /cer manage
 # hidden-categories 隐藏分类入口与路径；hidden-items 只隐藏物品 / hidden-categories hides category entries and paths; hidden-items hides only items
 # 完整示例见 categories-example.yml / See categories-example.yml for examples
 
