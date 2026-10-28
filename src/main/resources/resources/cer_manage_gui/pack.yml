@@ -1,0 +1,5 @@
+author: CraftEngineRecipe,che1s
+version: 1.0.0
+description: CraftEngineRecipe 管理页面专用 UI 资源包
+namespace: cer_manage
+enable: true

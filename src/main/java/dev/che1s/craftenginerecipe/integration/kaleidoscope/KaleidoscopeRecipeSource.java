@@ -27,6 +27,10 @@ import java.util.function.Supplier;
 /** 可选的 KC 公共 API 桥接器。CER 不直接链接任何 KC 类。 */
 public final class KaleidoscopeRecipeSource implements RecipeSource {
     public static final String PLUGIN_NAME = "KaleidoscopeCookeryPlugin";
+    public static final String INFORMATION_PROVIDER = "cer";
+    public static final String INFORMATION_ITEM_MODEL = "cer_kc_gui:note";
+    public static final int INFORMATION_SLOT_LEFT = 33;
+    public static final int INFORMATION_SLOT_RIGHT = 34;
     private static final String API = "net.kaleidoscope.cookery.api.KaleidoscopeCookeryAPI";
     private static final String APPLIANCE = "net.kaleidoscope.cookery.recipe.ApplianceType";
     private static final String PERMISSION = "kaleidoscopecookery.recipe.browse";
@@ -171,8 +175,6 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
                 t("flex.output_note", "展示基础成品；品质名称、Lore、食物属性由实际烹饪决定。")));
         if (carrier == null || key(carrier).equals("minecraft:air")) {
             info.add(t("flex.no_container", "空手盛出，无需容器。"));
-        } else {
-            info.add(t("flex.container", "手持盛装容器右键锅盛出。"));
         }
         if (Boolean.TRUE.equals(optional(recipe, "useEquivalentFoods", true))) {
             info.add(t("flex.equivalent_foods", "允许等效食材替代，以森罗当前食材分组为准。"));
@@ -188,7 +190,6 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         }
         for (Object liquid : liquids) {
             inputs.add(liquid(liquid));
-            info.add(t("flex.allowed_liquid", "允许汤底之一：{liquid}", "liquid", key(liquid)));
         }
         if (applianceName(appliance).equals("pot")) {
             info.add(processing(t("label.stir_fry_count", "翻炒次数"),
@@ -211,8 +212,10 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         if (!knifeChoices.isEmpty()) inputs.add(new RecipeIngredient(knifeChoices, 1, -1, RecipeIngredient.Role.TOOL));
         List<String> info = new ArrayList<>(List.of(
                 t("chopping.title", "森罗物语·砧板"),
-                t("chopping.knife_note", "需要菜刀；可用工具以实际砧板配置和森罗标签为准。"),
                 t("chopping.stage", "切配刀数：{stage}", "stage", number(call(recipe, "stage")))));
+        if (knifeChoices.isEmpty()) {
+            info.add(t("chopping.knife_note", "需要菜刀；可用工具以实际砧板配置和森罗标签为准。"));
+        }
         List<RecipeResult> outputs = new ArrayList<>();
         boolean independent = mode.equals("MULTI_RANDOM");
         for (Object result : collection(call(recipe, "results"))) outputs.add(choppingResult(result, independent, false));
@@ -242,7 +245,6 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         Object fluid = call(recipe, "fluid");
         List<String> info = List.of(
                 t("teapot.title", "森罗物语·茶壶"),
-                t("teapot.liquid", "所需液体：{liquid}（图标用于说明液体条件）", "liquid", key(fluid)),
                 processing(t("label.brew_time", "煮制时间"), number(call(recipe, "time")), t("unit.tick", " tick")));
         return display("teapot", recipe, appliance("teapot"),
                 List.of(ingredient(call(recipe, "input"), number(call(recipe, "ingredientCount")), RecipeIngredient.Role.INGREDIENT), liquid(fluid)),
@@ -251,6 +253,7 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
 
     private DisplayRecipe display(String family, Object recipe, Object appliance, List<RecipeIngredient> inputs,
                                   List<RecipeResult> outputs, List<String> info) {
+        inputs = withInformationPanels(inputs);
         inputs = placeIngredients(inputs);
         outputs = placeResults(outputs);
         String type = applianceName(appliance);
@@ -263,6 +266,48 @@ public final class KaleidoscopeRecipeSource implements RecipeSource {
         RecipeWorkstation station = new RecipeWorkstation("kc:" + type, item(icon), name);
         return new DisplayRecipe("kc:" + family + "/" + type + "/" + key(call(recipe, "id")).replace(':', '/'),
                 station, this.layout, inputs, outputs, info, PERMISSION, player -> true);
+    }
+
+    private List<RecipeIngredient> withInformationPanels(List<RecipeIngredient> inputs) {
+        if (this.layout.rows() < 4
+                || this.layout.symbolAt(INFORMATION_SLOT_LEFT) == 'A'
+                || this.layout.symbolAt(INFORMATION_SLOT_LEFT) == 'B'
+                || this.layout.symbolAt(INFORMATION_SLOT_RIGHT) == 'A'
+                || this.layout.symbolAt(INFORMATION_SLOT_RIGHT) == 'B') {
+            return inputs;
+        }
+        List<RecipeIngredient> values = new ArrayList<>(inputs);
+        for (int slot : List.of(INFORMATION_SLOT_LEFT, INFORMATION_SLOT_RIGHT)) {
+            RecipeItem marker = RecipeItem.of(INFORMATION_PROVIDER, "minecraft:paper");
+            values.add(new RecipeIngredient(List.of(marker), 1, slot, RecipeIngredient.Role.INFO));
+        }
+        return List.copyOf(values);
+    }
+
+    /** 两个固定信息槽由渲染器替换为同一份通用配方说明。 */
+    public static boolean isInformationIngredient(String recipeId, RecipeIngredient ingredient) {
+        if (recipeId == null || !recipeId.startsWith("kc:")
+                || ingredient == null || ingredient.role() != RecipeIngredient.Role.INFO
+                || ingredient.slot() != INFORMATION_SLOT_LEFT
+                && ingredient.slot() != INFORMATION_SLOT_RIGHT
+                || ingredient.choices().size() != 1) return false;
+        RecipeItem item = ingredient.choices().getFirst();
+        return item.provider().equals(INFORMATION_PROVIDER) && item.id().equals("minecraft:paper");
+    }
+
+    /** 返回只应显示在对应原料/产物 Lore 中的 KC 本地化备注。 */
+    public static String itemNoteKey(String recipeId, RecipeIngredient.Role role) {
+        if (recipeId == null || !recipeId.startsWith("kc:")) return null;
+        return switch (role) {
+            case CONTAINER -> "flex.container";
+            case TOOL -> recipeId.startsWith("kc:chopping/") ? "chopping.knife_note" : null;
+            case INFO -> {
+                if (recipeId.startsWith("kc:flex/")) yield "flex.liquid_item";
+                if (recipeId.startsWith("kc:teapot/")) yield "teapot.liquid";
+                yield null;
+            }
+            default -> null;
+        };
     }
 
     private List<RecipeIngredient> placeIngredients(List<RecipeIngredient> inputs) {

@@ -25,12 +25,12 @@
 
 <table>
   <tr>
-    <td align="center"><strong>菜单展示</strong><br><small>按命名空间分类布局与各种合成器分类布局</small></td>
+    <td align="center"><strong>菜单展示</strong><br><small>按物品种类分类布局与各种合成器分类布局</small></td>
     <td align="center"><strong>功能展示</strong><br><small>查询手持物品配方、准星目标配方与使用搜索框</small></td>
   </tr>
   <tr>
     <td align="center">
-      <img src="img/Menu_Display.gif" alt="菜单展示：按命名空间分类布局与各种合成器分类布局" width="100%">
+      <img src="img/Menu_Display.gif" alt="菜单展示：按物品种类分类布局与各种合成器分类布局" width="100%">
     </td>
     <td align="center">
       <img src="img/Feature_Display.gif" alt="功能展示：查询手持物品配方、准星目标配方与使用搜索框" width="100%">
@@ -41,7 +41,7 @@
 ## 功能与特色
 
 - 自带清晰易用的 UI 画面，资源会**自动安装**到 CraftEngine 资源包目录。
-- 两种分类逻辑页面：**按命名空间分类** 与 **按合成器分类**。
+- 两种分类逻辑页面：**按物品种类分类** 与 **按合成器分类**。
 - 合成器按钮顺序可在 `navigation/workstations.yml` 中独立配置；支持混排自定义按钮，新发现的合成器会自动追加。
 - 菜单中的物品，左键查看其**配方**、右键查看可**参与配方**。
 - **自定义**分类顺序、可见权限、隐藏规则，自定义菜单**按钮**。
@@ -53,8 +53,10 @@
 - WoodworkingSaw 可通过 CER Recipe API 将其 `transformations.yml` 转化规则直接发布到配方浏览页面。
 - CE 固定产物配方首次导出到 `recipes/craftengine/`，之后只读取文件；原版配方、原版栽培、CE 栽培及各集成栽培数据均有独立开关。
 - `recipes/` 文件修改后自动重载；玩家按 ESC 离开时保留当前页面与配方返回层级，默认记忆 3 分钟（可配置），在菜单外右键会返回进入来源对应的主页面。
-- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式、`/cer` 与 Shift+F 的默认主页面（按命名空间或按合成器），以及是否恢复上次浏览位置，偏好保存在 SQLite 数据库 `player-preferences.db` 中。
-- 启动构建索引时会向在线管理员提示检测到的配方来源；CraftEngine 重载配置和资源包后会自动重新导出 CE 配方并刷新索引。
+- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式、`/cer` 与 Shift+F 的默认主页面（按物品种类或按合成器），以及是否恢复上次浏览位置，偏好保存在 SQLite 数据库 `player-preferences.db` 中。
+- `/cer manage` 使用独立的管理页面 UI：无论当前菜单风格如何都自动安装 `cer_manage_gui`，固定显示目录上一组/下一组、返回、上一页、下一页和返回物品分类按钮。
+- 在 `categories.yml` 页面按 `Q` 可将命名空间或自定义按钮移动到 `categories-unapplied.yml`；未应用按钮可按中键重新应用，完整配置会被保留。
+- 数据就绪后会以可点击文字询问在线管理员要启用哪些适配插件；启用时同时开启配方与栽培支持，并显示导出进度和完成统计。
 - 查看 `主手` / `准星` 物品配方，有指令也有菜单快捷按钮。
 - `Shift+F`快捷键，快速打开配方菜单，可设置启用与否。
 
@@ -91,11 +93,11 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 7. 用 `/cer` 或 Shift+F 打开正式菜单。左键物品查看配方，右键查看可参与配方。
 
-8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择菜单样式、`/cer` 与 Shift+F 默认进入“按命名空间分类”还是“按合成器分类”，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
+8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择菜单样式、`/cer` 与 Shift+F 默认进入“按物品种类分类”还是“按合成器分类”，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
 
-9. 默认情况下，插件启动构建索引时会向在线管理员提示检测到的配方来源插件；CraftEngine 重载配置与资源包后会自动重新导出 CE 配方并刷新索引。
+9. 数据就绪后，在线管理员会收到 Farmer's Delight、Kaleidoscope Cookery、CustomCrops 的启用询问，可直接点击“支持所有”“仅支持某个插件”“暂不处理”或“不支持并以后不再询问”。选择暂不处理后，可用 `/cer integrations` 再次打开询问。
 
-只有一个物品、只提供配方的附属包可在编辑器中关闭“显示命名空间分类入口”；物品仍会进入搜索、直接查询和合成器产物页面。也可以继续手工编辑 YAML。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
+只有一个物品、只提供配方的附属包可在编辑器中关闭“显示物品种类分类入口”；物品仍会进入搜索、直接查询和合成器产物页面。也可以继续手工编辑 YAML。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
 
 ## 配置目录
 
@@ -143,6 +145,7 @@ cer_menu_cute/
 | `/cer hand` | 查看主手原版或 CE 物品的合成配方，遵循已配置的分类限制 |
 | `/cer target` | 查看准星所指原版或 CE 方块的合成配方，遵循已配置的分类限制 |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | 重新获取对应来源并替换 `recipes/` 下的数据（管理员） |
+| `/cer integrations` | 重新打开已检测适配插件的启用询问（管理员） |
 | `/cer manage` | 打开配置管理中心：在游戏内编辑分类、隐藏规则、显示顺序与合成器配置（管理员） |
 | `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面（管理员） |
 | `/cer reload` | 手动重载配置与索引（管理员；配方文件修改会自动加载） |
@@ -161,11 +164,34 @@ cer_menu_cute/
 
 `Shift+F` 快捷打开菜单默认开启，且默认要求潜行；可在 `config.yml` 中关闭快捷键或取消潜行要求。
 
-将 `sources.reexport-on-reload` 设为 `true` 后，每次插件重载成功都会删除并重新生成所有已启用来源的配方目录。
+适配插件使用独立配置。`mode` 可设为 `ask`、`enabled` 或 `disabled`；交互式启用会同时把 `cultivation` 设为 `true`：
 
-`sources.reexport-craftengine-on-ce-reload` 默认为 `true`。CraftEngine 完成配置与资源包重载后，CER 会重新导出 `recipes/craftengine/` 并刷新索引；不需要该行为时可设为 `false`。
+```yaml
+integrations:
+  farmersdelight:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+```
 
-`indexing.notify-admins-on-startup` 默认为 `true`，用于控制启动时是否向在线管理员发送索引构建提示。
+`kaleidoscope` 与 `customcrops` 使用相同字段。`disabled` 会停止导出和索引，但保留 `recipes/<来源>/` 中已有的文件。
+
+`sources.reexport-on-reload` 与 `sources.reexport-craftengine-on-ce-reload` 现在只控制 CraftEngine 来源；可选适配插件的对应行为由各自的 `integrations.<来源>.*` 控制。
+
+`indexing.notify-admins-on-startup` 默认为 `true`，用于控制数据就绪后是否向在线管理员发送适配插件询问；没有管理员在线时会在管理员上线后显示。
+
+名称颜色由 `name-prefixes` 统一控制。值使用 MiniMessage，只影响名称文字，不会改变标题图片或位移：
+
+```yaml
+name-prefixes:
+  category-bar: '<white>'
+  category-title: '<black><bold>'
+  workstation-bar: '<white>'
+  workstation-title: '<black><bold>'
+  recipe-title: '<black><bold>'
+```
 
 管理权限为 `craftenginerecipe.admin`，OP 默认拥有。
 

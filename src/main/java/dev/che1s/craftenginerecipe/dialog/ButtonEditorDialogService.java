@@ -34,6 +34,7 @@ public final class ButtonEditorDialogService {
 
     public enum Source {
         CATEGORIES,
+        CATEGORIES_UNAPPLIED,
         WORKSTATIONS
     }
 
@@ -57,8 +58,7 @@ public final class ButtonEditorDialogService {
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
                                 this.plugin.lang().component("ui.button-editor.description",
-                                        "file", source == Source.CATEGORIES
-                                                ? "categories.yml" : "workstations.yml"))))
+                                        "file", this.fileName(source)))))
                         .inputs(List.of(
                                 DialogInput.text(MATERIAL,
                                                 this.plugin.lang().component("ui.button-editor.material"))
@@ -80,8 +80,8 @@ public final class ButtonEditorDialogService {
                                 DialogInput.bool(HIDE_INACCESSIBLE,
                                                 this.plugin.lang().component("ui.button-editor.hide-inaccessible"))
                                         .initial(button.hideInaccessible())
-                                        .onTrue(this.plugin.lang().text("ui.personalization.on"))
-                                        .onFalse(this.plugin.lang().text("ui.personalization.off"))
+                                        .onTrue(this.booleanText(true))
+                                        .onFalse(this.booleanText(false))
                                         .build(),
                                 multiline(ACTIONS, this.plugin.lang().component("ui.button-editor.actions"),
                                         actionLines(button.actions()), 8192)))
@@ -97,6 +97,11 @@ public final class ButtonEditorDialogService {
     private CategoryNamespaces.ButtonEntry button(Source source, int index) {
         if (source == Source.CATEGORIES) {
             List<CategoryNamespaces.Entry> entries = this.plugin.data().namespaces().entries();
+            return index >= 0 && index < entries.size()
+                    && entries.get(index) instanceof CategoryNamespaces.ButtonEntry button ? button : null;
+        }
+        if (source == Source.CATEGORIES_UNAPPLIED) {
+            List<CategoryNamespaces.Entry> entries = this.plugin.data().namespaces().unappliedAllEntries();
             return index >= 0 && index < entries.size()
                     && entries.get(index) instanceof CategoryNamespaces.ButtonEntry button ? button : null;
         }
@@ -146,14 +151,25 @@ public final class ButtonEditorDialogService {
                         safe(view.getText(NAME)), lines(view.getText(LORE))),
                 parseActions(view.getText(ACTIONS)), visibility, permission, hideInaccessible);
         this.schedule(player, generation, () -> {
-            boolean saved = source == Source.CATEGORIES
-                    ? this.plugin.data().namespaces().updateButton(index, updated)
-                    : this.plugin.workstationConfig().updateButton(index, updated);
+            boolean saved = switch (source) {
+                case CATEGORIES -> this.plugin.data().namespaces().updateButton(index, updated);
+                case CATEGORIES_UNAPPLIED ->
+                        this.plugin.data().namespaces().updateUnappliedButton(index, updated);
+                case WORKSTATIONS -> this.plugin.workstationConfig().updateButton(index, updated);
+            };
             player.sendMessage(this.plugin.lang().message(
                     saved ? "messages.button-updated" : "messages.button-update-failed",
-                    "file", source == Source.CATEGORIES ? "categories.yml" : "workstations.yml"));
+                    "file", this.fileName(source)));
             if (saved) this.plugin.browser(player).reopenManagement(player);
         });
+    }
+
+    private String fileName(Source source) {
+        return switch (source) {
+            case CATEGORIES -> "categories.yml";
+            case CATEGORIES_UNAPPLIED -> "categories-unapplied.yml";
+            case WORKSTATIONS -> "workstations.yml";
+        };
     }
 
     private DialogInput multiline(String key, net.kyori.adventure.text.Component label,
@@ -170,8 +186,28 @@ public final class ButtonEditorDialogService {
     private SingleOptionDialogInput.OptionEntry option(String id, String labelPath,
                                                        CategoryNamespaces.Visibility current) {
         return SingleOptionDialogInput.OptionEntry.create(id,
-                this.plugin.lang().component("ui.button-editor." + labelPath),
+                this.plugin.lang().componentOr(optionKey(labelPath), this.visibilityFallback(id)),
                 current.name().equalsIgnoreCase(id));
+    }
+
+    static String optionKey(String labelPath) {
+        return "ui.button-editor." + labelPath.replace('.', '-');
+    }
+
+    private String visibilityFallback(String id) {
+        boolean chinese = this.plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh");
+        return switch (id) {
+            case "admin" -> chinese ? "仅管理员" : "Administrators only";
+            case "permission" -> chinese ? "按权限" : "Permission-based";
+            default -> chinese ? "所有玩家" : "All players";
+        };
+    }
+
+    private String booleanText(boolean value) {
+        boolean chinese = this.plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh");
+        return this.plugin.lang().textOr(
+                value ? "ui.personalization.on" : "ui.personalization.off",
+                value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }
 
     private static String actionLines(Map<String, List<String>> actions) {

@@ -7,6 +7,7 @@ import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.debug.DebugService;
 import dev.che1s.craftenginerecipe.listener.MenuItemSafetyListener;
 import dev.che1s.craftenginerecipe.config.CerConfig;
+import dev.che1s.craftenginerecipe.config.IntegrationSettings;
 import dev.che1s.craftenginerecipe.config.MenuView;
 import dev.che1s.craftenginerecipe.config.WorkstationConfig;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
@@ -18,7 +19,7 @@ import dev.che1s.craftenginerecipe.dialog.UnappliedCategoryDialogService;
 import dev.che1s.craftenginerecipe.dialog.ButtonEditorDialogService;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSessionStore;
-import dev.che1s.craftenginerecipe.integration.common.PluginFingerprints;
+import dev.che1s.craftenginerecipe.integration.IntegrationPromptService;
 import dev.che1s.craftenginerecipe.listener.HotkeyListener;
 import dev.che1s.craftenginerecipe.gui.GuiSession;
 import dev.che1s.craftenginerecipe.metrics.MetricsService;
@@ -45,7 +46,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -63,6 +63,8 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private CraftEngineData data;
     private RecipeIndex recipeIndex;
     private WorkstationConfig workstationConfig;
+    private IntegrationSettings integrationSettings;
+    private IntegrationPromptService integrationPrompts;
     private ExternalRecipeService externalRecipes;
     private CerRecipeApiService recipeApi;
     private MenuPackManager menuPacks;
@@ -105,8 +107,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.saveExampleFile();
         this.workstationConfig = new WorkstationConfig(this.getDataFolder().toPath(), this.getLogger());
         this.workstationConfig.load();
+        this.integrationSettings = new IntegrationSettings(this);
         this.data = new CraftEngineData(this);
         this.externalRecipes = new ExternalRecipeService(this);
+        this.integrationPrompts = new IntegrationPromptService(this);
         this.recipeApi = new CerRecipeApiService(this);
         CompatibilityWarnings.install(this.getLogger(), this.language, this.data::generation);
         this.recipeIndex = new RecipeIndex(this);
@@ -117,6 +121,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.unappliedCategoryDialog = new UnappliedCategoryDialogService(this);
         this.buttonEditorDialog = new ButtonEditorDialogService(this);
         this.externalRecipes.start();
+        this.integrationPrompts.start();
         Bukkit.getServicesManager().register(CerRecipeApi.class, this.recipeApi, this, ServicePriority.Normal);
         this.debug = new DebugService(this);
         this.debug.registerGauge("menu.viewers", this::viewerCount);
@@ -132,10 +137,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.updates.reload();
         // 同时支持在 CraftEngine 已加载完成后启用本插件。
         this.tasks.global(() -> {
-            this.notifyAdminsIndexBuildStarted();
             this.data.rebuild(ok -> {
                 if (ok && this.externalRecipes.reexportOnReload()) {
-                    this.externalRecipes.reexportConfigured(ignored -> {});
+                    this.externalRecipes.reexportConfigured(ignored ->
+                            this.integrationPrompts.requestPrompt());
+                } else if (ok) {
+                    this.integrationPrompts.requestPrompt();
                 }
             });
         });
@@ -249,8 +256,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     public void reloadSelf(Consumer<Boolean> completion) {
         this.tasks.global(() -> this.data.rebuild(true, ok -> {
             if (ok && this.externalRecipes.reexportOnReload()) {
-                this.externalRecipes.reexportConfigured(report -> completion.accept(true));
+                this.externalRecipes.reexportConfigured(report -> {
+                    this.integrationPrompts.openPrompt();
+                    completion.accept(true);
+                });
             } else {
+                if (ok) this.integrationPrompts.openPrompt();
                 completion.accept(ok);
             }
         }));
@@ -309,6 +320,14 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public WorkstationConfig workstationConfig() {
         return this.workstationConfig;
+    }
+
+    public IntegrationSettings integrations() {
+        return this.integrationSettings;
+    }
+
+    public IntegrationPromptService integrationPrompts() {
+        return this.integrationPrompts;
     }
 
     public ExternalRecipeService externalRecipes() { return this.externalRecipes; }
@@ -457,22 +476,6 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public ButtonEditorDialogService buttonEditorDialog() {
         return this.buttonEditorDialog;
-    }
-
-    private void notifyAdminsIndexBuildStarted() {
-        if (!this.getConfig().getBoolean("indexing.notify-admins-on-startup", true)) return;
-        LinkedHashSet<String> detected = new LinkedHashSet<>();
-        for (var plugin : Bukkit.getPluginManager().getPlugins()) {
-            if (!plugin.isEnabled()) continue;
-            PluginFingerprints.identify(plugin)
-                    .ifPresent(fingerprint -> detected.add(fingerprint.displayName()));
-        }
-        if (detected.isEmpty()) return;
-        var message = this.lang().message("messages.index-build-started",
-                "plugins", String.join(", ", detected));
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission("craftenginerecipe.admin")) player.sendMessage(message);
-        }
     }
 
     public static MiniMessage mini() {

@@ -22,6 +22,7 @@ import xyz.xenondevs.invui.item.ItemBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 public final class ItemBridge {
@@ -84,8 +85,16 @@ public final class ItemBridge {
         stack.setAmount(Math.max(1, Math.min(count, stack.getMaxStackSize())));
         ItemMeta meta = stack.getItemMeta();
         if (meta != null && plugin != null) {
-            if (item.name() != null) meta.displayName(plugin.config().mm(item.name()));
-            if (item.lore() != null) meta.lore(item.lore().stream().map(plugin.config()::mm).toList());
+            Map<String, String> translations = plugin.data() == null
+                    ? Map.of() : plugin.data().resourcePackTranslations();
+            if (item.name() != null) {
+                meta.displayName(plugin.config().mm(DisplayNames.expandTranslations(item.name(), translations)));
+            }
+            if (item.lore() != null) {
+                meta.lore(item.lore().stream()
+                        .map(line -> plugin.config().mm(DisplayNames.expandTranslations(line, translations)))
+                        .toList());
+            }
             stack.setItemMeta(meta);
         }
         return stack;

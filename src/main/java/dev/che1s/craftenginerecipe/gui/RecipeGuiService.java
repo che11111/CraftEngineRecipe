@@ -179,7 +179,7 @@ public final class RecipeGuiService {
                 .addIngredient('#', this.clickable(resultId,
                         ItemBridge.build(result.item(), player, result.amount()))).build();
         this.browser.openWindow(CraftingWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("CRAFTING")))
+                .setTitle(this.config.recipeTitleComponentFor("CRAFTING"))
                 .setCraftingGui(grid)
                 .setResultGui(resultGui)
                 .addOutsideClickHandler(this::onOutsideClick)
@@ -199,7 +199,7 @@ public final class RecipeGuiService {
                 .addIngredient('r', this.clickable(resultId,
                         ItemBridge.build(result.item(), player, result.amount()))).build();
         this.browser.openWindow(FurnaceWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor(type)))
+                .setTitle(this.config.recipeTitleComponentFor(type))
                 .setInputGui(input).setResultGui(resultGui)
                 .setCookProgress(0.5).setBurnProgress(1.0)
                 .addOutsideClickHandler(this::onOutsideClick)
@@ -218,7 +218,7 @@ public final class RecipeGuiService {
                 .addIngredient('r', this.clickable(resultId,
                         ItemBridge.build(result.item(), player, result.amount()))).build();
         this.browser.openWindow(FurnaceWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("CAMPFIRE_COOKING")))
+                .setTitle(this.config.recipeTitleComponentFor("CAMPFIRE_COOKING"))
                 .setInputGui(input).setResultGui(resultGui)
                 .setCookProgress(0.6).setBurnProgress(1.0)
                 .addOutsideClickHandler(this::onOutsideClick)
@@ -238,7 +238,7 @@ public final class RecipeGuiService {
                         ItemBridge.build(result.item(), player, result.amount())))
                 .addIngredient('#', Item.EMPTY).build();
         this.browser.openWindow(StonecutterWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("STONECUTTING")))
+                .setTitle(this.config.recipeTitleComponentFor("STONECUTTING"))
                 .setUpperGui(upper).setButtonsGui(buttons)
                 .addOutsideClickHandler(this::onOutsideClick)
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
@@ -262,7 +262,7 @@ public final class RecipeGuiService {
                 .addIngredient('r', this.clickable(resultId,
                         ItemBridge.build(result.item(), player, result.amount()))).build();
         this.browser.openWindow(SmithingWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("SMITHING")))
+                .setTitle(this.config.recipeTitleComponentFor("SMITHING"))
                 .setUpperGui(upper)
                 .addOutsideClickHandler(this::onOutsideClick)
                 .addCloseHandler(reason -> this.cancelRotation(player)).build());
@@ -287,7 +287,7 @@ public final class RecipeGuiService {
                 .addIngredient('e', this.clickable(resultId,
                         ItemBridge.build(result.item(), player, result.amount()))).build();
         this.browser.openWindow(BrewingWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("BREWING")))
+                .setTitle(this.config.recipeTitleComponentFor("BREWING"))
                 .setInputGui(input).setFuelGui(fuel).setResultGui(resultGui)
                 .setBrewProgress(0.5).setFuelProgress(1.0)
                 .addOutsideClickHandler(this::onOutsideClick)
@@ -402,7 +402,7 @@ public final class RecipeGuiService {
 
     public void openNoRecipe(Player player, Key itemId, boolean usageMode) {
         ItemStack icon = itemId == null ? new ItemStack(Material.BARRIER) : ItemBridge.build(itemId, player);
-        Component name = this.config.mm(this.config.recipeTitleFor("NONE"));
+        Component name = this.config.recipeTitleComponentFor("NONE");
         ItemStack decorated = ItemBridge.decorate(icon, name, List.of(this.plugin.lang().component(usageMode ? "ui.common.no-usage" : "ui.common.no-recipe")));
         Gui gui = Gui.builder()
                 .setStructure("#########", "#########", "####x####", "#########", "#########", "#########")
@@ -442,7 +442,7 @@ public final class RecipeGuiService {
                 .setStructure("#")
                 .addIngredient('#', this.clickable(resultId, resultIcon))
                 .build();
-        Component title = this.config.mm(this.config.recipeTitleFor("CRAFTING"));
+        Component title = this.config.recipeTitleComponentFor("CRAFTING");
         this.browser.openWindow(CraftingWindow.builder().setViewer(player)
                 .setTitle(title)
                 .setCraftingGui(craftingGui)
@@ -508,7 +508,7 @@ public final class RecipeGuiService {
                 .addIngredient('r', this.clickable(resultId, resultIcon))
                 .build();
         String typeKey = recipe.type().name();
-        Component title = this.config.mm(this.config.recipeTitleFor(typeKey));
+        Component title = this.config.recipeTitleComponentFor(typeKey);
         this.browser.openWindow(FurnaceWindow.builder().setViewer(player)
                 .setTitle(title)
                 .setInputGui(inputGui)
@@ -534,7 +534,7 @@ public final class RecipeGuiService {
                 .addIngredient('r', this.clickable(resultId, resultId != null ? ItemBridge.build(resultId, player, this.resultCount(recipe)) : ItemBridge.emptySlot()))
                 .build();
         this.browser.openWindow(FurnaceWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("CAMPFIRE_COOKING")))
+                .setTitle(this.config.recipeTitleComponentFor("CAMPFIRE_COOKING"))
                 .setInputGui(inputGui)
                 .setResultGui(resultGui)
                 .setCookProgress(0.6)
@@ -574,7 +574,7 @@ public final class RecipeGuiService {
                 .addIngredient('r', this.clickable(this.resultKey(recipe), smithResultIcon))
                 .build();
         this.browser.openWindow(SmithingWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("SMITHING")))
+                .setTitle(this.config.recipeTitleComponentFor("SMITHING"))
                 .setUpperGui(upper)
                 .addOutsideClickHandler(this::onOutsideClick)
                 .addCloseHandler(reason -> this.cancelRotation(player))
@@ -600,7 +600,7 @@ public final class RecipeGuiService {
                         : ItemBridge.build(resultId, player, this.resultCount(recipe))))
                 .build();
         this.browser.openWindow(BrewingWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("BREWING")))
+                .setTitle(this.config.recipeTitleComponentFor("BREWING"))
                 .setInputGui(inputGui)
                 .setFuelGui(fuelGui)
                 .setResultGui(resultGui)
@@ -626,7 +626,7 @@ public final class RecipeGuiService {
                 .addIngredient('#', Item.EMPTY)
                 .build();
         this.browser.openWindow(StonecutterWindow.builder().setViewer(player)
-                .setTitle(this.config.mm(this.config.recipeTitleFor("STONECUTTING")))
+                .setTitle(this.config.recipeTitleComponentFor("STONECUTTING"))
                 .setUpperGui(upperGui)
                 .setButtonsGui(buttonsGui)
                 .addOutsideClickHandler(this::onOutsideClick)

@@ -25,12 +25,14 @@ public final class ResourcePackInstaller {
     public static final String CUSTOMCROPS_PACK_DIRECTORY = "cer_ccrops_gui";
     public static final String CULTIVATION_PACK_DIRECTORY = "cer_cultivation_gui";
     public static final String API_PACK_DIRECTORY = "cer_api_gui";
+    public static final String MANAGEMENT_PACK_DIRECTORY = "cer_manage_gui";
     public static final List<String> REQUIRED_GUI_PACKS = List.of(
             GUI_PACK_DIRECTORY,
             FD_PACK_DIRECTORY,
             CUSTOMCROPS_PACK_DIRECTORY,
             CULTIVATION_PACK_DIRECTORY,
-            API_PACK_DIRECTORY);
+            API_PACK_DIRECTORY,
+            MANAGEMENT_PACK_DIRECTORY);
 
     private ResourcePackInstaller() {}
 

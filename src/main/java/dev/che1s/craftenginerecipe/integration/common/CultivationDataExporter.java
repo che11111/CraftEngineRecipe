@@ -67,7 +67,8 @@ public final class CultivationDataExporter {
                 plugin.getLogger().warning("栽培数据导出失败 " + entry.getKey() + ": " + error.getMessage());
             }
         }
-        if (plugin.getConfig().getBoolean("sources.customcrops-cultivation", true)) {
+        if (plugin.integrations().cultivation(CustomCropsRecipeSource.SOURCE_ID)
+                && plugin.integrations().exportMissing(CustomCropsRecipeSource.SOURCE_ID)) {
             Path target = customCropsTarget(plugin);
             if (Files.notExists(target, LinkOption.NOFOLLOW_LINKS)) {
                 try {
@@ -83,6 +84,7 @@ public final class CultivationDataExporter {
     /** 刷新某个集成命名空间；未知名称返回 0。 */
     public static int export(CraftEngineRecipePlugin plugin, String source) throws IOException {
         if (source.equals(CustomCropsRecipeSource.SOURCE_ID)) {
+            if (!plugin.integrations().cultivation(CustomCropsRecipeSource.SOURCE_ID)) return 0;
             List<JsonObject> crops = customCropsRecords(IntegrationText.of("cultivation", plugin.lang()));
             write(customCropsTarget(plugin), "customcrops", "customcrops", crops);
             return crops.size();
@@ -92,7 +94,7 @@ public final class CultivationDataExporter {
             case "kaleidoscope" -> "kaleidoscopecookery";
             default -> null;
         };
-        if (namespace == null) return 0;
+        if (namespace == null || !plugin.integrations().cultivation(source)) return 0;
         List<Path> directories = packs(craftEngineResources(plugin)).getOrDefault(namespace, List.of());
         List<JsonObject> crops = namespaceCrops(directories, namespace,
                 IntegrationText.of("cultivation", plugin.lang()));
@@ -476,16 +478,19 @@ public final class CultivationDataExporter {
 
     private static boolean enabled(CraftEngineRecipePlugin plugin, String namespace) {
         if (namespace.equals("customcrops")) {
-            return plugin.getConfig().getBoolean("sources.customcrops-cultivation", true);
+            return plugin.integrations().cultivation(CustomCropsRecipeSource.SOURCE_ID)
+                    && plugin.integrations().exportMissing(CustomCropsRecipeSource.SOURCE_ID);
         }
         if (!plugin.getConfig().getBoolean("sources.craftengine-cultivation", true)) return false;
         if (namespace.equals("farmersdelight")) {
-            return plugin.getConfig().getBoolean("sources.farmersdelight-cultivation", true);
+            return plugin.integrations().cultivation("farmersdelight")
+                    && plugin.integrations().exportMissing("farmersdelight");
         }
         if (namespace.equals("kaleidoscopecookery")) {
-            return plugin.getConfig().getBoolean("sources.kaleidoscope-cultivation", true);
+            return plugin.integrations().cultivation("kaleidoscope")
+                    && plugin.integrations().exportMissing("kaleidoscope");
         }
-        return true;
+        return plugin.getConfig().getBoolean("sources.export-missing", true);
     }
 
     private static List<Path> yamlFiles(Path directory) throws IOException {

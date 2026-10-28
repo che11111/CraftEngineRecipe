@@ -140,6 +140,12 @@ public final class LanguageManager {
         return format(value instanceof String string ? string : key, arguments);
     }
 
+    /** 缺失翻译时使用调用方提供的可读兜底，避免把内部语言键直接展示给玩家。 */
+    public String textOr(String key, String fallback, String... arguments) {
+        Object value = this.active.values().get(key);
+        return format(value instanceof String string ? string : fallback, arguments);
+    }
+
     public List<String> list(String key) {
         Object value = this.active.values().get(key);
         if (!(value instanceof List<?> list)) return List.of();
@@ -148,6 +154,11 @@ public final class LanguageManager {
 
     public Component component(String key, String... arguments) {
         return render(this.text(key), arguments);
+    }
+
+    public Component componentOr(String key, String fallback, String... arguments) {
+        Object value = this.active.values().get(key);
+        return render(value instanceof String string ? string : fallback, arguments);
     }
 
     public Component message(String key, String... arguments) {

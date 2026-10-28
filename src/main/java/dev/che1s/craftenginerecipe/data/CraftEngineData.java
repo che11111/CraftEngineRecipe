@@ -91,9 +91,7 @@ public final class CraftEngineData implements Listener {
         this.reloadRevision.incrementAndGet();
         // 配置读取属于全局任务；查看者背包只能在各自的实体调度器上访问。
         this.plugin.tasks().global(() -> this.rebuild(ok -> {
-            if (ok && this.plugin.externalRecipes().reexportCraftEngineOnCeReload()) {
-                this.plugin.externalRecipes().reexport(List.of("craftengine"), ignored -> {});
-            }
+            if (ok) this.plugin.externalRecipes().reexportAfterCraftEngineReload();
         }));
     }
 
@@ -439,6 +437,10 @@ public final class CraftEngineData implements Listener {
     /** 从生成的 CraftEngine 资源包读取的纯文本翻译。 */
     public String resourcePackTranslation(String key) {
         return key == null ? null : this.resourcePackTranslations.get(key);
+    }
+
+    public Map<String, String> resourcePackTranslations() {
+        return this.resourcePackTranslations;
     }
 
     /** 解析已加载 CraftEngine 物品的原始名称组件与资源包翻译。 */

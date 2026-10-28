@@ -618,7 +618,7 @@ public final class CustomCropsRecipeSource implements RecipeSource {
                 : "CustomCrops·" + plainCrop + suffix;
         String title = this.text.text("title.recipe", fallback,
                 "crop", plainCrop, "suffix", suffix);
-        return "<#F4F6F8><bold>" + title + "</bold></#F4F6F8>";
+        return "<#292D35><bold>" + title + "</bold></#292D35>";
     }
 
     private String returnItemName(String itemId) {

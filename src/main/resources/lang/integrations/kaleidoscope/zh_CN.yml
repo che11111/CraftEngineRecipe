@@ -5,6 +5,7 @@ flex.ratio_note: "原料数量表示理想配比；实际投料可改变成品�
 flex.output_note: "展示基础成品；品质名称、Lore、食物属性由实际烹饪决定。"
 flex.no_container: "空手盛出，无需容器。"
 flex.container: "手持盛装容器右键锅盛出。"
+flex.liquid_item: "允许汤底之一：{liquid}"
 flex.equivalent_foods: "允许等效食材替代，以森罗当前食材分组为准。"
 flex.seasonings: "允许调味品；调味品不参与理想配比的品质计算。"
 flex.quality_ratio: "投料越接近理想配比，品质越高。"

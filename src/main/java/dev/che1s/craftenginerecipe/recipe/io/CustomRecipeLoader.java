@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 /** 读取仅用于展示的配方。加载失败时不会返回部分有效的替代数据。 */
 public final class CustomRecipeLoader {
@@ -42,24 +43,35 @@ public final class CustomRecipeLoader {
     private static final Set<String> ITEM_KEYS = Set.of("provider", "id", "name", "lore");
     private static final Set<String> INGREDIENT_KEYS = Set.of("provider", "id", "name", "lore", "item", "choices", "amount", "slot", "role");
     private static final Set<String> RESULT_KEYS = Set.of("provider", "id", "name", "lore", "item", "amount", "slot", "note");
+    private static final Set<String> OPTIONAL_SOURCE_DIRECTORIES =
+            Set.of("farmersdelight", "kaleidoscope", "customcrops");
     private final Path directory;
     private final BooleanSupplier minecraftEnabled;
     private final BooleanSupplier craftEngineEnabled;
+    private final Predicate<String> integrationEnabled;
 
     public CustomRecipeLoader(JavaPlugin plugin) {
         this(plugin.getDataFolder().toPath(),
                 () -> plugin.getConfig().getBoolean("sources.minecraft", true),
-                () -> plugin.getConfig().getBoolean("sources.craftengine", true));
+                () -> plugin.getConfig().getBoolean("sources.craftengine", true),
+                source -> plugin instanceof dev.che1s.craftenginerecipe.CraftEngineRecipePlugin cer
+                        && cer.integrations().enabled(source));
     }
 
     CustomRecipeLoader(Path dataFolder) {
-        this(dataFolder, () -> true, () -> true);
+        this(dataFolder, () -> true, () -> true, ignored -> true);
     }
 
     CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled) {
+        this(dataFolder, minecraftEnabled, craftEngineEnabled, ignored -> true);
+    }
+
+    CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled,
+                       Predicate<String> integrationEnabled) {
         this.directory = dataFolder.resolve("recipes");
         this.minecraftEnabled = minecraftEnabled;
         this.craftEngineEnabled = craftEngineEnabled;
+        this.integrationEnabled = integrationEnabled;
     }
 
     public List<DisplayRecipe> load() throws IOException {
@@ -116,6 +128,10 @@ public final class CustomRecipeLoader {
                 && relative.getName(0).toString().startsWith("minecraft-")) return false;
         if (!this.craftEngineEnabled.getAsBoolean() && relative.getNameCount() > 1
                 && relative.getName(0).toString().equals("craftengine")) return false;
+        if (relative.getNameCount() > 1) {
+            String source = relative.getName(0).toString().toLowerCase(Locale.ROOT);
+            if (OPTIONAL_SOURCE_DIRECTORIES.contains(source) && !this.integrationEnabled.test(source)) return false;
+        }
         for (Path part : relative) {
             String segment = part.toString().toLowerCase(Locale.ROOT);
             if (segment.equals("example") || segment.equals("examples") || segment.startsWith("example.")

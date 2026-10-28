@@ -133,6 +133,14 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             });
             return true;
         }
+        if (args.length > 0 && args[0].equalsIgnoreCase("integrations")) {
+            if (!sender.hasPermission("craftenginerecipe.admin")) {
+                sender.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                return true;
+            }
+            this.plugin.integrationPrompts().openPrompt();
+            return true;
+        }
         if (!(sender instanceof Player)) {
             sender.sendMessage(this.plugin.lang().message("messages.player-only"));
             return true;
@@ -218,6 +226,9 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "export".startsWith(prefix)) {
                 out.add("export");
+            }
+            if (sender.hasPermission("craftenginerecipe.admin") && "integrations".startsWith(prefix)) {
+                out.add("integrations");
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "unapplied".startsWith(prefix)) {
                 out.add("unapplied");

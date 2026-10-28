@@ -11,6 +11,7 @@ import dev.che1s.craftenginerecipe.util.ButtonActions;
 import dev.che1s.craftenginerecipe.util.DisplayNames;
 import dev.che1s.craftenginerecipe.util.ItemBridge;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.momirealms.craftengine.core.plugin.gui.category.Category;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
@@ -40,6 +41,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** 管理员配置中心：浏览和修改 categories*.yml 与 workstations.yml 的实际快照。 */
 final class ManagementBrowserService {
+    private static final char DIRECTORY_SLOT = 'C';
+    private static final char CONTENT_SLOT = 'X';
+    private static final char BACK_SLOT = 'B';
+    private static final char PREVIOUS_SLOT = 'L';
+    private static final char NEXT_SLOT = 'R';
+    private static final char CLOSE_SLOT = 'J';
+    private static final char DIRECTORY_PREVIOUS_SLOT = '<';
+    private static final char DIRECTORY_NEXT_SLOT = '>';
+    private static final List<Integer> DIRECTORY_SLOTS = List.of(1, 2, 3, 4, 5, 6, 7);
+    private static final List<String> MANAGEMENT_STRUCTURE = List.of(
+            "<CCCCCCC>",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "XXXXXXXXX",
+            "BLR#####J");
+    /** 管理页始终使用与可爱版相同的标题偏移，不受当前菜单风格影响。 */
+    private static final String MANAGEMENT_TITLE_PREFIX =
+            "<#FFFFFF><shift:-2><image:cer_manage:main><shift:-163>";
+
     private enum Page {
         HOME,
         CATEGORIES,
@@ -62,6 +83,7 @@ final class ManagementBrowserService {
     private final CraftEngineRecipePlugin plugin;
     private final BrowserService browser;
     private final Map<UUID, View> views = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> directoryOffsets = new ConcurrentHashMap<>();
 
     ManagementBrowserService(CraftEngineRecipePlugin plugin, BrowserService browser) {
         this.plugin = plugin;
@@ -78,6 +100,11 @@ final class ManagementBrowserService {
 
     void forget(Player player) {
         this.views.remove(player.getUniqueId());
+        this.directoryOffsets.remove(player.getUniqueId());
+    }
+
+    static String[] managementStructure() {
+        return MANAGEMENT_STRUCTURE.toArray(String[]::new);
     }
 
     private void navigate(Player player, View view) {
@@ -107,7 +134,7 @@ final class ManagementBrowserService {
         session.managerMode(true);
         session.contentPage(view.contentPage());
 
-        String[] structure = BrowserLayout.normalize(ui);
+        String[] structure = managementStructure();
         PagedGui.Builder<Item> builder = PagedGui.itemsBuilder()
                 .setStructure(structure)
                 .setContent(content)
@@ -119,11 +146,12 @@ final class ManagementBrowserService {
         });
         PagedGui<Item> gui = builder.build();
         gui.setPage(Math.max(0, Math.min(view.contentPage(), gui.getPageCount() - 1)));
-        this.populateManagementDirectory(gui, player, ui, structure, this.directoryPage(view));
+        this.populateManagementDirectory(gui, player, this.directoryPage(view));
         String title = this.pageTitle(view);
         this.browser.openWindow(Window.builder().setViewer(player)
                 .setUpperGui(gui)
-                .setTitle(ui.mm(ui.browserTitle(), "category", title))
+                .setTitle(ui.mm(MANAGEMENT_TITLE_PREFIX
+                        + this.plugin.lang().text("ui.management.title", "category", title)))
                 .build());
     }
 
@@ -136,41 +164,68 @@ final class ManagementBrowserService {
         session.managerMode(true);
         session.contentPage(0);
 
-        String[] structure = BrowserLayout.normalize(ui);
+        String[] structure = managementStructure();
         Gui.Builder builder = Gui.builder().setStructure(structure);
         Set<Character> bound = new LinkedHashSet<>();
         for (String row : structure) {
             for (int index = 0; index < row.length(); index++) {
                 char symbol = row.charAt(index);
                 if (symbol == '\u0000' || !bound.add(symbol)) continue;
-                if (symbol == ui.back().symbol()) {
+                if (symbol == BACK_SLOT) {
                     builder.addIngredient(symbol, this.backItem(player, View.home(), ui));
-                } else if (symbol == ui.close().symbol()) {
+                } else if (symbol == CLOSE_SLOT) {
                     builder.addIngredient(symbol, this.closeItem(ui));
+                } else if (symbol == DIRECTORY_PREVIOUS_SLOT) {
+                    builder.addIngredient(symbol, this.directoryNavItem(ui, false));
+                } else if (symbol == DIRECTORY_NEXT_SLOT) {
+                    builder.addIngredient(symbol, this.directoryNavItem(ui, true));
                 } else {
                     builder.addIngredient(symbol, Item.EMPTY);
                 }
             }
         }
         Gui gui = builder.build();
-        this.populateManagementDirectory(gui, player, ui, structure, Page.HOME);
+        this.populateManagementDirectory(gui, player, Page.HOME);
         this.browser.openWindow(Window.builder().setViewer(player)
                 .setUpperGui(gui)
-                .setTitle(ui.mm(ui.browserTitle(), "category",
-                        this.plugin.lang().text("ui.management.name")))
+                .setTitle(ui.mm(MANAGEMENT_TITLE_PREFIX
+                        + this.plugin.lang().text("ui.management.title")))
                 .build());
     }
 
     /** 三个配置入口在所有管理页面中都固定在首行目录槽。 */
-    private void populateManagementDirectory(Gui gui, Player player, CerConfig ui, String[] structure,
-                                             Page activePage) {
-        List<Integer> directorySlots = BrowserLayout.slotsOf(structure, ui.categoryIconChar()).stream()
-                .filter(slot -> slot < BrowserLayout.WIDTH)
-                .toList();
+    private void populateManagementDirectory(Gui gui, Player player, Page activePage) {
         List<Item> entries = this.homeItems(player, activePage);
-        for (int index = 0; index < Math.min(directorySlots.size(), entries.size()); index++) {
-            gui.setSlotElement(directorySlots.get(index), new SlotElement.Item(entries.get(index)));
+        int offset = BrowserLayout.categoryOffset(
+                this.directoryOffsets.getOrDefault(player.getUniqueId(), 0),
+                entries.size(), DIRECTORY_SLOTS.size());
+        this.directoryOffsets.put(player.getUniqueId(), offset);
+        for (int slot : DIRECTORY_SLOTS) gui.setSlotElement(slot, null);
+        for (int index = 0; index < Math.min(DIRECTORY_SLOTS.size(), entries.size() - offset); index++) {
+            gui.setSlotElement(DIRECTORY_SLOTS.get(index),
+                    new SlotElement.Item(entries.get(offset + index)));
         }
+    }
+
+    private Item directoryNavItem(CerConfig ui, boolean next) {
+        CerConfig.ButtonDef def = next ? ui.nextCategory() : ui.prevCategory();
+        ItemStack stack = this.managementButton(ui.mm(def.name()),
+                def.lore().stream().map(ui::mm).toList());
+        return BoundItem.builder().setItemProvider(stack).addClickHandler((item, gui, click) -> {
+            Player player = click.player();
+            List<Item> entries = this.homeItems(player, Page.HOME);
+            int current = this.directoryOffsets.getOrDefault(player.getUniqueId(), 0);
+            int target = BrowserLayout.categoryOffset(current + (next ? 1 : -1),
+                    entries.size(), DIRECTORY_SLOTS.size());
+            if (target == current) {
+                Sounds.play(player, ui.sounds().queryFailure());
+                return;
+            }
+            this.directoryOffsets.put(player.getUniqueId(), target);
+            View view = this.views.getOrDefault(player.getUniqueId(), View.home());
+            this.populateManagementDirectory(gui, player, this.directoryPage(view));
+            Sounds.play(player, ui.sounds().changeCategory());
+        }).build();
     }
 
     private Page directoryPage(View view) {
@@ -197,7 +252,7 @@ final class ManagementBrowserService {
                 () -> this.navigate(player, new View(Page.CATEGORIES, null, null, 0))));
         items.add(this.actionItem(Material.BOOK, "ui.management.unapplied-name",
                 List.of("ui.management.unapplied-nav-lore", "ui.management.unapplied-summary"),
-                "count", String.valueOf(namespaces.unappliedEntries().size()),
+                "count", String.valueOf(namespaces.unappliedAllEntries().size()),
                 activePage == Page.UNAPPLIED,
                 () -> this.navigate(player, new View(Page.UNAPPLIED, null, null, 0))));
         items.add(this.actionItem(Material.CRAFTING_TABLE, "ui.management.workstations-name",
@@ -211,7 +266,7 @@ final class ManagementBrowserService {
     private List<Item> categoryEntryItems(Player player, boolean applied) {
         CategoryNamespaces namespaces = this.plugin.data().namespaces();
         List<CategoryNamespaces.Entry> entries = applied
-                ? namespaces.entries() : new ArrayList<>(namespaces.unappliedEntries());
+                ? namespaces.entries() : namespaces.unappliedAllEntries();
         List<Item> items = new ArrayList<>(entries.size());
         for (int index = 0; index < entries.size(); index++) {
             CategoryNamespaces.Entry entry = entries.get(index);
@@ -247,6 +302,7 @@ final class ManagementBrowserService {
                 ? "ui.management.namespace-hide" : "ui.management.namespace-hide-unapplied"));
         if (applied) {
             lore.add(this.plugin.lang().component("ui.management.namespace-order"));
+            lore.add(this.plugin.lang().component("ui.management.namespace-unapply"));
         } else {
             lore.add(this.plugin.lang().component("ui.management.namespace-apply"));
         }
@@ -277,6 +333,10 @@ final class ManagementBrowserService {
             else this.apply(player, namespace.id());
             return;
         }
+        if (applied && click == ClickType.DROP) {
+            this.unapplyEntry(player, index, namespace.id());
+            return;
+        }
         if (applied && click == ClickType.SHIFT_LEFT) {
             this.moveCategoryEntry(player, index, -1, true);
             return;
@@ -293,7 +353,7 @@ final class ManagementBrowserService {
             return;
         }
         Sounds.play(player, this.browser.managementUi().sounds().click());
-        this.browser.openCategory(player, category.id(), 0);
+        this.navigate(player, new View(Page.HIDDEN_CATEGORIES, namespace.id(), null, 0));
     }
 
     private Item categoryButtonItem(Player player, CategoryNamespaces.ButtonEntry button,
@@ -305,7 +365,12 @@ final class ManagementBrowserService {
         lore.add(this.plugin.lang().component("ui.management.button-type"));
         lore.add(this.plugin.lang().component("ui.management.button-use"));
         lore.add(this.plugin.lang().component("ui.management.button-edit"));
-        if (applied) lore.add(this.plugin.lang().component("ui.management.namespace-order"));
+        if (applied) {
+            lore.add(this.plugin.lang().component("ui.management.namespace-order"));
+            lore.add(this.plugin.lang().component("ui.management.button-unapply"));
+        } else {
+            lore.add(this.plugin.lang().component("ui.management.button-apply"));
+        }
         stack = new ItemBuilder(stack)
                 .setName(this.plainOr(button.display().name(), this.plugin.lang().text("ui.management.button-name")))
                 .setLore(lore)
@@ -314,9 +379,19 @@ final class ManagementBrowserService {
                 click.player(), () -> {
                     Player viewer = click.player();
                     ClickType type = click.clickType();
-                    if (type == ClickType.RIGHT || type == ClickType.SHIFT_RIGHT && !applied) {
+                    if (!applied && (type == ClickType.MIDDLE || type == ClickType.CREATIVE)) {
+                        String name = PlainTextComponentSerializer.plainText().serialize(this.plainOr(
+                                button.display().name(), this.plugin.lang().text("ui.management.button-name")));
+                        this.applyUnappliedEntry(viewer, index, name);
+                    } else if (type == ClickType.RIGHT || type == ClickType.SHIFT_RIGHT && !applied) {
                         this.plugin.buttonEditorDialog().open(viewer,
-                                ButtonEditorDialogService.Source.CATEGORIES, index);
+                                applied ? ButtonEditorDialogService.Source.CATEGORIES
+                                        : ButtonEditorDialogService.Source.CATEGORIES_UNAPPLIED,
+                                index);
+                    } else if (applied && type == ClickType.DROP) {
+                        String name = PlainTextComponentSerializer.plainText().serialize(this.plainOr(
+                                button.display().name(), this.plugin.lang().text("ui.management.button-name")));
+                        this.unapplyEntry(viewer, index, name);
                     } else if (applied && type == ClickType.SHIFT_LEFT) {
                         this.moveCategoryEntry(viewer, index, -1, true);
                     } else if (applied && type == ClickType.SHIFT_RIGHT) {
@@ -493,6 +568,25 @@ final class ManagementBrowserService {
         if (applied) this.navigate(player, new View(Page.CATEGORIES, null, null, 0));
     }
 
+    private void applyUnappliedEntry(Player player, int index, String label) {
+        boolean applied = this.plugin.data().namespaces().applyUnappliedEntry(index);
+        player.sendMessage(this.plugin.lang().message(applied
+                ? "messages.management-applied-entry" : "messages.management-save-failed",
+                "entry", label));
+        Sounds.play(player, applied ? this.browser.managementUi().sounds().click()
+                : this.browser.managementUi().sounds().queryFailure());
+        if (applied) this.navigate(player, new View(Page.CATEGORIES, null, null, 0));
+    }
+
+    private void unapplyEntry(Player player, int index, String label) {
+        boolean moved = this.plugin.data().namespaces().unapplyEntry(index);
+        player.sendMessage(this.plugin.lang().message(moved
+                ? "messages.management-unapplied" : "messages.management-save-failed", "entry", label));
+        Sounds.play(player, moved ? this.browser.managementUi().sounds().click()
+                : this.browser.managementUi().sounds().queryFailure());
+        if (moved) this.navigate(player, new View(Page.CATEGORIES, null, null, 0));
+    }
+
     private void moveCategoryEntry(Player player, int index, int offset, boolean applied) {
         boolean moved = this.plugin.data().namespaces().moveEntry(index, offset);
         this.afterMove(player, moved, applied ? Page.CATEGORIES : Page.UNAPPLIED);
@@ -528,21 +622,16 @@ final class ManagementBrowserService {
         for (String row : structure) {
             for (int index = 0; index < row.length(); index++) {
                 char symbol = row.charAt(index);
-                if (symbol == '\u0000') continue;
-                if (symbol == BrowserService.CONTENT_BLANK_CHAR) {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, Item.EMPTY);
-                } else if (symbol == ui.contentAreaChar()) {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, Markers.CONTENT_LIST_SLOT_HORIZONTAL);
-                } else if (symbol == ui.prevPage().symbol()) {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, this.pageButton(ui, false));
-                } else if (symbol == ui.nextPage().symbol()) {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, this.pageButton(ui, true));
-                } else if (symbol == ui.back().symbol()) {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, this.backItem(player, view, ui));
-                } else if (symbol == ui.close().symbol()) {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, this.closeItem(ui));
-                } else {
-                    if (bound.add(symbol)) builder.addIngredient(symbol, Item.EMPTY);
+                if (!bound.add(symbol)) continue;
+                switch (symbol) {
+                    case DIRECTORY_PREVIOUS_SLOT -> builder.addIngredient(symbol, this.directoryNavItem(ui, false));
+                    case DIRECTORY_NEXT_SLOT -> builder.addIngredient(symbol, this.directoryNavItem(ui, true));
+                    case CONTENT_SLOT -> builder.addIngredient(symbol, Markers.CONTENT_LIST_SLOT_HORIZONTAL);
+                    case PREVIOUS_SLOT -> builder.addIngredient(symbol, this.pageButton(ui, false));
+                    case NEXT_SLOT -> builder.addIngredient(symbol, this.pageButton(ui, true));
+                    case BACK_SLOT -> builder.addIngredient(symbol, this.backItem(player, view, ui));
+                    case CLOSE_SLOT -> builder.addIngredient(symbol, this.closeItem(ui));
+                    default -> builder.addIngredient(symbol, Item.EMPTY);
                 }
             }
         }
@@ -554,7 +643,7 @@ final class ManagementBrowserService {
             boolean available = next ? gui.getPage() + 1 < gui.getPageCount() : gui.getPage() > 0;
             Component name = available ? ui.mm(def.name())
                     : this.plugin.lang().component(next ? "ui.common.last-page" : "ui.common.first-page");
-            return new ItemWrapper(ItemBridge.icon(def.itemModel(), def.material(), name, List.of()));
+            return new ItemWrapper(this.managementButton(name, List.of()));
         }).addClickHandler((item, gui, click) -> this.browser.handleClick(click.player(), () -> {
             int target = gui.getPage() + (next ? 1 : -1);
             if (target < 0 || target >= gui.getPageCount()) return;
@@ -565,7 +654,8 @@ final class ManagementBrowserService {
 
     private Item backItem(Player player, View view, CerConfig ui) {
         CerConfig.ButtonDef def = ui.back();
-        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), ui.mm(def.name()), List.of());
+        ItemStack stack = this.managementButton(ui.mm(def.name()),
+                def.lore().stream().map(ui::mm).toList());
         return Item.builder().setItemProvider(stack).addClickHandler(click ->
                 this.browser.handleClick(click.player(), () -> {
                     Sounds.play(click.player(), ui.sounds().back());
@@ -582,10 +672,17 @@ final class ManagementBrowserService {
     }
 
     private Item closeItem(CerConfig ui) {
-        ItemStack stack = ItemBridge.icon(ui.close().itemModel(), ui.close().material(),
-                ui.mm(ui.close().name()), ui.close().lore().stream().map(ui::mm).toList());
+        ItemStack stack = this.managementButton(
+                ui.mm(this.plugin.lang().text("ui.management.return-name")),
+                List.of(ui.mm(this.plugin.lang().text("ui.management.return-lore"))));
         return Item.builder().setItemProvider(stack).addClickHandler(click ->
-                this.browser.handleClick(click.player(), click.player()::closeInventory)).build();
+                this.browser.handleClick(click.player(),
+                        () -> this.browser.openDefault(click.player()))).build();
+    }
+
+    /** 管理页视觉由固定背景贴图提供，交互物品使用透明模型，仅保留悬浮说明。 */
+    private ItemStack managementButton(Component name, List<Component> lore) {
+        return ItemBridge.icon("minecraft:air", Material.PAPER, name, lore);
     }
 
     private Item actionItem(Material material, String nameKey, List<String> loreKeys,
@@ -665,7 +762,10 @@ final class ManagementBrowserService {
     }
 
     private String onOff(boolean value) {
-        return this.plugin.lang().text(value ? "ui.personalization.on" : "ui.personalization.off");
+        boolean chinese = this.plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh");
+        return this.plugin.lang().textOr(
+                value ? "ui.personalization.on" : "ui.personalization.off",
+                value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }
 
     private Component plainOr(String value, String fallback) {

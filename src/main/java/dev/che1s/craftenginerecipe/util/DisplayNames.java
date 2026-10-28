@@ -18,7 +18,7 @@ import java.util.Map;
 public final class DisplayNames {
 
     private static final Pattern TAG = Pattern.compile("<[^>]*>");
-    private static final Pattern L10N = Pattern.compile("<l10n:([^>]+)>");
+    private static final Pattern LOCALIZED = Pattern.compile("<(?:l10n|lang):([^>]+)>");
 
     private DisplayNames() {
     }
@@ -113,7 +113,7 @@ public final class DisplayNames {
         if (miniMessage == null || miniMessage.isBlank()) {
             return null;
         }
-        String expanded = expandL10n(miniMessage, translations);
+        String expanded = expandTranslations(miniMessage, translations);
         String text = null;
         try {
             text = plain(AdventureHelper.miniMessage().deserialize(expanded), translations, 0);
@@ -127,30 +127,50 @@ public final class DisplayNames {
     }
 
     public static String expandL10n(String raw) {
-        return expandL10n(raw, Map.of());
+        return expandTranslations(raw, Map.of());
     }
 
-    private static String expandL10n(String raw, Map<String, String> translations) {
-        if (raw == null || raw.indexOf("<l10n:") < 0) {
-            return raw;
-        }
-        Matcher m = L10N.matcher(raw);
+    public static String resolveText(String raw, Map<String, String> translations) {
+        if (raw == null) return null;
+        String translated = translatePlainKey(raw.trim(), translations);
+        return translated == null ? raw : translated;
+    }
+
+    public static String expandTranslations(String raw, Map<String, String> translations) {
+        if (raw == null) return null;
+        String plain = translatePlainKey(raw.trim(), translations);
+        if (plain != null) return plain;
+        if (raw.indexOf("<l10n:") < 0 && raw.indexOf("<lang:") < 0) return raw;
+        Matcher m = LOCALIZED.matcher(raw);
         StringBuilder sb = new StringBuilder(raw.length());
         int last = 0;
         while (m.find()) {
             sb.append(raw, last, m.start());
             String key = m.group(1);
-            try {
-                String text = TranslationManager.instance().miniMessageTranslation(key);
-                sb.append(text == null || text.equals(key) ? translations.getOrDefault(key, key) : text);
-            } catch (RuntimeException | LinkageError error) {
-                CompatibilityWarnings.warn("DisplayNames.localizedText", error);
-                sb.append(translations.getOrDefault(key, key));
-            }
+            String text = translation(key, translations);
+            sb.append(text == null ? key : text);
             last = m.end();
         }
         sb.append(raw.substring(last));
         return sb.toString();
+    }
+
+    private static String translatePlainKey(String raw, Map<String, String> translations) {
+        if (raw == null || raw.isEmpty() || raw.indexOf(' ') >= 0 || raw.indexOf('<') >= 0) return null;
+        if (!raw.matches("[A-Za-z0-9_.-]+")) return null;
+        return translation(raw, translations);
+    }
+
+    private static String translation(String key, Map<String, String> translations) {
+        String bundled = translations.get(key);
+        if (notBlank(bundled)) return bundled;
+        try {
+            String text = TranslationManager.instance().miniMessageTranslation(key);
+            if (notBlank(text) && !text.equals(key)) return text;
+        } catch (RuntimeException | LinkageError error) {
+            CompatibilityWarnings.warn("DisplayNames.localizedText", error);
+        }
+        return null;
     }
 
     static String plain(Component component, Map<String, String> translations, int depth) {

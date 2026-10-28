@@ -40,7 +40,7 @@
 ## Features
 
 - A clear, ready-to-use UI whose resources are **installed automatically** into CraftEngine's resource-pack directory.
-- Two browsing modes: **browse by namespace** and **browse by workstation**.
+- Two browsing modes: **browse by item type** and **browse by workstation**.
 - Workstation order and custom buttons are configured in `navigation/workstations.yml`; newly discovered workstations are appended automatically.
 - Left-click an item to view its **recipes**; right-click to view recipes that **use it**.
 - Customize category order, visibility permissions, hiding rules, and menu **buttons**.
@@ -52,8 +52,10 @@
 - WoodworkingSaw can publish its `transformations.yml` rules directly to CER recipe pages through the CER Recipe API.
 - Fixed-result CraftEngine recipes are exported to `recipes/craftengine/` on first use and then read only from files. Vanilla recipes, vanilla cultivation data, CraftEngine cultivation data, and integration-specific cultivation data have independent source switches.
 - Edited files under `recipes/` reload automatically. Pressing ESC remembers the current page and recipe back-stack for three minutes by default; right-clicking outside a menu returns to the main view corresponding to where it was opened.
-- Right-click **Browse by workstation** to open Personalization. Each player can choose a menu style, whether `/cer` and Shift+F default to category or workstation browsing, and whether the last position is restored. Preferences are stored in the SQLite database `player-preferences.db`.
-- During startup indexing, online administrators are told which recipe sources were detected. After CraftEngine reloads its configuration and resource packs, CER re-exports CraftEngine recipes and refreshes its index automatically.
+- Right-click **Browse by workstation** to open Personalization. Each player can choose a menu style, whether `/cer` and Shift+F default to item-type or workstation browsing, and whether the last position is restored. Preferences are stored in the SQLite database `player-preferences.db`.
+- `/cer manage` uses a dedicated management UI. The required `cer_manage_gui` pack is installed regardless of the selected menu style and provides fixed directory navigation, back, previous-page, next-page, and return buttons.
+- On the `categories.yml` page, press `Q` to move a namespace or custom button to `categories-unapplied.yml`; unapplied buttons can be restored with middle-click while preserving their full configuration.
+- After data is ready, online administrators receive clickable integration choices. Enabling an integration turns on recipe and cultivation support together and reports export progress plus recipe/workstation counts.
 - Look up recipes for the item in your **main hand** or the block under your **crosshair**, using commands or menu shortcuts.
 - The **Shift+F** shortcut opens the menu quickly. It is enabled by default, requires sneaking by default, and is configurable.
 
@@ -89,9 +91,9 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 7. Open the menu with `/cer` or Shift+F. Left-click an item for its recipes; right-click to see recipes that use it.
 
-8. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style, whether `/cer` and Shift+F enter category or workstation browsing by default, and whether reopening restores the previous position. Settings are stored in `player-preferences.db`.
+8. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style, whether `/cer` and Shift+F enter item-type or workstation browsing by default, and whether reopening restores the previous position. Settings are stored in `player-preferences.db`.
 
-9. By default, online administrators receive the detected recipe-source list when startup indexing begins. After CraftEngine reloads its configuration and resource packs, CER automatically re-exports CE recipes and refreshes its index.
+9. After data is ready, online administrators are prompted to enable Farmer's Delight, Kaleidoscope Cookery, and CustomCrops. Click **Support all**, an individual **Support ... only** option, **Not now**, or **Do not support and stop asking**. After choosing **Not now**, run `/cer integrations` to reopen the prompt.
 
 Addons containing only one item or only recipe data can disable **Show namespace category entry** in the editor while keeping items in search, direct queries and workstation pages. Manual YAML editing remains supported. See the [User Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/) for details.
 
@@ -141,6 +143,7 @@ Exported titles, lore, and descriptions follow `config.yml > language`. Third-pa
 | `/cer hand` | View recipes producing the vanilla or CraftEngine item in your main hand, respecting configured category restrictions |
 | `/cer target` | View recipes producing the vanilla or CraftEngine block under your crosshair, respecting configured category restrictions |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | Re-read a source and replace its data under `recipes/` (administrator) |
+| `/cer integrations` | Reopen the setup prompt for detected integrations (administrator) |
 | `/cer manage` | Open the Configuration Center to edit categories, hiding rules, ordering and workstation configuration in game (administrator) |
 | `/cer unapplied` | Browse recipes using category entries from `categories-unapplied.yml` (administrator) |
 | `/cer reload` | Reload configuration and indexes (administrator; recipe-file edits reload automatically) |
@@ -159,11 +162,34 @@ For lag diagnosis, run `/cer debug performance reset`, reproduce the slow menu a
 
 `Shift+F` is enabled by default and requires sneaking by default. Both settings can be changed in `config.yml`.
 
-Setting `sources.reexport-on-reload` to `true` deletes and regenerates every enabled source folder after each successful plugin reload.
+Optional integrations have independent settings. `mode` accepts `ask`, `enabled`, or `disabled`; interactive enabling also sets `cultivation` to `true`:
 
-`sources.reexport-craftengine-on-ce-reload` defaults to `true`. After CraftEngine reloads its configuration and resource packs, CER re-exports `recipes/craftengine/` and refreshes its index. Set it to `false` to disable this behavior.
+```yaml
+integrations:
+  farmersdelight:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+```
 
-`indexing.notify-admins-on-startup` defaults to `true` and controls whether online administrators receive the startup index-build notice.
+`kaleidoscope` and `customcrops` use the same fields. `disabled` stops export and indexing while preserving existing files under `recipes/<source>/`.
+
+`sources.reexport-on-reload` and `sources.reexport-craftengine-on-ce-reload` now apply only to CraftEngine. Each optional integration uses its own `integrations.<source>.*` settings.
+
+`indexing.notify-admins-on-startup` defaults to `true` and controls the integration prompt shown after data is ready. If no administrator is online, the prompt appears when one joins.
+
+Name colors are controlled centrally by `name-prefixes`. Values use MiniMessage and affect only the name text, not title images or shifts:
+
+```yaml
+name-prefixes:
+  category-bar: '<white>'
+  category-title: '<black><bold>'
+  workstation-bar: '<white>'
+  workstation-title: '<black><bold>'
+  recipe-title: '<black><bold>'
+```
 
 The administrator permission is `craftenginerecipe.admin`; OPs have it by default.
 

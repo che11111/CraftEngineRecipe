@@ -1,0 +1,14 @@
+items:
+  # Invisible carrier for the two Kaleidoscope recipe-note slots. The client model is blank,
+  # while the server item retains its display lore so it can still be hovered.
+  cer_kc_gui:note:
+    material: paper
+    data:
+      item_name: "<!i> "
+    model:
+      type: minecraft:model
+      path: cer_kc_gui:item/note
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_kc_gui:item/note

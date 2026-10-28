@@ -3,6 +3,7 @@ package dev.che1s.craftenginerecipe.api.internal;
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.api.ApiRecipe;
 import dev.che1s.craftenginerecipe.api.CerRecipeApi;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -13,12 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 /** Bukkit ServicesManager 中发布的有状态 API 实现。 */
 public final class CerRecipeApiService implements CerRecipeApi {
     private static final Pattern NAMESPACE = Pattern.compile("[a-z0-9_.-]+");
-    private final Runnable refresh;
+    private final Consumer<Runnable> refresh;
+    private final Consumer<ApiNotice> notifications;
     // 每次注册生成新 token；旧 Registration 句柄即使泄漏也不能注销/替换新数据。
     private final AtomicLong tokens = new AtomicLong();
     // LinkedHashMap 同时表达来源注册顺序，编译快照时保持该顺序。
@@ -26,16 +29,31 @@ public final class CerRecipeApiService implements CerRecipeApi {
     private boolean stopped;
 
     public CerRecipeApiService(CraftEngineRecipePlugin plugin) {
-        this.refresh = () -> {
+        this.refresh = completion -> {
             if (plugin.isEnabled() && plugin.externalRecipes() != null && plugin.tasks() != null) {
                 // 外部插件可能从异步线程调用；真正编译和发布快照必须回到全局调度器。
-                plugin.tasks().global(plugin.externalRecipes()::reloadApi);
+                plugin.tasks().global(() -> {
+                    plugin.externalRecipes().reloadApi();
+                    completion.run();
+                });
             }
+        };
+        this.notifications = notice -> {
+            if (!plugin.isEnabled() || plugin.tasks() == null) return;
+            plugin.tasks().global(() -> notifyAdmins(plugin, notice));
         };
     }
 
     CerRecipeApiService(Runnable refresh) {
-        this.refresh = refresh;
+        this(refresh, ignored -> {});
+    }
+
+    CerRecipeApiService(Runnable refresh, Consumer<ApiNotice> notifications) {
+        this.refresh = completion -> {
+            refresh.run();
+            completion.run();
+        };
+        this.notifications = notifications;
     }
 
     @Override
@@ -55,7 +73,15 @@ public final class CerRecipeApiService implements CerRecipeApi {
         List<ApiRecipe> copy = validate(recipes);
         long token = this.tokens.incrementAndGet();
         this.providers.put(namespace, new Provider(owner, namespace, copy, token));
-        this.requestRefresh();
+        int previousCount = previous == null ? -1 : previous.recipes().size();
+        this.requestRefresh(() -> {
+            if (previousCount < 0) {
+                this.notify(new ApiNotice(NoticeKind.REGISTERED, owner.getName(), namespace, 0, copy.size()));
+            } else if (previousCount != copy.size()) {
+                this.notify(new ApiNotice(NoticeKind.UPDATED, owner.getName(), namespace,
+                        previousCount, copy.size()));
+            }
+        });
         return new RegistrationImpl(owner, namespace, token);
     }
 
@@ -71,13 +97,19 @@ public final class CerRecipeApiService implements CerRecipeApi {
 
     /** 来源插件禁用时由 ExternalRecipeService 调用。 */
     public void removeOwner(Plugin owner) {
-        boolean changed;
+        List<Provider> removed = List.of();
         synchronized (this) {
-            int before = this.providers.size();
-            this.providers.values().removeIf(provider -> provider.owner() == owner);
-            changed = before != this.providers.size();
+            removed = this.providers.values().stream().filter(provider -> provider.owner() == owner).toList();
+            if (!removed.isEmpty()) {
+                this.providers.values().removeIf(provider -> provider.owner() == owner);
+            }
         }
-        if (changed) this.requestRefresh();
+        if (!removed.isEmpty()) {
+            List<Provider> unregistered = removed;
+            this.requestRefresh(() -> unregistered.forEach(provider ->
+                    this.notify(new ApiNotice(NoticeKind.UNREGISTERED, owner.getName(), provider.namespace(),
+                            provider.recipes().size(), 0))));
+        }
     }
 
     public synchronized void shutdown() {
@@ -86,16 +118,29 @@ public final class CerRecipeApiService implements CerRecipeApi {
     }
 
     private void replace(String namespace, long token, Collection<ApiRecipe> recipes) {
+        int previousCount;
+        int nextCount;
         synchronized (this) {
             this.requireRunning();
             Provider provider = this.providers.get(namespace);
             if (provider == null || provider.token() != token) {
                 throw new IllegalStateException("API registration is no longer active");
             }
+            previousCount = provider.recipes().size();
             this.providers.put(namespace,
                     new Provider(provider.owner(), namespace, validate(recipes), token));
+            nextCount = this.providers.get(namespace).recipes().size();
         }
-        this.requestRefresh();
+        this.requestRefresh(() -> {
+            if (previousCount != nextCount) {
+                String pluginName;
+                synchronized (this) {
+                    Provider provider = this.providers.get(namespace);
+                    pluginName = provider == null ? namespace : provider.owner().getName();
+                }
+                this.notify(new ApiNotice(NoticeKind.UPDATED, pluginName, namespace, previousCount, nextCount));
+            }
+        });
     }
 
     private static List<ApiRecipe> validate(Collection<ApiRecipe> recipes) {
@@ -112,9 +157,13 @@ public final class CerRecipeApiService implements CerRecipeApi {
         return copy;
     }
 
-    private void requestRefresh() {
+    private void requestRefresh(Runnable completion) {
         // 注册状态先同步写入，快照刷新异步排入全局线程；读者只会在完整索引发布后看到变化。
-        if (!this.stopped) this.refresh.run();
+        if (!this.stopped) this.refresh.accept(completion);
+    }
+
+    private void notify(ApiNotice notice) {
+        if (!this.stopped) this.notifications.accept(notice);
     }
 
     private void requireRunning() {
@@ -148,12 +197,52 @@ public final class CerRecipeApiService implements CerRecipeApi {
     }
 
     private void removeOwnerIfToken(Plugin owner, String namespace, long token) {
-        boolean changed;
+        Provider removed = null;
         synchronized (this) {
             Provider provider = this.providers.get(namespace);
-            changed = provider != null && provider.owner() == owner && provider.token() == token
-                    && this.providers.remove(namespace) != null;
+            if (provider != null && provider.owner() == owner && provider.token() == token) {
+                removed = this.providers.remove(namespace);
+            }
         }
-        if (changed) this.requestRefresh();
+        if (removed != null) {
+            Provider unregistered = removed;
+            this.requestRefresh(() -> this.notify(new ApiNotice(NoticeKind.UNREGISTERED, owner.getName(),
+                    namespace, unregistered.recipes().size(), 0)));
+        }
     }
+
+    private static void notifyAdmins(CraftEngineRecipePlugin plugin, ApiNotice notice) {
+        if (!plugin.getConfig().getBoolean("indexing.notify-admins-on-api-register", true)) return;
+        for (var player : Bukkit.getOnlinePlayers()) {
+            if (!player.hasPermission("craftenginerecipe.admin")) continue;
+            plugin.tasks().player(player, () -> {
+                if (!player.isOnline()) return;
+                switch (notice.kind()) {
+                    case REGISTERED -> {
+                        player.sendMessage(plugin.lang().message(
+                                "messages.api-integration-detected", "plugin", notice.plugin()));
+                        player.sendMessage(plugin.lang().component(
+                                "messages.api-integration-namespace", "namespace", notice.namespace()));
+                        player.sendMessage(plugin.lang().component(
+                                "messages.api-integration-ready", "recipes", String.valueOf(notice.current())));
+                    }
+                    case UPDATED -> player.sendMessage(plugin.lang().message(
+                            "messages.api-integration-updated",
+                            "plugin", notice.plugin(),
+                            "namespace", notice.namespace(),
+                            "previous", String.valueOf(notice.previous()),
+                            "current", String.valueOf(notice.current())));
+                    case UNREGISTERED -> player.sendMessage(plugin.lang().message(
+                            "messages.api-integration-unregistered",
+                            "plugin", notice.plugin(),
+                            "namespace", notice.namespace(),
+                            "recipes", String.valueOf(notice.previous())));
+                }
+            });
+        }
+    }
+
+    enum NoticeKind { REGISTERED, UPDATED, UNREGISTERED }
+
+    record ApiNotice(NoticeKind kind, String plugin, String namespace, int previous, int current) {}
 }

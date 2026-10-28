@@ -72,4 +72,12 @@ public final class RecipePresentation {
         return "<#FFFFFF><shift:" + offset + "><image:" + background
                 + "><shift:" + shift + "><#000000><bold>" + label + "</bold></#000000>";
     }
+
+    public static String title(String background, String label, String namePrefix) {
+        boolean farmersDelight = background.startsWith("cer_fd_gui:");
+        int offset = farmersDelight ? -2 : -8;
+        int shift = farmersDelight ? -163 : -168;
+        return "<#FFFFFF><shift:" + offset + "><image:" + background
+                + "><shift:" + shift + ">" + namePrefix + label;
+    }
 }

@@ -19,7 +19,9 @@ import dev.che1s.craftenginerecipe.util.DisplayNames;
 import dev.che1s.craftenginerecipe.recipe.access.HeldRecipeScope;
 import dev.che1s.craftenginerecipe.util.ItemBridge;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.core.block.ImmutableBlockState;
@@ -255,8 +257,8 @@ public final class BrowserService {
         }
         Gui gui = this.buildContentOnlyLayout(player, content, MenuView.CRAFTABLE, this.craftableBackItem(ui));
         this.openWindow(Window.builder().setViewer(player).setUpperGui(gui)
-                .setTitle(ui.mm(ui.browserTitle(), "category",
-                        this.plugin.lang().text("ui.craftable.name"))).build());
+                .setTitle(ui.titleWithName(ui.browserTitle(), ui.styledName(
+                        ui.categoryTitleNamePrefix(), this.plugin.lang().text("ui.craftable.name")))).build());
     }
 
     public void openNamespaceManager(Player player) {
@@ -524,7 +526,8 @@ public final class BrowserService {
                     ui.mm(ui.empty().name()), this.buttonLore(ui, ui.empty()))));
             Gui gui = this.buildLayout(player, content, null, 0, 0, false, view);
             this.openWindow(Window.builder().setViewer(player)
-                    .setTitle(ui.mm(ui.browserTitle(), "category", this.plugin.lang().text("ui.common.all-items")))
+                    .setTitle(ui.titleWithName(ui.browserTitle(), ui.styledName(
+                            ui.categoryTitleNamePrefix(), this.plugin.lang().text("ui.common.all-items"))))
                     .setUpperGui(gui)
                     .build());
         }
@@ -557,7 +560,8 @@ public final class BrowserService {
             CerConfig ui = this.ui(view);
             Gui gui = this.buildLayout(player, contentItems, categoryId, categoryPage, contentPage, showBack, view);
             this.openWindow(Window.builder().setViewer(player)
-                    .setTitle(ui.mm(ui.browserTitle(), "category", this.plainName(category, ui)))
+                    .setTitle(ui.titleWithName(ui.browserTitle(),
+                            ui.styledName(ui.categoryTitleNamePrefix(), this.plainName(category, ui))))
                     .setUpperGui(gui)
                     .build());
         }
@@ -607,7 +611,8 @@ public final class BrowserService {
                     GuiSession.of(player).categoryPage(), categoryPage, parentCategory != null, view);
             Component titleComponent = searching
                     ? ui.mmEscaped(ui.searchResultTitle(), "keyword", keyword)
-                    : ui.mm(ui.browserTitle(), "category", title);
+                    : ui.titleWithName(ui.browserTitle(),
+                            ui.styledName(ui.categoryTitleNamePrefix(), title));
             this.openWindow(Window.builder().setViewer(player)
                     .setTitle(titleComponent)
                     .setUpperGui(gui)
@@ -1036,7 +1041,8 @@ public final class BrowserService {
                 .filter(id -> "minecraft".equals(id.namespace())).count();
         List<Component> lore = namespace.iconLore().stream()
                 .map(line -> ui.mm(line, "count", String.valueOf(count))).toList();
-        ItemStack stack = ItemBridge.button(Material.GRASS_BLOCK, name, lore);
+        ItemStack stack = ItemBridge.button(Material.GRASS_BLOCK,
+                directoryName(name, ui, ui.categoryBarNamePrefix()), directoryLore(lore));
         return Item.builder().setItemProvider(stack).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Sounds.play(click.player(), ui.sounds().click());
             this.openVanillaItems(click.player());
@@ -1063,7 +1069,11 @@ public final class BrowserService {
         if (GuiSession.of(player).unapplied() && player.hasPermission("craftenginerecipe.admin")) {
             lore.add(this.plugin.lang().component("ui.unapplied-editor.edit-lore"));
         }
-        ItemStack decorated = new ItemBuilder(icon).setName(name).setLore(lore).setGlint(active ? Boolean.TRUE : null).build();
+        ItemStack decorated = new ItemBuilder(icon)
+                .setName(directoryName(name, ui, ui.categoryBarNamePrefix()))
+                .setLore(directoryLore(lore))
+                .setGlint(active ? Boolean.TRUE : null)
+                .build();
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             boolean edit = GuiSession.of(p).unapplied()
@@ -1087,7 +1097,8 @@ public final class BrowserService {
         for (String line : this.subIconLoreFor(sub, ui)) {
             lore.add(ui.mm(line, "count", String.valueOf(count)));
         }
-        ItemStack decorated = ItemBridge.decorate(icon, name, lore);
+        ItemStack decorated = ItemBridge.decorate(icon,
+                directoryName(name, ui, ui.categoryBarNamePrefix()), directoryLore(lore));
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
             Player p = click.player();
             Sounds.play(p, ui.sounds().click());
@@ -1096,6 +1107,10 @@ public final class BrowserService {
     }
 
     Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button) {
+        return this.buttonEntryItem(player, button, this.config.categoryBarNamePrefix());
+    }
+
+    Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button, String namePrefix) {
         // display.material 支持 source:CraftEngine: 前缀，用于引用 CE 自定义物品。
         String material = button.display().material();
         ItemStack icon;
@@ -1110,17 +1125,32 @@ public final class BrowserService {
         for (String line : button.display().lore()) {
             lore.add(CerConfig.noItalic(LegacyComponentSerializer.legacyAmpersand().deserialize(line)));
         }
-        ItemStack decorated = ItemBridge.decorate(icon, name, lore);
+        ItemStack decorated = ItemBridge.decorate(icon,
+                directoryName(name, this.config, namePrefix), directoryLore(lore));
         return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () ->
                 ButtonActions.run(click.player(), button, click.clickType()))).build();
+    }
+
+    /** 目录区名称统一应用配置的颜色前缀，避免不同来源自带颜色造成跳色。 */
+    static Component directoryName(Component source, CerConfig config, String prefix) {
+        return config.styledName(prefix, source);
+    }
+
+    /** 目录区 Lore 统一为正文灰，同时保留原有可见文本和行顺序。 */
+    static List<Component> directoryLore(List<Component> source) {
+        return source.stream()
+                .map(line -> PlainTextComponentSerializer.plainText().serialize(line))
+                .filter(line -> !line.isBlank())
+                .map(line -> CerConfig.noItalic(Component.text(line, TextColor.color(0xB8C0CC))))
+                .toList();
     }
 
     private Component categoryName(Category category, CerConfig ui) {
         String template = this.data.namespaces().iconNameOf(category.id().namespace());
         if (template == null || template.isBlank()) {
-            return ui.mm(DisplayNames.expandL10n(this.plainName(category, ui)));
+            return ui.mm(this.plainName(category, ui));
         }
-        String name = DisplayNames.of(category);
+        String name = DisplayNames.of(category, this.data.resourcePackTranslations());
         if (name == null || name.isBlank()) {
             name = category.id().value();
         }
@@ -1331,7 +1361,7 @@ public final class BrowserService {
     }
 
     private String plainName(Category category, CerConfig ui) {
-        String n = category.displayName();
+        String n = DisplayNames.of(category, this.data.resourcePackTranslations());
         if (n != null && !n.isBlank()) {
             return n;
         }

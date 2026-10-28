@@ -73,8 +73,8 @@ public final class PersonalizationDialogService {
         var rememberInput = DialogInput.bool(REMEMBER_KEY,
                         this.plugin.lang().component("ui.personalization.remember-label"))
                 .initial(preferences.rememberLastPage(player.getUniqueId()))
-                .onTrue(this.plugin.lang().text("ui.personalization.on"))
-                .onFalse(this.plugin.lang().text("ui.personalization.off"))
+                .onTrue(this.booleanText(true))
+                .onFalse(this.booleanText(false))
                 .build();
 
         ActionButton save = ActionButton.create(
@@ -126,8 +126,7 @@ public final class PersonalizationDialogService {
                     "main", this.plugin.lang().text(landingPage == PlayerPreferences.LandingPage.WORKSTATIONS
                             ? "ui.personalization.main-page-workstations"
                             : "ui.personalization.main-page-namespaces"),
-                    "remember", this.plugin.lang().text(
-                            remember ? "ui.personalization.on" : "ui.personalization.off")));
+                    "remember", this.booleanText(remember)));
             this.switchAndReopen(player, menuPack, snapshot, landingChanged);
         });
     }
@@ -171,6 +170,13 @@ public final class PersonalizationDialogService {
                 task.run();
             }
         });
+    }
+
+    private String booleanText(boolean value) {
+        boolean chinese = this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
+        return this.plugin.lang().textOr(
+                value ? "ui.personalization.on" : "ui.personalization.off",
+                value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }
 
     static String plainMenuName(String displayName, String fallback) {

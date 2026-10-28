@@ -1,4 +1,4 @@
-# CraftEngineRecipe - 基于 CraftEngine 的配方浏览器
+# CraftEngineRecipe - 基于 CraftEngine 的物品分类与配方浏览插件
 
 # CER 自定义配方统一从 recipes 文件夹递归加载 .yml/.yaml；示例为 recipes/example.yml。
 # Custom displays load recursively from .yml/.yaml files under recipes; see recipes/example.yml.
@@ -6,9 +6,6 @@ sources:
   # 从 CraftEngine 配方管理器导出一次固定产物配方；之后只读取 recipes/craftengine/。
   # Export fixed-result recipes from CraftEngine once, then read only recipes/craftengine/.
   craftengine: true
-  farmersdelight: true
-  kaleidoscope: true
-  customcrops: true
   # 启用由客户端 JAR 提取的原版合成配方。
   # Enable vanilla crafting recipe fallback data extracted from client JARs.
   minecraft: true
@@ -18,17 +15,15 @@ sources:
   # 启用 CraftEngine 资源包中按命名空间提供的栽培数据。
   # Enable cultivation data provided by CraftEngine namespaces.
   craftengine-cultivation: true
-  # 各来源的栽培数据可独立于普通配方开关。
-  # Each integration's cultivation data has its own independent toggle.
-  farmersdelight-cultivation: true
-  kaleidoscope-cultivation: true
-  customcrops-cultivation: true
-  # 首次启用时，若 recipes/<来源>/ 不存在，则从来源插件导出一次。
-  # 导出后 CER 只读取 recipes/，不会继续直接获取来源插件数据。
-  # Export once when recipes/<source>/ is absent. After that CER reads only recipes/.
+  # 控制 CraftEngine 来源在 recipes/craftengine/ 不存在时导出一次。
+  # Controls the one-time CraftEngine export when recipes/craftengine/ is absent.
+  # 可选适配插件由下方 integrations.<来源>.export-missing 独立控制。
+  # Optional integrations use integrations.<source>.export-missing.
   export-missing: true
-  # 每次插件重载完成、数据就绪后，删除并重新导出所有已启用来源的 recipes/<source>/。
-  # After each plugin reload is ready, delete and re-export every enabled source under recipes/<source>/.
+  # 控制 CraftEngine 来源是否在插件重载后删除并重新导出 recipes/craftengine/。
+  # Controls whether recipes/craftengine/ is refreshed after a plugin reload.
+  # 可选适配插件由下方 integrations.<来源>.reexport-on-reload 独立控制。
+  # Optional integrations use integrations.<source>.reexport-on-reload.
   # 来源插件缺失或读取失败时保留旧文件。默认 false。
   # Keep old files when a source plugin is missing or cannot be read. Defaults to false.
   reexport-on-reload: false
@@ -36,11 +31,40 @@ sources:
   # Re-export craftengine recipes and refresh this plugin after CraftEngine reloads.
   reexport-craftengine-on-ce-reload: true
 
+# ---------- 适配插件 / Plugin integrations ----------
+# mode: ask / enabled / disabled
+# ask 会在数据就绪后询问在线管理员；enabled 直接导出并建立索引；disabled 停止导出和索引，
+# 但不会删除 recipes/<来源>/ 中已经生成的文件。
+# ask prompts online administrators after the data is ready. enabled exports and indexes immediately.
+# disabled stops export/indexing without deleting existing files under recipes/<source>/.
+integrations:
+  farmersdelight:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+  kaleidoscope:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+  customcrops:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+
 # ---------- 索引构建提示 / Index build notifications ----------
 indexing:
-  # 插件启动构建索引时，向在线管理员发送检测到的配方来源插件。
-  # Notify online administrators which recipe source plugins were detected during startup indexing.
+  # 数据就绪后向在线管理员发送适配插件启用询问；没有管理员在线时会在其上线后询问。
+  # Ask online administrators about detected integrations after data is ready; wait for one to join if needed.
   notify-admins-on-startup: true
+  # 通过 CER Recipe API 首次注册、配方数量变化或注销时通知在线管理员。
+  # Notify online administrators when an API source registers, changes its recipe count, or unregisters.
+  notify-admins-on-api-register: true
 
 # ---------- 配方文件 / Recipe files ----------
 recipes:
@@ -50,6 +74,26 @@ recipes:
   # 异步文件检查间隔（tick，10～200）。连续两次稳定后才回到主线程重载。
   # Async file check interval (10-200 ticks); reload happens on the global thread after two stable observations.
   poll-interval: 20
+
+# ---------- 名称颜色前缀 / Name color prefixes ----------
+# 填入 MiniMessage 样式。前缀只作用于名称；标题图片、位移和 Lore 不受影响。
+# MiniMessage styles applied to names only; title images, shifts and lore are unaffected.
+name-prefixes:
+  # CER 页面目录区按钮名称，默认白色。
+  # Names in the CER category directory, white by default.
+  category-bar: '<white>'
+  # 选择物品种类后，标题中的分类名称，默认黑色加粗。
+  # Category name inside the page title after selecting a category, bold black by default.
+  category-title: '<black><bold>'
+  # 合成器页面目录区按钮名称，默认白色。
+  # Names in the workstation directory, white by default.
+  workstation-bar: '<white>'
+  # 选择合成器后，标题中的合成器名称，默认黑色加粗。
+  # Workstation name inside the page title after selecting it, bold black by default.
+  workstation-title: '<black><bold>'
+  # 各合成器配方详情页的标题名称，默认黑色加粗。
+  # Recipe-detail page titles for every workstation, bold black by default.
+  recipe-title: '<black><bold>'
 
 # CraftEngineRecipe - Recipe browser for CraftEngine
 # 启动或 /cer reload 时自动补齐缺失配置与默认值，保留已有配置值。
@@ -97,8 +141,8 @@ personalization:
   default-remember-last-page: true
   # 未恢复上次位置时，/cer 与 Shift+F 默认打开的主页面。
   # Landing page for /cer and Shift+F when no previous position is restored.
-  # 可选 namespaces（按命名空间分类）或 workstations（按合成器分类）。
-  # Allowed values: namespaces (category view) or workstations (workstation view).
+  # 可选 namespaces（按物品种类分类）或 workstations（按合成器分类）。
+  # Allowed values: namespaces (item-type view) or workstations (workstation view).
   default-main-page: namespaces
 # 标题和文本在 lang/<语言>.yml 中修改；布局、按钮、材质和音效在对应 cer_menu_*/menu.yml 中修改。
 # Edit text under ui in lang/<language>.yml; layouts, buttons, materials and sounds live in each cer_menu_*/menu.yml.

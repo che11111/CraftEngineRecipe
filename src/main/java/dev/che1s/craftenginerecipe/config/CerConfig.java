@@ -4,8 +4,10 @@ import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import dev.che1s.craftenginerecipe.util.ResourcePackTranslations;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.momirealms.craftengine.core.util.AdventureHelper;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
@@ -99,6 +101,11 @@ public final class CerConfig {
     private boolean disableBackButton;
     private String adminOnlyHint;
     private String noPermissionHint;
+    private String categoryBarNamePrefix = "<white>";
+    private String categoryTitleNamePrefix = "<black><bold>";
+    private String workstationBarNamePrefix = "<white>";
+    private String workstationTitleNamePrefix = "<black><bold>";
+    private String recipeTitleNamePrefix = "<black><bold>";
 
     public CerConfig(CraftEngineRecipePlugin plugin) {
         this(plugin, null);
@@ -186,6 +193,11 @@ public final class CerConfig {
         this.recipeTitles.put("SMITHING", lang.uiText(c, "recipe.title-smithing"));
         this.recipeTitles.put("BREWING", lang.uiText(c, "recipe.title-brewing"));
         this.recipeTitles.put("NONE", lang.uiText(c, "recipe.title-none"));
+        this.categoryBarNamePrefix = c.getString("name-prefixes.category-bar", "<white>");
+        this.categoryTitleNamePrefix = c.getString("name-prefixes.category-title", "<black><bold>");
+        this.workstationBarNamePrefix = c.getString("name-prefixes.workstation-bar", "<white>");
+        this.workstationTitleNamePrefix = c.getString("name-prefixes.workstation-title", "<black><bold>");
+        this.recipeTitleNamePrefix = c.getString("name-prefixes.recipe-title", "<black><bold>");
 
         this.searchDialogTitle = lang.uiText(c, "search.dialog-title");
         this.searchDialogLabel = lang.uiText(c, "search.dialog-label");
@@ -358,6 +370,57 @@ public final class CerConfig {
         return this.mm(s);
     }
 
+    /** 将名称解析为纯文本后应用统一前缀，避免来源自带的颜色覆盖全局设置。 */
+    public Component styledName(String prefix, String name) {
+        return this.styledName(prefix, this.mm(name));
+    }
+
+    /** 将名称解析为纯文本后应用统一前缀，同时保留前缀中的 MiniMessage 样式。 */
+    public Component styledName(String prefix, Component name) {
+        String plain = name == null ? "" : PlainTextComponentSerializer.plainText().serialize(name);
+        Component style = this.mm(prefix == null ? "" : prefix);
+        return noItalic(style.append(Component.text(plain)));
+    }
+
+    /**
+     * 只给标题中精确匹配的名称文字应用样式，保留 UI 字体图片及白色占位字符。
+     */
+    public Component applyNameStyle(String prefix, Component source, String name) {
+        if (source == null) return Component.empty();
+        if (name == null || name.isBlank()) return source;
+        Style style = this.mm(prefix == null ? "" : prefix).style();
+        return applyNameStyle(source, style, name.trim());
+    }
+
+    private static Component applyNameStyle(Component source, Style prefix, String name) {
+        List<Component> children = source.children();
+        if (children.isEmpty()
+                && PlainTextComponentSerializer.plainText().serialize(source).equals(name)) {
+            Style merged = source.style();
+            if (prefix.color() != null) merged = merged.color(prefix.color());
+            if (prefix.font() != null) merged = merged.font(prefix.font());
+            for (TextDecoration decoration : TextDecoration.values()) {
+                TextDecoration.State state = prefix.decoration(decoration);
+                if (state != TextDecoration.State.NOT_SET) merged = merged.decoration(decoration, state);
+            }
+            return source.style(merged);
+        }
+        if (children.isEmpty()) return source;
+        return source.children(children.stream()
+                .map(child -> applyNameStyle(child, prefix, name)).toList());
+    }
+
+    /**
+     * 将标题模板中的 {@code <category>} 替换为独立的名称组件。
+     *
+     * <p>名称作为单独组件插入，不再继承标题图片模板里的白色颜色。</p>
+     */
+    public Component titleWithName(String template, Component name) {
+        String token = "__CER_TITLE_NAME__";
+        Component parsed = this.mm((template == null ? "" : template).replace("<category>", token));
+        return noItalic(parsed.replaceText(builder -> builder.matchLiteral(token).replacement(name)));
+    }
+
     public Component mmEscaped(String miniMessage, String... kv) {
         String s = miniMessage == null ? "" : miniMessage;
         int i = 0;
@@ -512,6 +575,20 @@ public final class CerConfig {
     public String recipeTitleFor(String type) {
         return this.recipeTitles.getOrDefault(type, this.recipeTitle);
     }
+
+    public Component recipeTitleComponentFor(String type) {
+        return this.styledName(this.recipeTitleNamePrefix, this.recipeTitleFor(type));
+    }
+
+    public String categoryBarNamePrefix() { return this.categoryBarNamePrefix; }
+
+    public String categoryTitleNamePrefix() { return this.categoryTitleNamePrefix; }
+
+    public String workstationBarNamePrefix() { return this.workstationBarNamePrefix; }
+
+    public String workstationTitleNamePrefix() { return this.workstationTitleNamePrefix; }
+
+    public String recipeTitleNamePrefix() { return this.recipeTitleNamePrefix; }
 
     public String searchDialogTitle() {
         return this.searchDialogTitle;

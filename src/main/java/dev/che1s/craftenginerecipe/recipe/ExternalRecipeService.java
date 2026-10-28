@@ -3,6 +3,7 @@ package dev.che1s.craftenginerecipe.recipe;
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.api.DisplayRecipe;
 import dev.che1s.craftenginerecipe.api.internal.ApiRecipeCompiler;
+import dev.che1s.craftenginerecipe.config.IntegrationSettings;
 import dev.che1s.craftenginerecipe.recipe.io.CustomRecipeLoader;
 import dev.che1s.craftenginerecipe.recipe.io.RecipeFileExporter;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
@@ -89,17 +90,22 @@ public final class ExternalRecipeService implements Listener {
     }
 
     public boolean reexportOnReload() {
-        return this.plugin.getConfig().getBoolean("sources.reexport-on-reload", false);
-    }
-
-    public boolean reexportCraftEngineOnCeReload() {
-        return this.plugin.getConfig().getBoolean("sources.craftengine", true)
-                && this.plugin.getConfig().getBoolean(
-                "sources.reexport-craftengine-on-ce-reload", true);
+        return !this.reexportSources(true).isEmpty();
     }
 
     public void reexportConfigured(Consumer<ExportReport> completion) {
-        this.reexport(BUILT_IN_SOURCES, completion);
+        this.reexport(this.reexportSources(true), completion);
+    }
+
+    /** CraftEngine 重载完成后，仅刷新配置允许自动重建的来源。 */
+    public void reexportAfterCraftEngineReload() {
+        List<String> requested = this.reexportSources(false);
+        if (!requested.isEmpty()) this.reexport(requested, ignored -> {});
+    }
+
+    /** 配置中的启用状态变化后，重新读取现有 recipes/，不强制执行来源导出。 */
+    public void reloadIndex() {
+        this.plugin.tasks().global(() -> this.reloadFiles(false));
     }
 
     /** 指令入口：先采集数据，再仅替换调用方请求的来源目录。 */
@@ -112,23 +118,49 @@ public final class ExternalRecipeService implements Listener {
         });
     }
 
+    private List<String> reexportSources(boolean onPluginReload) {
+        LinkedHashSet<String> requested = new LinkedHashSet<>();
+        String configKey = onPluginReload
+                ? "sources.reexport-on-reload"
+                : "sources.reexport-craftengine-on-ce-reload";
+        if (this.sourceEnabled(CraftEngineRecipeSource.SOURCE_ID)
+                && this.plugin.getConfig().getBoolean(configKey, false)) {
+            requested.add(CraftEngineRecipeSource.SOURCE_ID);
+        }
+        for (String source : IntegrationSettings.PROMPTABLE_SOURCES) {
+            if (!this.plugin.integrations().enabled(source)) continue;
+            boolean enabled = onPluginReload
+                    ? this.plugin.integrations().reexportOnReload(source)
+                    : this.plugin.integrations().reexportOnCeReload(source);
+            if (enabled) requested.add(source);
+        }
+        return List.copyOf(requested);
+    }
+
     private ExportReport forceExport(Collection<String> requested) {
         Map<String, String> failures = new LinkedHashMap<>();
+        Map<String, SourceReport> bySource = new LinkedHashMap<>();
         int files = 0;
         int recipes = 0;
         int sources = 0;
         if (!this.plugin.data().isReady()) {
             failures.put("sources", "CraftEngineRecipe data is not ready");
-            return new ExportReport(sources, files, recipes, Map.copyOf(failures));
+            return new ExportReport(sources, files, recipes, Map.copyOf(bySource), Map.copyOf(failures));
         }
-        for (String id : requested) {
-            String sourceId = id == null ? "" : id.trim().toLowerCase(java.util.Locale.ROOT);
+        LinkedHashSet<String> normalized = new LinkedHashSet<>();
+        requested.stream().map(id -> id == null ? "" : id.trim().toLowerCase(java.util.Locale.ROOT))
+                .filter(id -> !id.isBlank()).forEach(normalized::add);
+        for (String sourceId : normalized) {
+            if (!this.sourceEnabled(sourceId)) {
+                failures.put(sourceId, "source plugin is missing or disabled");
+                continue;
+            }
+            int sourceFiles = 0;
             boolean cultivationExported = false;
             try {
                 int cultivation = CultivationDataExporter.export(this.plugin, sourceId);
                 if (cultivation > 0) {
-                    files++;
-                    recipes += cultivation;
+                    sourceFiles++;
                     cultivationExported = true;
                 }
             } catch (IOException | RuntimeException error) {
@@ -137,7 +169,9 @@ public final class ExternalRecipeService implements Listener {
             RecipeSource recipeSource = this.recipeSource(sourceId);
             if (recipeSource == null) {
                 if (cultivationExported) {
+                    files += sourceFiles;
                     sources++;
+                    bySource.put(sourceId, new SourceReport(sourceFiles, 0, 0));
                 } else {
                     failures.put(sourceId, "source plugin is missing or disabled");
                 }
@@ -157,9 +191,12 @@ public final class ExternalRecipeService implements Listener {
                 RecipeFileExporter.Result result = RecipeFileExporter.export(
                         this.recipesDirectory(), sourceId, captured);
                 if (!result.installed()) throw new IOException("exporter did not install the refreshed files");
-                files += result.files();
+                sourceFiles += result.files();
+                files += sourceFiles;
                 recipes += result.recipes();
                 sources++;
+                bySource.put(sourceId, new SourceReport(sourceFiles, result.recipes(),
+                        workstationCount(captured)));
                 this.failures.remove(sourceId);
             } catch (IOException | RuntimeException | LinkageError error) {
                 String message = error.getMessage() == null ? error.toString() : error.getMessage();
@@ -167,7 +204,11 @@ public final class ExternalRecipeService implements Listener {
                 this.warn(sourceId, error);
             }
         }
-        return new ExportReport(sources, files, recipes, Map.copyOf(failures));
+        return new ExportReport(sources, files, recipes, Map.copyOf(bySource), Map.copyOf(failures));
+    }
+
+    static int workstationCount(Collection<DisplayRecipe> recipes) {
+        return (int) recipes.stream().map(recipe -> recipe.workstation().id()).distinct().count();
     }
 
     private Adapter adapter(String sourceId) {
@@ -179,10 +220,10 @@ public final class ExternalRecipeService implements Listener {
 
     private RecipeSource recipeSource(String sourceId) {
         Adapter adapter = this.adapter(sourceId);
-        if (adapter != null) return adapter.source;
+        if (adapter != null && this.sourceEnabled(sourceId)) return adapter.source;
         // CraftEngine 是硬依赖，始终从其实时 API 读取，不依赖插件名扫描是否成功。
         if ("craftengine".equals(sourceId)
-                && this.plugin.getConfig().getBoolean("sources.craftengine", true)
+                && this.sourceEnabled(sourceId)
                 && this.plugin.data().isReady()) {
             return new CraftEngineRecipeSource(this.plugin);
         }
@@ -245,15 +286,16 @@ public final class ExternalRecipeService implements Listener {
 
     private void exportMissingSources() {
         if (this.stopped) return;
-        if (!this.plugin.getConfig().getBoolean("sources.export-missing", true)) {
-            this.sourcesSettled = true;
-            return;
-        }
         // 只有在 CER 捕获 CraftEngine 物品与资源包数据后，才导出依赖界面和翻译标题的来源。
         if (!this.plugin.data().isReady()) return;
         CultivationDataExporter.exportMissing(this.plugin);
         for (var entry : List.copyOf(this.adapters.entrySet())) {
             Adapter adapter = entry.getValue();
+            if (!this.sourceEnabled(adapter.source.id())) {
+                this.adapters.remove(entry.getKey(), adapter);
+                continue;
+            }
+            if (!this.exportMissing(adapter.source.id())) continue;
             Path target = this.recipesDirectory().resolve(adapter.source.id());
             boolean exported;
             try {
@@ -284,7 +326,7 @@ public final class ExternalRecipeService implements Listener {
             }
         }
         this.exportMissingCraftEngine();
-        this.sourcesSettled = this.adapters.isEmpty();
+        this.sourcesSettled = true;
     }
 
     private void exportMissingCraftEngine() {
@@ -338,9 +380,9 @@ public final class ExternalRecipeService implements Listener {
             List<DisplayRecipe> recipes = new ArrayList<>(new CustomRecipeLoader(this.plugin).load());
             boolean bundledEnabled = this.plugin.getConfig().getBoolean("sources.minecraft", true)
                     || this.plugin.getConfig().getBoolean("sources.minecraft-cultivation", true)
-                    || this.plugin.getConfig().getBoolean("sources.farmersdelight-cultivation", true)
-                    || this.plugin.getConfig().getBoolean("sources.kaleidoscope-cultivation", true)
-                    || this.plugin.getConfig().getBoolean("sources.customcrops-cultivation", true)
+                    || this.plugin.integrations().cultivation("farmersdelight")
+                    || this.plugin.integrations().cultivation("kaleidoscope")
+                    || this.plugin.integrations().cultivation("customcrops")
                     || this.plugin.getConfig().getBoolean("sources.craftengine-cultivation", true);
             if (bundledEnabled) {
                 try {
@@ -420,7 +462,13 @@ public final class ExternalRecipeService implements Listener {
         String name = path.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
         if (name.equals(CultivationDataExporter.FILE_NAME)) return true;
         if (!name.endsWith(".yml") && !name.endsWith(".yaml")) return false;
-        for (Path part : this.recipesDirectory().relativize(path)) {
+        Path relative = this.recipesDirectory().relativize(path);
+        if (relative.getNameCount() > 1) {
+            String source = relative.getName(0).toString().toLowerCase(java.util.Locale.ROOT);
+            if (IntegrationSettings.PROMPTABLE_SOURCES.contains(source)
+                    && !this.plugin.integrations().enabled(source)) return false;
+        }
+        for (Path part : relative) {
             String segment = part.toString().toLowerCase(java.util.Locale.ROOT);
             if (segment.equals("example") || segment.equals("examples") || segment.startsWith("example.")
                     || segment.startsWith("example-") || segment.endsWith("-example.yml")
@@ -435,6 +483,7 @@ public final class ExternalRecipeService implements Listener {
 
     private void discover() {
         if (this.stopped) return;
+        this.adapters.entrySet().removeIf(entry -> !this.sourceEnabled(entry.getValue().source.id()));
         for (Plugin installed : Bukkit.getPluginManager().getPlugins()) this.attach(installed);
     }
 
@@ -448,15 +497,15 @@ public final class ExternalRecipeService implements Listener {
         }
         try {
             RecipeSource adapter = switch (fingerprint.sourceId()) {
-                case "craftengine" -> this.plugin.getConfig().getBoolean("sources.craftengine", true)
+                case "craftengine" -> this.sourceEnabled("craftengine")
                         ? new CraftEngineRecipeSource(this.plugin) : null;
-                case "farmersdelight" -> this.plugin.getConfig().getBoolean("sources.farmersdelight", true)
+                case "farmersdelight" -> this.sourceEnabled("farmersdelight")
                         ? new FarmersDelightRecipeSource(this.plugin, source) : null;
-                case "kaleidoscope" -> this.plugin.getConfig().getBoolean("sources.kaleidoscope", true)
+                case "kaleidoscope" -> this.sourceEnabled("kaleidoscope")
                         ? new KaleidoscopeRecipeSource(source,
                         dev.che1s.craftenginerecipe.i18n.IntegrationText.of(
                                 "kaleidoscope", this.plugin.lang())) : null;
-                case "customcrops" -> this.plugin.getConfig().getBoolean("sources.customcrops", true)
+                case "customcrops" -> this.sourceEnabled("customcrops")
                         ? new CustomCropsRecipeSource(source, this.plugin.data()::resourcePackTranslation,
                         this.plugin.data()::itemDisplayName,
                         () -> this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh"),
@@ -467,6 +516,17 @@ public final class ExternalRecipeService implements Listener {
         } catch (RuntimeException | LinkageError error) {
             this.warn(source.getName(), error);
         }
+    }
+
+    private boolean sourceEnabled(String sourceId) {
+        if ("craftengine".equals(sourceId)) {
+            return this.plugin.getConfig().getBoolean("sources.craftengine", true);
+        }
+        return this.plugin.integrations().enabled(sourceId);
+    }
+
+    private boolean exportMissing(String sourceId) {
+        return this.plugin.integrations().exportMissing(sourceId);
     }
 
     private void warnMismatch(Plugin source, PluginFingerprints.Fingerprint expected) {
@@ -524,5 +584,9 @@ public final class ExternalRecipeService implements Listener {
     private record Adapter(RecipeSource source) {
     }
 
-    public record ExportReport(int sources, int files, int recipes, Map<String, String> failures) {}
+    public record SourceReport(int files, int recipes, int workstations) {}
+
+    public record ExportReport(int sources, int files, int recipes,
+                               Map<String, SourceReport> bySource,
+                               Map<String, String> failures) {}
 }

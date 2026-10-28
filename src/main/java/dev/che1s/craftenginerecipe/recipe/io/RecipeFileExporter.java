@@ -277,6 +277,12 @@ public final class RecipeFileExporter {
                 display.put("Item-Model", meta.getItemModel().toString());
             }
         }
+        if (icon == null && item.id().equals("minecraft:air")
+                && !item.provider().equals("craftengine") && !item.provider().equals("minecraft")) {
+            // 来源插件生成的透明假按钮只提供图片命名空间；使用空气载体避免 HUD 名称和 Lore。
+            display.put("Item-Model", item.provider() + ":fake_button");
+            display.put("Hide-Tooltip", true);
+        }
         if (icon != null && !item.provider().equals("craftengine") && !item.provider().equals("minecraft")) {
             try {
                 display.put("Data", icon.asOne().serializeAsBytes());

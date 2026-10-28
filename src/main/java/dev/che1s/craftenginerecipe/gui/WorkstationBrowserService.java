@@ -11,9 +11,8 @@ import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
 import dev.che1s.craftenginerecipe.recipe.RecipeEntry;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import dev.che1s.craftenginerecipe.util.ItemBridge;
+import dev.che1s.craftenginerecipe.util.DisplayNames;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.momirealms.craftengine.core.item.recipe.RecipeType;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
@@ -120,7 +119,9 @@ final class WorkstationBrowserService {
             PagedGui<Item> gui = builder.build();
             gui.setPage(Math.max(0, Math.min(page, gui.getPageCount() - 1)));
             this.browser.openWindow(Window.builder().setViewer(player)
-                    .setTitle(this.config.mm(this.config.workstationTitle(), "category", this.name(type, player)))
+                    .setTitle(this.config.titleWithName(this.config.workstationTitle(),
+                            this.config.styledName(this.config.workstationTitleNamePrefix(),
+                                    this.name(type, player))))
                     .setUpperGui(gui)
                     .addOutsideClickHandler(click -> {
                         click.setCancelled(true);
@@ -162,7 +163,8 @@ final class WorkstationBrowserService {
                     continue;
                 }
                 gui.setSlotElement(slots.get(index), new SlotElement.Item(
-                        this.browser.buttonEntryItem(player, button.button())));
+                        this.browser.buttonEntryItem(player, button.button(),
+                                this.config.workstationBarNamePrefix())));
             }
         }
     }
@@ -196,11 +198,12 @@ final class WorkstationBrowserService {
         List<Component> lore = this.plugin.lang().list("ui.workstations.category-lore")
                 .stream().map(this.config::mm).toList();
         ItemStack icon = ItemBridge.build(station.icon(), player, 1);
-        String name = station.name() == null ? station.id() : station.name();
-        // 合成器卡片统一使用白色标题，即使来源配方标题自带深色 GUI 颜色，
-        // 例如 Farmer's Delight 的特殊配方页面。
-        Component whiteName = whiteStationName(this.config.mm(name));
-        icon = ItemBridge.decorate(icon, whiteName, lore);
+        String rawName = station.name() == null ? station.id() : station.name();
+        String name = DisplayNames.expandTranslations(rawName, this.data.resourcePackTranslations());
+        icon = ItemBridge.decorate(icon,
+                BrowserService.directoryName(this.config.mm(name), this.config,
+                        this.config.workstationBarNamePrefix()),
+                BrowserService.directoryLore(lore));
         var meta = icon.getItemMeta();
         if (meta != null) {
             meta.setEnchantmentGlintOverride(station.id().equals(active) ? Boolean.TRUE : null);
@@ -210,11 +213,6 @@ final class WorkstationBrowserService {
             Sounds.play(click.player(), this.config.sounds().click());
             this.open(click.player(), station.id(), 0, null);
         })).build();
-    }
-
-    static Component whiteStationName(Component source) {
-        String visibleName = PlainTextComponentSerializer.plainText().serialize(source);
-        return CerConfig.noItalic(Component.text(visibleName, NamedTextColor.WHITE));
     }
 
     private Item categoryNavItem(boolean next, String active, List<Integer> slots) {
@@ -250,7 +248,10 @@ final class WorkstationBrowserService {
 
     private String name(String id, Player player) {
         return this.recipes.workstations(player).stream().filter(station -> station.id().equals(id))
-                .map(station -> station.name() == null ? station.id() : station.name()).findFirst().orElse(id);
+                .map(station -> DisplayNames.expandTranslations(
+                        station.name() == null ? station.id() : station.name(),
+                        this.data.resourcePackTranslations()))
+                .findFirst().orElse(id);
     }
 
     private sealed interface WorkstationBarEntry permits StationBarEntry, ButtonBarEntry {

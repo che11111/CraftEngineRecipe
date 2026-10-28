@@ -5,7 +5,7 @@
 # Startup or reload adds missing bundled-language entries, preserves existing text, and falls back to English for other missing entries.
 # 默认文案使用柔和的十六进制配色；配方标题统一使用石墨黑粗体，其他标题保留颜色并加粗，背景图片保持纯白。
 # Default text uses a soft hex palette; recipe titles use bold charcoal, other titles retain their colors and become bold, and background images stay pure white.
-prefix: '<#79CFC9>[CraftEngineRecipe]</#79CFC9> '
+prefix: '<#79CFC9>[<bold>CER</bold>]</#79CFC9> '
 messages:
   debug-usage: '<#E4D397>用法：/cer debug recipes | /cer debug performance [reset]</#E4D397>'
   debug-export-start: '<#E4D397>正在分批采集全部配方，完成后会异步保存到插件 debug 文件夹。</#E4D397>'
@@ -33,11 +33,34 @@ messages:
   management-saved: '<#98C69A>管理修改已保存，菜单已立即刷新。</#98C69A>'
   management-save-failed: '<#E58B8B>没有找到目标条目，或配置保存失败。</#E58B8B>'
   management-applied: '<#98C69A>已将 {namespace} 应用到 categories.yml，可在列表中继续调整顺序。</#98C69A>'
+  management-applied-entry: '<#98C69A>已将 {entry} 应用到 categories.yml，可继续调整顺序。</#98C69A>'
+  management-unapplied: '<#98C69A>已将 {entry} 移动到 categories-unapplied.yml。</#98C69A>'
   management-moved: '<#98C69A>显示顺序已更新。</#98C69A>'
   management-edge: '<#8793A5>已经到达列表边界，无法继续移动。</#8793A5>'
   management-applied-readonly: '<#E4D397>该命名空间已写入正式 categories.yml，请直接编辑正式配置。</#E4D397>'
   management-no-category-page: '<#8793A5>命名空间 {namespace} 没有可浏览的命名空间分类页面。</#8793A5>'
   index-build-started: '<#E4D397>已检测到 {plugins}，正在构建配方索引...</#E4D397>'
+  integration-detected: '<#D8B278>检测到 CER 适配插件：</#D8B278>'
+  integration-detected-plugins: '<white>{plugins}</white>'
+  integration-choose: '<#B8C0CC>请选择点击以下按钮：</#B8C0CC>'
+  integration-support-all: '<#98C69A>[支持所有]</#98C69A>'
+  integration-support-only: '<#79CFC9>[仅支持 {plugin}]</#79CFC9>'
+  integration-defer: '<#8793A5>[暂不处理]</#8793A5>'
+  integration-disable: '<#E58B8B>[不支持并以后不再询问]</#E58B8B>'
+  integration-choice-hover: '<#B8C0CC>点击立即应用此选择</#B8C0CC>'
+  integration-choice-handled: '<#8793A5>此询问已经处理，无需重复选择。</#8793A5>'
+  integration-choice-busy: '<#E4D397>正在导出当前适配插件的配方，请等待完成后再选择。</#E4D397>'
+  integration-choice-deferred: '<#E4D397>本次启动暂不处理；下次启动时会再次询问。</#E4D397>'
+  integration-choice-disabled: '<#E58B8B>已停用 {plugins}；现有配方文件会保留，但不会再导出或建立索引。</#E58B8B>'
+  integration-export-started: '<#E4D397>已启用 {plugins} 配方与栽培支持，正在导出配方并构建索引...</#E4D397>'
+  integration-index-ready: '<#98C69A>{plugin} 索引构建完成：共 {recipes} 个配方、{workstations} 个工作站。</#98C69A>'
+  integration-index-failed: '<#E58B8B>{plugin} 索引构建失败：{error}</#E58B8B>'
+  integration-unknown-error: 未知错误，请查看控制台
+  api-integration-detected: '<#D8B278>检测到通过 API 接入的配方来源：</#D8B278><white>{plugin}</white>'
+  api-integration-namespace: '<#B8C0CC>命名空间：</#B8C0CC><white>{namespace}</white>'
+  api-integration-ready: '<#98C69A>已接入 {recipes} 条配方，索引构建完成。</#98C69A>'
+  api-integration-updated: '<#79CFC9>API 配方来源 {plugin}（{namespace}）已更新：{previous} → {current} 条配方，索引已刷新。</#79CFC9>'
+  api-integration-unregistered: '<#E58B8B>API 配方来源 {plugin}（{namespace}）已注销，移除 {recipes} 条配方，索引已刷新。</#E58B8B>'
   recipe-export-usage: '<#E4D397>用法：/cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
   recipe-export-started: '<#E4D397>正在读取来源插件并重新生成配方文件，请稍候。</#E4D397>'
   recipe-export-complete: '<#98C69A>配方导出完成：成功 {sources} 个来源，共 {files} 个文件、{recipes} 个配方。失败：{failures}</#98C69A>'
@@ -58,10 +81,10 @@ messages:
   target-block-no-recipe: <#E4D397>未找到制作 {id} 的配方。</#E4D397>
   target-block-resolve-failed: <#E58B8B>无法识别目标方块，请查看控制台。</#E58B8B>
 command:
-  description: 打开 CraftEngineRecipe 配方浏览器
+  description: 打开 CraftEngineRecipe 物品分类菜单
 ui:
   browser:
-    title: '<bold><#374151>配方浏览器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
+    title: '<bold><#374151>物品分类</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
   category-bar:
     icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
@@ -102,7 +125,7 @@ ui:
     close:
       name: <#E58B8B>关闭菜单</#E58B8B>
       lore:
-      - <#B8C0CC>点击关闭配方浏览器（等同于 ESC）</#B8C0CC>
+      - <#B8C0CC>点击关闭物品分类菜单（等同于 ESC）</#B8C0CC>
     glasses:
       name: <#79CFC9>查询目标方块配方</#79CFC9>
       lore:
@@ -134,7 +157,7 @@ ui:
     description: <#B8C0CC>选择菜单样式、默认主页面，并决定重新打开菜单时是否恢复上次浏览位置。</#B8C0CC>
     menu-pack-label: <#79CFC9>主页面样式</#79CFC9>
     main-page-label: <#79CFC9>默认主页面（未恢复上次位置时）</#79CFC9>
-    main-page-namespaces: 按命名空间分类
+    main-page-namespaces: 按物品种类分类
     main-page-workstations: 按合成器分类
     remember-label: <#79CFC9>关闭后恢复上次浏览位置</#79CFC9>
     on: 开启
@@ -147,18 +170,21 @@ ui:
     name: <#79CFC9>可合成物品</#79CFC9>
     title: '<bold><#374151>可合成物品</#374151> <#465D70>»</#465D70> <#293341>当前背包</#293341></bold>'
   management:
-    name: <#D8B278>配置管理中心</#D8B278>
+    name: <#D8B278>管理</#D8B278>
+    title: '<bold><#374151>管理</#374151></bold>'
+    return-name: <#79CFC9>返回物品分类</#79CFC9>
+    return-lore: <#B8C0CC>点击返回物品分类页面</#B8C0CC>
     categories-name: <#D8B278>categories.yml</#D8B278>
     categories-lore: <#B8C0CC>管理已应用的命名空间与自定义按钮</#B8C0CC>
     categories-summary: '<#8793A5>共 {entries} 项：{namespaces} 个命名空间、{buttons} 个按钮</#8793A5>'
     unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
-    unapplied-nav-lore: <#B8C0CC>检查、编辑并应用尚未进入正式菜单的命名空间</#B8C0CC>
-    unapplied-summary: '<#8793A5>共 {count} 个待应用命名空间</#8793A5>'
+    unapplied-nav-lore: <#B8C0CC>检查、编辑并应用尚未进入正式菜单的条目</#B8C0CC>
+    unapplied-summary: '<#8793A5>共 {count} 个待应用条目</#8793A5>'
     workstations-name: <#D8B278>workstations.yml</#D8B278>
     workstations-lore: <#B8C0CC>调整合成器与自定义按钮的显示顺序</#B8C0CC>
     workstations-summary: '<#8793A5>共 {count} 个合成器页条目</#8793A5>'
     workstations-shortcut: <#79CFC9>点击进入合成器配置</#79CFC9>
-    hidden-name: <#D8B278>分类与物品隐藏</#D8B278>
+    hidden-name: <#D8B278>分类与物品</#D8B278>
     items-name: <#D8B278>隐藏分类物品</#D8B278>
     entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
     applied-lore: <#98C69A>已应用：存在于 categories.yml</#98C69A>
@@ -168,18 +194,21 @@ ui:
     visibility-permission: 按权限
     visibility-value: '<#8793A5>可见性：{visibility}  权限：{permission}</#8793A5>'
     category-state: '<#8793A5>分类入口：{entry}  排序：{sort}  隐藏规则：{hide}</#8793A5>'
-    namespace-browse: <#79CFC9>左键：浏览此命名空间的分类</#79CFC9>
+    namespace-browse: <#79CFC9>左键：在管理中浏览此命名空间的分类与物品</#79CFC9>
     namespace-edit: <#79CFC9>右键：编辑名称、权限、提示与排序选项</#79CFC9>
     namespace-hide: <#79CFC9>中键：管理分类隐藏与物品隐藏</#79CFC9>
     namespace-hide-unapplied: <#79CFC9>Shift+左键：管理分类隐藏与物品隐藏</#79CFC9>
     namespace-order: '<#E4D397>Shift+左键上移 / Shift+右键下移</#E4D397>'
     namespace-apply: <#98C69A>中键：应用此命名空间到 categories.yml</#98C69A>
+    namespace-unapply: '<#E58B8B>Q 键：移动到 categories-unapplied.yml</#E58B8B>'
     no-category-button-lore: <#8793A5>该条目不显示命名空间分类按钮</#8793A5>
     category-bar-lore: <#B8C0CC>查看已应用与未应用的命名空间</#B8C0CC>
     button-name: 自定义按钮
     button-type: <#8793A5>类型：自定义按钮</#8793A5>
     button-use: <#79CFC9>左键：执行按钮动作</#79CFC9>
     button-edit: <#79CFC9>右键：编辑图标、文案、权限与动作</#79CFC9>
+    button-apply: <#98C69A>中键：应用此按钮到 categories.yml</#98C69A>
+    button-unapply: '<#E58B8B>Q 键：移动到 categories-unapplied.yml</#E58B8B>'
     category-hidden: <#E58B8B>分类入口已隐藏（含其浏览路径）</#E58B8B>
     category-visible: <#98C69A>分类入口可见</#98C69A>
     category-count: '<#8793A5>直接物品 {items} 个，子分类 {children} 个</#8793A5>'
@@ -202,11 +231,11 @@ ui:
     visibility-admin: 仅管理员
     visibility-player: 所有玩家
     visibility-permission: 按权限
-    permission: <#79CFC9>权限节点</#79CFC9>
-    icon-name: <#79CFC9>分类名称模板</#79CFC9>
-    item-lore: <#79CFC9>物品提示（每行一条）</#79CFC9>
-    icon-lore: <#79CFC9>顶层分类提示（每行一条）</#79CFC9>
-    sub-icon-lore: <#79CFC9>子分类提示（每行一条）</#79CFC9>
+    permission: <#79CFC9>权限节点\<permission>
+    icon-name: <#79CFC9>分类名称模板\<name>
+    item-lore: <#79CFC9>物品提示\<lore>（每行一条）
+    icon-lore: <#79CFC9>顶层分类提示\<lore>（每行一条）
+    sub-icon-lore: <#79CFC9>子分类提示\<lore>（每行一条）
     category-entry: <#79CFC9>显示命名空间分类入口</#79CFC9>
     sort-by-namespace: <#79CFC9>按命名空间和路径排序</#79CFC9>
     hide-items-without-recipes: <#79CFC9>隐藏没有 CER 配方的物品</#79CFC9>
@@ -219,16 +248,16 @@ ui:
   button-editor:
     title: <bold><#D8B278>编辑自定义按钮</#D8B278></bold>
     description: '<#B8C0CC>修改 {file}。动作每行写成“点击类型 | 动作”，点击类型可省略并默认为 all。</#B8C0CC>'
-    material: <#79CFC9>材质或物品 ID</#79CFC9>
-    name: <#79CFC9>按钮名称</#79CFC9>
-    lore: <#79CFC9>按钮提示（每行一条）</#79CFC9>
-    visibility: <#79CFC9>可见性</#79CFC9>
+    material: <#79CFC9>材质或物品 ID\<material>
+    name: <#79CFC9>按钮名称\<name>
+    lore: <#79CFC9>按钮提示\<lore>（每行一条）
+    visibility: <#79CFC9>可见性\<visibility>
     visibility-admin: 仅管理员
     visibility-player: 所有玩家
     visibility-permission: 按权限
-    permission: <#79CFC9>权限节点</#79CFC9>
-    hide-inaccessible: <#79CFC9>无权查看时隐藏并让出菜单位置</#79CFC9>
-    actions: <#79CFC9>按钮动作（每行：点击类型 | 动作）</#79CFC9>
+    permission: <#79CFC9>权限节点\<permission>
+    hide-inaccessible: <#79CFC9>无权查看时隐藏并让出菜单位置\<hide-inaccessible>
+    actions: <#79CFC9>按钮动作\<actions>（每行：点击类型 | 动作）
     save: <#98C69A>保存按钮</#98C69A>
     save-tooltip: <#B8C0CC>写回当前配置文件</#B8C0CC>
     cancel: <#E58B8B>取消</#E58B8B>
@@ -289,6 +318,7 @@ logs:
   session-load-failed: '恢复玩家菜单进度失败，将打开默认页面：{error}'
   recipe-source-failed: '配方来源 {source} 更新失败，保留上次有效数据：{error}'
   plugin-fingerprint-mismatch: '检测到名为 {plugin} 的插件，但主类 {actual} 不匹配预期 {expected}；已忽略该配方来源。'
+  integration-setup-waiting: '检测到待配置的 CER 适配插件：{plugins}。当前没有在线管理员，管理员上线后会显示可点击的启用询问。'
   compatibility-fallback: '兼容性处理 {operation} 失败，继续使用原有回退；本次数据版本内相同位置仅记录一次，异常详情如下。'
   search-input-failed: '读取搜索输入失败，已返回菜单。'
   config-invalid-id: '配置中的 ID 格式无效：{path} = {value}；保留原有回退处理，请检查命名空间和路径。'
@@ -316,7 +346,7 @@ logs:
   update-check-failed: '检查 GitHub 更新失败，将在下次定时检查时重试，不影响插件使用：{error}'
   category-read-failed: 读取分类配置失败：{file}
   category-save-failed: 保存分类命名空间数据文件失败：{error}
-  unapplied-save-failed: 保存未应用命名空间数据文件失败：{error}
+  unapplied-save-failed: 保存未应用条目数据文件失败：{error}
   result-query-failed: 查询产出配方失败（{id}）：{error}
   usage-query-failed: 查询用途配方失败（{id}）：{error}
   layout-reserved: 'layout 字符冲突：按钮使用了保留字符 #，该按钮不会显示'
@@ -326,11 +356,11 @@ logs:
   language-update-failed: '补齐语言文件 {file} 缺失文案失败，保留原文件：{error}'
   language-read-failed: 读取语言文件 {file} 失败，使用内置或回退文案：{error}
 headers:
-  unapplied: 'CraftEngineRecipe 未应用命名空间 / Unapplied namespaces
+  unapplied: 'CraftEngineRecipe 未应用条目 / Unapplied entries
 
-    此文件列出未在 categories.yml 中配置的命名空间
+    此文件列出未进入 categories.yml 的命名空间和自定义按钮
 
-    Lists namespaces not configured in categories.yml
+    Lists namespaces and custom buttons not present in categories.yml
 
     将需要的条目复制到 navigation/categories.yml 的 entries 中，调整可见性后 /cer reload
 

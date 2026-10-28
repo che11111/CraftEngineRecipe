@@ -148,8 +148,8 @@ public final class UnappliedCategoryDialogService {
     private DialogInput bool(String key, String labelPath, boolean initial) {
         return DialogInput.bool(key, this.plugin.lang().component("ui.unapplied-editor." + labelPath))
                 .initial(initial)
-                .onTrue(this.plugin.lang().text("ui.personalization.on"))
-                .onFalse(this.plugin.lang().text("ui.personalization.off"))
+                .onTrue(this.booleanText(true))
+                .onFalse(this.booleanText(false))
                 .build();
     }
 
@@ -167,8 +167,28 @@ public final class UnappliedCategoryDialogService {
     private SingleOptionDialogInput.OptionEntry option(String id, String labelPath,
                                                        CategoryNamespaces.Visibility current) {
         return SingleOptionDialogInput.OptionEntry.create(id,
-                this.plugin.lang().component("ui.unapplied-editor." + labelPath),
+                this.plugin.lang().componentOr(optionKey(labelPath), this.visibilityFallback(id)),
                 current.name().equalsIgnoreCase(id));
+    }
+
+    static String optionKey(String labelPath) {
+        return "ui.unapplied-editor." + labelPath.replace('.', '-');
+    }
+
+    private String visibilityFallback(String id) {
+        boolean chinese = this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
+        return switch (id) {
+            case "admin" -> chinese ? "仅管理员" : "Administrators only";
+            case "permission" -> chinese ? "按权限" : "Permission-based";
+            default -> chinese ? "所有玩家" : "All players";
+        };
+    }
+
+    private String booleanText(boolean value) {
+        boolean chinese = this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
+        return this.plugin.lang().textOr(
+                value ? "ui.personalization.on" : "ui.personalization.off",
+                value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }
 
     private static CategoryNamespaces.Visibility visibility(String value) {

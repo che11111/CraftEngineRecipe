@@ -123,7 +123,7 @@ public final class CategoryNamespaces {
     private final File targetExtraFile;
     private final Map<String, NamespaceEntry> namespaceIndex = new LinkedHashMap<>();
     private final List<Entry> entries = new ArrayList<>();
-    private final List<NamespaceEntry> extra = new ArrayList<>();
+    private final List<Entry> extra = new ArrayList<>();
     private final Map<String, Set<String>> hiddenItems = new LinkedHashMap<>();
     private final Set<String> hiddenCategories = new LinkedHashSet<>();
     private final Map<String, Set<String>> workstationHiddenItems = new LinkedHashMap<>();
@@ -263,10 +263,13 @@ public final class CategoryNamespaces {
         for (int index = 0; index < list.size(); index++) {
             Object o = list.get(index);
             if (!(o instanceof Map<?, ?> m)) continue;
-            this.diagnoseNamespace(m, this.extraFile, "entries[" + index + "]");
-            NamespaceEntry ns = parseNamespace(m);
-            if (ns != null) {
-                this.extra.add(ns);
+            this.diagnoseEntry(m, this.extraFile, "entries[" + index + "]");
+            if (m.get("display") instanceof Map<?, ?>) {
+                ButtonEntry button = parseButtonEntry(m);
+                if (button != null) this.extra.add(button);
+            } else {
+                NamespaceEntry namespace = parseNamespace(m);
+                if (namespace != null) this.extra.add(namespace);
             }
         }
     }
@@ -420,24 +423,36 @@ public final class CategoryNamespaces {
             }
         }
         Map<String, NamespaceEntry> existing = new LinkedHashMap<>();
-        for (NamespaceEntry n : this.extra) {
-            existing.put(n.id(), n);
+        for (Entry value : this.extra) {
+            if (value instanceof NamespaceEntry namespace) existing.put(namespace.id(), namespace);
         }
-        List<NamespaceEntry> next = new ArrayList<>();
-        for (String ns : namespaces) {
-            if (inCategories.contains(ns)) continue;
-            NamespaceEntry e = existing.get(ns);
-            if (e == null) {
-                e = new NamespaceEntry(ns, Visibility.ADMIN, "", true, "", List.of(), List.of(), List.of(),
-                        false, false, Map.of(), Set.of(), true, false);
+        Set<String> availableNamespaces = Set.copyOf(namespaces);
+        List<Entry> next = new ArrayList<>();
+        Set<String> retainedNamespaces = new LinkedHashSet<>();
+        for (Entry entry : this.extra) {
+            if (entry instanceof ButtonEntry) {
+                next.add(entry);
+            } else if (entry instanceof NamespaceEntry namespace
+                    && !inCategories.contains(namespace.id())
+                    && availableNamespaces.contains(namespace.id())
+                    && retainedNamespaces.add(namespace.id())) {
+                next.add(namespace);
             }
-            next.add(e);
+        }
+        for (String namespace : namespaces) {
+            if (inCategories.contains(namespace) || !retainedNamespaces.add(namespace)) continue;
+            NamespaceEntry entry = existing.get(namespace);
+            next.add(entry == null ? new NamespaceEntry(namespace, Visibility.ADMIN, "", true,
+                    "", List.of(), List.of(), List.of(), false, false, Map.of(), Set.of(), true, false)
+                    : entry);
         }
         this.namespaceIndex.clear();
         for (Entry entry : this.entries) {
             if (entry instanceof NamespaceEntry ns) this.namespaceIndex.putIfAbsent(ns.id(), ns);
         }
-        for (NamespaceEntry ns : next) this.namespaceIndex.putIfAbsent(ns.id(), ns);
+        for (Entry entry : next) {
+            if (entry instanceof NamespaceEntry namespace) this.namespaceIndex.putIfAbsent(namespace.id(), namespace);
+        }
         boolean extraChanged = !next.equals(this.extra);
         this.extra.clear();
         this.extra.addAll(next);
@@ -471,12 +486,21 @@ public final class CategoryNamespaces {
     }
 
     public synchronized List<NamespaceEntry> unappliedEntries() {
+        return this.extra.stream()
+                .filter(NamespaceEntry.class::isInstance)
+                .map(NamespaceEntry.class::cast)
+                .toList();
+    }
+
+    public synchronized List<Entry> unappliedAllEntries() {
         return List.copyOf(this.extra);
     }
 
     public synchronized NamespaceEntry unappliedEntry(String namespace) {
-        for (NamespaceEntry entry : this.extra) {
-            if (entry.id().equals(namespace)) return entry;
+        for (Entry entry : this.extra) {
+            if (entry instanceof NamespaceEntry namespaceEntry && namespaceEntry.id().equals(namespace)) {
+                return namespaceEntry;
+            }
         }
         return null;
     }
@@ -509,8 +533,8 @@ public final class CategoryNamespaces {
             return true;
         }
         for (int index = 0; index < this.extra.size(); index++) {
-            NamespaceEntry current = this.extra.get(index);
-            if (!current.id().equals(namespace)) continue;
+            Entry value = this.extra.get(index);
+            if (!(value instanceof NamespaceEntry current) || !current.id().equals(namespace)) continue;
             this.extra.set(index, updated);
             this.namespaceIndex.put(namespace, updated);
             this.rebuildFilters();
@@ -526,8 +550,8 @@ public final class CategoryNamespaces {
                                                  boolean hideItemsWithoutRecipes,
                                                  boolean hiddenRulesAffectWorkstations) {
         for (int index = 0; index < this.extra.size(); index++) {
-            NamespaceEntry current = this.extra.get(index);
-            if (!current.id().equals(namespace)) continue;
+            Entry value = this.extra.get(index);
+            if (!(value instanceof NamespaceEntry current) || !current.id().equals(namespace)) continue;
             NamespaceEntry updated = new NamespaceEntry(current.id(), visibility, permission,
                     categoryEntry, iconName, current.itemLore(), current.iconLore(), current.subIconLore(),
                     sortByNamespace, hideItemsWithoutRecipes, current.hiddenItems(), current.hiddenCategories(),
@@ -543,8 +567,8 @@ public final class CategoryNamespaces {
     public synchronized boolean applyUnapplied(String namespace) {
         if (this.appliedEntry(namespace) != null) return false;
         for (int index = 0; index < this.extra.size(); index++) {
-            NamespaceEntry entry = this.extra.get(index);
-            if (!entry.id().equals(namespace)) continue;
+            Entry value = this.extra.get(index);
+            if (!(value instanceof NamespaceEntry entry) || !entry.id().equals(namespace)) continue;
             this.extra.remove(index);
             this.entries.add(entry);
             this.namespaceIndex.put(namespace, entry);
@@ -554,6 +578,34 @@ public final class CategoryNamespaces {
             return true;
         }
         return false;
+    }
+
+    /** 将任意未应用条目追加到 categories.yml；索引对应 {@link #unappliedAllEntries()}。 */
+    public synchronized boolean applyUnappliedEntry(int index) {
+        if (index < 0 || index >= this.extra.size()) return false;
+        Entry entry = this.extra.remove(index);
+        this.entries.add(entry);
+        if (entry instanceof NamespaceEntry namespace) this.namespaceIndex.put(namespace.id(), namespace);
+        this.rebuildFilters();
+        this.save();
+        this.saveExtra();
+        return true;
+    }
+
+    /**
+     * 将任意正式条目移动到 categories-unapplied.yml 末尾，并保留其完整配置。
+     * 索引对应 {@link #entries()}。
+     */
+    public synchronized boolean unapplyEntry(int index) {
+        if (index < 0 || index >= this.entries.size()) return false;
+        Entry entry = this.entries.get(index);
+        if (entry instanceof NamespaceEntry namespace && this.unappliedEntry(namespace.id()) != null) return false;
+        this.entries.remove(index);
+        this.extra.add(entry);
+        this.rebuildFilters();
+        this.save();
+        this.saveExtra();
+        return true;
     }
 
     /**
@@ -576,6 +628,15 @@ public final class CategoryNamespaces {
         if (!(this.entries.get(index) instanceof ButtonEntry)) return false;
         this.entries.set(index, updated);
         this.save();
+        return true;
+    }
+
+    /** 更新 categories-unapplied.yml 中的自定义按钮；索引对应 {@link #unappliedAllEntries()}。 */
+    public synchronized boolean updateUnappliedButton(int index, ButtonEntry updated) {
+        if (index < 0 || index >= this.extra.size() || updated == null) return false;
+        if (!(this.extra.get(index) instanceof ButtonEntry)) return false;
+        this.extra.set(index, updated);
+        this.saveExtra();
         return true;
     }
 
@@ -883,8 +944,9 @@ public final class CategoryNamespaces {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.options().header(this.language.text("headers.unapplied"));
         List<Map<String, Object>> list = new ArrayList<>();
-        for (NamespaceEntry n : this.extra) {
-            list.add(toMap(n));
+        for (Entry entry : this.extra) {
+            if (entry instanceof NamespaceEntry namespace) list.add(toMap(namespace));
+            else if (entry instanceof ButtonEntry button) list.add(buttonMap(button));
         }
         yaml.set("entries", list);
         try {

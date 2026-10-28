@@ -1,0 +1,6 @@
+images:
+  cer_manage:main:
+    file: cer_manage:font/gui/cer_manage.png
+    height: 110
+    ascent: -3
+    font: minecraft:gui

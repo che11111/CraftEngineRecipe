@@ -5,7 +5,7 @@
 # Startup or reload adds missing bundled-language entries, preserves existing text, and falls back to English for other missing entries.
 # 默认文案使用柔和的十六进制配色；配方标题统一使用石墨黑粗体，其他标题保留颜色并加粗，背景图片保持纯白。
 # Default text uses a soft hex palette; recipe titles use bold charcoal, other titles retain their colors and become bold, and background images stay pure white.
-prefix: '<#79CFC9>[CraftEngineRecipe]</#79CFC9> '
+prefix: '<#79CFC9>[<bold>CER</bold>]</#79CFC9> '
 messages:
   debug-usage: '<#E4D397>Usage: /cer debug recipes | /cer debug performance [reset]</#E4D397>'
   debug-export-start: '<#E4D397>Capturing all recipes in small batches; the snapshot will be saved asynchronously in the plugin debug folder.</#E4D397>'
@@ -34,11 +34,34 @@ messages:
   management-saved: '<#98C69A>Management change saved and the menu was refreshed.</#98C69A>'
   management-save-failed: '<#E58B8B>The target entry was not found or the configuration could not be saved.</#E58B8B>'
   management-applied: '<#98C69A>{namespace} was applied to categories.yml. You can continue adjusting its order in the list.</#98C69A>'
+  management-applied-entry: '<#98C69A>{entry} was applied to categories.yml. You can continue adjusting its order.</#98C69A>'
+  management-unapplied: '<#98C69A>{entry} was moved to categories-unapplied.yml.</#98C69A>'
   management-moved: '<#98C69A>Display order updated.</#98C69A>'
   management-edge: '<#8793A5>This entry is already at the edge of the list.</#8793A5>'
   management-applied-readonly: '<#E4D397>This namespace is already in categories.yml; edit the active configuration directly.</#E4D397>'
   management-no-category-page: '<#8793A5>Namespace {namespace} has no browsable namespace category page.</#8793A5>'
   index-build-started: '<#E4D397>Detected {plugins}; building the recipe index...</#E4D397>'
+  integration-detected: '<#D8B278>Detected CER integrations:</#D8B278>'
+  integration-detected-plugins: '<white>{plugins}</white>'
+  integration-choose: '<#B8C0CC>Choose an option below:</#B8C0CC>'
+  integration-support-all: '<#98C69A>[Support all]</#98C69A>'
+  integration-support-only: '<#79CFC9>[Support {plugin} only]</#79CFC9>'
+  integration-defer: '<#8793A5>[Not now]</#8793A5>'
+  integration-disable: '<#E58B8B>[Do not support and stop asking]</#E58B8B>'
+  integration-choice-hover: '<#B8C0CC>Click to apply this choice now</#B8C0CC>'
+  integration-choice-handled: '<#8793A5>This prompt has already been handled.</#8793A5>'
+  integration-choice-busy: '<#E4D397>An integration export is already running; wait for it to finish before choosing again.</#E4D397>'
+  integration-choice-deferred: '<#E4D397>This startup will leave the integrations unchanged; you will be asked again next startup.</#E4D397>'
+  integration-choice-disabled: '<#E58B8B>Disabled {plugins}. Existing recipe files are kept, but they will no longer be exported or indexed.</#E58B8B>'
+  integration-export-started: '<#E4D397>Enabled recipe and cultivation support for {plugins}; exporting recipes and building the index...</#E4D397>'
+  integration-index-ready: '<#98C69A>{plugin} index ready: {recipes} recipes and {workstations} workstations.</#98C69A>'
+  integration-index-failed: '<#E58B8B>{plugin} index build failed: {error}</#E58B8B>'
+  integration-unknown-error: Unknown error; check the console.
+  api-integration-detected: '<#D8B278>Detected a recipe source connected through the CER API:</#D8B278> <white>{plugin}</white>'
+  api-integration-namespace: '<#B8C0CC>Namespace:</#B8C0CC> <white>{namespace}</white>'
+  api-integration-ready: '<#98C69A>Added {recipes} recipes; the index is ready.</#98C69A>'
+  api-integration-updated: '<#79CFC9>API recipe source {plugin} ({namespace}) updated: {previous} -> {current} recipes; the index has been refreshed.</#79CFC9>'
+  api-integration-unregistered: '<#E58B8B>API recipe source {plugin} ({namespace}) unregistered; {recipes} recipes were removed and the index has been refreshed.</#E58B8B>'
   recipe-export-usage: '<#E4D397>Usage: /cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
   recipe-export-started: '<#E4D397>Reading source plugins and regenerating recipe files, please wait.</#E4D397>'
   recipe-export-complete: '<#98C69A>Recipe export complete: {sources} sources, {files} files and {recipes} recipes. Failures: {failures}</#98C69A>'
@@ -58,10 +81,10 @@ messages:
   target-block-no-recipe: <#E4D397>No recipe producing {id} was found.</#E4D397>
   target-block-resolve-failed: <#E58B8B>Could not identify the target block. Check the console.</#E58B8B>
 command:
-  description: Open the CraftEngineRecipe recipe browser
+  description: Open the CraftEngineRecipe item category menu
 ui:
   browser:
-    title: '<bold><#374151>Recipe Browser</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
+    title: '<bold><#374151>Item Categories</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
   category-bar:
     icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
@@ -102,7 +125,7 @@ ui:
     close:
       name: <#E58B8B>Close menu</#E58B8B>
       lore:
-      - <#B8C0CC>Click to close the recipe browser (same as ESC)</#B8C0CC>
+      - <#B8C0CC>Click to close the item category menu (same as ESC)</#B8C0CC>
     glasses:
       name: <#79CFC9>Target-block recipes</#79CFC9>
       lore:
@@ -132,7 +155,7 @@ ui:
     description: <#B8C0CC>Choose your menu style and default main page, and whether reopening restores your last position.</#B8C0CC>
     menu-pack-label: <#79CFC9>Main menu style</#79CFC9>
     main-page-label: <#79CFC9>Default main page (when no previous position is restored)</#79CFC9>
-    main-page-namespaces: Browse by category namespace
+    main-page-namespaces: Browse by item type
     main-page-workstations: Browse by workstation
     remember-label: <#79CFC9>Restore the last position after closing</#79CFC9>
     on: Enabled
@@ -145,18 +168,21 @@ ui:
     name: <#79CFC9>Craftable Items</#79CFC9>
     title: '<bold><#374151>Craftable Items</#374151> <#465D70>»</#465D70> <#293341>Current Inventory</#293341></bold>'
   management:
-    name: <#D8B278>Configuration Center</#D8B278>
+    name: <#D8B278>Management</#D8B278>
+    title: '<bold><#374151>Management</#374151></bold>'
+    return-name: <#79CFC9>Return to item categories</#79CFC9>
+    return-lore: <#B8C0CC>Click to return to the item category page</#B8C0CC>
     categories-name: <#D8B278>categories.yml</#D8B278>
     categories-lore: <#B8C0CC>Manage applied namespaces and custom buttons</#B8C0CC>
     categories-summary: '<#8793A5>{entries} entries: {namespaces} namespaces and {buttons} buttons</#8793A5>'
     unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
-    unapplied-nav-lore: <#B8C0CC>Review, edit and apply namespaces not yet present in the active menu</#B8C0CC>
-    unapplied-summary: '<#8793A5>{count} namespaces awaiting review</#8793A5>'
+    unapplied-nav-lore: <#B8C0CC>Review, edit and apply entries not yet present in the active menu</#B8C0CC>
+    unapplied-summary: '<#8793A5>{count} entries awaiting review</#8793A5>'
     workstations-name: <#D8B278>workstations.yml</#D8B278>
     workstations-lore: <#B8C0CC>Adjust workstation and custom button display order</#B8C0CC>
     workstations-summary: '<#8793A5>{count} workstation-page entries</#8793A5>'
     workstations-shortcut: <#79CFC9>Click to manage workstations</#79CFC9>
-    hidden-name: '<#D8B278>Category & Item Visibility</#D8B278>'
+    hidden-name: '<#D8B278>Categories & Items</#D8B278>'
     items-name: <#D8B278>Hidden Category Items</#D8B278>
     entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
     applied-lore: '<#98C69A>Applied: present in categories.yml</#98C69A>'
@@ -166,18 +192,21 @@ ui:
     visibility-permission: Permission-based
     visibility-value: '<#8793A5>Visibility: {visibility}  Permission: {permission}</#8793A5>'
     category-state: '<#8793A5>Category entry: {entry}  Sorting: {sort}  Hidden rules: {hide}</#8793A5>'
-    namespace-browse: '<#79CFC9>Left-click: browse this namespace</#79CFC9>'
+    namespace-browse: '<#79CFC9>Left-click: browse this namespace inside the management menu</#79CFC9>'
     namespace-edit: '<#79CFC9>Right-click: edit names, permissions, lore and sorting</#79CFC9>'
     namespace-hide: '<#79CFC9>Middle-click: manage category and item visibility</#79CFC9>'
     namespace-hide-unapplied: '<#79CFC9>Shift+Left: manage category and item visibility</#79CFC9>'
     namespace-order: '<#E4D397>Shift+Left: move up / Shift+Right: move down</#E4D397>'
     namespace-apply: '<#98C69A>Middle-click: apply this namespace to categories.yml</#98C69A>'
+    namespace-unapply: '<#E58B8B>Q key: move to categories-unapplied.yml</#E58B8B>'
     no-category-button-lore: '<#8793A5>This entry does not show a namespace category button</#8793A5>'
     category-bar-lore: <#B8C0CC>View applied and unapplied namespaces</#B8C0CC>
     button-name: Custom button
     button-type: '<#8793A5>Type: custom button</#8793A5>'
     button-use: '<#79CFC9>Left-click: run this button</#79CFC9>'
     button-edit: '<#79CFC9>Right-click: edit icon, text, permission and actions</#79CFC9>'
+    button-apply: '<#98C69A>Middle-click: apply this button to categories.yml</#98C69A>'
+    button-unapply: '<#E58B8B>Q key: move to categories-unapplied.yml</#E58B8B>'
     category-hidden: <#E58B8B>Category entry is hidden (including its browsing paths)</#E58B8B>
     category-visible: <#98C69A>Category entry is visible</#98C69A>
     category-count: '<#8793A5>{items} direct items and {children} subcategories</#8793A5>'
@@ -200,11 +229,11 @@ ui:
     visibility-admin: Administrators only
     visibility-player: All players
     visibility-permission: Permission-based
-    permission: <#79CFC9>Permission node</#79CFC9>
-    icon-name: <#79CFC9>Category name template</#79CFC9>
-    item-lore: <#79CFC9>Item lore (one line per row)</#79CFC9>
-    icon-lore: <#79CFC9>Top-level category lore (one line per row)</#79CFC9>
-    sub-icon-lore: <#79CFC9>Subcategory lore (one line per row)</#79CFC9>
+    permission: <#79CFC9>Permission node \<permission>
+    icon-name: <#79CFC9>Category name template \<name>
+    item-lore: <#79CFC9>Item lore \<lore> (one line per row)
+    icon-lore: <#79CFC9>Top-level category lore \<lore> (one line per row)
+    sub-icon-lore: <#79CFC9>Subcategory lore \<lore> (one line per row)
     category-entry: <#79CFC9>Show namespace category entry</#79CFC9>
     sort-by-namespace: <#79CFC9>Sort by namespace and path</#79CFC9>
     hide-items-without-recipes: <#79CFC9>Hide items without CER recipes</#79CFC9>
@@ -217,16 +246,16 @@ ui:
   button-editor:
     title: <bold><#D8B278>Edit Custom Button</#D8B278></bold>
     description: '<#B8C0CC>Changes {file}. Write each action as "click type | action"; the click type defaults to all.</#B8C0CC>'
-    material: <#79CFC9>Material or item ID</#79CFC9>
-    name: <#79CFC9>Button name</#79CFC9>
-    lore: <#79CFC9>Button lore (one line per row)</#79CFC9>
-    visibility: <#79CFC9>Button visibility</#79CFC9>
+    material: <#79CFC9>Material or item ID \<material>
+    name: <#79CFC9>Button name \<name>
+    lore: <#79CFC9>Button lore \<lore> (one line per row)
+    visibility: <#79CFC9>Button visibility \<visibility>
     visibility-admin: Administrators only
     visibility-player: All players
     visibility-permission: Permission-based
-    permission: <#79CFC9>Permission node</#79CFC9>
-    hide-inaccessible: <#79CFC9>Hide and reclaim the slot when inaccessible</#79CFC9>
-    actions: '<#79CFC9>Button actions (one line: click type | action)</#79CFC9>'
+    permission: <#79CFC9>Permission node \<permission>
+    hide-inaccessible: <#79CFC9>Hide and reclaim the slot when inaccessible \<hide-inaccessible>
+    actions: '<#79CFC9>Button actions \<actions> (one line: click type | action)'
     save: <#98C69A>Save button</#98C69A>
     save-tooltip: <#B8C0CC>Write to the current configuration</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
@@ -287,6 +316,7 @@ logs:
   session-load-failed: 'Failed to restore the player menu position; opening the default view: {error}'
   recipe-source-failed: 'Recipe source {source} could not update; retaining its last valid data: {error}'
   plugin-fingerprint-mismatch: 'Plugin {plugin} was found, but main class {actual} does not match the expected {expected}; the recipe source was ignored.'
+  integration-setup-waiting: 'Detected CER integrations awaiting configuration: {plugins}. No administrator is online; the clickable setup prompt will appear when one joins.'
   update-check-enabled: Update checking enabled.
   update-available: 'New version {latest} is available (current {current}): {url}'
   update-check-failed: 'Could not check GitHub for updates; will retry at the next scheduled check without affecting the plugin: {error}'
@@ -314,7 +344,7 @@ logs:
   metrics-failed: 'bStats initialization failed; recipe browsing is unaffected: {error}'
   category-read-failed: 'Failed to read category configuration: {file}'
   category-save-failed: 'Failed to save category namespace configuration: {error}'
-  unapplied-save-failed: 'Failed to save unapplied namespace configuration: {error}'
+  unapplied-save-failed: 'Failed to save the unapplied entry configuration: {error}'
   result-query-failed: 'Failed to query output recipes ({id}): {error}'
   usage-query-failed: 'Failed to query ingredient uses ({id}): {error}'
   layout-reserved: 'Layout conflict: a button uses the reserved # character and will not be displayed'
@@ -324,11 +354,11 @@ logs:
   language-update-failed: 'Failed to add missing translations to {file}; keeping the original file: {error}'
   language-read-failed: 'Failed to read language file {file}; using bundled or fallback translations: {error}'
 headers:
-  unapplied: 'CraftEngineRecipe 未应用命名空间 / Unapplied namespaces
+  unapplied: 'CraftEngineRecipe 未应用条目 / Unapplied entries
 
-    此文件列出未在 categories.yml 中配置的命名空间
+    此文件列出未进入 categories.yml 的命名空间和自定义按钮
 
-    Lists namespaces not configured in categories.yml
+    Lists namespaces and custom buttons not present in categories.yml
 
     将需要的条目复制到 categories.yml 的 entries 中，调整可见性后 /cer reload
 

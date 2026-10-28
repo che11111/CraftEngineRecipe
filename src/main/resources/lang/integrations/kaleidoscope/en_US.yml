@@ -5,6 +5,7 @@ flex.ratio_note: "Ingredient amounts represent the ideal ratio; actual amounts m
 flex.output_note: "The base output is shown; quality names, lore, and food effects are determined by actual cooking."
 flex.no_container: "Collect by hand; no container required."
 flex.container: "Hold a container and right-click the pot to collect the output."
+flex.liquid_item: "Allowed broth type: {liquid}"
 flex.equivalent_foods: "Equivalent ingredients are allowed according to Kaleidoscope's current ingredient groups."
 flex.seasonings: "Seasonings are allowed; they do not participate in the ideal-ratio quality calculation."
 flex.quality_ratio: "Closer to the ideal ratio produces higher quality."

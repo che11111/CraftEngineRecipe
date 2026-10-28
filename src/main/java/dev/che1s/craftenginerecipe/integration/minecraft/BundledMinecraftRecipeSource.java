@@ -52,7 +52,12 @@ public final class BundledMinecraftRecipeSource {
         this(plugin.jarPath(), plugin.getDataFolder().toPath(), plugin.lang()::text,
                 IntegrationText.of("minecraft", plugin.lang()),
                 IntegrationText.of("cultivation", plugin.lang()),
-                source -> plugin.getConfig().getBoolean("sources." + source, true),
+                source -> switch (source) {
+                    case "farmersdelight-cultivation" -> plugin.integrations().cultivation("farmersdelight");
+                    case "kaleidoscope-cultivation" -> plugin.integrations().cultivation("kaleidoscope");
+                    case "customcrops-cultivation" -> plugin.integrations().cultivation("customcrops");
+                    default -> plugin.getConfig().getBoolean("sources." + source, true);
+                },
                 plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh"));
     }
 
