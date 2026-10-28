@@ -23,7 +23,7 @@ messages:
   debug-performance-note: '<#8793A5>操作计时可嵌套，不能相加为服务器占比；reset 后复现卡顿再查看，调用栈分析请配合 spark。Folia 的全服 TPS/MSPT 可能不可用。</#8793A5>'
   no-permission: <#E58B8B>你没有权限执行此操作。</#E58B8B>
   player-only: <#E58B8B>该指令只能由玩家执行。</#E58B8B>
-  personalization-saved: '<#98C69A>个性化设置已保存：主页面 {menu}，恢复浏览位置：{remember}。</#98C69A>'
+  personalization-saved: '<#98C69A>个性化设置已保存：菜单样式 {menu}，默认主页面 {main}，恢复浏览位置：{remember}。</#98C69A>'
   unapplied-updated: '<#98C69A>已更新 {file} 中的命名空间 {namespace}。</#98C69A>'
   unapplied-update-failed: '<#E58B8B>未找到命名空间 {namespace}，{file} 未修改。</#E58B8B>'
   unapplied-permission-required: '<#E58B8B>可见性设为 permission 时必须填写权限节点。</#E58B8B>'
@@ -131,8 +131,11 @@ ui:
       name: <#E58B8B>空空如也</#E58B8B>
   personalization:
     title: <bold><#D8B278>个性化设置</#D8B278></bold>
-    description: <#B8C0CC>选择你的主菜单样式，并决定重新打开菜单时是否恢复上次浏览位置。</#B8C0CC>
+    description: <#B8C0CC>选择菜单样式、默认主页面，并决定重新打开菜单时是否恢复上次浏览位置。</#B8C0CC>
     menu-pack-label: <#79CFC9>主页面样式</#79CFC9>
+    main-page-label: <#79CFC9>默认主页面（未恢复上次位置时）</#79CFC9>
+    main-page-namespaces: 按命名空间分类
+    main-page-workstations: 按合成器分类
     remember-label: <#79CFC9>关闭后恢复上次浏览位置</#79CFC9>
     on: 开启
     off: 关闭

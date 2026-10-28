@@ -154,8 +154,8 @@ final class ChestRecipeRenderer {
                 raw = null;
             }
         }
-        String background = RecipePresentation.backgroundImage(recipe.workstation().id());
-        if (shouldApplyGuiBackground(recipe.workstation().id(), raw)) {
+        String background = RecipePresentation.backgroundImage(recipe.id(), recipe.workstation().id());
+        if (RecipePresentation.shouldApplyGuiBackground(recipe.id(), recipe.workstation().id(), raw)) {
             String label = raw != null && !raw.isBlank()
                     ? PlainTextComponentSerializer.plainText().serialize(this.config.mm(raw))
                     : this.plain(recipe.workstation().name());
@@ -446,6 +446,8 @@ final class ChestRecipeRenderer {
         int input = 0;
         int output = 0;
         boolean hasContentSlots = false;
+        // API 图案区分原料/产物槽位；这类图案允许固定备注等内容出现在每一页。
+        boolean hasTypedContentSlots = false;
         Set<Integer> controls = new HashSet<>();
         for (int slot : new int[]{recipe.layout().workstationSlot(), recipe.layout().informationSlot(),
                 recipe.layout().previousSlot(), recipe.layout().backSlot(), recipe.layout().nextSlot()}) {
@@ -453,6 +455,9 @@ final class ChestRecipeRenderer {
         }
         for (int slot = 0; slot < recipe.layout().rows() * 9; slot++) {
             char symbol = recipe.layout().symbolAt(slot);
+            if (symbol == RecipeLayout.INGREDIENT_MARKER || symbol == RecipeLayout.RESULT_MARKER) {
+                hasTypedContentSlots = true;
+            }
             if (!controls.contains(slot) && symbol != '#' && symbol != ' ') {
                 hasContentSlots = true;
                 break;
@@ -462,7 +467,8 @@ final class ChestRecipeRenderer {
         do {
             List<Placement> placements = new ArrayList<>();
             Set<Integer> used = new HashSet<>();
-            if (pages.isEmpty()) {
+            // 普通图案只在第一页放固定物品；类型化图案则重复固定备注，翻页后上下文不丢失。
+            if (pages.isEmpty() || hasTypedContentSlots) {
                 placements.addAll(fixed);
                 fixed.forEach(placement -> used.add(placement.slot()));
             }
@@ -470,6 +476,22 @@ final class ChestRecipeRenderer {
             for (int slot = 0; slot < recipe.layout().rows() * 9; slot++) {
                 if (used.contains(slot) || controls.contains(slot)) continue;
                 char symbol = recipe.layout().symbolAt(slot);
+                if (symbol == RecipeLayout.INGREDIENT_MARKER) {
+                    // 类型化槽位只消费对应类型，原料不足时保留空位给产物区域。
+                    if (input < inputs.size()) {
+                        placements.add(new Placement(false, inputs.get(input++), slot));
+                        used.add(slot);
+                    }
+                    continue;
+                }
+                if (symbol == RecipeLayout.RESULT_MARKER) {
+                    // 产物数量也可以单独超过 16 项，下一页继续从 ▶ 区域开始。
+                    if (output < outputs.size()) {
+                        placements.add(new Placement(true, outputs.get(output++), slot));
+                        used.add(slot);
+                    }
+                    continue;
+                }
                 if (hasContentSlots && (symbol == '#' || symbol == ' ')) continue;
                 if (input < inputs.size()) {
                     placements.add(new Placement(false, inputs.get(input++), slot));
@@ -479,7 +501,8 @@ final class ChestRecipeRenderer {
                     used.add(slot);
                 }
             }
-            if ((input < inputs.size() || output < outputs.size()) && pages.isEmpty() && !fixed.isEmpty()) {
+            if ((input < inputs.size() || output < outputs.size()) && pages.isEmpty()
+                    && !fixed.isEmpty() && !hasTypedContentSlots) {
                 // 生成的特色配方页面可能包含固定装饰或说明物品，但省略了自动产物的符号。
                 // 此时使用剩余空槽，避免创建没有可见导航控件的第二页。
                 for (int slot = 0; slot < recipe.layout().rows() * 9

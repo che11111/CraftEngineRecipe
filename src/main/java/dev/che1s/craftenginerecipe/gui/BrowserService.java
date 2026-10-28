@@ -9,6 +9,7 @@ import dev.che1s.craftenginerecipe.data.CraftEngineData;
 import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
 import dev.che1s.craftenginerecipe.recipe.RecipeEntry;
 import dev.che1s.craftenginerecipe.recipe.ExternalRecipeSnapshot;
+import dev.che1s.craftenginerecipe.preferences.PlayerPreferences;
 import dev.che1s.craftenginerecipe.recipe.access.RecipeAccessPolicy;
 import dev.che1s.craftenginerecipe.recipe.query.CraftableRecipeService;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
@@ -376,7 +377,14 @@ public final class BrowserService {
     private void openEntry(Player player) {
         this.lifecycle.requestEntry(player.getUniqueId());
         try {
-            this.openDefault(player);
+            if (this.plugin.playerPreferences() != null
+                    && this.plugin.playerPreferences().landingPage(player.getUniqueId())
+                    == PlayerPreferences.LandingPage.WORKSTATIONS) {
+                GuiSession.of(player).managerMode(false);
+                this.workstations.open(player);
+            } else {
+                this.openDefault(player);
+            }
         } finally {
             this.lifecycle.cancelEntry(player.getUniqueId());
         }

@@ -95,6 +95,11 @@ personalization:
   # 玩家尚未保存设置时，关闭菜单后是否恢复上次浏览位置。
   # Whether an unconfigured player reopens the last browsing position.
   default-remember-last-page: true
+  # 未恢复上次位置时，/cer 与 Shift+F 默认打开的主页面。
+  # Landing page for /cer and Shift+F when no previous position is restored.
+  # 可选 namespaces（按命名空间分类）或 workstations（按合成器分类）。
+  # Allowed values: namespaces (category view) or workstations (workstation view).
+  default-main-page: namespaces
 # 标题和文本在 lang/<语言>.yml 中修改；布局、按钮、材质和音效在对应 cer_menu_*/menu.yml 中修改。
 # Edit text under ui in lang/<language>.yml; layouts, buttons, materials and sounds live in each cer_menu_*/menu.yml.
 # 检查更新：启动后及每 6 小时后台检查 GitHub 正式版，发现新版后通知控制台和管理员。

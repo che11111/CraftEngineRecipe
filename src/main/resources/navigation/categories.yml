@@ -20,11 +20,27 @@ entries:
   icon-lore:
     - '<gray>点击查看所有原版物品</gray>'
     - '<dark_gray>物品数: <count></dark_gray>'
+- id: default
+  visibility: player
+  permission: ''
+  hidden-items:
+    - category: default:misc
+      items:
+        - default:gui_head_size_1
+        - default:gui_head_size_4
+- display:
+    material: minecraft:gray_stained_glass_pane
+    name: ''
+    lore:
+    - '&7------'
+  actions:
+    all: []
 - display:
     material: minecraft:compass
-    name: '&#D8B278分类管理'
+    name: '&#D8B278管理页面'
     lore:
-      - '&#B8C0CC查看已应用与未应用的命名空间'
+      - '&#B8C0CC查看/编辑/排序/屏蔽/自定义'
+      - '&#B8C0CC此按钮仅管理员可见'
   visibility: admin
   permission: ''
   hide-inaccessible: true

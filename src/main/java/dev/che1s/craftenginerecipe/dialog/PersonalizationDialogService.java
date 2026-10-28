@@ -24,6 +24,7 @@ import java.util.List;
 public final class PersonalizationDialogService {
     private static final String MENU_PACK_KEY = "cer_personalization_menu_pack";
     private static final String REMEMBER_KEY = "cer_personalization_remember";
+    private static final String MAIN_PAGE_KEY = "cer_personalization_main_page";
 
     private final CraftEngineRecipePlugin plugin;
 
@@ -41,6 +42,7 @@ public final class PersonalizationDialogService {
 
         String selected = preferences.menuPack(player.getUniqueId());
         if (!packs.contains(selected)) selected = packs.getFirst();
+        PlayerPreferences.LandingPage landingPage = preferences.landingPage(player.getUniqueId());
         GuiSession.Snapshot snapshot = GuiSession.of(player).snapshot();
         BrowserService source = this.plugin.browser(player);
         long generation = this.plugin.data().generation();
@@ -54,6 +56,17 @@ public final class PersonalizationDialogService {
         }
         SingleOptionDialogInput menuInput = DialogInput.singleOption(MENU_PACK_KEY,
                         this.plugin.lang().component("ui.personalization.menu-pack-label"), entries)
+                .width(300)
+                .labelVisible(true)
+                .build();
+        SingleOptionDialogInput mainPageInput = DialogInput.singleOption(MAIN_PAGE_KEY,
+                        this.plugin.lang().component("ui.personalization.main-page-label"), List.of(
+                                SingleOptionDialogInput.OptionEntry.create("namespaces",
+                                        this.plugin.lang().component("ui.personalization.main-page-namespaces"),
+                                        landingPage == PlayerPreferences.LandingPage.NAMESPACES),
+                                SingleOptionDialogInput.OptionEntry.create("workstations",
+                                        this.plugin.lang().component("ui.personalization.main-page-workstations"),
+                                        landingPage == PlayerPreferences.LandingPage.WORKSTATIONS)))
                 .width(300)
                 .labelVisible(true)
                 .build();
@@ -86,7 +99,7 @@ public final class PersonalizationDialogService {
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
                                 this.plugin.lang().component("ui.personalization.description"))))
-                        .inputs(List.of(menuInput, rememberInput))
+                        .inputs(List.of(menuInput, mainPageInput, rememberInput))
                         .build())
                 .type(DialogType.confirmation(save, cancel)));
         this.plugin.browser(player).leaveForDialog(player);
@@ -97,22 +110,30 @@ public final class PersonalizationDialogService {
     private void save(Player player, DialogResponseView view, long generation,
                       GuiSession.Snapshot snapshot, BrowserService source, List<String> packs) {
         String menuPack = view.getText(MENU_PACK_KEY);
+        PlayerPreferences.LandingPage landingPage = landingPage(view.getText(MAIN_PAGE_KEY));
         Boolean remember = view.getBoolean(REMEMBER_KEY);
-        if (menuPack == null || !packs.contains(menuPack) || remember == null) return;
+        if (menuPack == null || !packs.contains(menuPack) || landingPage == null || remember == null) return;
         this.schedule(player, generation, () -> {
             PlayerPreferences preferences = this.plugin.playerPreferences();
+            PlayerPreferences.LandingPage previousLanding = preferences.landingPage(player.getUniqueId());
             if (!preferences.setMenuPack(player.getUniqueId(), menuPack)) return;
             preferences.setRememberLastPage(player.getUniqueId(), remember);
-            if (!remember) this.plugin.sessions().clear(player.getUniqueId());
+            preferences.setLandingPage(player.getUniqueId(), landingPage);
+            boolean landingChanged = previousLanding != landingPage;
+            if (!remember || landingChanged) this.plugin.sessions().clear(player.getUniqueId());
             player.sendMessage(this.plugin.lang().message("messages.personalization-saved",
                     "menu", plainMenuName(this.plugin.menuPackDisplayName(menuPack), menuPack),
+                    "main", this.plugin.lang().text(landingPage == PlayerPreferences.LandingPage.WORKSTATIONS
+                            ? "ui.personalization.main-page-workstations"
+                            : "ui.personalization.main-page-namespaces"),
                     "remember", this.plugin.lang().text(
                             remember ? "ui.personalization.on" : "ui.personalization.off")));
-            this.switchAndReopen(player, menuPack, snapshot);
+            this.switchAndReopen(player, menuPack, snapshot, landingChanged);
         });
     }
 
-    private void switchAndReopen(Player player, String menuPack, GuiSession.Snapshot snapshot) {
+    private void switchAndReopen(Player player, String menuPack, GuiSession.Snapshot snapshot,
+                                 boolean landingChanged) {
         for (BrowserService browser : this.plugin.browsers().values()) {
             browser.forgetPlayer(player);
             browser.recipes().cancelRotation(player);
@@ -120,11 +141,19 @@ public final class PersonalizationDialogService {
         GuiSession.clear(player);
         this.plugin.tasks().playerLater(player, () -> {
             BrowserService selected = this.plugin.browser(menuPack);
-            if (selected == null || !selected.openSnapshot(player, snapshot)) {
+            boolean opened = selected != null && (landingChanged
+                    ? this.openResetLanding(selected, player)
+                    : selected.openSnapshot(player, snapshot));
+            if (!opened) {
                 BrowserService fallback = this.plugin.browser(player);
                 if (fallback != null) fallback.openApplied(player);
             }
         }, 1);
+    }
+
+    private boolean openResetLanding(BrowserService browser, Player player) {
+        browser.openApplied(player);
+        return true;
     }
 
     private void reopen(Player player, BrowserService source, GuiSession.Snapshot snapshot) {
@@ -150,5 +179,14 @@ public final class PersonalizationDialogService {
                 .replaceAll("(?i)&[0-9a-fk-orx]", "")
                 .trim();
         return plain.isEmpty() ? fallback : plain;
+    }
+
+    static PlayerPreferences.LandingPage landingPage(String value) {
+        if (value == null) return null;
+        return switch (value) {
+            case "namespaces" -> PlayerPreferences.LandingPage.NAMESPACES;
+            case "workstations" -> PlayerPreferences.LandingPage.WORKSTATIONS;
+            default -> null;
+        };
     }
 }

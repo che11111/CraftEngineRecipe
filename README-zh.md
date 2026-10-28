@@ -50,12 +50,25 @@
 - 右键“搜索物品”按钮可列出当前背包材料足以完成的配方产物；再次右键或按 ESC 返回普通浏览。
 - 内置原版中文名称索引，可直接搜索“小麦”“木剑”等；配方文件监听不会持续占用主线程。
 - 支持 TrMenu 风格的自定义配方文件；农夫乐事、农夫乐事煎锅、森罗物语和 CustomCrops 种植盆配方首次自动导出到 `recipes/`，之后统一从文件加载。
+- WoodworkingSaw 可通过 CER Recipe API 将其 `transformations.yml` 转化规则直接发布到配方浏览页面。
 - CE 固定产物配方首次导出到 `recipes/craftengine/`，之后只读取文件；原版配方、原版栽培、CE 栽培及各集成栽培数据均有独立开关。
 - `recipes/` 文件修改后自动重载；玩家按 ESC 离开时保留当前页面与配方返回层级，默认记忆 3 分钟（可配置），在菜单外右键会返回进入来源对应的主页面。
-- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式和是否恢复上次浏览位置，偏好保存在 SQLite 数据库 `player-preferences.db` 中。
+- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式、`/cer` 与 Shift+F 的默认主页面（按命名空间或按合成器），以及是否恢复上次浏览位置，偏好保存在 SQLite 数据库 `player-preferences.db` 中。
 - 启动构建索引时会向在线管理员提示检测到的配方来源；CraftEngine 重载配置和资源包后会自动重新导出 CE 配方并刷新索引。
 - 查看 `主手` / `准星` 物品配方，有指令也有菜单快捷按钮。
 - `Shift+F`快捷键，快速打开配方菜单，可设置启用与否。
+
+## 兼容插件
+
+| Logo | 插件 | CER 适配内容 |
+| :---: | --- | --- |
+| <a href="https://github.com/Xiao-MoMi/craft-engine"><img src="img/craftengine.png" alt="CraftEngine" width="64"></a> | [CraftEngine](https://github.com/Xiao-MoMi/craft-engine) | CER 的核心物品与配方来源，读取 CE 可用配方类型并提供物品、结果与用途索引；必需前置。 |
+| <a href="https://github.com/IOVEYOUMC0/Farmersdelight-Plugin"><img src="img/farmersdelight.png" alt="Farmer's Delight" width="72"></a> | [Farmer's Delight](https://github.com/IOVEYOUMC0/Farmersdelight-Plugin) | 导入烹饪锅、砧板、煎锅与特殊配方，并支持自动导出为 CER 配方文件；煎锅页面使用 `cer_fd_gui` 专用贴图。 |
+| <a href="https://github.com/Nicoppara/KaleidoscopeCookery_Plugin"><img src="img/kaleidoscope-cookery.png" alt="Kaleidoscope Cookery" width="64"></a> | [Kaleidoscope Cookery](https://github.com/Nicoppara/KaleidoscopeCookery_Plugin) | 导入炒锅、砧板、磨盘、沙威玛烤架、高汤锅、蒸笼和茶壶等设备配方；各设备页面使用对应的 `cer_kc_gui` 专用贴图。 |
+| <a href="https://github.com/Xiao-MoMi/Custom-Crops"><img src="img/customcrops.png" alt="CustomCrops" width="64"></a> | [CustomCrops](https://github.com/Xiao-MoMi/Custom-Crops) | 生成种植盆作物页面，包含种子、产物、季节、用水、肥料、洒水器、温室和稻草人等信息；种植盆页面使用 `cer_ccrops_gui` 专用贴图。 |
+| <a href="https://github.com/che11111/WoodworkingSaw"><img src="img/woodworkingsaw.png" alt="WoodworkingSaw" width="64"></a> | [WoodworkingSaw](https://github.com/che11111/WoodworkingSaw) | 通过 CER Recipe API 直接将 `transformations.yml` 转化规则发布到配方页面；CER 为 API 配方准备了统一的 `cer_api_gui` UI 贴图。 |
+
+> CER 为煎锅、Kaleidoscope Cookery 设备、CustomCrops 种植盆页和 API 配方分别绘制了多套专用配方 UI 贴图。
 
 ## 运行要求
 
@@ -78,7 +91,7 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 7. 用 `/cer` 或 Shift+F 打开正式菜单。左键物品查看配方，右键查看可参与配方。
 
-8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择自己的菜单样式，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
+8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择菜单样式、`/cer` 与 Shift+F 默认进入“按命名空间分类”还是“按合成器分类”，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
 
 9. 默认情况下，插件启动构建索引时会向在线管理员提示检测到的配方来源插件；CraftEngine 重载配置与资源包后会自动重新导出 CE 配方并刷新索引。
 
@@ -172,7 +185,7 @@ cer_menu_cute/
 
 本项目的源代码采用 **GNU General Public License v3.0（GPL-3.0）** 开源。
 
-本项目中的贴图文件采用单独授权：**仅授权给 CraftEngineRecipe（CER）插件使用**。未经明确许可，其他插件不得复制、修改、分发或复用本项目的贴图文件。
+本项目中的贴图文件采用单独授权：**仅 CraftEngineRecipe（CER）插件使用**。未经明确许可，其他插件不得复制、修改、分发或复用本项目的贴图文件。
 
 ## 鸣谢
 

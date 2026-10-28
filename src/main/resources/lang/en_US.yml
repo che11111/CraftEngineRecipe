@@ -24,7 +24,7 @@ messages:
   update-available: <#98C69A>New version {latest} is available (current {current}).</#98C69A> <#79CFC9>{url}</#79CFC9>
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
-  personalization-saved: '<#98C69A>Preferences saved: menu {menu}, restore position: {remember}.</#98C69A>'
+  personalization-saved: '<#98C69A>Preferences saved: menu style {menu}, default main page {main}, restore position: {remember}.</#98C69A>'
   unapplied-updated: '<#98C69A>Updated namespace {namespace} in {file}.</#98C69A>'
   unapplied-update-failed: '<#E58B8B>Namespace {namespace} was not found; {file} was not changed.</#E58B8B>'
   unapplied-permission-required: '<#E58B8B>A permission node is required when visibility is set to permission.</#E58B8B>'
@@ -129,8 +129,11 @@ ui:
       name: <#E58B8B>Nothing here</#E58B8B>
   personalization:
     title: <bold><#D8B278>Personalization</#D8B278></bold>
-    description: <#B8C0CC>Choose your main menu style and whether reopening the menu restores your last position.</#B8C0CC>
+    description: <#B8C0CC>Choose your menu style and default main page, and whether reopening restores your last position.</#B8C0CC>
     menu-pack-label: <#79CFC9>Main menu style</#79CFC9>
+    main-page-label: <#79CFC9>Default main page (when no previous position is restored)</#79CFC9>
+    main-page-namespaces: Browse by category namespace
+    main-page-workstations: Browse by workstation
     remember-label: <#79CFC9>Restore the last position after closing</#79CFC9>
     on: Enabled
     off: Disabled

@@ -73,6 +73,10 @@ public final class ItemBridge {
             RecipeItem known = plugin.externalRecipes().snapshot().items().get(dev.che1s.craftenginerecipe.recipe.ExternalRecipeSnapshot.key(item));
             if (known != null) stack = known.icon();
         }
+        if (stack == null && item.provider().equals("cer_api") && item.id().equals("note")) {
+            // API 备注没有来源图标；保留可悬浮的 PAPER 载体，但将模型替换为空气。
+            stack = icon("minecraft:air", Material.PAPER, null, null);
+        }
         if (stack == null) {
             stack = item.provider().equals("craftengine") || item.provider().equals("minecraft")
                     ? buildNative(Key.of(item.id()), player, count) : barrier(Component.text(item.id()));

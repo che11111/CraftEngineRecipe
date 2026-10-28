@@ -30,17 +30,33 @@ public final class PlayerPreferences implements AutoCloseable {
                 player_uuid TEXT PRIMARY KEY,
                 menu_pack TEXT,
                 remember_last_page INTEGER,
+                landing_page TEXT,
                 updated_at INTEGER NOT NULL
             )
             """;
     private static final String UPSERT = """
-            INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, updated_at)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, landing_page, updated_at)
+            VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(player_uuid) DO UPDATE SET
                 menu_pack = excluded.menu_pack,
                 remember_last_page = excluded.remember_last_page,
+                landing_page = excluded.landing_page,
                 updated_at = excluded.updated_at
             """;
+
+    public enum LandingPage {
+        NAMESPACES,
+        WORKSTATIONS;
+
+        static LandingPage parse(String value) {
+            if (value == null) return null;
+            return switch (value.trim().toLowerCase(Locale.ROOT)) {
+                case "namespaces", "categories", "namespace" -> NAMESPACES;
+                case "workstations", "workstation" -> WORKSTATIONS;
+                default -> null;
+            };
+        }
+    }
 
     private final Path database;
     private final Logger logger;
@@ -79,8 +95,11 @@ public final class PlayerPreferences implements AutoCloseable {
                         ? serverDefault : choices.isEmpty() ? "" : choices.getFirst();
         boolean defaultRemember = config.getBoolean("personalization.default-remember-last-page",
                 config.getBoolean("browser.remember-last-page", true));
+        LandingPage defaultLanding = LandingPage.parse(
+                config.getString("personalization.default-main-page", "namespaces"));
+        if (defaultLanding == null) defaultLanding = LandingPage.NAMESPACES;
         this.settings = new Settings(config.getBoolean("personalization.enabled", true) && !choices.isEmpty(),
-                List.copyOf(choices), defaultPack, defaultRemember);
+                List.copyOf(choices), defaultPack, defaultRemember, defaultLanding);
     }
 
     public boolean enabled() {
@@ -108,22 +127,33 @@ public final class PlayerPreferences implements AutoCloseable {
                 ? stored.rememberLastPage() : this.settings.defaultRememberLastPage();
     }
 
+    public LandingPage landingPage(UUID player) {
+        Stored stored = this.preferences.get(player);
+        return stored != null && stored.landingPage() != null
+                ? stored.landingPage() : this.settings.defaultLandingPage();
+    }
+
     public boolean setMenuPack(UUID player, String menuPack) {
         String normalized = normalize(menuPack);
         if (normalized == null || !this.settings.menuPacks().contains(normalized)) return false;
-        this.update(player, normalized, null);
+        this.update(player, normalized, null, null);
         return true;
     }
 
     public void setRememberLastPage(UUID player, boolean remember) {
-        this.update(player, null, remember);
+        this.update(player, null, remember, null);
     }
 
-    private void update(UUID player, String menuPack, Boolean remember) {
+    public void setLandingPage(UUID player, LandingPage landingPage) {
+        if (landingPage != null) this.update(player, null, null, landingPage);
+    }
+
+    private void update(UUID player, String menuPack, Boolean remember, LandingPage landingPage) {
         Stored stored = this.preferences.compute(player, (ignored, current) -> {
             Stored value = current == null ? Stored.EMPTY : current;
             return new Stored(menuPack == null ? value.menuPack() : menuPack,
-                    remember == null ? value.rememberLastPage() : remember);
+                    remember == null ? value.rememberLastPage() : remember,
+                    landingPage == null ? value.landingPage() : landingPage);
         });
         this.writer.execute(() -> this.persist(player, stored));
     }
@@ -136,6 +166,7 @@ public final class PlayerPreferences implements AutoCloseable {
                 statement.execute("PRAGMA journal_mode=WAL");
                 statement.execute("PRAGMA synchronous=NORMAL");
                 statement.execute(CREATE_TABLE);
+                ensureColumn(connection, "landing_page", "TEXT");
             }
         } catch (Exception error) {
             this.logger.warning("Cannot initialize player preferences database: " + error.getMessage());
@@ -146,14 +177,15 @@ public final class PlayerPreferences implements AutoCloseable {
         try (Connection connection = this.connection();
              Statement statement = connection.createStatement();
              ResultSet result = statement.executeQuery(
-                     "SELECT player_uuid, menu_pack, remember_last_page FROM player_preferences")) {
+                     "SELECT player_uuid, menu_pack, remember_last_page, landing_page FROM player_preferences")) {
             while (result.next()) {
                 try {
                     UUID player = UUID.fromString(result.getString("player_uuid"));
                     String menuPack = result.getString("menu_pack");
                     int remember = result.getInt("remember_last_page");
                     Boolean rememberLastPage = result.wasNull() ? null : remember != 0;
-                    this.preferences.put(player, new Stored(menuPack, rememberLastPage));
+                    LandingPage landingPage = LandingPage.parse(result.getString("landing_page"));
+                    this.preferences.put(player, new Stored(menuPack, rememberLastPage, landingPage));
                 } catch (IllegalArgumentException ignored) {
                     // 忽略 UUID 格式错误的行，不影响数据库中的其他记录。
                 }
@@ -169,7 +201,9 @@ public final class PlayerPreferences implements AutoCloseable {
             statement.setString(2, stored.menuPack());
             if (stored.rememberLastPage() == null) statement.setNull(3, java.sql.Types.INTEGER);
             else statement.setInt(3, stored.rememberLastPage() ? 1 : 0);
-            statement.setLong(4, System.currentTimeMillis());
+            if (stored.landingPage() == null) statement.setNull(4, java.sql.Types.VARCHAR);
+            else statement.setString(4, stored.landingPage().name().toLowerCase(Locale.ROOT));
+            statement.setLong(5, System.currentTimeMillis());
             statement.executeUpdate();
         } catch (SQLException error) {
             this.logger.warning("Cannot save player preferences: " + error.getMessage());
@@ -201,14 +235,26 @@ public final class PlayerPreferences implements AutoCloseable {
         return value.startsWith("cer_menu_") ? value : "cer_menu_" + value;
     }
 
-    private record Stored(String menuPack, Boolean rememberLastPage) {
-        private static final Stored EMPTY = new Stored(null, null);
+    private static void ensureColumn(Connection connection, String name, String type) throws SQLException {
+        try (Statement statement = connection.createStatement();
+             ResultSet columns = statement.executeQuery("PRAGMA table_info(player_preferences)")) {
+            while (columns.next()) {
+                if (name.equalsIgnoreCase(columns.getString("name"))) return;
+            }
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("ALTER TABLE player_preferences ADD COLUMN " + name + " " + type);
+        }
+    }
+
+    private record Stored(String menuPack, Boolean rememberLastPage, LandingPage landingPage) {
+        private static final Stored EMPTY = new Stored(null, null, null);
     }
 
     private record Settings(boolean enabled, List<String> menuPacks, String defaultMenuPack,
-                            boolean defaultRememberLastPage) {
+                            boolean defaultRememberLastPage, LandingPage defaultLandingPage) {
         private static Settings disabled() {
-            return new Settings(false, List.of(), "", true);
+            return new Settings(false, List.of(), "", true, LandingPage.NAMESPACES);
         }
     }
 }

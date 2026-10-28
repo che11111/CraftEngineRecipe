@@ -4,7 +4,16 @@ import dev.che1s.craftenginerecipe.api.RecipeLayout;
 
 /** 与具体配方来源解耦的合成器展示规则。 */
 public final class RecipePresentation {
+    private static final String API_RECIPE_PREFIX = "cer_api:";
+    private static final String API_BACKGROUND = "cer_api_gui:default_recipe_gui";
+
     private RecipePresentation() {
+    }
+
+    public static String backgroundImage(String recipeId, String workstationId) {
+        // API 工作站 ID 由来源插件决定，不能逐一声明背景；内部 cer_api 配方统一使用 API 页面。
+        if (recipeId != null && recipeId.startsWith(API_RECIPE_PREFIX)) return API_BACKGROUND;
+        return backgroundImage(workstationId);
     }
 
     public static String backgroundImage(String workstationId) {
@@ -28,6 +37,11 @@ public final class RecipePresentation {
 
     public static boolean shouldApplyGuiBackground(String workstationId, String rawTitle) {
         return backgroundImage(workstationId) != null
+                && (rawTitle == null || !rawTitle.contains("<image:"));
+    }
+
+    public static boolean shouldApplyGuiBackground(String recipeId, String workstationId, String rawTitle) {
+        return backgroundImage(recipeId, workstationId) != null
                 && (rawTitle == null || !rawTitle.contains("<image:"));
     }
 

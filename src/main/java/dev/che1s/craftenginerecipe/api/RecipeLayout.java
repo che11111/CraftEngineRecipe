@@ -11,6 +11,10 @@ import java.util.Set;
 public record RecipeLayout(int rows, String title, int workstationSlot, int informationSlot,
                            int previousSlot, int backSlot, int nextSlot, List<String> pattern, boolean nativeUi,
                            String page) {
+    /** 图案标记：按顺序放置尚未指定槽位的原料。 */
+    public static final char INGREDIENT_MARKER = '\u25c0';
+    /** 图案标记：按顺序放置尚未指定槽位的产物。 */
+    public static final char RESULT_MARKER = '\u25b6';
     /** 标记包含序列化 Adventure 组件（图标、字体、翻译）的标题字符串。 */
     public static final String JSON_TITLE_PREFIX = "\u0000json:";
 

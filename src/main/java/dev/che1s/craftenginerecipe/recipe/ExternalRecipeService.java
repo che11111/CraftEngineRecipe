@@ -2,6 +2,7 @@ package dev.che1s.craftenginerecipe.recipe;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.api.DisplayRecipe;
+import dev.che1s.craftenginerecipe.api.internal.ApiRecipeCompiler;
 import dev.che1s.craftenginerecipe.recipe.io.CustomRecipeLoader;
 import dev.che1s.craftenginerecipe.recipe.io.RecipeFileExporter;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
@@ -80,6 +81,11 @@ public final class ExternalRecipeService implements Listener {
         this.discover();
         this.exportMissingSources();
         this.reloadFiles(true);
+    }
+
+    /** API 注册集合变化时的轻量刷新；文件加载和快照发布仍受同一套校验保护。 */
+    public void reloadApi() {
+        if (!this.stopped) this.reloadFiles(false);
     }
 
     public boolean reexportOnReload() {
@@ -347,10 +353,18 @@ public final class ExternalRecipeService implements Listener {
             } else {
                 this.failures.remove("minecraft");
             }
-            List<RecipeEntry> entries = recipes.stream().map(recipe ->
+            List<RecipeEntry> entries = new ArrayList<>(recipes.stream().map(recipe ->
                     new RecipeEntry(recipe.id().startsWith("minecraft_data:")
                             || recipe.id().startsWith("minecraft_cultivation:") ? "minecraft" : "recipes",
-                            null, recipe, () -> !this.stopped)).toList();
+                            null, recipe, () -> !this.stopped)).toList());
+            if (this.plugin.recipeApi() != null) {
+                // API 与文件配方先合并，再一次性编译成快照；玩家不会看到只更新了一半的索引。
+                for (ApiRecipeCompiler.CompiledRecipe recipe
+                        : this.plugin.recipeApi().compile(this.plugin.lang().locale())) {
+                    entries.add(new RecipeEntry("api:" + recipe.source(), null, recipe.display(),
+                            () -> !this.stopped));
+                }
+            }
             ExternalRecipeSnapshot next = ExternalRecipeSnapshot.compile(entries);
             // 先完整构建索引，再一次性发布快照，读者不会观察到半更新的索引集合。
             this.snapshot = next;
@@ -487,6 +501,7 @@ public final class ExternalRecipeService implements Listener {
     @EventHandler
     public void onDisable(PluginDisableEvent event) {
         this.adapters.remove(event.getPlugin());
+        if (this.plugin.recipeApi() != null) this.plugin.recipeApi().removeOwner(event.getPlugin());
     }
 
     public ExternalRecipeSnapshot snapshot() {

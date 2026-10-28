@@ -1,6 +1,8 @@
 package dev.che1s.craftenginerecipe;
 
 import dev.che1s.craftenginerecipe.command.CerCommand;
+import dev.che1s.craftenginerecipe.api.CerRecipeApi;
+import dev.che1s.craftenginerecipe.api.internal.CerRecipeApiService;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.debug.DebugService;
 import dev.che1s.craftenginerecipe.listener.MenuItemSafetyListener;
@@ -34,6 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.ServicePriority;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +64,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private RecipeIndex recipeIndex;
     private WorkstationConfig workstationConfig;
     private ExternalRecipeService externalRecipes;
+    private CerRecipeApiService recipeApi;
     private MenuPackManager menuPacks;
     private BrowserService browserService;
     private GuiSessionStore sessions;
@@ -103,6 +107,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.workstationConfig.load();
         this.data = new CraftEngineData(this);
         this.externalRecipes = new ExternalRecipeService(this);
+        this.recipeApi = new CerRecipeApiService(this);
         CompatibilityWarnings.install(this.getLogger(), this.language, this.data::generation);
         this.recipeIndex = new RecipeIndex(this);
         this.createBrowsers();
@@ -112,6 +117,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.unappliedCategoryDialog = new UnappliedCategoryDialogService(this);
         this.buttonEditorDialog = new ButtonEditorDialogService(this);
         this.externalRecipes.start();
+        Bukkit.getServicesManager().register(CerRecipeApi.class, this.recipeApi, this, ServicePriority.Normal);
         this.debug = new DebugService(this);
         this.debug.registerGauge("menu.viewers", this::viewerCount);
         this.debug.registerGauge("menu.pending-actions", this::pendingActionCount);
@@ -221,6 +227,8 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     @Override
     public void onDisable() {
         if (this.debug != null) this.debug.shutdown();
+        if (this.recipeApi != null) Bukkit.getServicesManager().unregister(CerRecipeApi.class, this.recipeApi);
+        if (this.recipeApi != null) this.recipeApi.shutdown();
         if (this.externalRecipes != null) this.externalRecipes.shutdown();
         if (this.updates != null) this.updates.shutdown();
         // 先停止回调再清理回调可访问的状态。即使插件已禁用、无法再调度实体任务，
@@ -304,6 +312,8 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     }
 
     public ExternalRecipeService externalRecipes() { return this.externalRecipes; }
+
+    public CerRecipeApiService recipeApi() { return this.recipeApi; }
 
     public MenuPackManager menuPacks() { return this.menuPacks; }
 

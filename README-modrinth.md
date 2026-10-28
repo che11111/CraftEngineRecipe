@@ -49,12 +49,25 @@
 - Right-click **Search items** to list recipe outputs that can currently be completed with the player's inventory. Right-click again or press ESC to return to normal browsing.
 - Bundled vanilla Chinese names make searches such as `小麦` and `木剑` work; recipe-file polling does not continuously occupy the server thread.
 - TrMenu-like custom recipe files are supported. FarmersDelight, the FarmersDelight skillet, Kaleidoscope Cookery, and CustomCrops pot recipes are exported to `recipes/` on first use and then loaded from files.
+- WoodworkingSaw can publish its `transformations.yml` rules directly to CER recipe pages through the CER Recipe API.
 - Fixed-result CraftEngine recipes are exported to `recipes/craftengine/` on first use and then read only from files. Vanilla recipes, vanilla cultivation data, CraftEngine cultivation data, and integration-specific cultivation data have independent source switches.
 - Edited files under `recipes/` reload automatically. Pressing ESC remembers the current page and recipe back-stack for three minutes by default; right-clicking outside a menu returns to the main view corresponding to where it was opened.
-- Right-click **Browse by workstation** to open Personalization. Each player can choose a main menu style and whether the last browsing position should be restored. Preferences are stored in the SQLite database `player-preferences.db`.
+- Right-click **Browse by workstation** to open Personalization. Each player can choose a menu style, whether `/cer` and Shift+F default to category or workstation browsing, and whether the last position is restored. Preferences are stored in the SQLite database `player-preferences.db`.
 - During startup indexing, online administrators are told which recipe sources were detected. After CraftEngine reloads its configuration and resource packs, CER re-exports CraftEngine recipes and refreshes its index automatically.
 - Look up recipes for the item in your **main hand** or the block under your **crosshair**, using commands or menu shortcuts.
 - The **Shift+F** shortcut opens the menu quickly. It is enabled by default, requires sneaking by default, and is configurable.
+
+## Compatible Plugins
+
+| Logo | Plugin | CER integration |
+| :---: | --- | --- |
+| <a href="https://github.com/Xiao-MoMi/craft-engine"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/craftengine.png" alt="CraftEngine" width="64"></a> | [CraftEngine](https://github.com/Xiao-MoMi/craft-engine) | Required core item and recipe source. CER reads available CE recipe types and indexes items, results, and usage data. |
+| <a href="https://github.com/IOVEYOUMC0/Farmersdelight-Plugin"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/farmersdelight.png" alt="Farmer's Delight" width="72"></a> | [Farmer's Delight](https://github.com/IOVEYOUMC0/Farmersdelight-Plugin) | Imports cooking pot, cutting board, skillet, and special recipes, with automatic export to CER recipe files. The skillet page uses the dedicated `cer_fd_gui` texture. |
+| <a href="https://github.com/Nicoppara/KaleidoscopeCookery_Plugin"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/kaleidoscope-cookery.png" alt="Kaleidoscope Cookery" width="64"></a> | [Kaleidoscope Cookery](https://github.com/Nicoppara/KaleidoscopeCookery_Plugin) | Imports pot, chopping board, millstone, shawarma spit, stockpot, steamer, and teapot recipes. Each appliance uses its corresponding dedicated `cer_kc_gui` texture. |
+| <a href="https://github.com/Xiao-MoMi/Custom-Crops"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/customcrops.png" alt="CustomCrops" width="64"></a> | [CustomCrops](https://github.com/Xiao-MoMi/Custom-Crops) | Builds crop pages for CustomCrops pots, covering seeds, products, seasons, water, fertilizer, sprinklers, greenhouses, and scarecrows. Pot pages use the dedicated `cer_ccrops_gui` texture. |
+| <a href="https://github.com/che11111/WoodworkingSaw"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/woodworkingsaw.png" alt="WoodworkingSaw" width="64"></a> | [WoodworkingSaw](https://github.com/che11111/WoodworkingSaw) | Publishes saw-table transformation rules from `transformations.yml` through the CER Recipe API. CER provides the shared `cer_api_gui` UI texture set for API recipes. |
+
+> CER provides dedicated recipe UI texture sets for the Farmer's Delight skillet, Kaleidoscope Cookery appliances, CustomCrops pot pages, and API recipes.
 
 ## Requirements
 
@@ -76,7 +89,7 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 7. Open the menu with `/cer` or Shift+F. Left-click an item for its recipes; right-click to see recipes that use it.
 
-8. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style and whether reopening restores the previous position. Preferences are stored in `player-preferences.db`.
+8. Right-click the **Browse by workstation** button in any menu to open Personalization. Players can choose their menu style, whether `/cer` and Shift+F enter category or workstation browsing by default, and whether reopening restores the previous position. Settings are stored in `player-preferences.db`.
 
 9. By default, online administrators receive the detected recipe-source list when startup indexing begins. After CraftEngine reloads its configuration and resource packs, CER automatically re-exports CE recipes and refreshes its index.
 
