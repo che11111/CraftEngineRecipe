@@ -57,7 +57,7 @@
 | <a href="https://github.com/Nicoppara/KaleidoscopeCookery_Plugin"><img src="img/compatible-plugin-logos/kaleidoscope-cookery.png" alt="Kaleidoscope Cookery" width="64"></a> | [Kaleidoscope Cookery](https://github.com/Nicoppara/KaleidoscopeCookery_Plugin) | 导入炒锅、砧板、磨盘、沙威玛烤架、高汤锅、蒸笼和茶壶等设备配方；各设备页面使用对应的 `cer_kc_gui` 专用贴图。 |
 | <a href="https://github.com/Xiao-MoMi/Custom-Crops"><img src="img/compatible-plugin-logos/customcrops.png" alt="CustomCrops" width="64"></a> | [CustomCrops](https://github.com/Xiao-MoMi/Custom-Crops) | 生成种植盆作物页面，包含种子、产物、季节、用水、肥料、洒水器、温室和稻草人等信息；种植盆页面使用 `cer_ccrops_gui` 专用贴图。 |
 | <a href="https://github.com/che11111/WoodworkingSaw"><img src="img/compatible-plugin-logos/woodworkingsaw.png" alt="WoodworkingSaw" width="64"></a> | [WoodworkingSaw](https://github.com/che11111/WoodworkingSaw) | 通过 CER Recipe API 直接将 `transformations.yml` 转化规则发布到配方页面；CER 为 API 配方准备了统一的 `cer_api_gui` UI 贴图。 |
-| <a href="https://www.minebbs.com/resources/ultramarine-craftengine.17044/"><img src="img/compatible-plugin-logos/ultramarine.png" alt="群青 Ultramarine" width="64"></a> | [Ultramarine](https://www.minebbs.com/resources/ultramarine-craftengine.17044/) | 为 Ultramarine （群青）内容提供命名空间预设；自动隐藏既没有产出配方、也不参与任何合成的物品。 |
+| <a href="https://github.com/THExuri/Ultramarine-CraftEngine"><img src="img/compatible-plugin-logos/ultramarine.png" alt="群青 Ultramarine" width="64"></a> | [Ultramarine](https://github.com/THExuri/Ultramarine-CraftEngine) | 为 Ultramarine （群青）内容提供命名空间预设；自动隐藏既没有产出配方、也不参与任何合成的物品。 |
 
 > CER 为煎锅、Kaleidoscope Cookery 设备、CustomCrops 种植盆页和 API 配方分别绘制了多套专用配方 UI 贴图。
 

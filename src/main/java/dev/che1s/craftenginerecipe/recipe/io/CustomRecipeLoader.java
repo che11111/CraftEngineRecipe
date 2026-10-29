@@ -22,9 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -74,19 +73,63 @@ public final class CustomRecipeLoader {
         this.integrationEnabled = integrationEnabled;
     }
 
-    public List<DisplayRecipe> load() throws IOException {
-        if (!Files.exists(this.directory)) return List.of();
-        if (!Files.isDirectory(this.directory)) throw new IOException(this.directory + ": expected a directory");
-        List<Path> files;
-        try (var paths = Files.walk(this.directory)) {
-            files = paths.filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
-                    .filter(this::isRecipeFile).sorted().toList();
+    /** 使用启动/重载时刻的配置快照，避免异步文件扫描继续读取 Bukkit 配置。 */
+    public CustomRecipeLoader(Path dataFolder, boolean minecraftEnabled, boolean craftEngineEnabled,
+                              Set<String> enabledOptionalSources) {
+        this(dataFolder, () -> minecraftEnabled, () -> craftEngineEnabled,
+                source -> enabledOptionalSources.contains(source));
+    }
+
+    /**
+     * 只读取并解析 YAML，不创建 Bukkit 物品对象。该阶段可安全地放到异步线程。
+     *
+     * @param changedFiles 相对于 recipes/ 的已变更文件；空集合会复用所有可用缓存
+     * @param previous 上一次成功发布的解析结果；初次加载时传 null
+     */
+    public PreparedDocuments readDocuments(Collection<String> changedFiles, PreparedDocuments previous)
+            throws IOException {
+        List<Path> files = this.recipeFiles();
+        Map<String, ReadDocument> cached = new HashMap<>();
+        if (previous != null) {
+            for (ReadDocument document : previous.documents()) {
+                cached.put(this.relativeKey(document.file()), document);
+            }
         }
+        Set<String> changed = Set.copyOf(changedFiles);
+        List<ReadDocument> documents = new ArrayList<>(files.size());
+        for (Path file : files) {
+            String key = this.relativeKey(file);
+            ReadDocument reusable = cached.get(key);
+            if (previous != null && reusable != null && !changed.contains(key)) {
+                documents.add(reusable);
+            } else {
+                RecipeDocumentParser source = new RecipeDocumentParser(file);
+                documents.add(new ReadDocument(file, source.read()));
+            }
+        }
+        return new PreparedDocuments(documents);
+    }
+
+    /** 读取全部文件，适合启动和手动全量重载。 */
+    public PreparedDocuments readDocuments() throws IOException {
+        return this.readDocuments(List.of(), null);
+    }
+
+    public List<DisplayRecipe> load() throws IOException {
+        return this.build(this.readDocuments());
+    }
+
+    /**
+     * 处理已解析文档并创建展示配方。该阶段会访问 Bukkit 注册表和 ItemStack，
+     * 因此服务器中必须留在 global region 线程执行。
+     */
+    public List<DisplayRecipe> build(PreparedDocuments prepared) throws IOException {
         List<DisplayRecipe> recipes = new ArrayList<>();
         Map<String, String> ids = new HashMap<>();
-        for (Path file : files) {
+        for (ReadDocument document : prepared.documents()) {
+            Path file = document.file();
+            Map<String, Object> root = document.root();
             RecipeDocumentParser source = new RecipeDocumentParser(file);
-            Map<String, Object> root = source.read();
             if (source.isMenuDocument(root)) {
                 for (DisplayRecipe recipe : source.menuRecipes(root)) {
                     String previous = ids.putIfAbsent(recipe.id(), file.toString());
@@ -120,6 +163,19 @@ public final class CustomRecipeLoader {
         return List.copyOf(recipes);
     }
 
+    private List<Path> recipeFiles() throws IOException {
+        if (!Files.exists(this.directory)) return List.of();
+        if (!Files.isDirectory(this.directory)) throw new IOException(this.directory + ": expected a directory");
+        try (var paths = Files.walk(this.directory)) {
+            return paths.filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
+                    .filter(this::isRecipeFile).sorted().toList();
+        }
+    }
+
+    private String relativeKey(Path file) {
+        return this.directory.relativize(file).toString().replace('\\', '/');
+    }
+
     private boolean isRecipeFile(Path path) {
         String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
         if (!name.endsWith(".yml") && !name.endsWith(".yaml")) return false;
@@ -138,6 +194,21 @@ public final class CustomRecipeLoader {
                     || segment.startsWith("example-") || segment.endsWith("-example.yml") || segment.endsWith("-example.yaml")) return false;
         }
         return true;
+    }
+
+    public record ReadDocument(Path file, Map<String, Object> root) {
+        public ReadDocument {
+            if (file == null || root == null) throw new IllegalArgumentException("parsed document is incomplete");
+        }
+    }
+
+    /** 不包含 Bukkit 对象、可跨线程传递的 YAML 解析快照。 */
+    public record PreparedDocuments(List<ReadDocument> documents) {
+        public static final PreparedDocuments EMPTY = new PreparedDocuments(List.of());
+
+        public PreparedDocuments {
+            documents = List.copyOf(documents);
+        }
     }
 
 }

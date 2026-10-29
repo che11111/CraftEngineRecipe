@@ -22,6 +22,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
@@ -34,17 +35,20 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 /**
  * 发布 recipes/ 中的配方。受支持的集成交互只在生成缺失来源目录时读取一次；
  * 生成后绝不会继续把来源插件的实时管理器作为运行时配方来源。
  *
- * <p>文件监视在异步定时器上比较轻量指纹；真正加载和替换快照始终切回全局线程。
- * 连续两次轮询看到相同指纹后才重载，以减少编辑器保存时产生的重复刷新。</p>
+ * <p>文件监视在异步定时器上比较轻量指纹；YAML 读取和解析也留在异步线程，
+ * Bukkit 物品转换、索引编译及快照替换切回全局线程。连续两次轮询看到相同
+ * 指纹后才重载，以减少编辑器保存时产生的重复刷新。</p>
  */
 public final class ExternalRecipeService implements Listener {
     private static final List<String> BUILT_IN_SOURCES =
@@ -56,6 +60,8 @@ public final class ExternalRecipeService implements Listener {
     private volatile long generation;
     private volatile boolean stopped;
     private volatile Map<String, String> lastFileState = Map.of();
+    private volatile CustomRecipeLoader.PreparedDocuments parsedDocuments =
+            CustomRecipeLoader.PreparedDocuments.EMPTY;
     private Map<String, String> pendingFileState;
     private boolean pendingChanged;
     private ScheduledTask pollTask;
@@ -63,6 +69,8 @@ public final class ExternalRecipeService implements Listener {
     private boolean sourcesSettled;
     private final AtomicBoolean sourceCheckScheduled = new AtomicBoolean();
     private final AtomicBoolean reloadScheduled = new AtomicBoolean();
+    private final AtomicBoolean loadInProgress = new AtomicBoolean();
+    private final AtomicLong loadRevision = new AtomicLong();
 
     public ExternalRecipeService(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
@@ -86,7 +94,7 @@ public final class ExternalRecipeService implements Listener {
 
     /** API 注册集合变化时的轻量刷新；文件加载和快照发布仍受同一套校验保护。 */
     public void reloadApi() {
-        if (!this.stopped) this.reloadFiles(false);
+        if (!this.stopped) this.plugin.tasks().global(() -> this.reloadFiles(false));
     }
 
     public boolean reexportOnReload() {
@@ -113,8 +121,7 @@ public final class ExternalRecipeService implements Listener {
         this.plugin.tasks().global(() -> {
             this.discover();
             ExportReport report = this.forceExport(requested);
-            this.reloadFiles(false);
-            completion.accept(report);
+            this.reloadFiles(false, List.of(), () -> completion.accept(report));
         });
     }
 
@@ -257,7 +264,8 @@ public final class ExternalRecipeService implements Listener {
                 }
             });
         }
-        if (this.plugin.getConfig().getBoolean("recipes.auto-reload", true)) {
+        if (!this.loadInProgress.get()
+                && this.plugin.getConfig().getBoolean("recipes.auto-reload", true)) {
             Map<String, String> next = this.fileState();
             if (!next.equals(this.lastFileState)) {
                 // 等待连续两次状态一致，避免编辑器一次保存产生多次重载。
@@ -265,11 +273,7 @@ public final class ExternalRecipeService implements Listener {
                     if (this.reloadScheduled.compareAndSet(false, true)) {
                         List<String> changed = changedFiles(this.lastFileState, next);
                         this.plugin.tasks().global(() -> {
-                            try {
-                                this.reloadFiles(false, changed);
-                            } finally {
-                                this.reloadScheduled.set(false);
-                            }
+                            this.reloadFiles(false, changed, () -> this.reloadScheduled.set(false));
                         });
                     }
                     this.pendingChanged = false;
@@ -363,21 +367,110 @@ public final class ExternalRecipeService implements Listener {
     }
 
     private void reloadFiles(boolean initial) {
-        this.reloadFiles(initial, List.of());
+        this.reloadFiles(initial, List.of(), null);
     }
 
     private void reloadFiles(boolean initial, List<String> changedFiles) {
-        if (this.stopped) return;
-        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.SOURCE_REFRESH)) {
-            if (this.plugin.getConfig().getBoolean("sources.minecraft", true)) {
-                try {
-                    BundledMinecraftRecipeSource.installRecipeFiles(this.plugin);
-                } catch (IOException | RuntimeException | LinkageError error) {
-                    this.warn("minecraft", error);
-                }
+        this.reloadFiles(initial, changedFiles, null);
+    }
+
+    /**
+     * 异步读取 YAML，回到全局线程创建 Bukkit 物品并发布完整快照。
+     * 调用入口只需完成轻量的配置/文件准备；completion 在本次加载结束或失效后执行。
+     */
+    private void reloadFiles(boolean initial, List<String> changedFiles, Runnable completion) {
+        if (this.stopped) {
+            if (completion != null) completion.run();
+            return;
+        }
+        if (this.plugin.getConfig().getBoolean("sources.minecraft", true)) {
+            try {
+                BundledMinecraftRecipeSource.installRecipeFiles(this.plugin);
+            } catch (IOException | RuntimeException | LinkageError error) {
+                this.warn("minecraft", error);
             }
-            Map<String, String> fileState = this.fileState();
-            List<DisplayRecipe> recipes = new ArrayList<>(new CustomRecipeLoader(this.plugin).load());
+        }
+        Set<String> enabledOptionalSources = new LinkedHashSet<>();
+        for (String source : IntegrationSettings.PROMPTABLE_SOURCES) {
+            if (this.plugin.integrations().enabled(source)) enabledOptionalSources.add(source);
+        }
+        CustomRecipeLoader loader = new CustomRecipeLoader(
+                this.plugin.getDataFolder().toPath(),
+                this.plugin.getConfig().getBoolean("sources.minecraft", true),
+                this.plugin.getConfig().getBoolean("sources.craftengine", true),
+                enabledOptionalSources);
+        long revision = this.loadRevision.incrementAndGet();
+        this.loadInProgress.set(true);
+        AtomicBoolean completed = new AtomicBoolean();
+        Runnable finish = () -> {
+            if (this.loadRevision.get() == revision) this.loadInProgress.set(false);
+            if (completion != null && completed.compareAndSet(false, true)) completion.run();
+        };
+        try {
+            this.plugin.tasks().async(() -> {
+                if (!this.isCurrentLoad(revision)) {
+                    finish.run();
+                    return;
+                }
+                Map<String, String> nextFileState = this.fileState();
+                Set<String> actualChanges = new LinkedHashSet<>(
+                        changedFiles(this.lastFileState, nextFileState));
+                actualChanges.addAll(changedFiles);
+                CustomRecipeLoader.PreparedDocuments nextDocuments;
+                try {
+                    nextDocuments = loader.readDocuments(actualChanges,
+                            initial ? null : this.parsedDocuments);
+                } catch (IOException | RuntimeException | LinkageError error) {
+                    this.finishFailedLoad(revision, nextFileState, error, finish);
+                    return;
+                }
+                if (!this.isCurrentLoad(revision)) {
+                    finish.run();
+                    return;
+                }
+                try {
+                    this.plugin.tasks().global(() -> {
+                        if (!this.isCurrentLoad(revision)) {
+                            finish.run();
+                            return;
+                        }
+                        this.applyPreparedFiles(initial, List.copyOf(actualChanges), nextFileState,
+                                loader, nextDocuments);
+                        finish.run();
+                    });
+                } catch (IllegalPluginAccessException ignored) {
+                    finish.run();
+                }
+            });
+        } catch (IllegalPluginAccessException ignored) {
+            finish.run();
+        }
+    }
+
+    private void finishFailedLoad(long revision, Map<String, String> fileState,
+                                  Throwable error, Runnable completion) {
+        if (!this.isCurrentLoad(revision)) {
+            completion.run();
+            return;
+        }
+        try {
+            this.plugin.tasks().global(() -> {
+                if (this.isCurrentLoad(revision)) {
+                    this.lastFileState = fileState;
+                    this.warn("recipes", error);
+                }
+                completion.run();
+            });
+        } catch (IllegalPluginAccessException ignored) {
+            completion.run();
+        }
+    }
+
+    private void applyPreparedFiles(boolean initial, List<String> changedFiles,
+                                    Map<String, String> fileState, CustomRecipeLoader loader,
+                                    CustomRecipeLoader.PreparedDocuments parsed) {
+        try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.SOURCE_REFRESH)) {
+            List<DisplayRecipe> recipes = new ArrayList<>(loader.build(parsed));
             boolean bundledEnabled = this.plugin.getConfig().getBoolean("sources.minecraft", true)
                     || this.plugin.getConfig().getBoolean("sources.minecraft-cultivation", true)
                     || this.plugin.integrations().cultivation("farmersdelight")
@@ -411,6 +504,7 @@ public final class ExternalRecipeService implements Listener {
             // 先完整构建索引，再一次性发布快照，读者不会观察到半更新的索引集合。
             this.snapshot = next;
             this.lastFileState = fileState;
+            this.parsedDocuments = parsed;
             ++this.generation;
             if (this.plugin.recipeIndex() != null) this.plugin.recipeIndex().syncWorkstations();
             this.failures.remove("recipes");
@@ -419,9 +513,13 @@ public final class ExternalRecipeService implements Listener {
                     initial ? "logs.recipe-source-ready" : "logs.recipe-files-reloaded",
                     "source", "recipes", "count", String.valueOf(recipes.size()), "files", files));
         } catch (IOException | RuntimeException | LinkageError error) {
-            this.lastFileState = this.fileState();
+            this.lastFileState = fileState;
             this.warn("recipes", error);
         }
+    }
+
+    private boolean isCurrentLoad(long revision) {
+        return !this.stopped && this.loadRevision.get() == revision;
     }
 
     private Map<String, String> fileState() {
@@ -574,9 +672,12 @@ public final class ExternalRecipeService implements Listener {
 
     public void shutdown() {
         this.stopped = true;
+        this.loadRevision.incrementAndGet();
+        this.loadInProgress.set(false);
         if (this.pollTask != null) this.pollTask.cancel();
         HandlerList.unregisterAll(this);
         this.adapters.clear();
+        this.parsedDocuments = CustomRecipeLoader.PreparedDocuments.EMPTY;
         this.snapshot = ExternalRecipeSnapshot.EMPTY;
         ++this.generation;
     }

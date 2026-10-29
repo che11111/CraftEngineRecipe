@@ -51,8 +51,8 @@ recipes:
   # 监听 recipes/ 下 YAML 的修改并自动重载，不再需要手动执行 /cer reload。
   # Watch YAML changes under recipes/ and reload automatically without /cer reload.
   auto-reload: true
-  # 异步文件检查间隔（tick，10～200）。连续两次稳定后才回到主线程重载。
-  # Async file check interval (10-200 ticks); reload happens on the global thread after two stable observations.
+  # 异步文件检查间隔（tick，10～200）。连续两次稳定后才异步解析 YAML，并回到全局线程处理 Bukkit 数据与发布索引。
+  # Async file check interval (10-200 ticks); YAML is parsed asynchronously after two stable observations, while Bukkit data and index publishing stay on the global thread.
   poll-interval: 20
 
 # ---------- 名称颜色前缀 / Name color prefixes ----------

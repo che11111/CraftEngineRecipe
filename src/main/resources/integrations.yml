@@ -114,7 +114,7 @@ category-presets:
   authors:
   - ydxc2009
   visibility: player
-# https://www.minebbs.com/resources/ultramarine-craftengine.17044/
+# https://github.com/THExuri/Ultramarine-CraftEngine
 - id: ultramarine
   mode: ask
   authors:
