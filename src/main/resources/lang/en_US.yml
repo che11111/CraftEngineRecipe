@@ -369,7 +369,6 @@ logs:
   category-read-failed: 'Failed to read category configuration: {file}'
   category-save-failed: 'Failed to save category namespace configuration: {error}'
   unapplied-save-failed: 'Failed to save the unapplied entry configuration: {error}'
-  session-migrate-failed: 'Legacy sessions.yml was imported, but could not be renamed as a backup: {error}'
   result-query-failed: 'Failed to query output recipes ({id}): {error}'
   usage-query-failed: 'Failed to query ingredient uses ({id}): {error}'
   layout-reserved: 'Layout conflict: a button uses the reserved # character and will not be displayed'

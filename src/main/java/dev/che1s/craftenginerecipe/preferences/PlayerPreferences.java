@@ -263,27 +263,6 @@ public final class PlayerPreferences implements AutoCloseable {
         });
     }
 
-    /** 旧数据迁移使用单事务同步写入，成功后才允许归档旧文件。 */
-    public boolean saveSessions(Map<UUID, StoredSession> sessions) {
-        if (sessions == null || sessions.isEmpty()) return true;
-        try (Connection connection = this.connection();
-             PreparedStatement statement = connection.prepareStatement(UPSERT_SESSION)) {
-            connection.setAutoCommit(false);
-            for (var entry : sessions.entrySet()) {
-                statement.setString(1, entry.getKey().toString());
-                statement.setString(2, entry.getValue().snapshot());
-                statement.setLong(3, entry.getValue().savedAt());
-                statement.addBatch();
-            }
-            statement.executeBatch();
-            connection.commit();
-            return true;
-        } catch (SQLException error) {
-            this.logger.warning("Cannot import GUI sessions: " + error.getMessage());
-            return false;
-        }
-    }
-
     public void deleteSession(UUID player) {
         if (player == null) return;
         this.writer.execute(() -> {

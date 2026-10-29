@@ -40,28 +40,15 @@
 
 ## 功能与特色
 
-- 自带清晰易用的 UI 画面，资源会**自动安装**到 CraftEngine 资源包目录。
-- 两种分类逻辑页面：**按物品种类分类** 与 **按合成器分类**。
-- 合成器按钮顺序可在 `navigation/workstations.yml` 中独立配置；支持混排自定义按钮，新发现的合成器会自动追加。
-- 菜单中的物品，左键查看其**配方**、右键查看可**参与配方**。
-- **自定义**分类顺序、可见权限、隐藏规则，自定义菜单**按钮**。
-- 自定义按钮可执行任意指令，以前往其他页面。
-- 按物品 ID、名称、翻译键、中文拼音或首字母搜索。
-- 右键“搜索物品”按钮可列出当前背包材料足以完成的配方产物；再次右键或按 ESC 返回普通浏览。
-- 内置原版中文名称索引，可直接搜索“小麦”“木剑”等；配方文件监听不会持续占用主线程。
-- 支持 TrMenu 风格的自定义配方文件；农夫乐事、农夫乐事煎锅、森罗物语和 CustomCrops 种植盆配方首次自动导出到 `recipes/`，之后统一从文件加载。
-- WoodworkingSaw 可通过 CER Recipe API 将其 `transformations.yml` 转化规则直接发布到配方浏览页面。
-- CE 固定产物配方首次导出到 `recipes/craftengine/`，之后只读取文件；原版配方、原版栽培、CE 栽培及各集成栽培数据均有独立开关。
-- `recipes/` 文件修改后自动重载；玩家按 ESC 离开时保留当前页面与配方返回层级，默认记忆 3 分钟（可配置），在菜单外右键会返回进入来源对应的主页面。
-- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式、`/cer` 与 Shift+F 的默认主页面（按物品种类或按合成器），以及是否恢复上次浏览位置，个性化设置与浏览会话统一保存在 SQLite 数据库 `player-preferences.db` 中。
-- `/cer manage` 使用独立的管理页面 UI：无论当前菜单风格如何都自动安装 `cer_manage_gui`，固定显示目录上一组/下一组、返回、上一页、下一页和返回物品分类按钮。
-- 在 `categories.yml` 页面按 `Q` 可将命名空间或自定义按钮移动到 `categories-unapplied.yml`；未应用按钮可按中键重新应用，完整配置会被保留。
-- 数据就绪后，聊天中只发送一个“打开适配配置”按钮。配置 Dialog 分为“特殊支持的插件”和“特别适配的资源包”两页；条目按钮第一次点击启用，再次点击禁用，页面不会关闭。
-- 插件/资源包按钮颜色会显示当前状态：绿色已启用、黄色询问、红色已禁用。点击“全部启用”可一次启用所有检测到的插件与资源包。
-- 查看 `主手` / `准星` 物品配方，有指令也有菜单快捷按钮。
-- `Shift+F`快捷键，快速打开配方菜单，可设置启用与否。
+- **开箱即用**：自动安装 CraftEngine 资源与多套菜单界面，支持按物品种类、按合成器两种浏览方式。
+- **双向配方查询**：左键查看物品如何合成，右键查看物品参与哪些配方；支持主手、准星、搜索和背包可制作查询。
+- **快速搜索**：支持物品 ID、名称、翻译键、中文拼音及首字母搜索。
+- **游戏内管理**：通过 `/cer manage` 编辑分类、可见权限、隐藏规则、排序、合成器顺序和自定义按钮，并支持正式配置与未应用配置互相移动。
+- **统一配方索引**：原版、CraftEngine 和各适配插件的配方可导出到 `recipes/` 后统一浏览，文件修改自动重载；其他插件也可通过 CER Recipe API 接入。
+- **插件适配管理**：通过 `/cer integrations` 开启或关闭 CER 对其他插件及资源包的特殊适配。
+- **个性化与续接**：玩家可选择菜单风格、默认页面和关闭恢复行为；个性化与浏览会话统一保存在 `player-preferences.db`。
 
-## 适配插件或内容
+## 特殊适配插件或内容
 
 | Logo | 插件或内容 | CER 适配内容 |
 | :---: | --- | --- |
@@ -81,140 +68,90 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 ## 快速上手
 
-1. 安装兼容当前服务端的 CraftEngine 并加载物品、分类和配方，安装对应版本的 CraftEngineRecipe。
+1. 安装兼容版本的 CraftEngine 和 CraftEngineRecipe，并等待服务器启动完成。
 
-2. 首次运行时会把已启用菜单包及 `cer_kc_gui`、`cer_fd_gui` 统一放在 `CraftEngine/resources/CraftEngineRecipe/subpacks/` 下。默认启用可爱版、粗版、原版材质版和地图版。玩家用 `/cer open <包名>` 打开对应界面。
+2. 管理员执行 `/cer integrations`，开启 CER 对其他插件或资源包的特殊适配（例如农夫乐事、森罗物语等，可见本文适配列表）。
 
-3. 等待数据就绪，管理员执行 `/cer manage` 打开配置管理中心。
+3. 管理员使用 `/cer manage` 在游戏内调整分类、排序和隐藏规则。（CER采用白名单模式，只有管理员在此页面调整后，对应的配方才可显示）
 
-4. 在 `categories.yml` 页面中右键命名空间可编辑可见性、权限、名称与 Lore、排序及隐藏选项；中键进入分类与物品隐藏页。未应用条目可在 `categories-unapplied.yml` 页面直接编辑，并用中键应用到正式菜单。
-
-5. 在分类页左键进入物品管理，点击物品切换隐藏状态；右键切换分类入口隐藏，`Shift+左键/右键` 批量隐藏或显示该分类的直接物品。返回命名空间列表后，使用 `Shift+左键/右键` 调整显示顺序。
-
-命名空间设置 `hide-items-without-recipes: true` 后，会隐藏既没有产出配方、也没有作为原料参与任何配方的物品；分类列表、搜索结果、物品数量与原版入口使用同一判断。
-
-6. `workstations.yml` 页面支持直接进入合成器预览，并使用 `Shift+左键/右键` 调整合成器与自定义按钮顺序。所有修改立即写回 `navigation/` 文件并刷新菜单，无需执行 `/cer reload`；写回前同目录会保留上一版 `.bak`。
-
-7. 用 `/cer` 或 Shift+F 打开正式菜单。左键物品查看配方，右键查看可参与配方。
-
-8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择菜单样式、`/cer` 与 Shift+F 默认进入“按物品种类分类”还是“按合成器分类”，以及关闭后再次打开时是否恢复上次浏览位置；个性化设置与浏览会话都保存在 `player-preferences.db`。
-
-9. 数据就绪后，在线管理员会收到一个“打开适配配置”按钮。点击后进入两页 Dialog：第一页是特殊支持的插件，第二页是特别适配的资源包。点击条目按钮可启用，再次点击会禁用；绿色表示已启用、黄色表示询问、红色表示已禁用。修改直接写入 `integrations.yml`，可用 `/cer integrations` 重新打开。
-
-只有一个物品、只提供配方的附属包可在编辑器中关闭“显示物品种类分类入口”；物品仍会进入搜索、直接查询和合成器产物页面。也可以继续手工编辑 YAML。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
+4. 玩家使用 `/cer` 或 `Shift+F` 打开物品分类；也可以使用 `/cer items`、`/cer craft` 和 `/cer search` 直接进入对应页面。
 
 ## 配置目录
 
 ```text
 plugins/CraftEngineRecipe/
-├── config.yml
-├── integrations.yml
-├── player-preferences.db
-├── navigation/
-│   ├── categories.yml
-│   ├── categories-unapplied.yml
-│   └── workstations.yml
-├── example/
+├── config.yml                         # 主配置：语言、数据源、提示及浏览默认值
+├── integrations.yml                   # CER 特殊适配开关、导出策略和分类预设
+├── player-preferences.db              # SQLite：玩家个性化与浏览会话
+├── navigation/                        # 正式菜单配置
+│   ├── categories.yml                 # 已应用的分类、权限、隐藏规则和按钮
+│   ├── categories-unapplied.yml       # 检测到但尚未应用的分类和按钮
+│   └── workstations.yml               # 合成器顺序与工作站页自定义按钮
+├── example/                           # 示例模板，不会被正式加载
 │   ├── navigation/
-│   │   └── categories-example.yml
+│   │   └── categories-example.yml     # categories.yml 语法示例
 │   └── recipes/
-│       └── recipes-example.yml
-├── lang/
+│       └── recipes-example.yml        # 自定义配方文件格式示例
+├── lang/                              # 语言文件
 │   └── integrations/
-│       ├── common/{zh_CN,en_US}.yml
-│       ├── craftengine/{zh_CN,en_US}.yml
-│       ├── farmersdelight/{zh_CN,en_US}.yml
-│       ├── kaleidoscope/{zh_CN,en_US}.yml
-│       ├── customcrops/{zh_CN,en_US}.yml
-│       ├── cultivation/{zh_CN,en_US}.yml
-│       └── minecraft/{zh_CN,en_US}.yml
-├── recipes/
-└── resources/
+│       ├── common/{zh_CN,en_US}.yml             # 通用分隔符、是否文本和单位
+│       ├── craftengine/{zh_CN,en_US}.yml        # CraftEngine 合成器名称
+│       ├── farmersdelight/{zh_CN,en_US}.yml     # 农夫乐事标题、条件和配方说明
+│       ├── kaleidoscope/{zh_CN,en_US}.yml       # 森罗物语设备名称、加工和品质说明
+│       ├── customcrops/{zh_CN,en_US}.yml        # 星露谷种植盆、季节、环境和肥料文本
+│       ├── cultivation/{zh_CN,en_US}.yml        # 耕地、种子、基质和种植条件说明
+│       └── minecraft/{zh_CN,en_US}.yml          # 原版合成器显示名称
+├── recipes/                           # CER 实际加载的自定义与导出配方
+└── resources/                         # 菜单 UI 本地副本，用于安装到 CE 资源包
 ```
-
-升级时会自动把旧 `sessions.yml` 导入 `player-preferences.db`，成功后将旧文件保留为 `sessions.yml.migrated`；之后不会再创建 `sessions.yml`。
 
 每个 `cer_menu_*` 菜单包通过 `menu/` 下的完整布局文件声明它负责的页面。文件名任意，代码只读取文件中的 `pages` 声明，不使用继承或合并：
 
 ```text
 cer_menu_cute/
+├── pack.yml                           # CraftEngine 资源包元数据
 ├── menu/
-│   ├── browse.yml
-│   └── utility.yml
-├── configuration/gui.yml
+│   ├── browse.yml                     # 物品分类与按合成器浏览页面布局
+│   └── utility.yml                    # 管理、未应用与背包可制作页面布局
+├── configuration/gui.yml              # 标题图片的字体高度、基线和贴图引用
 └── resourcepack/
+    └── assets/cer_cute/textures/font/gui/cer_main.png  # 菜单标题贴图
 ```
 
 各配方来源导出的标题、Lore 和说明文字统一跟随 `config.yml` 中的 `language`。第三方物品本身的名称仍由 CraftEngine 资源包和客户端语言决定。
 
 ## 常用命令
 
+### 玩家指令
+
 | 命令 | 用途 |
 | --- | --- |
-| `/cer` | 打开正式菜单，别名 `/cg`、`/browser`、`Shift+F` |
+| `/cer` | 打开正式菜单；快捷键 `Shift+F` |
 | `/cer craft` | 直接打开“按合成器分类”页面 |
 | `/cer items` | 直接打开“按物品种类分类”页面 |
 | `/cer search` | 搜索物品 |
 | `/cer hand` | 查看主手原版或 CE 物品的合成配方，遵循已配置的分类限制 |
 | `/cer target` | 查看准星所指原版或 CE 方块的合成配方，遵循已配置的分类限制 |
-| `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | 重新获取对应来源并替换 `recipes/` 下的数据（管理员） |
-| `/cer integrations` | 直接打开统一的适配插件与分类预设 Dialog（管理员） |
-| `/cer manage` | 打开配置管理中心：在游戏内编辑分类、隐藏规则、显示顺序与合成器配置（管理员） |
-| `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面（管理员） |
-| `/cer reload` | 手动重载配置与索引（管理员；配方文件修改会自动加载） |
-| `/cer open <包名>` | 使用指定且已启用的 UI 样式打开菜单 |
-| `/cer menu` | 查看默认、已启用和全部可用样式（管理员） |
-| `/cer menu enable <包名\|all>` | 启用一个样式或全部 `cer_menu_*`（管理员） |
-| `/cer menu disable <包名>` | 停用非默认样式（管理员） |
-| `/cer menu default <包名>` | 设置 `/cer` 与 Shift+F 使用的默认样式（管理员） |
-| `/cer debug recipes` | 将服务器当前注册的全部配方保存为本地 JSON 调试文件（管理员） |
-| `/cer debug performance` | 查看插件操作耗时、菜单会话/点击计数及服务器 TPS/MSPT（管理员） |
-| `/cer debug performance reset` | 重置插件计时窗口，再复现问题进行观察（管理员） |
+| `/cer open <UI包名>` | 使用指定且已启用的 UI 样式打开菜单 |
 
-调试指令也可在控制台执行，统一使用 `craftenginerecipe.admin` 权限。配方导出保存在 `plugins/CraftEngineRecipe/debug/recipes-*.json`，分别收录 Bukkit、CraftEngine 以及 `recipes/` 中的展示配方。采集分短批次执行，文件异步写入；同一时间仅允许一次导出，结束后冷却 30 秒，不会上传数据。文件是诊断快照，不是可导入的备份。Bukkit/CE 重叠注册保留在各自章节，采集期间请避免重载配方。
+### 管理员指令
 
-排查卡顿时，先执行 `/cer debug performance reset`，复现菜单操作后再执行 `/cer debug performance`。计时只覆盖已埋点的插件操作，可能嵌套，不能相加为服务器 CPU 占比；完整调用栈请配合 [spark](https://spark.lucko.me/)。Folia 的全服 TPS/MSPT 可能不可用。字段说明见 [调试文档](docs/DEBUG-zh.md)。
+| 命令 | 用途 |
+| --- | --- |
+| `/cer integrations` | 打开CER的适配插件列表，并选择是否启用 |
+| `/cer manage` | 打开配置管理中心：在游戏内编辑分类、隐藏规则、显示顺序与合成器配置 |
+| `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面 |
+| `/cer reload` | 手动重载配置与索引；配方文件修改会自动加载 |
+| `/cer menu` | 查看默认、已启用和全部可用样式 |
+| `/cer menu enable <包名\|all>` | 启用一个样式或全部 `cer_menu_*` |
+| `/cer menu disable <包名>` | 停用非默认样式 |
+| `/cer menu default <包名>` | 设置 `/cer` 与 Shift+F 使用的默认样式 |
+| `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | 手动重新获取对应来源并替换 `recipes/` 下的数据 |
+| `/cer debug recipes` | 将服务器当前注册的全部配方保存为本地 JSON 调试文件 |
+| `/cer debug performance` | 查看插件操作耗时、菜单会话/点击计数及服务器 TPS/MSPT |
+| `/cer debug performance reset` | 重置插件计时窗口，再复现问题进行观察 |
 
-`Shift+F` 快捷打开菜单默认开启，且默认要求潜行；可在 `config.yml` 中关闭快捷键或取消潜行要求。
-
-适配插件开关和命名空间分类预设统一位于 `integrations.yml`。`mode` 可设为 `ask`、`enabled` 或 `disabled`；交互式启用会同时把 `cultivation` 设为 `true`：
-
-```yaml
-integrations:
-  farmersdelight:
-    mode: ask
-    cultivation: true
-    reexport-on-reload: true
-    export-missing: true
-    reexport-craftengine-on-ce-reload: true
-    category-presets:
-      - farmersdelight
-```
-
-`kaleidoscope` 与 `customcrops` 使用相同字段；森罗物语默认通过 `category-presets: [kaleidoscopecookery]` 联动分类预设。`disabled` 会停止导出和索引，但保留 `recipes/<来源>/` 中已有的文件。
-
-启用带 `category-presets` 的适配插件时，CER 会一并应用列表中的分类预设。交互式点击插件按钮启用即视为批准联动；若配置原本就是 `mode: enabled`，启动或重载时自动应用。
-
-每个分类预设还可声明可选的 `authors` 列表。CER 会读取对应 `pack.yml` 的 `author`，忽略大小写和多余空格，并支持逗号、分号、斜杠、`&`、顿号分隔的多作者；任意一个作者匹配即可。省略 `authors` 或留空时，只按 namespace 匹配。
-
-分类预设自身也有 `mode`：`ask` 在独立检测时询问；`enabled` 检测到且作者匹配后自动应用；`disabled` 不自动询问或应用。点击资源包按钮启用会写回 `enabled`，再次点击会写回 `disabled`，不再生成独立的预设状态文件。禁用不会删除已经写入 `categories.yml` 的人工配置。
-
-`sources.reexport-on-reload` 与 `sources.reexport-craftengine-on-ce-reload` 现在只控制 CraftEngine 来源；可选适配插件的对应行为由 `integrations.yml` 中的 `integrations.<来源>.*` 控制。`category-presets` 也位于同一文件，用于在检测到相应 CraftEngine 命名空间时询问管理员是否应用完整分类预设。
-
-`indexing.notify-admins-on-startup` 默认为 `true`，用于控制数据就绪后是否向在线管理员发送适配插件询问；没有管理员在线时会在管理员上线后显示。
-
-名称颜色由 `name-prefixes` 统一控制。值使用 MiniMessage，只影响名称文字，不会改变标题图片或位移：
-
-```yaml
-name-prefixes:
-  category-bar: '<white>'
-  category-title: '<black><bold>'
-  workstation-bar: '<white>'
-  workstation-title: '<black><bold>'
-  recipe-title: '<black><bold>'
-```
-
-管理权限为 `craftenginerecipe.admin`，OP 默认拥有。
+调试指令也可在控制台执行，管理权限为 `craftenginerecipe.admin`，OP 默认拥有。
 
 ## 配置文档
 

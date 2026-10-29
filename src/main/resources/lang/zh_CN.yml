@@ -371,7 +371,6 @@ logs:
   category-read-failed: 读取分类配置失败：{file}
   category-save-failed: 保存分类命名空间数据文件失败：{error}
   unapplied-save-failed: 保存未应用条目数据文件失败：{error}
-  session-migrate-failed: 旧 sessions.yml 已导入数据库，但无法改名为备份文件：{error}
   result-query-failed: 查询产出配方失败（{id}）：{error}
   usage-query-failed: 查询用途配方失败（{id}）：{error}
   layout-reserved: 'layout 字符冲突：按钮使用了保留字符 #，该按钮不会显示'
