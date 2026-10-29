@@ -350,7 +350,7 @@ public final class CategoryNamespaces {
         return yaml;
     }
 
-    private static NamespaceEntry parseNamespace(Map<?, ?> m) {
+    static NamespaceEntry parseNamespace(Map<?, ?> m) {
         String id = str(m.get("id"));
         if (id.isBlank()) {
             return null;
@@ -580,6 +580,22 @@ public final class CategoryNamespaces {
         return false;
     }
 
+    /**
+     * 将内置预设中的完整命名空间配置追加到 categories.yml。
+     * 旧版本同步生成的同 ID 未应用条目会被移除，避免重复。
+     */
+    public synchronized boolean applyPreset(NamespaceEntry preset) {
+        if (preset == null || this.appliedEntry(preset.id()) != null) return false;
+        this.extra.removeIf(entry -> entry instanceof NamespaceEntry namespace
+                && namespace.id().equals(preset.id()));
+        this.entries.add(preset);
+        this.namespaceIndex.put(preset.id(), preset);
+        this.rebuildFilters();
+        this.save();
+        this.saveExtra();
+        return true;
+    }
+
     /** 将任意未应用条目追加到 categories.yml；索引对应 {@link #unappliedAllEntries()}。 */
     public synchronized boolean applyUnappliedEntry(int index) {
         if (index < 0 || index >= this.extra.size()) return false;
@@ -751,6 +767,11 @@ public final class CategoryNamespaces {
     public String permissionOf(String namespace) {
         NamespaceEntry e = findNamespace(namespace);
         return e == null ? "" : e.permission();
+    }
+
+    public boolean hidesItemsWithoutRecipes(String namespace) {
+        NamespaceEntry entry = findNamespace(namespace);
+        return entry != null && entry.hideItemsWithoutRecipes();
     }
 
     public String iconNameOf(String namespace) {

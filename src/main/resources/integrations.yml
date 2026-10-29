@@ -1,0 +1,123 @@
+# CraftEngineRecipe 适配插件开关 / Integration settings
+# mode: ask / enabled / disabled
+# ask 会在数据就绪后询问在线管理员；enabled 直接导出并建立索引；disabled 停止导出和索引，
+# 但不会删除 recipes/<来源>/ 中已经生成的文件。
+# ask prompts online administrators; enabled exports and indexes immediately; disabled keeps existing files.
+# category-presets 列出启用该适配插件时一并应用的分类预设。
+# category-presets lists category presets applied together with the enabled integration.
+# ---------
+
+integrations:
+  # 插件名 / Plugin: FarmersDelight
+  # 主类 / Main class: com.huidu.farmersdelight.FarmersDelightPlugin
+  # https://github.com/IOVEYOUMC0/Farmersdelight-Plugin
+  farmersdelight:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+    category-presets:
+    - farmersdelight
+  # 插件名 / Plugin: KaleidoscopeCookeryPlugin
+  # 主类 / Main class: net.kaleidoscope.cookery.plugin.KaleidoscopeCookeryPlugin
+  # https://github.com/Nicoppara/KaleidoscopeCookery_Plugin
+  kaleidoscope:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+    category-presets:
+    - kaleidoscopecookery
+  # 插件名 / Plugin: CustomCrops
+  # 主类 / Main class: net.momirealms.customcrops.bukkit.BukkitBootstrap
+  # https://github.com/Xiao-MoMi/Custom-Crops
+  customcrops:
+    mode: ask
+    cultivation: true
+    reexport-on-reload: true
+    export-missing: true
+    reexport-craftengine-on-ce-reload: true
+    category-presets:
+    - customcrops
+
+# 检测到对应 CraftEngine 命名空间后，CER 会询问管理员是否将完整预设写入 categories.yml。
+# These complete presets are offered only after matching CraftEngine content is detected.
+# 分类预设 mode：ask 询问 / enabled 自动应用 / disabled 不自动询问或应用。
+# Category preset mode: ask / enabled for automatic apply / disabled for no automatic prompt or apply.
+# authors 可选；只要 pack.yml 中任意一个作者匹配即可，省略时仅按 namespace 匹配。
+# authors is optional; any matching pack.yml author is accepted. Omit it to match by namespace only.
+# ---------
+
+# https://github.com/Xiao-MoMi/Custom-Crops
+category-presets:
+- id: customcrops
+  mode: ask
+  authors:
+  - XiaoMoMi
+  visibility: player
+# https://github.com/IOVEYOUMC0/Farmersdelight-Plugin
+- id: farmersdelight
+  mode: ask
+  authors:
+  - HuiDu_OwO
+  visibility: player
+  hidden-categories:
+  - farmersdelight:gui
+  - farmersdelight:item_display
+- id: barbequesdelight
+  mode: ask
+  authors:
+  - huidu
+  - HuiDu_OwO
+  visibility: player
+- id: brewinandchewin
+  mode: ask
+  authors:
+  - HuiDu_OwO
+  visibility: player
+  hidden-categories:
+  - brewinandchewin:gui
+  - brewinandchewin:item_display
+- id: corndelight
+  mode: ask
+  authors:
+  - HuiDu_OwO
+  visibility: player
+- id: crabbersdelight
+  mode: ask
+  authors:
+  - HuiDu_OwO
+  visibility: player
+  hidden-categories:
+  - crabbersdelight:gui
+  - crabbersdelight:item_display
+- id: endsdelight
+  mode: ask
+  authors:
+  - HuiDu_OwO
+  visibility: player
+  hidden-categories:
+  - endsdelight:item_display
+# https://github.com/Nicoppara/KaleidoscopeCookery_Plugin
+- id: kaleidoscopecookery
+  mode: ask
+  visibility: player
+- id: american_chinese
+  mode: ask
+  authors:
+  - ydxc2009
+  visibility: player
+- id: internet_banquet
+  mode: ask
+  authors:
+  - ydxc2009
+  visibility: player
+# https://www.minebbs.com/resources/ultramarine-craftengine.17044/
+- id: ultramarine
+  mode: ask
+  authors:
+  - 未雨屏
+  visibility: player
+  hide-items-without-recipes: true

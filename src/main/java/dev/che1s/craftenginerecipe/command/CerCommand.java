@@ -138,7 +138,11 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(this.plugin.lang().message("messages.no-permission"));
                 return true;
             }
-            this.plugin.integrationPrompts().openPrompt();
+            if (sender instanceof Player player) {
+                this.plugin.integrationConfigDialog().open(player);
+            } else {
+                this.plugin.integrationPrompts().openPrompt();
+            }
             return true;
         }
         if (!(sender instanceof Player)) {
@@ -188,6 +192,14 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             this.plugin.browser(player).openNamespaceManager(player);
             return true;
         }
+        if (args.length > 0 && args[0].equalsIgnoreCase("craft")) {
+            this.plugin.browser(player).openWorkstationBrowser(player);
+            return true;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("items")) {
+            this.plugin.browser(player).openNamespaceBrowser(player);
+            return true;
+        }
         if (args.length > 0 && args[0].equalsIgnoreCase("unapplied")) {
             if (!player.hasPermission("craftenginerecipe.admin")) {
                 player.sendMessage(this.plugin.lang().message("messages.no-permission"));
@@ -220,6 +232,12 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             }
             if ("target".startsWith(prefix)) {
                 out.add("target");
+            }
+            if ("craft".startsWith(prefix)) {
+                out.add("craft");
+            }
+            if ("items".startsWith(prefix)) {
+                out.add("items");
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "reload".startsWith(prefix)) {
                 out.add("reload");

@@ -1,5 +1,6 @@
-# 此文件安装为 recipes/example.yml，默认关闭，不会产生任何配方。
-# This file is installed as recipes/example.yml and is disabled by default.
+# 此文件安装为 example/recipes/recipes-example.yml，默认关闭，不会产生任何配方。
+# This file is installed as example/recipes/recipes-example.yml and is disabled by default.
+# 使用时复制到 recipes/ 下并重命名 / Copy it into recipes/ and rename it before enabling.
 #
 # 采用 TrMenu 风格的 Title / Layout / Icons 菜单结构。一个 YAML 文件可以放同一
 # 合成器的多个配方；外部插件也可以直接向 recipes/ 发送同样格式的文件。

@@ -319,18 +319,24 @@ final class ManagementBrowserService {
     private void handleNamespaceClick(Player player, CategoryNamespaces.NamespaceEntry namespace,
                                       boolean applied, int index, ClickType click) {
         if (!applied && click == ClickType.SHIFT_LEFT) {
+            Sounds.play(player, this.browser.managementUi().sounds().click());
             this.navigate(player, new View(Page.HIDDEN_CATEGORIES, namespace.id(), null, 0));
             return;
         }
         if (click == ClickType.RIGHT || click == ClickType.SHIFT_RIGHT && !applied) {
+            Sounds.play(player, this.browser.managementUi().sounds().click());
             if (this.plugin.unappliedCategoryDialog() != null) {
                 this.plugin.unappliedCategoryDialog().open(player, namespace.id());
             }
             return;
         }
         if (click == ClickType.MIDDLE || click == ClickType.CREATIVE) {
-            if (applied) this.navigate(player, new View(Page.HIDDEN_CATEGORIES, namespace.id(), null, 0));
-            else this.apply(player, namespace.id());
+            if (applied) {
+                Sounds.play(player, this.browser.managementUi().sounds().click());
+                this.navigate(player, new View(Page.HIDDEN_CATEGORIES, namespace.id(), null, 0));
+            } else {
+                this.apply(player, namespace.id());
+            }
             return;
         }
         if (applied && click == ClickType.DROP) {
@@ -384,6 +390,7 @@ final class ManagementBrowserService {
                                 button.display().name(), this.plugin.lang().text("ui.management.button-name")));
                         this.applyUnappliedEntry(viewer, index, name);
                     } else if (type == ClickType.RIGHT || type == ClickType.SHIFT_RIGHT && !applied) {
+                        Sounds.play(viewer, this.browser.managementUi().sounds().click());
                         this.plugin.buttonEditorDialog().open(viewer,
                                 applied ? ButtonEditorDialogService.Source.CATEGORIES
                                         : ButtonEditorDialogService.Source.CATEGORIES_UNAPPLIED,
@@ -397,6 +404,7 @@ final class ManagementBrowserService {
                     } else if (applied && type == ClickType.SHIFT_RIGHT) {
                         this.moveCategoryEntry(viewer, index, 1, true);
                     } else {
+                        Sounds.play(viewer, this.browser.managementUi().sounds().click());
                         ButtonActions.run(viewer, button, type);
                     }
                 })).build();
@@ -461,6 +469,7 @@ final class ManagementBrowserService {
                     !allHidden), "messages.management-saved");
             return;
         }
+        Sounds.play(player, this.browser.managementUi().sounds().click());
         this.navigate(player, new View(Page.CATEGORY_ITEMS, namespace, id, 0));
     }
 
@@ -474,16 +483,22 @@ final class ManagementBrowserService {
                 .distinct()
                 .toList();
         List<Item> items = new ArrayList<>(direct.size());
+        var recipeSnapshot = this.plugin.externalRecipes().snapshot();
         for (String itemId : direct) {
             boolean isHidden = hidden != null && (hidden.contains("*") || hidden.contains(itemId));
             Key key = Key.of(itemId);
             String displayName = this.plugin.data().itemDisplayName(itemId);
+            int recipeCount = recipeSnapshot.results().getOrDefault(key, List.of()).size();
+            int usageCount = recipeSnapshot.usages().getOrDefault(key, List.of()).size();
             ItemStack stack = new ItemBuilder(ItemBridge.build(key, player))
                     .setName(Component.text(displayName == null || displayName.isBlank()
                             ? itemId : displayName))
                     .setLore(List.of(
                             this.plugin.lang().component(isHidden
                                     ? "ui.management.item-hidden" : "ui.management.item-visible"),
+                            this.plugin.lang().component("ui.management.item-recipe-count",
+                                    "recipes", String.valueOf(recipeCount),
+                                    "usages", String.valueOf(usageCount)),
                             this.plugin.lang().component("ui.management.item-id", "id", itemId),
                             this.plugin.lang().component("ui.management.item-toggle")))
                     .setGlint(isHidden ? Boolean.TRUE : null)
@@ -530,6 +545,7 @@ final class ManagementBrowserService {
                             } else if (click.clickType() == ClickType.SHIFT_RIGHT) {
                                 this.moveWorkstation(click.player(), entryIndex, 1);
                             } else {
+                                Sounds.play(click.player(), this.browser.managementUi().sounds().click());
                                 this.browser.openWorkstation(click.player(), station.id());
                             }
                         })).build());
@@ -546,6 +562,7 @@ final class ManagementBrowserService {
                         this.browser.handleClick(click.player(), () -> {
                             ClickType type = click.clickType();
                             if (type == ClickType.RIGHT) {
+                                Sounds.play(click.player(), this.browser.managementUi().sounds().click());
                                 this.plugin.buttonEditorDialog().open(click.player(),
                                         ButtonEditorDialogService.Source.WORKSTATIONS, entryIndex);
                             } else if (type == ClickType.SHIFT_LEFT) {
@@ -553,6 +570,7 @@ final class ManagementBrowserService {
                             } else if (type == ClickType.SHIFT_RIGHT) {
                                 this.moveWorkstation(click.player(), entryIndex, 1);
                             } else {
+                                Sounds.play(click.player(), this.browser.managementUi().sounds().click());
                                 ButtonActions.run(click.player(), button.button(), type);
                             }
                         })).build());
@@ -565,6 +583,8 @@ final class ManagementBrowserService {
         boolean applied = this.plugin.data().namespaces().applyUnapplied(namespace);
         player.sendMessage(this.plugin.lang().message(applied
                 ? "messages.management-applied" : "messages.management-save-failed", "namespace", namespace));
+        Sounds.play(player, applied ? this.browser.managementUi().sounds().click()
+                : this.browser.managementUi().sounds().queryFailure());
         if (applied) this.navigate(player, new View(Page.CATEGORIES, null, null, 0));
     }
 
@@ -646,7 +666,10 @@ final class ManagementBrowserService {
             return new ItemWrapper(this.managementButton(name, List.of()));
         }).addClickHandler((item, gui, click) -> this.browser.handleClick(click.player(), () -> {
             int target = gui.getPage() + (next ? 1 : -1);
-            if (target < 0 || target >= gui.getPageCount()) return;
+            if (target < 0 || target >= gui.getPageCount()) {
+                Sounds.play(click.player(), ui.sounds().queryFailure());
+                return;
+            }
             gui.setPage(target);
             Sounds.play(click.player(), ui.sounds().changePage());
         })).build();
@@ -677,7 +700,10 @@ final class ManagementBrowserService {
                 List.of(ui.mm(this.plugin.lang().text("ui.management.return-lore"))));
         return Item.builder().setItemProvider(stack).addClickHandler(click ->
                 this.browser.handleClick(click.player(),
-                        () -> this.browser.openDefault(click.player()))).build();
+                        () -> {
+                            Sounds.play(click.player(), ui.sounds().click());
+                            this.browser.openDefault(click.player());
+                        })).build();
     }
 
     /** 管理页视觉由固定背景贴图提供，交互物品使用透明模型，仅保留悬浮说明。 */
@@ -707,7 +733,10 @@ final class ManagementBrowserService {
         ItemStack stack = this.actionStack(material,
                 this.plugin.lang().component(nameKey), lore, active);
         return Item.builder().setItemProvider(stack).addClickHandler(click ->
-                this.browser.handleClick(click.player(), action)).build();
+                this.browser.handleClick(click.player(), () -> {
+                    Sounds.play(click.player(), this.browser.managementUi().sounds().click());
+                    action.run();
+                })).build();
     }
 
     private ItemStack actionStack(Material material, Component name, List<Component> lore, boolean active) {

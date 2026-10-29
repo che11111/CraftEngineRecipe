@@ -43,6 +43,20 @@ public final class PlayerPreferences implements AutoCloseable {
                 landing_page = excluded.landing_page,
                 updated_at = excluded.updated_at
             """;
+    private static final String CREATE_SESSION_TABLE = """
+            CREATE TABLE IF NOT EXISTS gui_sessions (
+                player_uuid TEXT PRIMARY KEY,
+                snapshot TEXT NOT NULL,
+                saved_at INTEGER NOT NULL
+            )
+            """;
+    private static final String UPSERT_SESSION = """
+            INSERT INTO gui_sessions(player_uuid, snapshot, saved_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(player_uuid) DO UPDATE SET
+                snapshot = excluded.snapshot,
+                saved_at = excluded.saved_at
+            """;
 
     public enum LandingPage {
         NAMESPACES,
@@ -62,7 +76,7 @@ public final class PlayerPreferences implements AutoCloseable {
     private final Logger logger;
     private final Map<UUID, Stored> preferences = new ConcurrentHashMap<>();
     private final ExecutorService writer = Executors.newSingleThreadExecutor(task -> {
-        Thread thread = new Thread(task, "CraftEngineRecipe-Preferences");
+        Thread thread = new Thread(task, "CraftEngineRecipe-Player-Data");
         thread.setDaemon(true);
         return thread;
     });
@@ -96,7 +110,7 @@ public final class PlayerPreferences implements AutoCloseable {
         boolean defaultRemember = config.getBoolean("personalization.default-remember-last-page",
                 config.getBoolean("browser.remember-last-page", true));
         LandingPage defaultLanding = LandingPage.parse(
-                config.getString("personalization.default-main-page", "namespaces"));
+                config.getString("browser.default-main-page", "namespaces"));
         if (defaultLanding == null) defaultLanding = LandingPage.NAMESPACES;
         this.settings = new Settings(config.getBoolean("personalization.enabled", true) && !choices.isEmpty(),
                 List.copyOf(choices), defaultPack, defaultRemember, defaultLanding);
@@ -128,6 +142,7 @@ public final class PlayerPreferences implements AutoCloseable {
     }
 
     public LandingPage landingPage(UUID player) {
+        if (!this.settings.enabled()) return this.settings.defaultLandingPage();
         Stored stored = this.preferences.get(player);
         return stored != null && stored.landingPage() != null
                 ? stored.landingPage() : this.settings.defaultLandingPage();
@@ -166,6 +181,7 @@ public final class PlayerPreferences implements AutoCloseable {
                 statement.execute("PRAGMA journal_mode=WAL");
                 statement.execute("PRAGMA synchronous=NORMAL");
                 statement.execute(CREATE_TABLE);
+                statement.execute(CREATE_SESSION_TABLE);
                 ensureColumn(connection, "landing_page", "TEXT");
             }
         } catch (Exception error) {
@@ -210,6 +226,78 @@ public final class PlayerPreferences implements AutoCloseable {
         }
     }
 
+    /** 读取统一数据库中的菜单恢复快照。快照序列化格式由 GuiSessionStore 管理。 */
+    public Map<UUID, StoredSession> loadSessions() {
+        Map<UUID, StoredSession> sessions = new ConcurrentHashMap<>();
+        try (Connection connection = this.connection();
+             Statement statement = connection.createStatement();
+             ResultSet result = statement.executeQuery(
+                     "SELECT player_uuid, snapshot, saved_at FROM gui_sessions")) {
+            while (result.next()) {
+                try {
+                    UUID player = UUID.fromString(result.getString("player_uuid"));
+                    sessions.put(player, new StoredSession(result.getString("snapshot"),
+                            result.getLong("saved_at")));
+                } catch (IllegalArgumentException ignored) {
+                    // 忽略 UUID 格式错误的行，不影响其他玩家数据。
+                }
+            }
+        } catch (SQLException error) {
+            this.logger.warning("Cannot load GUI sessions database: " + error.getMessage());
+        }
+        return sessions;
+    }
+
+    public void saveSession(UUID player, String snapshot, long savedAt) {
+        if (player == null || snapshot == null) return;
+        this.writer.execute(() -> {
+            try (Connection connection = this.connection();
+                 PreparedStatement statement = connection.prepareStatement(UPSERT_SESSION)) {
+                statement.setString(1, player.toString());
+                statement.setString(2, snapshot);
+                statement.setLong(3, savedAt);
+                statement.executeUpdate();
+            } catch (SQLException error) {
+                this.logger.warning("Cannot save GUI session: " + error.getMessage());
+            }
+        });
+    }
+
+    /** 旧数据迁移使用单事务同步写入，成功后才允许归档旧文件。 */
+    public boolean saveSessions(Map<UUID, StoredSession> sessions) {
+        if (sessions == null || sessions.isEmpty()) return true;
+        try (Connection connection = this.connection();
+             PreparedStatement statement = connection.prepareStatement(UPSERT_SESSION)) {
+            connection.setAutoCommit(false);
+            for (var entry : sessions.entrySet()) {
+                statement.setString(1, entry.getKey().toString());
+                statement.setString(2, entry.getValue().snapshot());
+                statement.setLong(3, entry.getValue().savedAt());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            connection.commit();
+            return true;
+        } catch (SQLException error) {
+            this.logger.warning("Cannot import GUI sessions: " + error.getMessage());
+            return false;
+        }
+    }
+
+    public void deleteSession(UUID player) {
+        if (player == null) return;
+        this.writer.execute(() -> {
+            try (Connection connection = this.connection();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "DELETE FROM gui_sessions WHERE player_uuid = ?")) {
+                statement.setString(1, player.toString());
+                statement.executeUpdate();
+            } catch (SQLException error) {
+                this.logger.warning("Cannot delete GUI session: " + error.getMessage());
+            }
+        });
+    }
+
     private Connection connection() throws SQLException {
         Connection connection = DriverManager.getConnection("jdbc:sqlite:" + this.database.toAbsolutePath());
         try (Statement statement = connection.createStatement()) {
@@ -249,6 +337,9 @@ public final class PlayerPreferences implements AutoCloseable {
 
     private record Stored(String menuPack, Boolean rememberLastPage, LandingPage landingPage) {
         private static final Stored EMPTY = new Stored(null, null, null);
+    }
+
+    public record StoredSession(String snapshot, long savedAt) {
     }
 
     private record Settings(boolean enabled, List<String> menuPacks, String defaultMenuPack,

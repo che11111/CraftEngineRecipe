@@ -34,6 +34,7 @@ public final class GuiSession {
     private int workstationPage;
     private int workstationCategoryOffset;
     private String workstationKeyword;
+    private String itemSearchKeyword;
     private WorkstationRecipes.Output recipeSelection;
     private RecipeEntry.Output entrySelection;
     private long recipeGeneration;
@@ -47,7 +48,8 @@ public final class GuiSession {
     public record Snapshot(String category, int categoryPage, String parentCategory, boolean unapplied,
                            String workstationId, int workstationPage, String workstationKeyword,
                            String recipeItem, int recipeIndex, boolean recipeUsageMode,
-                           boolean recipeWorkstationSelection, List<HistoryPage> recipeHistory, int contentPage) {
+                           boolean recipeWorkstationSelection, List<HistoryPage> recipeHistory, int contentPage,
+                           String itemSearchKeyword) {
         public Snapshot {
             recipeHistory = recipeHistory == null ? List.of() : List.copyOf(recipeHistory);
         }
@@ -196,7 +198,8 @@ public final class GuiSession {
                 this.entrySelection != null,
                 this.recipeHistory.stream().map(page -> new HistoryPage(page.item().toString(), page.usageMode(),
                         page.index(), page.selection() != null)).toList(),
-                this.contentPage);
+                this.contentPage,
+                this.itemSearchKeyword);
     }
 
     public void restore(Snapshot snapshot) {
@@ -225,6 +228,8 @@ public final class GuiSession {
         this.entrySelection = snapshot.recipeWorkstationSelection() && this.recipeItem != null
                 ? selectionResolver.apply(this.recipeItem.toString()) : null;
         this.recipeGeneration = generation;
+        this.itemSearchKeyword = snapshot.itemSearchKeyword() == null || snapshot.itemSearchKeyword().isBlank()
+                ? null : snapshot.itemSearchKeyword();
         this.clearRecipeHistory();
         for (HistoryPage page : snapshot.recipeHistory()) {
             try {
@@ -256,6 +261,7 @@ public final class GuiSession {
         this.workstationId = RecipeIndex.stationId(type);
         this.workstationPage = page;
         this.workstationKeyword = keyword;
+        this.itemSearchKeyword = null;
         this.recipeSelection = null;
         this.entrySelection = null;
     }
@@ -265,6 +271,7 @@ public final class GuiSession {
         this.workstation = RecipeIndex.nativeType(id);
         this.workstationPage = page;
         this.workstationKeyword = keyword;
+        this.itemSearchKeyword = null;
         this.recipeSelection = null;
         this.entrySelection = null;
     }
@@ -282,6 +289,10 @@ public final class GuiSession {
     public int workstationCategoryOffset() { return this.workstationCategoryOffset; }
     public void workstationCategoryOffset(int offset) { this.workstationCategoryOffset = Math.max(0, offset); }
     public String workstationKeyword() { return this.workstationKeyword; }
+    public String itemSearchKeyword() { return this.itemSearchKeyword; }
+    public void itemSearchKeyword(String keyword) {
+        this.itemSearchKeyword = keyword == null || keyword.isBlank() ? null : keyword;
+    }
     public WorkstationRecipes.Output recipeSelection() { return this.recipeSelection; }
     public long recipeGeneration() { return this.recipeGeneration; }
     public void recipeSelection(WorkstationRecipes.Output selection, long generation) {
@@ -294,6 +305,7 @@ public final class GuiSession {
         this.workstationPage = 0;
         this.workstationCategoryOffset = 0;
         this.workstationKeyword = null;
+        this.itemSearchKeyword = null;
         this.clearRecipeContext();
     }
 }

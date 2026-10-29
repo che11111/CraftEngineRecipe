@@ -40,22 +40,20 @@ messages:
   management-applied-readonly: '<#E4D397>该命名空间已写入正式 categories.yml，请直接编辑正式配置。</#E4D397>'
   management-no-category-page: '<#8793A5>命名空间 {namespace} 没有可浏览的命名空间分类页面。</#8793A5>'
   index-build-started: '<#E4D397>已检测到 {plugins}，正在构建配方索引...</#E4D397>'
-  integration-detected: '<#D8B278>检测到 CER 适配插件：</#D8B278>'
-  integration-detected-plugins: '<white>{plugins}</white>'
-  integration-choose: '<#B8C0CC>请选择点击以下按钮：</#B8C0CC>'
-  integration-support-all: '<#98C69A>[支持所有]</#98C69A>'
-  integration-support-only: '<#79CFC9>[仅支持 {plugin}]</#79CFC9>'
-  integration-defer: '<#8793A5>[暂不处理]</#8793A5>'
-  integration-disable: '<#E58B8B>[不支持并以后不再询问]</#E58B8B>'
-  integration-choice-hover: '<#B8C0CC>点击立即应用此选择</#B8C0CC>'
-  integration-choice-handled: '<#8793A5>此询问已经处理，无需重复选择。</#8793A5>'
-  integration-choice-busy: '<#E4D397>正在导出当前适配插件的配方，请等待完成后再选择。</#E4D397>'
-  integration-choice-deferred: '<#E4D397>本次启动暂不处理；下次启动时会再次询问。</#E4D397>'
   integration-choice-disabled: '<#E58B8B>已停用 {plugins}；现有配方文件会保留，但不会再导出或建立索引。</#E58B8B>'
+  integration-choice-ask: '<#E4D397>已将 {plugins} 改为询问模式；现有配方文件会保留，但暂时不再建立索引。</#E4D397>'
   integration-export-started: '<#E4D397>已启用 {plugins} 配方与栽培支持，正在导出配方并构建索引...</#E4D397>'
   integration-index-ready: '<#98C69A>{plugin} 索引构建完成：共 {recipes} 个配方、{workstations} 个工作站。</#98C69A>'
   integration-index-failed: '<#E58B8B>{plugin} 索引构建失败：{error}</#E58B8B>'
   integration-unknown-error: 未知错误，请查看控制台
+  integration-config-detected: '<#D8B278>检测到待处理的适配配置：适配插件 {plugins} 项，分类预设 {presets} 项。</#D8B278>'
+  integration-config-open: '<#79CFC9>[打开适配配置]</#79CFC9>'
+  integration-config-open-hover: '<#B8C0CC>打开统一的适配插件与分类预设配置页面</#B8C0CC>'
+  integration-config-empty: '<#8793A5>当前没有需要处理的适配插件或分类预设。</#8793A5>'
+  integration-config-no-detected: '<#8793A5>当前没有检测到 CER 特别支持的插件或资源包。</#8793A5>'
+  integration-config-saved: '<#98C69A>适配配置已保存。</#98C69A>'
+  integration-config-save-failed: '<#E58B8B>适配配置保存失败，请查看控制台。</#E58B8B>'
+  category-preset-linked-applied: '<#98C69A>已随适配插件启用自动应用分类预设：{presets}。</#98C69A>'
   api-integration-detected: '<#D8B278>检测到通过 API 接入的配方来源：</#D8B278><white>{plugin}</white>'
   api-integration-namespace: '<#B8C0CC>命名空间：</#B8C0CC><white>{namespace}</white>'
   api-integration-ready: '<#98C69A>已接入 {recipes} 条配方，索引构建完成。</#98C69A>'
@@ -218,6 +216,7 @@ ui:
     items-toggle-all: <#79CFC9>Shift+左键或右键：隐藏 / 显示全部直接物品</#79CFC9>
     item-hidden: <#E58B8B>当前已隐藏</#E58B8B>
     item-visible: <#98C69A>当前可见</#98C69A>
+    item-recipe-count: '<#B8C0CC>有 {recipes} 个配方，参与 {usages} 个合成</#B8C0CC>'
     item-id: '<#8793A5>{id}</#8793A5>'
     item-toggle: <#79CFC9>点击切换隐藏状态</#79CFC9>
     workstation-id: '<#8793A5>{id}</#8793A5>'
@@ -238,7 +237,7 @@ ui:
     sub-icon-lore: <#79CFC9>子分类提示\<lore>（每行一条）
     category-entry: <#79CFC9>显示命名空间分类入口</#79CFC9>
     sort-by-namespace: <#79CFC9>按命名空间和路径排序</#79CFC9>
-    hide-items-without-recipes: <#79CFC9>隐藏没有 CER 配方的物品</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>隐藏没有配方且不参与合成的物品</#79CFC9>
     hidden-rules-affect-workstations: <#79CFC9>隐藏规则影响合成器页面</#79CFC9>
     hide-inaccessible: <#79CFC9>无权查看时隐藏并让出菜单位置</#79CFC9>
     save: <#98C69A>保存修改</#98C69A>
@@ -262,6 +261,28 @@ ui:
     save-tooltip: <#B8C0CC>写回当前配置文件</#B8C0CC>
     cancel: <#E58B8B>取消</#E58B8B>
     cancel-tooltip: <#B8C0CC>放弃修改并返回配置中心</#B8C0CC>
+  integration-config:
+    title: <#D8B278>适配插件与分类预设</#D8B278>
+    plugins-title: <#D8B278>适配配置 · 特殊支持的插件</#D8B278>
+    resources-title: <#D8B278>适配配置 · 特别适配的资源包</#D8B278>
+    description: '<#B8C0CC>下方为CER检测到的特别支持的插件以及资源包列表，点击按钮以启用支持</#B8C0CC>'
+    source-label: '<#79CFC9>{plugin}</#79CFC9>'
+    preset-label: '<#79CFC9>{namespace}</#79CFC9>'
+    plugin-heading: '<#98C69A>检测到CER特殊支持的插件，点击按钮以启用：</#98C69A>'
+    resource-heading: '<#98C69A>检测到CER特别适配的资源包，点击按钮以启用：</#98C69A>'
+    item-enable-tooltip: '<#B8C0CC>点击启用此项支持</#B8C0CC>'
+    item-disable-tooltip: '<#B8C0CC>点击禁用此项支持</#B8C0CC>'
+    open-resources: '<#79CFC9>查看资源包 ▶</#79CFC9>'
+    open-plugins: '<#E4D397>◀ 返回插件</#E4D397>'
+    option-ask: <#E4D397>询问</#E4D397>
+    option-enabled: <#98C69A>启用</#98C69A>
+    option-disabled: <#E58B8B>禁用</#E58B8B>
+    enable-all: <#98C69A>全部启用</#98C69A>
+    enable-all-tooltip: <#B8C0CC>启用所有当前已检测到的服务器插件和 CE 资源包预设</#B8C0CC>
+    save: <#98C69A>保存</#98C69A>
+    save-tooltip: <#B8C0CC>保存选择并执行对应操作</#B8C0CC>
+    cancel: <#8793A5>稍后</#8793A5>
+    cancel-tooltip: <#B8C0CC>关闭页面，本次不修改配置</#B8C0CC>
   # 首行展示 8 种原版合成器；两个 cultivation 开关分别控制原版与 CE 栽培入口。
   workstations:
     title: '<bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
@@ -302,6 +323,7 @@ ui:
     cancel-tooltip: <#B8C0CC>关闭搜索</#B8C0CC>
   common:
     all-items: 全部物品
+    unknown: 未填写
     first-page: <#8793A5>已是第一页</#8793A5>
     last-page: <#8793A5>已是最后一页</#8793A5>
     no-recipe: <#B8C0CC>该物品暂无配方</#B8C0CC>
@@ -319,6 +341,8 @@ logs:
   recipe-source-failed: '配方来源 {source} 更新失败，保留上次有效数据：{error}'
   plugin-fingerprint-mismatch: '检测到名为 {plugin} 的插件，但主类 {actual} 不匹配预期 {expected}；已忽略该配方来源。'
   integration-setup-waiting: '检测到待配置的 CER 适配插件：{plugins}。当前没有在线管理员，管理员上线后会显示可点击的启用询问。'
+  category-preset-linked-applied: '已随已启用的适配插件自动应用分类预设：{namespaces}'
+  integration-config-waiting: '检测到待处理的适配插件 {plugins} 项、分类预设 {presets} 项；当前没有在线管理员，管理员上线后会显示 Dialog 入口。'
   compatibility-fallback: '兼容性处理 {operation} 失败，继续使用原有回退；本次数据版本内相同位置仅记录一次，异常详情如下。'
   search-input-failed: '读取搜索输入失败，已返回菜单。'
   config-invalid-id: '配置中的 ID 格式无效：{path} = {value}；保留原有回退处理，请检查命名空间和路径。'
@@ -347,6 +371,7 @@ logs:
   category-read-failed: 读取分类配置失败：{file}
   category-save-failed: 保存分类命名空间数据文件失败：{error}
   unapplied-save-failed: 保存未应用条目数据文件失败：{error}
+  session-migrate-failed: 旧 sessions.yml 已导入数据库，但无法改名为备份文件：{error}
   result-query-failed: 查询产出配方失败（{id}）：{error}
   usage-query-failed: 查询用途配方失败（{id}）：{error}
   layout-reserved: 'layout 字符冲突：按钮使用了保留字符 #，该按钮不会显示'

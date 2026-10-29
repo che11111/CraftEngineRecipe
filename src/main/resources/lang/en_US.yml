@@ -41,22 +41,20 @@ messages:
   management-applied-readonly: '<#E4D397>This namespace is already in categories.yml; edit the active configuration directly.</#E4D397>'
   management-no-category-page: '<#8793A5>Namespace {namespace} has no browsable namespace category page.</#8793A5>'
   index-build-started: '<#E4D397>Detected {plugins}; building the recipe index...</#E4D397>'
-  integration-detected: '<#D8B278>Detected CER integrations:</#D8B278>'
-  integration-detected-plugins: '<white>{plugins}</white>'
-  integration-choose: '<#B8C0CC>Choose an option below:</#B8C0CC>'
-  integration-support-all: '<#98C69A>[Support all]</#98C69A>'
-  integration-support-only: '<#79CFC9>[Support {plugin} only]</#79CFC9>'
-  integration-defer: '<#8793A5>[Not now]</#8793A5>'
-  integration-disable: '<#E58B8B>[Do not support and stop asking]</#E58B8B>'
-  integration-choice-hover: '<#B8C0CC>Click to apply this choice now</#B8C0CC>'
-  integration-choice-handled: '<#8793A5>This prompt has already been handled.</#8793A5>'
-  integration-choice-busy: '<#E4D397>An integration export is already running; wait for it to finish before choosing again.</#E4D397>'
-  integration-choice-deferred: '<#E4D397>This startup will leave the integrations unchanged; you will be asked again next startup.</#E4D397>'
   integration-choice-disabled: '<#E58B8B>Disabled {plugins}. Existing recipe files are kept, but they will no longer be exported or indexed.</#E58B8B>'
+  integration-choice-ask: '<#E4D397>Changed {plugins} to ask mode. Existing recipe files are kept, but they will not be indexed until enabled.</#E4D397>'
   integration-export-started: '<#E4D397>Enabled recipe and cultivation support for {plugins}; exporting recipes and building the index...</#E4D397>'
   integration-index-ready: '<#98C69A>{plugin} index ready: {recipes} recipes and {workstations} workstations.</#98C69A>'
   integration-index-failed: '<#E58B8B>{plugin} index build failed: {error}</#E58B8B>'
   integration-unknown-error: Unknown error; check the console.
+  integration-config-detected: '<#D8B278>Pending integration configuration: {plugins} integrations and {presets} category presets.</#D8B278>'
+  integration-config-open: '<#79CFC9>[Open integration configuration]</#79CFC9>'
+  integration-config-open-hover: '<#B8C0CC>Open the unified integration and category-preset dialog</#B8C0CC>'
+  integration-config-empty: '<#8793A5>There are no integrations or category presets awaiting configuration.</#8793A5>'
+  integration-config-no-detected: '<#8793A5>No specially supported plugins or adapted resource packs were detected.</#8793A5>'
+  integration-config-saved: '<#98C69A>Integration configuration saved.</#98C69A>'
+  integration-config-save-failed: '<#E58B8B>Could not save the integration configuration; check the console.</#E58B8B>'
+  category-preset-linked-applied: '<#98C69A>Applied linked category presets while enabling integrations: {presets}.</#98C69A>'
   api-integration-detected: '<#D8B278>Detected a recipe source connected through the CER API:</#D8B278> <white>{plugin}</white>'
   api-integration-namespace: '<#B8C0CC>Namespace:</#B8C0CC> <white>{namespace}</white>'
   api-integration-ready: '<#98C69A>Added {recipes} recipes; the index is ready.</#98C69A>'
@@ -216,6 +214,7 @@ ui:
     items-toggle-all: '<#79CFC9>Shift+Left or Shift+Right: hide / show all direct items</#79CFC9>'
     item-hidden: <#E58B8B>Currently hidden</#E58B8B>
     item-visible: <#98C69A>Currently visible</#98C69A>
+    item-recipe-count: '<#B8C0CC>{recipes} recipes, used in {usages} recipes</#B8C0CC>'
     item-id: '<#8793A5>{id}</#8793A5>'
     item-toggle: <#79CFC9>Click to toggle visibility</#79CFC9>
     workstation-id: '<#8793A5>{id}</#8793A5>'
@@ -236,7 +235,7 @@ ui:
     sub-icon-lore: <#79CFC9>Subcategory lore \<lore> (one line per row)
     category-entry: <#79CFC9>Show namespace category entry</#79CFC9>
     sort-by-namespace: <#79CFC9>Sort by namespace and path</#79CFC9>
-    hide-items-without-recipes: <#79CFC9>Hide items without CER recipes</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>Hide items with no recipe and no crafting use</#79CFC9>
     hidden-rules-affect-workstations: <#79CFC9>Apply hiding rules to workstations</#79CFC9>
     hide-inaccessible: <#79CFC9>Hide and reclaim the slot when inaccessible</#79CFC9>
     save: <#98C69A>Save changes</#98C69A>
@@ -260,6 +259,28 @@ ui:
     save-tooltip: <#B8C0CC>Write to the current configuration</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
     cancel-tooltip: <#B8C0CC>Discard changes and return to the configuration center</#B8C0CC>
+  integration-config:
+    title: <#D8B278>Integrations and Category Presets</#D8B278>
+    plugins-title: <#D8B278>Integration Settings · Specially Supported Plugins</#D8B278>
+    resources-title: <#D8B278>Integration Settings · Specially Adapted Resource Packs</#D8B278>
+    description: '<#B8C0CC>The list below contains CER-detected specially supported plugins and adapted resource packs. Click a button to enable support.</#B8C0CC>'
+    source-label: '<#79CFC9>{plugin}</#79CFC9>'
+    preset-label: '<#79CFC9>{namespace}</#79CFC9>'
+    plugin-heading: '<#98C69A>CER detected these specially supported plugins; click a button to enable:</#98C69A>'
+    resource-heading: '<#98C69A>CER detected these specially adapted resource packs; click a button to enable:</#98C69A>'
+    item-enable-tooltip: '<#B8C0CC>Click to enable support for this item</#B8C0CC>'
+    item-disable-tooltip: '<#B8C0CC>Click to disable support for this item</#B8C0CC>'
+    open-resources: '<#79CFC9>View resource packs ▶</#79CFC9>'
+    open-plugins: '<#E4D397>◀ Back to plugins</#E4D397>'
+    option-ask: <#E4D397>Ask</#E4D397>
+    option-enabled: <#98C69A>Enable</#98C69A>
+    option-disabled: <#E58B8B>Disable</#E58B8B>
+    enable-all: <#98C69A>Enable all detected</#98C69A>
+    enable-all-tooltip: <#B8C0CC>Enable every currently detected server plugin and CE resource-pack preset</#B8C0CC>
+    save: <#98C69A>Save</#98C69A>
+    save-tooltip: <#B8C0CC>Save choices and perform the requested actions</#B8C0CC>
+    cancel: <#8793A5>Later</#8793A5>
+    cancel-tooltip: <#B8C0CC>Close without changing the configuration</#B8C0CC>
   # The cultivation data is controlled by the separate vanilla and CraftEngine cultivation source flags.
   workstations:
     title: '<bold><#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
@@ -300,6 +321,7 @@ ui:
     cancel-tooltip: <#B8C0CC>Close the search dialog</#B8C0CC>
   common:
     all-items: All items
+    unknown: Not specified
     first-page: <#8793A5>Already on the first page</#8793A5>
     last-page: <#8793A5>Already on the last page</#8793A5>
     no-recipe: <#B8C0CC>This item has no recipes</#B8C0CC>
@@ -317,6 +339,8 @@ logs:
   recipe-source-failed: 'Recipe source {source} could not update; retaining its last valid data: {error}'
   plugin-fingerprint-mismatch: 'Plugin {plugin} was found, but main class {actual} does not match the expected {expected}; the recipe source was ignored.'
   integration-setup-waiting: 'Detected CER integrations awaiting configuration: {plugins}. No administrator is online; the clickable setup prompt will appear when one joins.'
+  category-preset-linked-applied: 'Applied category presets linked to enabled integrations: {namespaces}'
+  integration-config-waiting: 'Detected {plugins} pending integrations and {presets} category presets. No administrator is online; the dialog entry will appear when one joins.'
   update-check-enabled: Update checking enabled.
   update-available: 'New version {latest} is available (current {current}): {url}'
   update-check-failed: 'Could not check GitHub for updates; will retry at the next scheduled check without affecting the plugin: {error}'
@@ -345,6 +369,7 @@ logs:
   category-read-failed: 'Failed to read category configuration: {file}'
   category-save-failed: 'Failed to save category namespace configuration: {error}'
   unapplied-save-failed: 'Failed to save the unapplied entry configuration: {error}'
+  session-migrate-failed: 'Legacy sessions.yml was imported, but could not be renamed as a backup: {error}'
   result-query-failed: 'Failed to query output recipes ({id}): {error}'
   usage-query-failed: 'Failed to query ingredient uses ({id}): {error}'
   layout-reserved: 'Layout conflict: a button uses the reserved # character and will not be displayed'

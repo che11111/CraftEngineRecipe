@@ -53,22 +53,24 @@
 - WoodworkingSaw 可通过 CER Recipe API 将其 `transformations.yml` 转化规则直接发布到配方浏览页面。
 - CE 固定产物配方首次导出到 `recipes/craftengine/`，之后只读取文件；原版配方、原版栽培、CE 栽培及各集成栽培数据均有独立开关。
 - `recipes/` 文件修改后自动重载；玩家按 ESC 离开时保留当前页面与配方返回层级，默认记忆 3 分钟（可配置），在菜单外右键会返回进入来源对应的主页面。
-- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式、`/cer` 与 Shift+F 的默认主页面（按物品种类或按合成器），以及是否恢复上次浏览位置，偏好保存在 SQLite 数据库 `player-preferences.db` 中。
+- 右键“按合成器浏览”可打开个性化页面；玩家可单独选择主菜单样式、`/cer` 与 Shift+F 的默认主页面（按物品种类或按合成器），以及是否恢复上次浏览位置，个性化设置与浏览会话统一保存在 SQLite 数据库 `player-preferences.db` 中。
 - `/cer manage` 使用独立的管理页面 UI：无论当前菜单风格如何都自动安装 `cer_manage_gui`，固定显示目录上一组/下一组、返回、上一页、下一页和返回物品分类按钮。
 - 在 `categories.yml` 页面按 `Q` 可将命名空间或自定义按钮移动到 `categories-unapplied.yml`；未应用按钮可按中键重新应用，完整配置会被保留。
-- 数据就绪后会以可点击文字询问在线管理员要启用哪些适配插件；启用时同时开启配方与栽培支持，并显示导出进度和完成统计。
+- 数据就绪后，聊天中只发送一个“打开适配配置”按钮。配置 Dialog 分为“特殊支持的插件”和“特别适配的资源包”两页；条目按钮第一次点击启用，再次点击禁用，页面不会关闭。
+- 插件/资源包按钮颜色会显示当前状态：绿色已启用、黄色询问、红色已禁用。点击“全部启用”可一次启用所有检测到的插件与资源包。
 - 查看 `主手` / `准星` 物品配方，有指令也有菜单快捷按钮。
 - `Shift+F`快捷键，快速打开配方菜单，可设置启用与否。
 
-## 兼容插件
+## 适配插件或内容
 
-| Logo | 插件 | CER 适配内容 |
+| Logo | 插件或内容 | CER 适配内容 |
 | :---: | --- | --- |
 | <a href="https://github.com/Xiao-MoMi/craft-engine"><img src="img/compatible-plugin-logos/craftengine.png" alt="CraftEngine" width="64"></a> | [CraftEngine](https://github.com/Xiao-MoMi/craft-engine) | CER 的核心物品与配方来源，读取 CE 可用配方类型并提供物品、结果与用途索引；必需前置。 |
 | <a href="https://github.com/IOVEYOUMC0/Farmersdelight-Plugin"><img src="img/compatible-plugin-logos/farmersdelight.png" alt="Farmer's Delight" width="72"></a> | [Farmer's Delight](https://github.com/IOVEYOUMC0/Farmersdelight-Plugin) | 导入烹饪锅、砧板、煎锅与特殊配方，并支持自动导出为 CER 配方文件；煎锅页面使用 `cer_fd_gui` 专用贴图。 |
 | <a href="https://github.com/Nicoppara/KaleidoscopeCookery_Plugin"><img src="img/compatible-plugin-logos/kaleidoscope-cookery.png" alt="Kaleidoscope Cookery" width="64"></a> | [Kaleidoscope Cookery](https://github.com/Nicoppara/KaleidoscopeCookery_Plugin) | 导入炒锅、砧板、磨盘、沙威玛烤架、高汤锅、蒸笼和茶壶等设备配方；各设备页面使用对应的 `cer_kc_gui` 专用贴图。 |
 | <a href="https://github.com/Xiao-MoMi/Custom-Crops"><img src="img/compatible-plugin-logos/customcrops.png" alt="CustomCrops" width="64"></a> | [CustomCrops](https://github.com/Xiao-MoMi/Custom-Crops) | 生成种植盆作物页面，包含种子、产物、季节、用水、肥料、洒水器、温室和稻草人等信息；种植盆页面使用 `cer_ccrops_gui` 专用贴图。 |
 | <a href="https://github.com/che11111/WoodworkingSaw"><img src="img/compatible-plugin-logos/woodworkingsaw.png" alt="WoodworkingSaw" width="64"></a> | [WoodworkingSaw](https://github.com/che11111/WoodworkingSaw) | 通过 CER Recipe API 直接将 `transformations.yml` 转化规则发布到配方页面；CER 为 API 配方准备了统一的 `cer_api_gui` UI 贴图。 |
+| <a href="https://www.minebbs.com/resources/ultramarine-craftengine.17044/"><img src="img/compatible-plugin-logos/ultramarine.png" alt="群青 Ultramarine" width="64"></a> | [Ultramarine](https://www.minebbs.com/resources/ultramarine-craftengine.17044/) | 为 Ultramarine （群青）内容提供命名空间预设；自动隐藏既没有产出配方、也不参与任何合成的物品。 |
 
 > CER 为煎锅、Kaleidoscope Cookery 设备、CustomCrops 种植盆页和 API 配方分别绘制了多套专用配方 UI 贴图。
 
@@ -89,13 +91,15 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 
 5. 在分类页左键进入物品管理，点击物品切换隐藏状态；右键切换分类入口隐藏，`Shift+左键/右键` 批量隐藏或显示该分类的直接物品。返回命名空间列表后，使用 `Shift+左键/右键` 调整显示顺序。
 
+命名空间设置 `hide-items-without-recipes: true` 后，会隐藏既没有产出配方、也没有作为原料参与任何配方的物品；分类列表、搜索结果、物品数量与原版入口使用同一判断。
+
 6. `workstations.yml` 页面支持直接进入合成器预览，并使用 `Shift+左键/右键` 调整合成器与自定义按钮顺序。所有修改立即写回 `navigation/` 文件并刷新菜单，无需执行 `/cer reload`；写回前同目录会保留上一版 `.bak`。
 
 7. 用 `/cer` 或 Shift+F 打开正式菜单。左键物品查看配方，右键查看可参与配方。
 
-8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择菜单样式、`/cer` 与 Shift+F 默认进入“按物品种类分类”还是“按合成器分类”，以及关闭后再次打开时是否恢复上次浏览位置；设置保存在 `player-preferences.db`。
+8. 右键任意菜单中的“按合成器浏览”按钮可打开个性化页面。玩家可以选择菜单样式、`/cer` 与 Shift+F 默认进入“按物品种类分类”还是“按合成器分类”，以及关闭后再次打开时是否恢复上次浏览位置；个性化设置与浏览会话都保存在 `player-preferences.db`。
 
-9. 数据就绪后，在线管理员会收到 Farmer's Delight、Kaleidoscope Cookery、CustomCrops 的启用询问，可直接点击“支持所有”“仅支持某个插件”“暂不处理”或“不支持并以后不再询问”。选择暂不处理后，可用 `/cer integrations` 再次打开询问。
+9. 数据就绪后，在线管理员会收到一个“打开适配配置”按钮。点击后进入两页 Dialog：第一页是特殊支持的插件，第二页是特别适配的资源包。点击条目按钮可启用，再次点击会禁用；绿色表示已启用、黄色表示询问、红色表示已禁用。修改直接写入 `integrations.yml`，可用 `/cer integrations` 重新打开。
 
 只有一个物品、只提供配方的附属包可在编辑器中关闭“显示物品种类分类入口”；物品仍会进入搜索、直接查询和合成器产物页面。也可以继续手工编辑 YAML。详细操作见 [使用 Wiki](https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro-zh/)。
 
@@ -104,12 +108,17 @@ Java **25**、Minecraft **26.1.2 / 26.2 / 26.3** 对应的 **Paper / Folia**，�
 ```text
 plugins/CraftEngineRecipe/
 ├── config.yml
+├── integrations.yml
+├── player-preferences.db
 ├── navigation/
 │   ├── categories.yml
 │   ├── categories-unapplied.yml
-│   ├── workstations.yml
-│   └── examples/
-│       └── categories.yml
+│   └── workstations.yml
+├── example/
+│   ├── navigation/
+│   │   └── categories-example.yml
+│   └── recipes/
+│       └── recipes-example.yml
 ├── lang/
 │   └── integrations/
 │       ├── common/{zh_CN,en_US}.yml
@@ -122,6 +131,8 @@ plugins/CraftEngineRecipe/
 ├── recipes/
 └── resources/
 ```
+
+升级时会自动把旧 `sessions.yml` 导入 `player-preferences.db`，成功后将旧文件保留为 `sessions.yml.migrated`；之后不会再创建 `sessions.yml`。
 
 每个 `cer_menu_*` 菜单包通过 `menu/` 下的完整布局文件声明它负责的页面。文件名任意，代码只读取文件中的 `pages` 声明，不使用继承或合并：
 
@@ -141,11 +152,13 @@ cer_menu_cute/
 | 命令 | 用途 |
 | --- | --- |
 | `/cer` | 打开正式菜单，别名 `/cg`、`/browser`、`Shift+F` |
+| `/cer craft` | 直接打开“按合成器分类”页面 |
+| `/cer items` | 直接打开“按物品种类分类”页面 |
 | `/cer search` | 搜索物品 |
 | `/cer hand` | 查看主手原版或 CE 物品的合成配方，遵循已配置的分类限制 |
 | `/cer target` | 查看准星所指原版或 CE 方块的合成配方，遵循已配置的分类限制 |
 | `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | 重新获取对应来源并替换 `recipes/` 下的数据（管理员） |
-| `/cer integrations` | 重新打开已检测适配插件的启用询问（管理员） |
+| `/cer integrations` | 直接打开统一的适配插件与分类预设 Dialog（管理员） |
 | `/cer manage` | 打开配置管理中心：在游戏内编辑分类、隐藏规则、显示顺序与合成器配置（管理员） |
 | `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面（管理员） |
 | `/cer reload` | 手动重载配置与索引（管理员；配方文件修改会自动加载） |
@@ -164,7 +177,7 @@ cer_menu_cute/
 
 `Shift+F` 快捷打开菜单默认开启，且默认要求潜行；可在 `config.yml` 中关闭快捷键或取消潜行要求。
 
-适配插件使用独立配置。`mode` 可设为 `ask`、`enabled` 或 `disabled`；交互式启用会同时把 `cultivation` 设为 `true`：
+适配插件开关和命名空间分类预设统一位于 `integrations.yml`。`mode` 可设为 `ask`、`enabled` 或 `disabled`；交互式启用会同时把 `cultivation` 设为 `true`：
 
 ```yaml
 integrations:
@@ -174,11 +187,19 @@ integrations:
     reexport-on-reload: true
     export-missing: true
     reexport-craftengine-on-ce-reload: true
+    category-presets:
+      - farmersdelight
 ```
 
-`kaleidoscope` 与 `customcrops` 使用相同字段。`disabled` 会停止导出和索引，但保留 `recipes/<来源>/` 中已有的文件。
+`kaleidoscope` 与 `customcrops` 使用相同字段；森罗物语默认通过 `category-presets: [kaleidoscopecookery]` 联动分类预设。`disabled` 会停止导出和索引，但保留 `recipes/<来源>/` 中已有的文件。
 
-`sources.reexport-on-reload` 与 `sources.reexport-craftengine-on-ce-reload` 现在只控制 CraftEngine 来源；可选适配插件的对应行为由各自的 `integrations.<来源>.*` 控制。
+启用带 `category-presets` 的适配插件时，CER 会一并应用列表中的分类预设。交互式点击插件按钮启用即视为批准联动；若配置原本就是 `mode: enabled`，启动或重载时自动应用。
+
+每个分类预设还可声明可选的 `authors` 列表。CER 会读取对应 `pack.yml` 的 `author`，忽略大小写和多余空格，并支持逗号、分号、斜杠、`&`、顿号分隔的多作者；任意一个作者匹配即可。省略 `authors` 或留空时，只按 namespace 匹配。
+
+分类预设自身也有 `mode`：`ask` 在独立检测时询问；`enabled` 检测到且作者匹配后自动应用；`disabled` 不自动询问或应用。点击资源包按钮启用会写回 `enabled`，再次点击会写回 `disabled`，不再生成独立的预设状态文件。禁用不会删除已经写入 `categories.yml` 的人工配置。
+
+`sources.reexport-on-reload` 与 `sources.reexport-craftengine-on-ce-reload` 现在只控制 CraftEngine 来源；可选适配插件的对应行为由 `integrations.yml` 中的 `integrations.<来源>.*` 控制。`category-presets` 也位于同一文件，用于在检测到相应 CraftEngine 命名空间时询问管理员是否应用完整分类预设。
 
 `indexing.notify-admins-on-startup` 默认为 `true`，用于控制数据就绪后是否向在线管理员发送适配插件询问；没有管理员在线时会在管理员上线后显示。
 

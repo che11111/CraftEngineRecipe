@@ -212,6 +212,7 @@ public final class BrowserService {
         GuiSession session = GuiSession.of(player);
         session.unapplied(false);
         session.craftableMode(false);
+        session.itemSearchKeyword(null);
         this.craftableReturnViews.remove(player.getUniqueId());
         if (this.rememberLastPage(player) && this.openRemembered(player)) return;
         this.openEntry(player);
@@ -221,8 +222,30 @@ public final class BrowserService {
         GuiSession session = GuiSession.of(player);
         session.unapplied(true);
         session.craftableMode(false);
+        session.itemSearchKeyword(null);
         this.craftableReturnViews.remove(player.getUniqueId());
         this.openEntry(player);
+    }
+
+    /** 指令入口：忽略个人主页偏好，直接打开按物品种类分类。 */
+    public void openNamespaceBrowser(Player player) {
+        GuiSession session = GuiSession.of(player);
+        session.unapplied(false);
+        session.managerMode(false);
+        session.itemSearchKeyword(null);
+        this.craftableReturnViews.remove(player.getUniqueId());
+        this.openDefault(player);
+    }
+
+    /** 指令入口：忽略个人主页偏好，直接打开按合成器分类。 */
+    public void openWorkstationBrowser(Player player) {
+        GuiSession session = GuiSession.of(player);
+        session.unapplied(false);
+        session.managerMode(false);
+        session.craftableMode(false);
+        session.leaveWorkstations();
+        this.craftableReturnViews.remove(player.getUniqueId());
+        this.workstations.open(player);
     }
 
     public void toggleCraftableView(Player player) {
@@ -424,6 +447,11 @@ public final class BrowserService {
                                     session.recipeIndex());
             if (opened) return true;
         }
+        if (session.itemSearchKeyword() != null) {
+            this.openItemList(player, null, session.itemSearchKeyword(), session.contentPage(),
+                    session.itemSearchKeyword());
+            return true;
+        }
         if (session.workstationId() != null) {
             this.workstations.reopen(player);
             return true;
@@ -576,8 +604,10 @@ public final class BrowserService {
         this.clearCraftableMode(player);
         try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.BROWSER_OPEN)) {
             if (!this.claim(player)) return;
-            GuiSession.of(player).leaveWorkstations();
+            GuiSession session = GuiSession.of(player);
+            session.leaveWorkstations();
             boolean searching = keyword != null && !keyword.isBlank();
+            session.itemSearchKeyword(searching ? keyword : null);
             List<ItemKeyEntry> entries = new ArrayList<>();
             if (searching) {
                 Set<Key> scope = this.visibleItemIds(player);
@@ -589,11 +619,16 @@ public final class BrowserService {
             } else if (restrictedItems != null) {
                 for (Key id : restrictedItems) entries.add(new ItemKeyEntry(id));
             } else {
+                BrowserVisibility visibility = this.visibility(player);
                 for (Key id : this.data.items().keySet()) {
+                    if (this.hidesWithoutRecipes(player, id, visibility)) continue;
                     entries.add(new ItemKeyEntry(id));
                 }
-                for (Key id : this.visibility(player).externalItems()) {
-                    if (!this.data.items().containsKey(id)) entries.add(new ItemKeyEntry(id));
+                for (Key id : visibility.externalItems()) {
+                    if (!this.data.items().containsKey(id)
+                            && !this.hidesWithoutRecipes(player, id, visibility)) {
+                        entries.add(new ItemKeyEntry(id));
+                    }
                 }
             }
             Category owner = parentCategory == null ? null : this.data.category(parentCategory).orElse(null);
@@ -626,16 +661,21 @@ public final class BrowserService {
 
     private void openVanillaItems(Player player, int contentPage) {
         CategoryNamespaces.NamespaceEntry namespace = this.data.namespaces().findNamespace("minecraft");
-        Set<Key> items = prepareVanillaItems(vanillaItemKeys(this.data.items().keySet()),
-                namespace != null && namespace.sortByNamespace(),
-                namespace != null && namespace.hideItemsWithoutRecipes(),
-                id -> this.recipeGui.hasContent(player, id, false));
+        Set<Key> items = this.visibleVanillaItems(player, namespace);
         GuiSession.of(player).enter(null, 0, null, contentPage);
         String configured = this.data.namespaces().iconNameOf("minecraft");
         String name = configured == null || configured.isBlank()
                 ? this.plugin.lang().text("ui.vanilla-items.name") : configured;
         name = name.replace("<name>", this.plugin.lang().text("ui.vanilla-items.name"));
         this.openItemList(player, null, name, contentPage, null, items);
+    }
+
+    private Set<Key> visibleVanillaItems(Player player, CategoryNamespaces.NamespaceEntry namespace) {
+        BrowserVisibility visibility = this.visibility(player);
+        return prepareVanillaItems(vanillaItemKeys(this.data.items().keySet()),
+                namespace != null && namespace.sortByNamespace(),
+                namespace != null && namespace.hideItemsWithoutRecipes(),
+                id -> this.recipeGui.hasAnyContent(id, visibility));
     }
 
     static Set<Key> vanillaItemKeys(Collection<Key> itemIds) {
@@ -856,7 +896,21 @@ public final class BrowserService {
                         && this.data.namespaces().canView(player, category.id().namespace()),
                 category -> this.data.namespaces().hiddenItems(category.id().toString())));
         visible.addAll(visibility.externalItems());
+        visible.removeIf(id -> this.hidesWithoutRecipes(player, id, visibility));
         return Set.copyOf(visible);
+    }
+
+    private boolean hidesWithoutRecipes(Player player, Key id, BrowserVisibility visibility) {
+        boolean configured = this.data.namespaces().hidesItemsWithoutRecipes(id.namespace());
+        if (!configured) return false;
+        return shouldHideWithoutRecipes(true,
+                this.recipeGui.hasContent(id, false, visibility),
+                this.recipeGui.hasContent(id, true, visibility));
+    }
+
+    static boolean shouldHideWithoutRecipes(boolean configured, boolean hasResultRecipe,
+                                            boolean participatesInRecipe) {
+        return configured && !hasResultRecipe && !participatesInRecipe;
     }
 
     static boolean nativeItemVisible(Key id, boolean catalogVisible, boolean registered,
@@ -1037,8 +1091,7 @@ public final class BrowserService {
         String raw = namespace.iconName();
         String fallback = this.plugin.lang().text("ui.vanilla-items.name");
         Component name = ui.mm((raw == null || raw.isBlank() ? fallback : raw).replace("<name>", fallback));
-        int count = (int) this.data.items().keySet().stream()
-                .filter(id -> "minecraft".equals(id.namespace())).count();
+        int count = this.visibleVanillaItems(player, namespace).size();
         List<Component> lore = namespace.iconLore().stream()
                 .map(line -> ui.mm(line, "count", String.valueOf(count))).toList();
         ItemStack stack = ItemBridge.button(Material.GRASS_BLOCK,
@@ -1062,7 +1115,7 @@ public final class BrowserService {
         }
         Component name = this.categoryName(category, ui);
         List<Component> lore = new ArrayList<>();
-        int count = this.countMembers(category);
+        int count = this.countMembers(category, player);
         for (String line : this.iconLoreFor(category, ui)) {
             lore.add(ui.mm(line, "count", String.valueOf(count)));
         }
@@ -1093,7 +1146,7 @@ public final class BrowserService {
         ItemStack icon = ItemBridge.build(sub.icon(), player);
         Component name = this.categoryName(sub, ui);
         List<Component> lore = new ArrayList<>();
-        int count = this.countMembers(sub);
+        int count = this.countMembers(sub, player);
         for (String line : this.subIconLoreFor(sub, ui)) {
             lore.add(ui.mm(line, "count", String.valueOf(count)));
         }
@@ -1254,6 +1307,11 @@ public final class BrowserService {
             this.openCraftableView(player);
             return;
         }
+        if (session.itemSearchKeyword() != null) {
+            this.openItemList(player, null, session.itemSearchKeyword(), session.contentPage(),
+                    session.itemSearchKeyword());
+            return;
+        }
         if (session.managerMode()) {
             session.managerMode(false);
             this.openDefault(player);
@@ -1324,6 +1382,7 @@ public final class BrowserService {
     private List<ContentEntry> collectEntries(Category category, Player player) {
         List<ContentEntry> entries = new ArrayList<>();
         Set<String> hidden = this.data.namespaces().hiddenItems(category.id().toString());
+        BrowserVisibility visibility = this.visibility(player);
         for (var member : this.data.categoryGraph().members(category.id())) {
             if (member.category()) {
                 String subId = member.reference();
@@ -1338,6 +1397,7 @@ public final class BrowserService {
             }
             Key itemKey = member.key();
             if (CategoryItems.isHidden(hidden, itemKey)) continue;
+            if (this.hidesWithoutRecipes(player, itemKey, visibility)) continue;
             entries.add(new ItemKeyEntry(itemKey));
         }
         return entries;
@@ -1356,8 +1416,12 @@ public final class BrowserService {
         return this.data.parentOf(categoryId);
     }
 
-    private int countMembers(Category category) {
-        return this.data.categoryGraph().members(category.id()).size();
+    private int countMembers(Category category, Player player) {
+        BrowserVisibility visibility = this.visibility(player);
+        return (int) this.data.categoryGraph().members(category.id()).stream()
+                .filter(member -> member.category()
+                        || !this.hidesWithoutRecipes(player, member.key(), visibility))
+                .count();
     }
 
     private String plainName(Category category, CerConfig ui) {

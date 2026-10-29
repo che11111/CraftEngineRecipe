@@ -135,6 +135,8 @@ public final class CraftEngineData implements Listener {
             namespaces.load();
             Map<Key, ItemDefinition> items = Collections.unmodifiableMap(new LinkedHashMap<>(CraftEngineItems.loadedItems()));
             Map<Key, Category> categories = this.captureCategories(namespaces);
+            Map<String, Set<String>> packAuthors = PackMetadataIndex.scan(
+                    PackMetadataIndex.resourcesDirectory(this.plugin.getDataFolder().toPath()));
             CategoryGraph graph = CategoryGraph.compile(categories);
             Set<Key> recipeKeys = new HashSet<>(items.keySet());
             for (Key category : categories.keySet()) {
@@ -168,7 +170,7 @@ public final class CraftEngineData implements Listener {
             namespaces.validateReferences(categories.keySet());
             this.validateMembers(categories);
             this.loadTranslations(version, started, new Captured(items, categories, graph, recipes,
-                    List.copyOf(tops), Map.copyOf(parents), namespaces, revision));
+                    List.copyOf(tops), Map.copyOf(parents), namespaces, packAuthors, revision));
         } catch (Exception | LinkageError e) {
             if (CraftEngine.instance().isReloading()) this.retryCapture(version, started);
             else this.fail(version, e);
@@ -382,6 +384,7 @@ public final class CraftEngineData implements Listener {
                                     "categories", String.valueOf(captured.tops().size()), "elapsed",
                                     String.format(java.util.Locale.ROOT, "%.1f", (System.nanoTime() - started) / 1_000_000.0)));
                             finish(true);
+                            plugin.categoryPrompts().requestPrompt();
                         });
                     } catch (IllegalPluginAccessException ignored) {
                         // 插件关闭与工作线程完成发生了竞争。
@@ -492,10 +495,24 @@ public final class CraftEngineData implements Listener {
         Snapshot state = this.snapshot;
         return state == null ? null : state.categorySearch();
     }
+    public Set<String> detectedNamespaces() {
+        Snapshot state = this.snapshot;
+        if (state == null) return Set.of();
+        Set<String> namespaces = new LinkedHashSet<>();
+        state.captured().categories().keySet().forEach(id -> namespaces.add(id.namespace()));
+        state.captured().items().keySet().forEach(id -> namespaces.add(id.namespace()));
+        return Set.copyOf(namespaces);
+    }
+
+    public Set<String> packAuthors(String namespace) {
+        Snapshot state = this.snapshot;
+        if (state == null || namespace == null) return Set.of();
+        return state.captured().packAuthors().getOrDefault(namespace, Set.of());
+    }
 
     private record Captured(Map<Key, ItemDefinition> items, Map<Key, Category> categories, CategoryGraph graph,
                             RecipeSnapshot recipes, List<Category> tops, Map<Key, Key> parents,
-                            CategoryNamespaces namespaces, long revision) {}
+                            CategoryNamespaces namespaces, Map<String, Set<String>> packAuthors, long revision) {}
 
     private record Snapshot(Captured captured, SearchIndex search, CategoryIndex categorySearch) {}
 }

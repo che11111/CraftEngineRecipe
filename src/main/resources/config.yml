@@ -1,7 +1,7 @@
 # CraftEngineRecipe - 基于 CraftEngine 的物品分类与配方浏览插件
 
-# CER 自定义配方统一从 recipes 文件夹递归加载 .yml/.yaml；示例为 recipes/example.yml。
-# Custom displays load recursively from .yml/.yaml files under recipes; see recipes/example.yml.
+# CER 自定义配方统一从 recipes 文件夹递归加载 .yml/.yaml；示例为 example/recipes/recipes-example.yml。
+# Custom displays load recursively from .yml/.yaml files under recipes; see example/recipes/recipes-example.yml.
 sources:
   # 从 CraftEngine 配方管理器导出一次固定产物配方；之后只读取 recipes/craftengine/。
   # Export fixed-result recipes from CraftEngine once, then read only recipes/craftengine/.
@@ -31,36 +31,16 @@ sources:
   # Re-export craftengine recipes and refresh this plugin after CraftEngine reloads.
   reexport-craftengine-on-ce-reload: true
 
-# ---------- 适配插件 / Plugin integrations ----------
-# mode: ask / enabled / disabled
-# ask 会在数据就绪后询问在线管理员；enabled 直接导出并建立索引；disabled 停止导出和索引，
-# 但不会删除 recipes/<来源>/ 中已经生成的文件。
-# ask prompts online administrators after the data is ready. enabled exports and indexes immediately.
-# disabled stops export/indexing without deleting existing files under recipes/<source>/.
-integrations:
-  farmersdelight:
-    mode: ask
-    cultivation: true
-    reexport-on-reload: true
-    export-missing: true
-    reexport-craftengine-on-ce-reload: true
-  kaleidoscope:
-    mode: ask
-    cultivation: true
-    reexport-on-reload: true
-    export-missing: true
-    reexport-craftengine-on-ce-reload: true
-  customcrops:
-    mode: ask
-    cultivation: true
-    reexport-on-reload: true
-    export-missing: true
-    reexport-craftengine-on-ce-reload: true
+# ---------- 适配插件与分类预设 / Integrations and category presets ----------
+# 适配插件开关和命名空间预设统一位于 integrations.yml。
+# Integration switches and namespace presets are stored together in integrations.yml.
 
 # ---------- 索引构建提示 / Index build notifications ----------
 indexing:
   # 数据就绪后向在线管理员发送适配插件启用询问；没有管理员在线时会在其上线后询问。
   # Ask online administrators about detected integrations after data is ready; wait for one to join if needed.
+  # 检测到匹配的命名空间预设时先询问管理员；点击“应用预设”后才会写入 categories.yml。
+  # Ask administrators about matching namespace presets; write to categories.yml only after approval.
   notify-admins-on-startup: true
   # 通过 CER Recipe API 首次注册、配方数量变化或注销时通知在线管理员。
   # Notify online administrators when an API source registers, changes its recipe count, or unregisters.
@@ -139,11 +119,6 @@ personalization:
   # 玩家尚未保存设置时，关闭菜单后是否恢复上次浏览位置。
   # Whether an unconfigured player reopens the last browsing position.
   default-remember-last-page: true
-  # 未恢复上次位置时，/cer 与 Shift+F 默认打开的主页面。
-  # Landing page for /cer and Shift+F when no previous position is restored.
-  # 可选 namespaces（按物品种类分类）或 workstations（按合成器分类）。
-  # Allowed values: namespaces (item-type view) or workstations (workstation view).
-  default-main-page: namespaces
 # 标题和文本在 lang/<语言>.yml 中修改；布局、按钮、材质和音效在对应 cer_menu_*/menu.yml 中修改。
 # Edit text under ui in lang/<language>.yml; layouts, buttons, materials and sounds live in each cer_menu_*/menu.yml.
 # 检查更新：启动后及每 6 小时后台检查 GitHub 正式版，发现新版后通知控制台和管理员。
@@ -157,6 +132,11 @@ check-for-updates: true
 
 # ---------- 主界面 / Main browser ----------
 browser:
+  # 未恢复上次位置时，/cer 与 Shift+F 默认打开的主页面。
+  # Landing page for /cer and Shift+F when no previous position is restored.
+  # 可选 namespaces（按物品种类分类）或 workstations（按合成器分类）。
+  # Allowed values: namespaces (item-type view) or workstations (workstation view).
+  default-main-page: namespaces
   # 玩家直接按 ESC 离开时保存其页面（跨重登与服务器重启）；下次 /cer 或快捷键打开时恢复。
   # Save the current page when the player leaves with ESC (including relog/restart) and resume on the next open.
   remember-last-page: true

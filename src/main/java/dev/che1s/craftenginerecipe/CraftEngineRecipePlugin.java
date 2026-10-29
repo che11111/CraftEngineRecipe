@@ -10,6 +10,7 @@ import dev.che1s.craftenginerecipe.config.CerConfig;
 import dev.che1s.craftenginerecipe.config.IntegrationSettings;
 import dev.che1s.craftenginerecipe.config.MenuView;
 import dev.che1s.craftenginerecipe.config.WorkstationConfig;
+import dev.che1s.craftenginerecipe.category.CategoryApplyPromptService;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
 import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
 import dev.che1s.craftenginerecipe.recipe.ExternalRecipeService;
@@ -17,6 +18,7 @@ import dev.che1s.craftenginerecipe.dialog.PersonalizationDialogService;
 import dev.che1s.craftenginerecipe.dialog.SearchDialogService;
 import dev.che1s.craftenginerecipe.dialog.UnappliedCategoryDialogService;
 import dev.che1s.craftenginerecipe.dialog.ButtonEditorDialogService;
+import dev.che1s.craftenginerecipe.dialog.IntegrationConfigDialogService;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSessionStore;
 import dev.che1s.craftenginerecipe.integration.IntegrationPromptService;
@@ -41,7 +43,6 @@ import org.bukkit.plugin.ServicePriority;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private WorkstationConfig workstationConfig;
     private IntegrationSettings integrationSettings;
     private IntegrationPromptService integrationPrompts;
+    private CategoryApplyPromptService categoryPrompts;
     private ExternalRecipeService externalRecipes;
     private CerRecipeApiService recipeApi;
     private MenuPackManager menuPacks;
@@ -74,6 +76,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private PersonalizationDialogService personalizationDialog;
     private UnappliedCategoryDialogService unappliedCategoryDialog;
     private ButtonEditorDialogService buttonEditorDialog;
+    private IntegrationConfigDialogService integrationConfigDialog;
     private final Map<String, CerConfig> menuConfigs = new LinkedHashMap<>();
     private final Map<String, Map<MenuView, CerConfig>> menuViewConfigs = new LinkedHashMap<>();
     private final Map<String, BrowserService> menuBrowsers = new LinkedHashMap<>();
@@ -101,16 +104,17 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.tasks = new TaskDispatcher(this, error -> this.getLogger().log(java.util.logging.Level.SEVERE,
                 this.language.text("logs.player-task-failed"), error));
         this.loadMenuConfigs();
-        this.sessions = new GuiSessionStore(this);
         this.playerPreferences = new PlayerPreferences(this.getDataFolder().toPath(), this.getLogger());
         this.reloadPlayerPreferences();
-        this.saveExampleFile();
+        this.sessions = new GuiSessionStore(this);
+        this.saveExampleFiles();
         this.workstationConfig = new WorkstationConfig(this.getDataFolder().toPath(), this.getLogger());
         this.workstationConfig.load();
         this.integrationSettings = new IntegrationSettings(this);
         this.data = new CraftEngineData(this);
         this.externalRecipes = new ExternalRecipeService(this);
         this.integrationPrompts = new IntegrationPromptService(this);
+        this.categoryPrompts = new CategoryApplyPromptService(this);
         this.recipeApi = new CerRecipeApiService(this);
         CompatibilityWarnings.install(this.getLogger(), this.language, this.data::generation);
         this.recipeIndex = new RecipeIndex(this);
@@ -120,8 +124,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.personalizationDialog = new PersonalizationDialogService(this);
         this.unappliedCategoryDialog = new UnappliedCategoryDialogService(this);
         this.buttonEditorDialog = new ButtonEditorDialogService(this);
+        this.integrationConfigDialog = new IntegrationConfigDialogService(this);
         this.externalRecipes.start();
         this.integrationPrompts.start();
+        this.categoryPrompts.start();
         Bukkit.getServicesManager().register(CerRecipeApi.class, this.recipeApi, this, ServicePriority.Normal);
         this.debug = new DebugService(this);
         this.debug.registerGauge("menu.viewers", this::viewerCount);
@@ -194,11 +200,13 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
                 "count", String.valueOf(count)));
     }
 
-    private void saveExampleFile() {
+    private void saveExampleFiles() {
         Path navigation = this.getDataFolder().toPath().resolve("navigation");
+        Path examples = this.getDataFolder().toPath().resolve("example");
         try {
             Files.createDirectories(navigation);
-            Files.createDirectories(navigation.resolve("examples"));
+            Files.createDirectories(examples.resolve("recipes"));
+            Files.createDirectories(examples.resolve("navigation"));
         } catch (IOException error) {
             this.getLogger().warning(this.language.text("logs.config-update-failed", "error", error.getMessage()));
         }
@@ -207,27 +215,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         if (!categories.exists() && !legacyCategories.exists()) {
             this.saveResource("navigation/categories.yml", false);
         }
-        File example = navigation.resolve("examples/categories.yml").toFile();
-        if (!example.exists()) {
-            this.saveResource("navigation/examples/categories.yml", false);
-        }
+        this.saveResource("example/navigation/categories-example.yml", false);
+        this.saveResource("example/recipes/recipes-example.yml", false);
         File workstations = navigation.resolve("workstations.yml").toFile();
         File legacyWorkstations = new File(this.getDataFolder(), "workstations.yml");
         if (!workstations.exists() && !legacyWorkstations.exists()) {
             this.saveResource("navigation/workstations.yml", false);
-        }
-        Path recipes = this.getDataFolder().toPath().resolve("recipes");
-        Path recipeExample = recipes.resolve("example.yml");
-        try {
-            Files.createDirectories(recipes);
-            if (Files.notExists(recipeExample)) {
-                try (InputStream input = this.getResource("recipes-example.yml")) {
-                    if (input == null) throw new IOException("Missing bundled recipes-example.yml");
-                    Files.copy(input, recipeExample);
-                }
-            }
-        } catch (IOException e) {
-            this.getLogger().warning(this.language.text("logs.config-update-failed", "error", e.getMessage()));
         }
     }
 
@@ -281,6 +274,8 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     public void reloadSettings() {
         this.shutdownBrowsers();
         if (this.workstationConfig != null) this.workstationConfig.load();
+        if (this.integrationSettings != null) this.integrationSettings.reload();
+        if (this.categoryPrompts != null) this.categoryPrompts.reloadPresets();
         this.loadMenuConfigs();
         this.reloadPlayerPreferences();
         this.createBrowsers();
@@ -328,6 +323,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public IntegrationPromptService integrationPrompts() {
         return this.integrationPrompts;
+    }
+
+    public CategoryApplyPromptService categoryPrompts() {
+        return this.categoryPrompts;
     }
 
     public ExternalRecipeService externalRecipes() { return this.externalRecipes; }
@@ -476,6 +475,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public ButtonEditorDialogService buttonEditorDialog() {
         return this.buttonEditorDialog;
+    }
+
+    public IntegrationConfigDialogService integrationConfigDialog() {
+        return this.integrationConfigDialog;
     }
 
     public static MiniMessage mini() {

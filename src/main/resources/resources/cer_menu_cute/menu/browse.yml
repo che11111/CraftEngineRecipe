@@ -19,7 +19,7 @@ browser:
     - 'XXXXXXXXX'
     - 'XXXXXXXXX'
     - 'XXXXXXXXX'
-    - 'TBLHSGRI#'
+    - 'TBLHSGRIZ'
 
 behavior:
   workstations-toggle: true
@@ -61,6 +61,10 @@ content:
     char: S
     item-model: minecraft:air
     material: minecraft:compass
+  close:
+    char: Z
+    item-model: minecraft:air
+    material: minecraft:barrier
   hand:
     char: H
     item-model: minecraft:air

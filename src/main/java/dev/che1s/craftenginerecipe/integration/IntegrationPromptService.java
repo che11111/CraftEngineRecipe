@@ -16,6 +16,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -24,20 +25,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 /**
- * 数据就绪后询问管理员要启用哪些可选配方来源。
- *
- * <p>询问使用 Adventure 点击回调，不依赖把命令复制到聊天框。选择只处理当前
- * 在线的管理员；没有管理员时保留待询问状态，管理员上线后继续显示。</p>
+ * 通过聊天中的一个入口按钮，引导管理员打开适配插件与分类预设的统一 Dialog。
  */
 public final class IntegrationPromptService implements Listener {
     private static final String ADMIN_PERMISSION = "craftenginerecipe.admin";
+
     private final CraftEngineRecipePlugin plugin;
-    private final Set<String> resolvedThisSession = ConcurrentHashMap.newKeySet();
-    private volatile PromptBatch active;
-    private volatile boolean waitingLogged;
+    private final Set<UUID> notified = ConcurrentHashMap.newKeySet();
+    private String lastPendingSignature = "";
+    private boolean waitingLogged;
 
     public IntegrationPromptService(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
@@ -47,7 +46,6 @@ public final class IntegrationPromptService implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this.plugin);
     }
 
-    /** 可在任意调度线程调用；实际检测和发送会切回全局线程。 */
     public void requestPrompt() {
         if (!this.plugin.isEnabled()
                 || !this.plugin.getConfig().getBoolean("indexing.notify-admins-on-startup", true)
@@ -55,14 +53,11 @@ public final class IntegrationPromptService implements Listener {
         this.plugin.tasks().global(this::presentPending);
     }
 
-    /** 管理员显式打开询问；同时允许本次启动中曾选择“暂不处理”的来源再次显示。 */
     public void openPrompt() {
-        this.resolvedThisSession.clear();
-        this.active = null;
+        this.notified.clear();
+        this.lastPendingSignature = "";
         this.waitingLogged = false;
-        if (this.plugin.isEnabled() && this.plugin.data().isReady()) {
-            this.plugin.tasks().global(this::presentPending);
-        }
+        this.plugin.tasks().global(this::presentPending);
     }
 
     @EventHandler
@@ -78,201 +73,143 @@ public final class IntegrationPromptService implements Listener {
                 .ifPresent(ignored -> this.requestPrompt());
     }
 
+    public Map<String, String> pendingSources() {
+        LinkedHashMap<String, String> pending = new LinkedHashMap<>();
+        for (var source : this.configuredSources().entrySet()) {
+            if (this.isInstalled(source.getKey())
+                    && this.plugin.integrations().mode(source.getKey()) == IntegrationSettings.Mode.ASK) {
+                pending.put(source.getKey(), source.getValue());
+            }
+        }
+        return Collections.unmodifiableMap(pending);
+    }
+
+    public Map<String, String> configuredSources() {
+        LinkedHashMap<String, String> sources = new LinkedHashMap<>();
+        for (String source : IntegrationSettings.PROMPTABLE_SOURCES) {
+            sources.put(source, displayName(source));
+        }
+        return Collections.unmodifiableMap(sources);
+    }
+
+    public boolean isInstalled(String sourceId) {
+        for (var installed : Bukkit.getPluginManager().getPlugins()) {
+            if (installed.isEnabled() && PluginFingerprints.matches(installed, sourceId)) return true;
+        }
+        return false;
+    }
+
+    public boolean hasPendingChoices() {
+        return !this.pendingSources().isEmpty() || !this.plugin.categoryPrompts().pendingPresets().isEmpty();
+    }
+
     private void presentPending() {
         if (!this.plugin.isEnabled() || !this.plugin.data().isReady()) return;
-        PromptBatch active = this.active;
-        if (active != null && !active.closed.get()) {
-            if (!this.sendToAdministrators(active) && !this.waitingLogged) this.logWaiting(active.sources.values());
+        Map<String, String> sources = this.pendingSources();
+        var presets = this.plugin.categoryPrompts().pendingPresets();
+        if (sources.isEmpty() && presets.isEmpty()) {
+            this.notified.clear();
+            this.lastPendingSignature = "";
             return;
         }
-        LinkedHashMap<String, String> pending = new LinkedHashMap<>();
-        for (var installed : Bukkit.getPluginManager().getPlugins()) {
-            if (!installed.isEnabled()) continue;
-            PluginFingerprints.identify(installed)
-                    .filter(fingerprint -> IntegrationSettings.PROMPTABLE_SOURCES.contains(fingerprint.sourceId()))
-                    .filter(fingerprint -> this.plugin.integrations().mode(fingerprint.sourceId())
-                            == IntegrationSettings.Mode.ASK)
-                    .filter(fingerprint -> !this.resolvedThisSession.contains(fingerprint.sourceId()))
-                    .ifPresent(fingerprint -> pending.put(fingerprint.sourceId(), fingerprint.displayName()));
+        String signature = signature(sources, presets);
+        if (!signature.equals(this.lastPendingSignature)) {
+            this.lastPendingSignature = signature;
+            this.notified.clear();
         }
-        if (pending.isEmpty()) {
-            this.active = null;
-            return;
-        }
-
-        PromptBatch batch = new PromptBatch(Collections.unmodifiableMap(new LinkedHashMap<>(pending)));
-        this.active = batch;
-        if (!this.sendToAdministrators(batch) && !this.waitingLogged) this.logWaiting(pending.values());
-    }
-
-    private void logWaiting(Iterable<String> plugins) {
-        this.waitingLogged = true;
-        this.plugin.getLogger().info(this.plugin.lang().text(
-                "logs.integration-setup-waiting",
-                "plugins", String.join(", ", plugins)));
-    }
-
-    private boolean sendToAdministrators(PromptBatch batch) {
         boolean found = false;
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.hasPermission(ADMIN_PERMISSION) || !batch.sent.add(player.getUniqueId())) continue;
+            if (!player.hasPermission(ADMIN_PERMISSION) || !this.notified.add(player.getUniqueId())) continue;
             found = true;
+            UUID id = player.getUniqueId();
             this.plugin.tasks().player(player, () -> {
-                if (!player.isOnline() || !player.hasPermission(ADMIN_PERMISSION)
-                        || this.active != batch || batch.closed.get()) {
-                    batch.sent.remove(player.getUniqueId());
-                    return;
-                }
-                this.sendPrompt(player, batch);
+                Player online = Bukkit.getPlayer(id);
+                if (online != null && online.isOnline()) this.sendEntry(online, sources.size(), presets.size());
             });
         }
-        return found;
-    }
-
-    private void sendPrompt(Player player, PromptBatch batch) {
-        player.sendMessage(this.plugin.lang().message("messages.integration-detected"));
-        player.sendMessage(this.plugin.lang().component("messages.integration-detected-plugins",
-                "plugins", String.join(", ", batch.sources.values())));
-        player.sendMessage(Component.empty());
-        player.sendMessage(this.plugin.lang().component("messages.integration-choose"));
-        player.sendMessage(Component.empty());
-
-        List<Component> choices = new ArrayList<>();
-        choices.add(this.button(player, batch, "messages.integration-support-all",
-                Choice.SUPPORT_ALL, List.copyOf(batch.sources.keySet())));
-        if (batch.sources.size() > 1) {
-            for (var entry : batch.sources.entrySet()) {
-                choices.add(this.button(player, batch, "messages.integration-support-only",
-                        Choice.SUPPORT_ONE, List.of(entry.getKey()), "plugin", entry.getValue()));
-            }
-        }
-        choices.add(this.button(player, batch, "messages.integration-defer", Choice.DEFER, List.of()));
-        choices.add(this.button(player, batch, "messages.integration-disable", Choice.DISABLE, List.of()));
-        for (int index = 0; index < choices.size(); index += 3) {
-            Component line = Component.empty();
-            for (int offset = index; offset < Math.min(index + 3, choices.size()); offset++) {
-                if (offset > index) line = line.append(Component.text("  "));
-                line = line.append(choices.get(offset));
-            }
-            player.sendMessage(line);
+        if (!found && !this.waitingLogged) {
+            this.waitingLogged = true;
+            this.plugin.getLogger().info(this.plugin.lang().text(
+                    "logs.integration-config-waiting",
+                    "plugins", String.valueOf(sources.size()),
+                    "presets", String.valueOf(presets.size())));
         }
     }
 
-    private Component button(Player player, PromptBatch batch, String key, Choice choice,
-                             List<String> sources, String... arguments) {
+    private void sendEntry(Player player, int pluginCount, int presetCount) {
+        player.sendMessage(this.plugin.lang().message("messages.integration-config-detected",
+                "plugins", String.valueOf(pluginCount),
+                "presets", String.valueOf(presetCount)));
         UUID playerId = player.getUniqueId();
         ClickCallback<net.kyori.adventure.audience.Audience> callback = audience -> {
-            UUID clicker = audience instanceof Player clicked ? clicked.getUniqueId() : playerId;
-            this.handleChoice(clicker, batch, choice, sources);
+            Player clicker = audience instanceof Player clicked ? clicked
+                    : Bukkit.getPlayer(playerId);
+            if (clicker != null && clicker.isOnline()) {
+                this.plugin.integrationConfigDialog().open(clicker);
+            }
         };
-        ClickEvent event = ClickEvent.callback(callback,
-                ClickCallback.Options.builder().uses(1)
-                        .lifetime(Duration.ofMinutes(10L)).build());
-        return this.plugin.lang().component(key, arguments)
-                .clickEvent(event)
+        Component button = this.plugin.lang().component("messages.integration-config-open")
+                .clickEvent(ClickEvent.callback(callback,
+                        ClickCallback.Options.builder().uses(1)
+                                .lifetime(Duration.ofMinutes(10L)).build()))
                 .hoverEvent(HoverEvent.showText(this.plugin.lang().component(
-                        "messages.integration-choice-hover")));
+                        "messages.integration-config-open-hover")));
+        player.sendMessage(button);
     }
 
-    private void handleChoice(UUID playerId, PromptBatch batch, Choice choice, List<String> sources) {
-        Player player = Bukkit.getPlayer(playerId);
-        if (player == null || !player.isOnline()) return;
+    /** 保存统一 Dialog 中的适配插件选择，并执行必要的导出和索引刷新。 */
+    public void applyDialogChoices(Player player, Map<String, IntegrationSettings.Mode> choices) {
+        if (!this.plugin.data().isReady() || choices == null) return;
+        SourceTransition transition = planTransitions(choices, this.plugin.integrations()::mode);
+        if (transition.accepted().isEmpty()) {
+            player.sendMessage(this.plugin.lang().message("messages.integration-config-saved"));
+            return;
+        }
+        if (!this.plugin.integrations().setModes(transition.accepted())) {
+            player.sendMessage(this.plugin.lang().message("messages.integration-config-save-failed"));
+            return;
+        }
+        if (!transition.newlyDisabled().isEmpty()) {
+            this.plugin.externalRecipes().reloadIndex();
+            player.sendMessage(this.plugin.lang().message("messages.integration-choice-disabled",
+                    "plugins", names(transition.newlyDisabled())));
+        }
+        if (!transition.newlyAsk().isEmpty()) {
+            this.plugin.externalRecipes().reloadIndex();
+            player.sendMessage(this.plugin.lang().message(
+                    "messages.integration-choice-ask", "plugins", names(transition.newlyAsk())));
+        }
+        if (!transition.newlyEnabled().isEmpty()) {
+            List<String> applied = this.plugin.categoryPrompts()
+                    .applyLinkedPresets(transition.newlyEnabled());
+            if (!applied.isEmpty()) {
+                player.sendMessage(this.plugin.lang().message("messages.category-preset-linked-applied",
+                        "presets", String.join(", ", applied)));
+            }
+            List<String> exportable = transition.newlyEnabled().stream()
+                    .filter(this::isInstalled)
+                    .toList();
+            if (!exportable.isEmpty()) this.enableAndExport(player, exportable);
+            else player.sendMessage(this.plugin.lang().message("messages.integration-config-saved"));
+        } else {
+            player.sendMessage(this.plugin.lang().message("messages.integration-config-saved"));
+        }
+        this.notified.clear();
+        this.lastPendingSignature = "";
+    }
+
+    private void enableAndExport(Player player, List<String> sources) {
+        List<String> names = sources.stream().map(IntegrationPromptService::displayName).toList();
         this.plugin.tasks().player(player, () -> {
-            if (!player.isOnline()) return;
-            if (!player.hasPermission(ADMIN_PERMISSION)) {
-                player.sendMessage(this.plugin.lang().message("messages.no-permission"));
-                return;
+            if (player.isOnline()) {
+                player.sendMessage(this.plugin.lang().message("messages.integration-export-started",
+                        "plugins", String.join(", ", names)));
             }
-            this.plugin.tasks().global(() -> this.applyChoice(player, batch, choice, sources));
         });
-    }
-
-    private void applyChoice(Player player, PromptBatch batch, Choice choice, List<String> requested) {
-        if (this.active != batch || batch.closed.get()) {
-            this.send(player, "messages.integration-choice-handled");
-            return;
-        }
-        if (!batch.busy.compareAndSet(false, true)) {
-            this.send(player, "messages.integration-choice-busy");
-            return;
-        }
-        switch (choice) {
-            case DEFER -> {
-                if (!batch.closed.compareAndSet(false, true)) {
-                    batch.busy.set(false);
-                    this.send(player, "messages.integration-choice-handled");
-                    return;
-                }
-                this.active = null;
-                this.resolvedThisSession.addAll(batch.sources.keySet());
-                this.send(player, "messages.integration-choice-deferred");
-                batch.busy.set(false);
-            }
-            case DISABLE -> {
-                if (!batch.closed.compareAndSet(false, true)) {
-                    batch.busy.set(false);
-                    this.send(player, "messages.integration-choice-handled");
-                    return;
-                }
-                this.active = null;
-                this.resolvedThisSession.addAll(batch.sources.keySet());
-                this.plugin.integrations().disable(batch.sources.keySet());
-                this.plugin.externalRecipes().reloadIndex();
-                this.send(player, "messages.integration-choice-disabled",
-                        "plugins", String.join(", ", batch.sources.values()));
-                batch.busy.set(false);
-            }
-            case SUPPORT_ALL -> {
-                if (!batch.closed.compareAndSet(false, true)) {
-                    batch.busy.set(false);
-                    this.send(player, "messages.integration-choice-handled");
-                    return;
-                }
-                List<String> remaining = batch.sources.keySet().stream()
-                        .filter(source -> this.plugin.integrations().mode(source) == IntegrationSettings.Mode.ASK)
-                        .filter(batch.claimed::add).toList();
-                if (remaining.isEmpty()) {
-                    this.active = null;
-                    this.resolvedThisSession.addAll(batch.sources.keySet());
-                    batch.busy.set(false);
-                    this.send(player, "messages.integration-choice-handled");
-                    return;
-                }
-                this.active = null;
-                this.resolvedThisSession.addAll(remaining);
-                this.enableAndExport(player, remaining, batch);
-            }
-            case SUPPORT_ONE -> {
-                String source = requested.isEmpty() ? "" : requested.getFirst();
-                if (!batch.sources.containsKey(source)
-                        || this.plugin.integrations().mode(source) != IntegrationSettings.Mode.ASK
-                        || !batch.claimed.add(source)) {
-                    batch.busy.set(false);
-                    this.send(player, "messages.integration-choice-handled");
-                    return;
-                }
-                this.resolvedThisSession.add(source);
-                this.enableAndExport(player, List.of(source), batch);
-            }
-        }
-    }
-
-    private void enableAndExport(Player player, List<String> sources, PromptBatch batch) {
-        LinkedHashSet<String> valid = new LinkedHashSet<>();
-        for (String source : sources) {
-            if (IntegrationSettings.PROMPTABLE_SOURCES.contains(source)) valid.add(source);
-        }
-        if (valid.isEmpty()) return;
-        this.plugin.integrations().enable(valid);
-        List<String> names = valid.stream().map(IntegrationPromptService::displayName).toList();
-        this.send(player, "messages.integration-export-started",
-                "plugins", String.join(", ", names));
-        this.plugin.externalRecipes().reexport(valid, report -> {
-            batch.busy.set(false);
-            if (!player.isOnline()) return;
+        this.plugin.externalRecipes().reexport(sources, report -> {
             this.plugin.tasks().player(player, () -> {
                 if (!player.isOnline()) return;
-                for (String source : valid) {
+                for (String source : sources) {
                     String name = displayName(source);
                     var sourceReport = report.bySource().get(source);
                     if (sourceReport != null) {
@@ -295,12 +232,6 @@ public final class IntegrationPromptService implements Listener {
         });
     }
 
-    private void send(Player player, String key, String... arguments) {
-        this.plugin.tasks().player(player, () -> {
-            if (player.isOnline()) player.sendMessage(this.plugin.lang().message(key, arguments));
-        });
-    }
-
     static String displayName(String sourceId) {
         return PluginFingerprints.all().stream()
                 .filter(fingerprint -> fingerprint.sourceId().equals(sourceId))
@@ -308,22 +239,43 @@ public final class IntegrationPromptService implements Listener {
                 .findFirst().orElse(sourceId);
     }
 
-    private enum Choice {
-        SUPPORT_ALL,
-        SUPPORT_ONE,
-        DEFER,
-        DISABLE
+    private static String names(Collection<String> sources) {
+        return String.join(", ", sources.stream().map(IntegrationPromptService::displayName).toList());
     }
 
-    private static final class PromptBatch {
-        private final Map<String, String> sources;
-        private final Set<UUID> sent = ConcurrentHashMap.newKeySet();
-        private final Set<String> claimed = ConcurrentHashMap.newKeySet();
-        private final AtomicBoolean closed = new AtomicBoolean();
-        private final AtomicBoolean busy = new AtomicBoolean();
+    static SourceTransition planTransitions(
+            Map<String, IntegrationSettings.Mode> choices,
+            Function<String, IntegrationSettings.Mode> currentMode) {
+        Map<String, IntegrationSettings.Mode> accepted = new LinkedHashMap<>();
+        List<String> newlyEnabled = new ArrayList<>();
+        List<String> newlyDisabled = new ArrayList<>();
+        List<String> newlyAsk = new ArrayList<>();
+        choices.forEach((source, mode) -> {
+            if (!IntegrationSettings.PROMPTABLE_SOURCES.contains(source) || mode == null) return;
+            accepted.put(source, mode);
+            IntegrationSettings.Mode previous = currentMode.apply(source);
+            if (previous == mode) return;
+            if (mode == IntegrationSettings.Mode.ENABLED) {
+                newlyEnabled.add(source);
+            } else if (previous == IntegrationSettings.Mode.ENABLED) {
+                if (mode == IntegrationSettings.Mode.DISABLED) newlyDisabled.add(source);
+                else newlyAsk.add(source);
+            }
+        });
+        return new SourceTransition(Map.copyOf(accepted), List.copyOf(newlyEnabled),
+                List.copyOf(newlyDisabled), List.copyOf(newlyAsk));
+    }
 
-        private PromptBatch(Map<String, String> sources) {
-            this.sources = sources;
-        }
+    record SourceTransition(Map<String, IntegrationSettings.Mode> accepted,
+                            List<String> newlyEnabled,
+                            List<String> newlyDisabled,
+                            List<String> newlyAsk) {
+    }
+
+    private static String signature(Map<String, String> sources,
+                                    List<dev.che1s.craftenginerecipe.category.CategoryApplyPromptService.PendingPreset> presets) {
+        List<String> values = new ArrayList<>(sources.keySet());
+        presets.forEach(preset -> values.add("preset:" + preset.namespace() + ":" + preset.authorMismatch()));
+        return String.join("|", values);
     }
 }

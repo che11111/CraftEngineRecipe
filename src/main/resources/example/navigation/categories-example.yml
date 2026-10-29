@@ -1,5 +1,6 @@
 # ============================================================================
 #  CraftEngineRecipe 菜单条目语法示例 / CraftEngineRecipe menu entry examples
+#  示例位置 / Example location: plugins/CraftEngineRecipe/example/navigation/categories-example.yml
 #  本文件仅用于教学，复制所需部分到 plugins/CraftEngineRecipe/navigation/categories.yml / Examples only: copy desired entries into plugins/CraftEngineRecipe/navigation/categories.yml
 #  的 entries: 列表下即可。删除本文件不影响插件运行。 / under entries:. This example file can be removed safely.
 #
@@ -43,8 +44,8 @@
   # 可选：按物品命名空间、再按路径字母顺序排序。
   # Optional: sort items by namespace, then by path.
   sort-by-namespace: false
-  # 可选：隐藏没有任何可浏览配方的物品，使用 CER 当前配方逻辑判断。
-  # Optional: hide items without any browsable recipe using CER's current recipe logic.
+  # 可选：隐藏既没有产出配方、也没有作为原料参与任何配方的物品。
+  # Optional: hide items with neither a result recipe nor any ingredient-use recipe.
   hide-items-without-recipes: false
 
   # 可选，默认 true：在按命名空间分类的页面显示该命名空间的分类入口。

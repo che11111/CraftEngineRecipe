@@ -362,6 +362,11 @@ public final class RecipeGuiService {
         return !(usageMode ? snapshot.usages() : snapshot.results()).getOrDefault(itemId, List.of()).isEmpty();
     }
 
+    /** 物品具有产出配方，或作为材料参与任意配方。 */
+    boolean hasAnyContent(Key itemId, RecipeAccessPolicy visibility) {
+        return this.hasContent(itemId, false, visibility) || this.hasContent(itemId, true, visibility);
+    }
+
     public boolean hasContent(Player player, Key itemId, boolean usageMode) {
         return this.hasContent(itemId, usageMode, this.browser.visibility(player));
     }
