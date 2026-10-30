@@ -75,7 +75,7 @@ CER 内置四种主菜单贴图风格，玩家可在服务端已启用的样式�
 
 ## 特殊适配贴图
 
-CER 为部分适配插件中的设备特意绘制了专用配方界面贴图。
+这里仅展示部分贴图，更多 CER 贴图请前往[界面图库](https://che11111.github.io/CraftEngineRecipe-wiki/docs/gallery-zh/)查看。
 
 <table>
   <thead>

@@ -75,7 +75,7 @@ CER includes four main menu texture styles. Players can switch between any style
 
 ## Special Integration Textures
 
-CER draws dedicated recipe-interface textures for selected devices from compatible plugins.
+Only a selection is shown here. For more CER interface textures, visit the [Screenshot Gallery](https://che11111.github.io/CraftEngineRecipe-wiki/docs/gallery/).
 
 <table>
   <thead>
