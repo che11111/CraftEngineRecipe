@@ -6,7 +6,8 @@
 
 <p align="center">An item and recipe browser for CraftEngine, supporting category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
 
-> This README describes the unreleased 1.1.0 version. If you are using version 1.0.17, you can refer to the Wiki for its documentation first.
+> Version 1.1.0 may currently be unstable.
+
 
 
 <p align="center">
@@ -36,6 +37,76 @@
       <img src="https://github.com/che11111/CraftEngineRecipe/blob/main/img/Feature_Display.gif?raw=true" alt="Feature Showcase: held-item recipes, targeted-block recipes, and search" width="100%">
     </td>
   </tr>
+</table>
+
+## Menu Interface Styles
+
+CER includes four main menu texture styles. Players can switch between any styles enabled by the server.
+
+<table>
+  <thead>
+    <tr>
+      <th width="25%" align="center">CER Cute Style Interface (default)</th>
+      <th width="25%" align="center">CER Rough Style Interface</th>
+      <th width="25%" align="center">CER Vanilla Style Interface</th>
+      <th width="25%" align="center">CER Map Style Interface</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="25%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-cute.png" alt="CER Cute Style Interface" width="100%">
+        <br><small>Default main menu style</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-rough.png" alt="CER Rough Style Interface" width="100%">
+        <br><small>Rough main menu style</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-vanilla.png" alt="CER Vanilla Style Interface" width="100%">
+        <br><small>Vanilla-style main menu</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-map.png" alt="CER Map Style Interface" width="100%">
+        <br><small>Map-style main menu</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Special Integration Textures
+
+Only a selection is shown here. For more CER interface textures, visit the [Screenshot Gallery](https://che11111.github.io/CraftEngineRecipe-wiki/docs/gallery/).
+
+<table>
+  <thead>
+    <tr>
+      <th width="20%" align="center">Farmer's Delight · Skillet</th>
+      <th width="20%" align="center">CustomCrops · Planter</th>
+      <th width="20%" align="center">Kaleidoscope Cookery · Shawarma Grill</th>
+      <th width="20%" align="center">Kaleidoscope Cookery · Millstone</th>
+      <th width="20%" align="center">Kaleidoscope Cookery · Teapot</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/integration-textures/farmers-delight-skillet.png" alt="Farmer's Delight skillet recipe interface" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/integration-textures/custom-crops-planter.png" alt="CustomCrops planter recipe interface" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/integration-textures/kaleidoscope-shawarma-grill.png" alt="Kaleidoscope Cookery shawarma grill recipe interface" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/integration-textures/kaleidoscope-millstone.png" alt="Kaleidoscope Cookery millstone recipe interface" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/integration-textures/kaleidoscope-teapot.png" alt="Kaleidoscope Cookery teapot recipe interface" width="100%">
+      </td>
+    </tr>
+  </tbody>
 </table>
 
 ## Features
@@ -76,53 +147,8 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 
 4. Players can run `/cer` or press `Shift+F` to open item categories. They can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
 
-## Configuration Layout
 
-```text
-plugins/CraftEngineRecipe/
-├── config.yml                         # Main settings: language, sources, notices, browser defaults
-├── integrations.yml                   # CER special integrations, export policies, category presets
-├── player-preferences.db              # SQLite preferences and browsing sessions
-├── navigation/                        # Active menu configuration
-│   ├── categories.yml                 # Applied categories, permissions, hiding rules, buttons
-│   ├── categories-unapplied.yml       # Detected categories and buttons not yet applied
-│   └── workstations.yml               # Workstation order and page-specific custom buttons
-├── example/                           # Example templates; not loaded as live configuration
-│   ├── navigation/
-│   │   └── categories-example.yml     # Syntax example for categories.yml
-│   └── recipes/
-│       └── recipes-example.yml        # Custom recipe file format example
-├── lang/                              # Language files
-│   └── integrations/
-│       ├── common/{zh_CN,en_US}.yml             # Shared separators, yes/no text, and units
-│       ├── craftengine/{zh_CN,en_US}.yml        # CraftEngine workstation names
-│       ├── farmersdelight/{zh_CN,en_US}.yml     # Farmer's Delight titles, conditions, recipe notes
-│       ├── kaleidoscope/{zh_CN,en_US}.yml       # Kaleidoscope appliance, processing, and quality text
-│       ├── customcrops/{zh_CN,en_US}.yml        # CustomCrops pots, seasons, environments, fertilizer text
-│       ├── cultivation/{zh_CN,en_US}.yml        # Cultivation stations, seeds, substrates, planting notes
-│       └── minecraft/{zh_CN,en_US}.yml          # Vanilla workstation display names
-├── recipes/                           # Custom and exported recipes loaded by CER
-└── resources/                         # Local menu resources installed into CraftEngine packs
-```
-
-Each `cer_menu_*` menu pack uses complete layout files under `menu/` to declare the pages it handles. File names are arbitrary; CER reads only each file's `pages` declaration and performs no inheritance or merging:
-
-```text
-cer_menu_cute/
-├── pack.yml                           # CraftEngine resource-pack metadata
-├── menu/
-│   ├── browse.yml                     # Item-category and workstation browser layouts
-│   └── utility.yml                    # Management, unapplied, and craftable-page layouts
-├── configuration/gui.yml              # Title-image font height, ascent, and texture reference
-└── resourcepack/
-    └── assets/cer_cute/textures/font/gui/cer_main.png  # Menu title texture
-```
-
-Exported titles, lore, and descriptions follow `language` in `config.yml`. Item names from third-party content remain controlled by the CraftEngine resource pack and the client language.
-
-## Common Commands
-
-### Player Commands
+## Player Commands
 
 | Command | Purpose |
 | --- | --- |
@@ -133,25 +159,6 @@ Exported titles, lore, and descriptions follow `language` in `config.yml`. Item 
 | `/cer hand` | View recipes producing the vanilla or CraftEngine item in your main hand, respecting configured category restrictions |
 | `/cer target` | View recipes producing the vanilla or CraftEngine block under your crosshair, respecting configured category restrictions |
 | `/cer open <UI pack>` | Open the menu using the specified enabled UI style |
-
-### Administrator Commands
-
-| Command | Purpose |
-| --- | --- |
-| `/cer integrations` | Open CER's integration list and choose whether to enable each integration |
-| `/cer manage` | Open the Configuration Center to edit categories, hiding rules, ordering, and workstation configuration in game |
-| `/cer unapplied` | Browse recipes using category entries from `categories-unapplied.yml` |
-| `/cer reload` | Reload configuration and indexes manually; recipe-file edits reload automatically |
-| `/cer menu` | Show the default, enabled, and available UI styles |
-| `/cer menu enable <pack\|all>` | Enable one style or every `cer_menu_*` |
-| `/cer menu disable <pack>` | Disable a non-default style |
-| `/cer menu default <pack>` | Set the default style used by `/cer` and Shift+F |
-| `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | Re-read the selected source and replace its data under `recipes/` |
-| `/cer debug recipes` | Save all recipes currently registered on the server to a local JSON diagnostic file |
-| `/cer debug performance` | Show plugin operation timings, menu session/click counts, and server TPS/MSPT |
-| `/cer debug performance reset` | Reset the plugin timing window before reproducing a problem |
-
-Debug commands can also be run from the console. The administrator permission is `craftenginerecipe.admin`, which OPs have by default.
 
 ## Configuration Guide
 
@@ -170,12 +177,3 @@ The source code of this project is open source under the **GNU General Public Li
 
 Texture files in this project are licensed separately: they are authorized **only for use by the CraftEngineRecipe (CER) plugin**. Without explicit permission, other plugins may not copy, modify, distribute, or reuse the texture files from this project.
 
-## Credits
-
-Thank you to HuiDu_OwO for drawing the GUI textures used by the `cer_menu_cute` layout for this project without charge.
-
-Thank you to SnowCutieOwO for drawing the GUI textures used by the `cer_menu_map` layout for this project.
-
-Thank you to nsoer for providing CEGUI-1.0.0.jar and for authorizing the use of portions of the `cer_menu_rough` texture assets.
-
-Thank you to ChatGPT Astra for its help, and especially to DeepSeek, whose outage on October 15 resulted in a CNY 160 credit for me.

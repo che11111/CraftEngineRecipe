@@ -91,23 +91,18 @@ Only a selection is shown here. For more CER interface textures, visit the [Scre
     <tr>
       <td width="20%" align="center">
         <img src="img/integration-textures/farmers-delight-skillet.png" alt="Farmer's Delight skillet recipe interface" width="100%">
-        <br><small>Dedicated CER skillet texture</small>
       </td>
       <td width="20%" align="center">
         <img src="img/integration-textures/custom-crops-planter.png" alt="CustomCrops planter recipe interface" width="100%">
-        <br><small>Dedicated CER planter texture</small>
       </td>
       <td width="20%" align="center">
         <img src="img/integration-textures/kaleidoscope-shawarma-grill.png" alt="Kaleidoscope Cookery shawarma grill recipe interface" width="100%">
-        <br><small>Dedicated CER shawarma-grill texture</small>
       </td>
       <td width="20%" align="center">
         <img src="img/integration-textures/kaleidoscope-millstone.png" alt="Kaleidoscope Cookery millstone recipe interface" width="100%">
-        <br><small>Dedicated CER millstone texture</small>
       </td>
       <td width="20%" align="center">
         <img src="img/integration-textures/kaleidoscope-teapot.png" alt="Kaleidoscope Cookery teapot recipe interface" width="100%">
-        <br><small>Dedicated CER teapot texture</small>
       </td>
     </tr>
   </tbody>
