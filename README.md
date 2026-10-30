@@ -38,6 +38,81 @@
   </tr>
 </table>
 
+## Menu Interface Styles
+
+CER includes four main menu texture styles. Players can switch between any styles enabled by the server.
+
+<table>
+  <thead>
+    <tr>
+      <th width="25%" align="center">CER Cute Style Interface (default)</th>
+      <th width="25%" align="center">CER Rough Style Interface</th>
+      <th width="25%" align="center">CER Vanilla Style Interface</th>
+      <th width="25%" align="center">CER Map Style Interface</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-cute.png" alt="CER Cute Style Interface" width="100%">
+        <br><small>Default main menu style</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-rough.png" alt="CER Rough Style Interface" width="100%">
+        <br><small>Rough main menu style</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-vanilla.png" alt="CER Vanilla Style Interface" width="100%">
+        <br><small>Vanilla-style main menu</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-map.png" alt="CER Map Style Interface" width="100%">
+        <br><small>Map-style main menu</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Special Integration Textures
+
+CER draws dedicated recipe-interface textures for selected devices from compatible plugins.
+
+<table>
+  <thead>
+    <tr>
+      <th width="20%" align="center">Farmer's Delight · Skillet</th>
+      <th width="20%" align="center">CustomCrops · Planter</th>
+      <th width="20%" align="center">Kaleidoscope Cookery · Shawarma Grill</th>
+      <th width="20%" align="center">Kaleidoscope Cookery · Millstone</th>
+      <th width="20%" align="center">Kaleidoscope Cookery · Teapot</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/farmers-delight-skillet.png" alt="Farmer's Delight skillet recipe interface" width="100%">
+        <br><small>Dedicated CER skillet texture</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/custom-crops-planter.png" alt="CustomCrops planter recipe interface" width="100%">
+        <br><small>Dedicated CER planter texture</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/kaleidoscope-shawarma-grill.png" alt="Kaleidoscope Cookery shawarma grill recipe interface" width="100%">
+        <br><small>Dedicated CER shawarma-grill texture</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/kaleidoscope-millstone.png" alt="Kaleidoscope Cookery millstone recipe interface" width="100%">
+        <br><small>Dedicated CER millstone texture</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/kaleidoscope-teapot.png" alt="Kaleidoscope Cookery teapot recipe interface" width="100%">
+        <br><small>Dedicated CER teapot texture</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ## Features
 
 - **Ready to use**: automatically installs CraftEngine resources and multiple menu styles, with item-type and workstation browsing.
@@ -155,7 +230,7 @@ Debug commands can also be run from the console. The administrator permission is
 
 ## Configuration Guide
 
-[Categories and Permissions](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Hide Items](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/#hide-items-and-keep-the-category-button) · [Hide Category Buttons](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/#hide-category-buttons-and-contents) · [Custom Buttons](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/custom-buttons/) · [Sounds](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menu-sounds/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
+[Categories](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Commands](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/commands/) · [Search](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/search/) · [Menu Styles](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menus/) · [Plugin Integrations](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/integrations/) · [Recipe API](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/api/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
 
 
 ## Usage Statistics

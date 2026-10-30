@@ -32,15 +32,19 @@ entries:
     material: minecraft:gray_stained_glass_pane
     name: ''
     lore:
-    - '&7------'
+    - '&#B8C0CC一个分隔玻璃板'
   actions:
     all: []
 - display:
     material: minecraft:compass
-    name: '&#D8B278管理页面'
+    name: '&#D8B278打开「管理页面」'
     lore:
-      - '&#B8C0CC查看/编辑/排序/屏蔽/自定义'
+      - '&#B8C0CC在页面中会显示出当前服务器中CE的内容'
+      - '&#B8C0CC管理员需要手动应用这些内容，并可以选择屏蔽，或者排序'
+      - ''
+      - '&#B8C0CC通过/cer manage指令也可以进入'
       - '&#B8C0CC此按钮仅管理员可见'
+      - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
   visibility: admin
   permission: ''
   hide-inaccessible: true
@@ -51,9 +55,28 @@ entries:
       - 'delay: 0.1'
       - 'command: cer manage'
 - display:
+    material: minecraft:compass
+    name: '&#D8B278打开「CER的适配插件页面」'
+    lore:
+      - '&#B8C0CC在页面中会显示当前服务器中有哪些CER特殊适配内容'
+      - '&#B8C0CC需要管理员手动开启，适配内容方可工作'
+      - ''
+      - '&#B8C0CC通过/cer integrations指令也可以进入'
+      - '&#B8C0CC此按钮仅管理员可见'
+      - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
+  visibility: admin
+  permission: ''
+  hide-inaccessible: true
+  actions:
+    all:
+      - 'sound: UI_BUTTON_CLICK-1-2'
+      - close
+      - 'delay: 0.1'
+      - 'command: cer integrations'
+- display:
     material: minecraft:gray_stained_glass_pane
     name: ''
     lore:
-    - '&7------'
+    - '&#B8C0CC一个分隔玻璃板'
   actions:
     all: []

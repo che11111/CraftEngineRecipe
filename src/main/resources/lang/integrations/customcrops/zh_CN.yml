@@ -1,6 +1,6 @@
 separator: "、"
 title.station: "星露谷·{pot}"
-title.recipe: "星露谷·{crop}{suffix}"
+title.recipe: "星露谷·{suffix}"
 title.suffix.default: "种植盆"
 title.suffix.aquatic_crops: "水生盆栽"
 title.suffix.nether: "下界种植盆"

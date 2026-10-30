@@ -614,7 +614,7 @@ public final class CustomCropsRecipeSource implements RecipeSource {
             default -> this.potName(pot);
         };
         String fallback = this.chinese.getAsBoolean()
-                ? "星露谷·" + plainCrop + suffix
+                ? "星露谷·" + suffix
                 : "CustomCrops·" + plainCrop + suffix;
         String title = this.text.text("title.recipe", fallback,
                 "crop", plainCrop, "suffix", suffix);

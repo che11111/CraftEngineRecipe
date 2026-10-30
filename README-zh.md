@@ -6,7 +6,7 @@
 
 <p align="center">基于 CraftEngine 的物品与配方浏览插件，支持分类浏览、拼音搜索和配方用途查询。CER 不仅是配方书，也可以作为完整的 CE 物品图鉴。</p>
 
-> 本 README 对应尚未发布的 1.1.0 版本；如果你正在使用 1.0.17，可先参考 Wiki 中的说明。
+> 目前 1.1.0 版本可能不太稳定。
 
 
 <p align="center">
@@ -36,6 +36,76 @@
       <img src="img/Feature_Display.gif" alt="功能展示：查询手持物品配方、准星目标配方与使用搜索框" width="100%">
     </td>
   </tr>
+</table>
+
+## 主菜单界面风格
+
+CER 内置四种主菜单贴图风格，玩家可在服务端已启用的样式之间切换。
+
+<table>
+  <thead>
+    <tr>
+      <th width="25%" align="center">CER 可爱风格界面（默认）</th>
+      <th width="25%" align="center">CER 粗糙风格界面</th>
+      <th width="25%" align="center">CER 原版风格界面</th>
+      <th width="25%" align="center">CER 地图风格界面</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-cute.png" alt="CER 可爱风格界面" width="100%">
+        <br><small>默认主菜单风格</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-rough.png" alt="CER 粗糙风格界面" width="100%">
+        <br><small>粗糙风格主菜单</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-vanilla.png" alt="CER 原版风格界面" width="100%">
+        <br><small>原版风格主菜单</small>
+      </td>
+      <td width="25%" align="center">
+        <img src="img/menu-styles/menu-style-map.png" alt="CER 地图风格界面" width="100%">
+        <br><small>地图风格主菜单</small>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## 特殊适配贴图
+
+CER 为部分适配插件中的设备特意绘制了专用配方界面贴图。
+
+<table>
+  <thead>
+    <tr>
+      <th width="20%" align="center">Farmer'sDelight · 煎锅</th>
+      <th width="20%" align="center">CustomCrops · 种植盆</th>
+      <th width="20%" align="center">KaleidoscopeCookery · 沙威玛烤架</th>
+      <th width="20%" align="center">KaleidoscopeCookery · 石磨</th>
+      <th width="20%" align="center">KaleidoscopeCookery · 茶壶</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/farmers-delight-skillet.png" alt="Farmer's Delight 煎锅配方界面" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/custom-crops-planter.png" alt="CustomCrops 种植盆配方界面" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/kaleidoscope-shawarma-grill.png" alt="森罗物语沙威玛烤架配方界面" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/kaleidoscope-millstone.png" alt="森罗物语石磨配方界面" width="100%">
+      </td>
+      <td width="20%" align="center">
+        <img src="img/integration-textures/kaleidoscope-teapot.png" alt="森罗物语茶壶配方界面" width="100%">
+      </td>
+    </tr>
+  </tbody>
 </table>
 
 ## 功能与特色
@@ -155,7 +225,7 @@ cer_menu_cute/
 
 ## 配置文档
 
-[分类与权限](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/) · [隐藏物品](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/#只隐藏物品保留分类按钮) · [隐藏分类按钮](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/#隐藏分类按钮及内容) · [自定义按钮](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/custom-buttons/) · [音效](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/menu-sounds/) · [排障](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/troubleshooting/) · [更新插件](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/updating/) · [更新日志](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/changelog/)
+[分类管理](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/categories/) · [指令与操作](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/commands/) · [配方浏览与搜索](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/search/) · [菜单自定义](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/menus/) · [插件适配](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/integrations/) · [Recipe API](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/api/) · [常见问题](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/troubleshooting/) · [更新插件](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/updating/) · [更新日志](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide-zh/changelog/)
 
 
 

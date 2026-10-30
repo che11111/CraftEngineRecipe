@@ -31,7 +31,7 @@ public final class IntegrationText {
 
     public String text(String key, String fallback, Object... arguments) {
         String value = this.lookup.apply(key);
-        return format(value == null || value.isBlank() ? fallback : value, arguments);
+        return format(value == null || value.isBlank() || value.equals(key) ? fallback : value, arguments);
     }
 
     static String format(String template, Object... arguments) {

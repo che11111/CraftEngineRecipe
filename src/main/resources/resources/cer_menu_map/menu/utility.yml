@@ -1,5 +1,5 @@
 id: cer_menu_map
-display-name: '<gold>CER 地图界面'
+display-name: '<gold>CER 地图风格界面'
 pages:
   - management
   - unapplied
