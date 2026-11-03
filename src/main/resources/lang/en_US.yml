@@ -21,7 +21,6 @@ messages:
   debug-performance-operation: '<#B8C0CC>{name}: {count} calls, total {total} ms, average {average} ms, max {max} ms</#B8C0CC>'
   debug-performance-empty: '<#8793A5>No operation timings yet. Use the menus and run this command again.</#8793A5>'
   debug-performance-note: '<#8793A5>Timings may be nested and cannot be added into a server CPU percentage. Reset, reproduce the slowdown, then inspect; use spark for call stacks. Global TPS/MSPT may be unavailable on Folia.</#8793A5>'
-  update-available: <#98C69A>New version {latest} is available (current {current}).</#98C69A> <#79CFC9>{url}</#79CFC9>
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
   personalization-saved: '<#98C69A>Preferences saved: menu style {menu}, default main page {main}, restore position: {remember}.</#98C69A>'
@@ -341,9 +340,8 @@ logs:
   integration-setup-waiting: 'Detected CER integrations awaiting configuration: {plugins}. No administrator is online; the clickable setup prompt will appear when one joins.'
   category-preset-linked-applied: 'Applied category presets linked to enabled integrations: {namespaces}'
   integration-config-waiting: 'Detected {plugins} pending integrations and {presets} category presets. No administrator is online; the dialog entry will appear when one joins.'
-  update-check-enabled: Update checking enabled.
   update-available: 'New version {latest} is available (current {current}): {url}'
-  update-check-failed: 'Could not check GitHub for updates; will retry at the next scheduled check without affecting the plugin: {error}'
+  update-check-failed: 'Could not check GitHub for updates; will retry on the next startup or reload without affecting the plugin: {error}'
   compatibility-fallback: 'Compatibility operation {operation} failed; keeping the existing fallback. Each call site is logged once per data generation; exception details follow.'
   search-input-failed: 'Failed to read search input; returning to the menu.'
   config-invalid-id: 'Invalid configured ID: {path} = {value}; keeping the existing fallback behavior. Check the namespace and path.'

@@ -2,24 +2,15 @@ package dev.che1s.craftenginerecipe.update;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.kyori.adventure.text.event.ClickEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.IllegalPluginAccessException;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** 网络任务保持在异步调度器上；玩家通知通过其所属实体调度器发送。 */
-public final class UpdateChecker implements Listener {
+/** 每个启动或重载周期最多自动检查一次；自动检查只在控制台提示。 */
+public final class UpdateChecker {
+    private static final long AUTOMATIC_CHECK_DELAY_SECONDS = 5;
     private final CraftEngineRecipePlugin plugin;
     private final GitHubReleaseClient client = new GitHubReleaseClient();
     private final String installedVersion;
@@ -30,31 +21,37 @@ public final class UpdateChecker implements Listener {
         this.installedVersion = plugin.getPluginMeta().getVersion();
     }
 
-    /** 重载已启用的检查器时保留计时器和缓存结果，不发起额外请求。 */
+    /** 启动或重载后安排一次异步检查，并取消上一周期尚未执行的检查。 */
     public synchronized void reload() {
+        this.shutdown();
         if (!this.plugin.getConfig().getBoolean("check-for-updates", true)) {
-            this.shutdown();
             return;
         }
-        if (this.active != null) return;
         CheckRun run = new CheckRun();
         this.active = run;
         try {
-            run.timer = this.plugin.tasks().asyncTimer(() -> this.check(run), 5, 6 * 60 * 60, TimeUnit.SECONDS);
+            run.pending = this.plugin.tasks().asyncLater(
+                    () -> this.check(run), AUTOMATIC_CHECK_DELAY_SECONDS, TimeUnit.SECONDS);
         } catch (RuntimeException error) {
             this.active = null;
             throw error;
         }
-        this.plugin.getLogger().info("已开启更新检查。");
     }
 
     public synchronized void shutdown() {
         CheckRun run = this.active;
         this.active = null;
-        if (run != null && run.timer != null) run.timer.cancel();
+        if (run != null) this.cancelPending(run);
+    }
+
+    private void cancelPending(CheckRun run) {
+        ScheduledTask pending = run.pending;
+        run.pending = null;
+        if (pending != null) pending.cancel();
     }
 
     private void check(CheckRun run) {
+        run.pending = null;
         if (this.active != run || !run.checking.compareAndSet(false, true)) return;
         try {
             GitHubReleaseClient.Release release = this.client.fetchLatest()
@@ -63,12 +60,8 @@ public final class UpdateChecker implements Listener {
             this.complete(run, () -> this.accept(run, release));
         } catch (IOException | RuntimeException error) {
             this.complete(run, () -> {
-                // 每段连续失败只警告一次；成功检查后允许下次失败再次警告。
-                if (!run.failureReported) {
-                    run.failureReported = true;
-                    this.plugin.getLogger().warning(this.plugin.lang().text("logs.update-check-failed",
-                            "error", error.toString()));
-                }
+                this.plugin.getLogger().warning(this.plugin.lang().text(
+                        "logs.update-check-failed", "error", error.toString()));
             });
         } finally {
             run.checking.set(false);
@@ -87,49 +80,15 @@ public final class UpdateChecker implements Listener {
         }
     }
 
-    /** 在全局调度器上调用；只有新发现的版本才会通知在线管理员。 */
+    /** 在全局调度器上调用；自动检查只写控制台。 */
     private void accept(CheckRun run, GitHubReleaseClient.Release release) {
-        run.failureReported = false;
-        GitHubReleaseClient.Release previous = run.available;
-        run.available = release;
-        if (release == null || (previous != null && previous.version().equals(release.version()))) return;
+        if (release == null) return;
         this.plugin.getLogger().info(this.plugin.lang().text("logs.update-available",
                 "latest", release.version(), "current", this.installedVersion, "url", release.url()));
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            this.plugin.tasks().player(player, () -> this.notifyPlayer(player, run, release));
-        }
-    }
-
-    private void notifyPlayer(Player player, CheckRun run, GitHubReleaseClient.Release release) {
-        if (this.active != run || run.available != release || !player.hasPermission("craftenginerecipe.admin")) return;
-        if (release.version().equals(run.notified.put(player.getUniqueId(), release.version()))) return;
-        player.sendMessage(this.plugin.lang().message("messages.update-available", "latest", release.version(),
-                "current", this.installedVersion, "url", release.url()).clickEvent(ClickEvent.openUrl(release.url())));
-    }
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        CheckRun run = this.active;
-        if (run == null || run.available == null) return;
-        Player player = event.getPlayer();
-        // 玩家加入时只读取缓存结果，绝不会因此发起网络请求。
-        this.plugin.tasks().playerLater(player, () -> {
-            GitHubReleaseClient.Release release = run.available;
-            if (release != null) this.notifyPlayer(player, run, release);
-        }, 60);
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        CheckRun run = this.active;
-        if (run != null) run.notified.remove(event.getPlayer().getUniqueId());
     }
 
     private static final class CheckRun {
         private final AtomicBoolean checking = new AtomicBoolean();
-        private final Map<UUID, String> notified = new ConcurrentHashMap<>();
-        private volatile GitHubReleaseClient.Release available;
-        private ScheduledTask timer;
-        private boolean failureReported;
+        private volatile ScheduledTask pending;
     }
 }

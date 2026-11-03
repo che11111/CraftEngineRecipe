@@ -66,7 +66,6 @@ messages:
   reload-start: <#E4D397>正在重载，索引构建完成后会通知你。</#E4D397>
   reload-success: <#98C69A>配置、语言与数据索引已重载完成。</#98C69A>
   reload-failed: <#E58B8B>构建失败或请求被新的重载替代，请查看控制台。</#E58B8B>
-  update-available: <#98C69A>发现新版本 {latest}（当前 {current}）。</#98C69A> <#79CFC9>{url}</#79CFC9>
   data-not-ready: <#E4D397>数据尚未就绪：{reason}</#E4D397>
   not-ready-reason: 数据正在初始化、重建或上次构建失败，请稍候；仍未就绪时执行 /cer reload 并检查控制台
   category-not-found: <#E58B8B>分类不存在：{id}</#E58B8B>
@@ -365,9 +364,8 @@ logs:
   data-build-failed: 构建 CraftEngineRecipe 数据失败
   metrics-ready: bStats 已初始化。
   metrics-failed: bStats 初始化失败，不影响配方浏览：{error}
-  update-check-enabled: 已开启更新检查。
   update-available: '发现新版本 {latest}（当前 {current}）：{url}'
-  update-check-failed: '检查 GitHub 更新失败，将在下次定时检查时重试，不影响插件使用：{error}'
+  update-check-failed: '检查 GitHub 更新失败，将在下次启动或重载时重试，不影响插件使用：{error}'
   category-read-failed: 读取分类配置失败：{file}
   category-save-failed: 保存分类命名空间数据文件失败：{error}
   unapplied-save-failed: 保存未应用条目数据文件失败：{error}

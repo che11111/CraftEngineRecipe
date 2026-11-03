@@ -69,6 +69,15 @@ public final class TaskDispatcher {
         }
     }
 
+    public ScheduledTask asyncLater(Runnable action, long delay, TimeUnit unit) {
+        synchronized (this.lifecycleLock) {
+            this.requireRunning();
+            return this.async.runDelayed(this.plugin, ignored -> {
+                if (!this.stopped) action.run();
+            }, Math.max(1, delay), unit);
+        }
+    }
+
     public ScheduledTask asyncTimer(Runnable action, long initialDelay, long period, TimeUnit unit) {
         synchronized (this.lifecycleLock) {
             this.requireRunning();

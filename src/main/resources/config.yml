@@ -121,10 +121,10 @@ personalization:
   default-remember-last-page: true
 # 标题和文本在 lang/<语言>.yml 中修改；布局、按钮、材质和音效在对应 cer_menu_*/menu.yml 中修改。
 # Edit text under ui in lang/<language>.yml; layouts, buttons, materials and sounds live in each cer_menu_*/menu.yml.
-# 检查更新：启动后及每 6 小时后台检查 GitHub 正式版，发现新版后通知控制台和管理员。
-# Check for updates: check GitHub stable releases in the background after startup and every 6 hours; notify console and admins.
+# 检查更新：仅在插件启动或 /cer reload 时检查一次 GitHub 正式版，发现新版后只在控制台提醒，不通知管理员。
+# Check for updates: check GitHub stable releases once on plugin startup or /cer reload; log new versions to the console only, not to administrators.
 # 仅提醒，不自动下载或替换插件；设为 false 后执行 /cer reload 即可关闭。
-# Only sends notifications, without downloading or replacing the plugin; set false and run /cer reload to disable.
+# Only logs notifications, without downloading or replacing the plugin; set false and run /cer reload to disable.
 check-for-updates: true
 
 # 插件会生成 CraftEngine/resources/CraftEngineRecipe/subpacks/ 统一资源包。

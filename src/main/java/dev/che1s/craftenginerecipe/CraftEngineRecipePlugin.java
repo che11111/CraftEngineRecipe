@@ -139,7 +139,6 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.metrics = new MetricsService(this);
         this.metrics.reload();
         this.updates = new UpdateChecker(this);
-        Bukkit.getPluginManager().registerEvents(this.updates, this);
         this.updates.reload();
         // 同时支持在 CraftEngine 已加载完成后启用本插件。
         this.tasks.global(() -> {
