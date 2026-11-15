@@ -61,25 +61,59 @@ public final class CategoryNamespaces {
             Visibility visibility,
             String permission,
             boolean categoryEntry,
-            String iconName,
-            List<String> itemLore,
-            List<String> iconLore,
-            List<String> subIconLore,
+            LocalizedCategoryText iconName,
+            LocalizedCategoryText itemLore,
+            LocalizedCategoryText iconLore,
+            LocalizedCategoryText subIconLore,
             boolean sortByNamespace,
             boolean hideItemsWithoutRecipes,
             Map<String, Set<String>> hiddenItems,
             Set<String> hiddenCategories,
             boolean hiddenRulesAffectWorkstations,
-            boolean hideInaccessible) implements Entry {
+            boolean hideInaccessible,
+            String managedBy) implements Entry {
         public NamespaceEntry {
-            itemLore = immutableList(itemLore);
-            iconLore = immutableList(iconLore);
-            subIconLore = immutableList(subIconLore);
+            iconName = iconName == null ? LocalizedCategoryText.emptyText() : iconName;
+            itemLore = itemLore == null ? LocalizedCategoryText.emptyLines() : itemLore;
+            iconLore = iconLore == null ? LocalizedCategoryText.emptyLines() : iconLore;
+            subIconLore = subIconLore == null ? LocalizedCategoryText.emptyLines() : subIconLore;
             Map<String, Set<String>> rules = new LinkedHashMap<>();
             hiddenItems.forEach((category, items) ->
                     rules.put(category, Collections.unmodifiableSet(new LinkedHashSet<>(items))));
             hiddenItems = Collections.unmodifiableMap(rules);
             hiddenCategories = Collections.unmodifiableSet(new LinkedHashSet<>(hiddenCategories));
+            managedBy = managedBy == null ? "" : managedBy.trim();
+        }
+
+        public NamespaceEntry(String id, Visibility visibility, String permission, boolean categoryEntry,
+                              String iconName, List<String> itemLore, List<String> iconLore,
+                              List<String> subIconLore, boolean sortByNamespace,
+                              boolean hideItemsWithoutRecipes, Map<String, Set<String>> hiddenItems,
+                              Set<String> hiddenCategories, boolean hiddenRulesAffectWorkstations,
+                              boolean hideInaccessible) {
+            this(id, visibility, permission, categoryEntry, LocalizedCategoryText.text(iconName),
+                    LocalizedCategoryText.lines(itemLore), LocalizedCategoryText.lines(iconLore),
+                    LocalizedCategoryText.lines(subIconLore), sortByNamespace,
+                    hideItemsWithoutRecipes, hiddenItems, hiddenCategories,
+                    hiddenRulesAffectWorkstations, hideInaccessible, "");
+        }
+
+        public NamespaceEntry(String id, Visibility visibility, String permission, boolean categoryEntry,
+                              LocalizedCategoryText iconName, LocalizedCategoryText itemLore,
+                              LocalizedCategoryText iconLore, LocalizedCategoryText subIconLore,
+                              boolean sortByNamespace, boolean hideItemsWithoutRecipes,
+                              Map<String, Set<String>> hiddenItems, Set<String> hiddenCategories,
+                              boolean hiddenRulesAffectWorkstations, boolean hideInaccessible) {
+            this(id, visibility, permission, categoryEntry, iconName, itemLore, iconLore,
+                    subIconLore, sortByNamespace, hideItemsWithoutRecipes, hiddenItems,
+                    hiddenCategories, hiddenRulesAffectWorkstations, hideInaccessible, "");
+        }
+
+        public NamespaceEntry withManagedBy(String sourceJar) {
+            return new NamespaceEntry(id, visibility, permission, categoryEntry, iconName,
+                    itemLore, iconLore, subIconLore, sortByNamespace, hideItemsWithoutRecipes,
+                    hiddenItems, hiddenCategories, hiddenRulesAffectWorkstations,
+                    hideInaccessible, sourceJar);
         }
     }
 
@@ -104,9 +138,14 @@ public final class CategoryNamespaces {
         }
     }
 
-    public record ButtonDisplay(String material, String name, List<String> lore) {
+    public record ButtonDisplay(String material, LocalizedCategoryText name, LocalizedCategoryText lore) {
         public ButtonDisplay {
-            lore = immutableList(lore);
+            name = name == null ? LocalizedCategoryText.emptyText() : name;
+            lore = lore == null ? LocalizedCategoryText.emptyLines() : lore;
+        }
+
+        public ButtonDisplay(String material, String name, List<String> lore) {
+            this(material, LocalizedCategoryText.text(name), LocalizedCategoryText.lines(lore));
         }
     }
 
@@ -184,49 +223,18 @@ public final class CategoryNamespaces {
                 if (!(o instanceof Map<?, ?> m)) continue;
                 this.diagnoseEntry(m, this.file, listPath + "[" + index + "]");
                 if (m.get("display") instanceof Map<?, ?>) {
-                    ButtonEntry button = parseButtonEntry(m);
+                    ButtonEntry button = CategoryNamespaceCodec.button(m);
                     if (button != null) {
                         this.entries.add(button);
                     }
                 } else {
-                    NamespaceEntry ns = parseNamespace(m);
+                    NamespaceEntry ns = CategoryNamespaceCodec.namespace(m);
                     if (ns != null) {
                         this.entries.add(ns);
                     }
                 }
             }
         }
-    }
-
-    private static Map<String, Set<String>> parseHiddenItems(Object value) {
-        Map<String, Set<String>> rules = new LinkedHashMap<>();
-        if (value instanceof List<?> hiddenList) {
-            for (Object o : hiddenList) {
-                if (!(o instanceof Map<?, ?> m)) continue;
-                String categoryId = str(m.get("category"));
-                if (categoryId.isBlank()) continue;
-                Set<String> set = new LinkedHashSet<>();
-                if (m.get("items") instanceof List<?> itemsList) {
-                    for (Object io : itemsList) {
-                        String s = str(io);
-                        if (!s.isBlank()) set.add(s);
-                    }
-                }
-                if (!set.isEmpty()) {
-                    rules.computeIfAbsent(categoryId, ignored -> new LinkedHashSet<>()).addAll(set);
-                }
-            }
-        }
-        rules.replaceAll((category, items) -> Collections.unmodifiableSet(items));
-        return Collections.unmodifiableMap(rules);
-    }
-
-    private static Set<String> parseHiddenCategories(Object value) {
-        Set<String> ids = new LinkedHashSet<>();
-        for (String id : parseStringList(value)) {
-            if (!id.isBlank()) ids.add(id);
-        }
-        return Collections.unmodifiableSet(ids);
     }
 
     private void rebuildFilters() {
@@ -265,10 +273,10 @@ public final class CategoryNamespaces {
             if (!(o instanceof Map<?, ?> m)) continue;
             this.diagnoseEntry(m, this.extraFile, "entries[" + index + "]");
             if (m.get("display") instanceof Map<?, ?>) {
-                ButtonEntry button = parseButtonEntry(m);
+                ButtonEntry button = CategoryNamespaceCodec.button(m);
                 if (button != null) this.extra.add(button);
             } else {
-                NamespaceEntry namespace = parseNamespace(m);
+                NamespaceEntry namespace = CategoryNamespaceCodec.namespace(m);
                 if (namespace != null) this.extra.add(namespace);
             }
         }
@@ -350,65 +358,12 @@ public final class CategoryNamespaces {
         return yaml;
     }
 
-    static NamespaceEntry parseNamespace(Map<?, ?> m) {
-        String id = str(m.get("id"));
-        if (id.isBlank()) {
-            return null;
-        }
-        Visibility visibility = parseVisibility(str(m.get("visibility")));
-        String permission = str(m.get("permission"));
-        String iconName = str(m.get("icon-name"));
-        List<String> itemLore = parseStringList(m.get("item-lore"));
-        List<String> iconLore = parseStringList(m.get("icon-lore"));
-        List<String> subIconLore = parseStringList(m.get("sub-icon-lore"));
-        return new NamespaceEntry(id, visibility, permission, parseBoolean(m.get("category-entry"), true),
-                iconName, itemLore, iconLore, subIconLore,
-                parseBoolean(m.get("sort-by-namespace"), false),
-                parseBoolean(m.get("hide-items-without-recipes"), false),
-                parseHiddenItems(m.get("hidden-items")), parseHiddenCategories(m.get("hidden-categories")),
-                parseBoolean(m.get("hidden-rules-affect-workstations"), true),
-                parseBoolean(m.get("hide-inaccessible"), false));
+    static NamespaceEntry parseNamespace(Map<?, ?> raw) {
+        return CategoryNamespaceCodec.namespace(raw);
     }
 
-    public static ButtonEntry parseButtonEntry(Map<?, ?> m) {
-        Map<?, ?> displayMap = (Map<?, ?>) m.get("display");
-        String material = str(displayMap.get("material"));
-        String name = str(displayMap.get("name"));
-        List<String> lore = new ArrayList<>();
-        if (displayMap.get("lore") instanceof List<?> loreList) {
-            for (Object lo : loreList) {
-                lore.add(str(lo));
-            }
-        }
-        ButtonDisplay display = new ButtonDisplay(material, name, lore);
-        Map<String, List<String>> actions = parseActions(m.get("actions"));
-        Visibility visibility = parseButtonVisibility(m.get("visibility"));
-        String permission = str(m.get("permission"));
-        return new ButtonEntry(display, actions, visibility, permission,
-                parseBoolean(m.get("hide-inaccessible"), false));
-    }
-
-    private static Map<String, List<String>> parseActions(Object actionsObj) {
-        Map<String, List<String>> actions = new LinkedHashMap<>();
-        if (actionsObj instanceof Map<?, ?> am) {
-            for (Map.Entry<?, ?> ae : am.entrySet()) {
-                String key = str(ae.getKey()).toLowerCase(Locale.ROOT);
-                List<String> list = new ArrayList<>();
-                if (ae.getValue() instanceof List<?> l) {
-                    for (Object s : l) {
-                        list.add(str(s));
-                    }
-                }
-                actions.put(key, list);
-            }
-        } else if (actionsObj instanceof List<?> al) {
-            List<String> list = new ArrayList<>();
-            for (Object s : al) {
-                list.add(str(s));
-            }
-            actions.put("all", list);
-        }
-        return actions;
+    public static ButtonEntry parseButtonEntry(Map<?, ?> raw) {
+        return CategoryNamespaceCodec.button(raw);
     }
 
     /**
@@ -553,7 +508,8 @@ public final class CategoryNamespaces {
             Entry value = this.extra.get(index);
             if (!(value instanceof NamespaceEntry current) || !current.id().equals(namespace)) continue;
             NamespaceEntry updated = new NamespaceEntry(current.id(), visibility, permission,
-                    categoryEntry, iconName, current.itemLore(), current.iconLore(), current.subIconLore(),
+                    categoryEntry, LocalizedCategoryText.text(iconName),
+                    current.itemLore(), current.iconLore(), current.subIconLore(),
                     sortByNamespace, hideItemsWithoutRecipes, current.hiddenItems(), current.hiddenCategories(),
                     hiddenRulesAffectWorkstations, current.hideInaccessible());
             return this.updateNamespace(namespace, updated);
@@ -594,6 +550,57 @@ public final class CategoryNamespaces {
         this.save();
         this.saveExtra();
         return true;
+    }
+
+    /**
+     * 将已有条目认领给扩展 JAR，但不改服主已经编辑过的分类配置。
+     */
+    public synchronized boolean claimManagedBy(String namespace, String sourceJar) {
+        if (namespace == null || namespace.isBlank() || sourceJar == null || sourceJar.isBlank()) {
+            return false;
+        }
+        for (int index = 0; index < this.entries.size(); index++) {
+            if (!(this.entries.get(index) instanceof NamespaceEntry entry)
+                    || !entry.id().equals(namespace) || !entry.managedBy().isBlank()) continue;
+            NamespaceEntry claimed = entry.withManagedBy(sourceJar);
+            this.entries.set(index, claimed);
+            this.namespaceIndex.put(namespace, claimed);
+            this.save();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 删除由不再可用的扩展 JAR 写入的条目。没有所有权标记的本地条目永不删除。
+     */
+    public synchronized int cleanupManagedBy(Set<String> activeJarNames) {
+        Set<String> active = activeJarNames == null ? Set.of() : Set.copyOf(activeJarNames);
+        int beforeEntries = this.entries.size();
+        this.entries.removeIf(entry -> {
+            if (!(entry instanceof NamespaceEntry namespace) || namespace.managedBy().isBlank()
+                    || active.contains(namespace.managedBy())) return false;
+            return true;
+        });
+        int beforeExtra = this.extra.size();
+        this.extra.removeIf(entry -> {
+            if (!(entry instanceof NamespaceEntry namespace) || namespace.managedBy().isBlank()
+                    || active.contains(namespace.managedBy())) return false;
+            return true;
+        });
+        int entriesRemoved = beforeEntries - this.entries.size();
+        int extrasRemoved = beforeExtra - this.extra.size();
+        this.namespaceIndex.clear();
+        for (Entry entry : this.entries) {
+            if (entry instanceof NamespaceEntry namespace) {
+                this.namespaceIndex.putIfAbsent(namespace.id(), namespace);
+            }
+        }
+        if (entriesRemoved == 0 && extrasRemoved == 0) return 0;
+        this.rebuildFilters();
+        if (entriesRemoved > 0) this.save();
+        if (extrasRemoved > 0) this.saveExtra();
+        return entriesRemoved + extrasRemoved;
     }
 
     /** 将任意未应用条目追加到 categories.yml；索引对应 {@link #unappliedAllEntries()}。 */
@@ -714,7 +721,8 @@ public final class CategoryNamespaces {
         NamespaceEntry updated = new NamespaceEntry(current.id(), current.visibility(), current.permission(),
                 current.categoryEntry(), current.iconName(), current.itemLore(), current.iconLore(),
                 current.subIconLore(), current.sortByNamespace(), current.hideItemsWithoutRecipes(),
-                rules, categories, current.hiddenRulesAffectWorkstations(), current.hideInaccessible());
+                rules, categories, current.hiddenRulesAffectWorkstations(), current.hideInaccessible(),
+                current.managedBy());
         return this.updateNamespace(current.id(), updated);
     }
 
@@ -774,24 +782,24 @@ public final class CategoryNamespaces {
         return entry != null && entry.hideItemsWithoutRecipes();
     }
 
-    public String iconNameOf(String namespace) {
+    public LocalizedCategoryText iconNameOf(String namespace) {
         NamespaceEntry e = findNamespace(namespace);
-        return e == null ? "" : e.iconName();
+        return e == null ? LocalizedCategoryText.emptyText() : e.iconName();
     }
 
-    public List<String> itemLoreOf(String namespace) {
+    public LocalizedCategoryText itemLoreOf(String namespace) {
         NamespaceEntry e = findNamespace(namespace);
-        return e == null ? List.of() : e.itemLore();
+        return e == null ? LocalizedCategoryText.emptyLines() : e.itemLore();
     }
 
-    public List<String> iconLoreOf(String namespace) {
+    public LocalizedCategoryText iconLoreOf(String namespace) {
         NamespaceEntry e = findNamespace(namespace);
-        return e == null ? List.of() : e.iconLore();
+        return e == null ? LocalizedCategoryText.emptyLines() : e.iconLore();
     }
 
-    public List<String> subIconLoreOf(String namespace) {
+    public LocalizedCategoryText subIconLoreOf(String namespace) {
         NamespaceEntry e = findNamespace(namespace);
-        return e == null ? List.of() : e.subIconLore();
+        return e == null ? LocalizedCategoryText.emptyLines() : e.subIconLore();
     }
 
     public synchronized Set<String> hiddenItems(String categoryId) {
@@ -821,98 +829,8 @@ public final class CategoryNamespaces {
         return player != null && (player.isOp() || player.hasPermission("craftenginerecipe.admin"));
     }
 
-    private static Visibility parseVisibility(String v) {
-        if (v == null) {
-            return Visibility.ADMIN;
-        }
-        return switch (v.trim().toLowerCase(Locale.ROOT)) {
-            case "player", "all", "public" -> Visibility.PLAYER;
-            case "permission", "perm" -> Visibility.PERMISSION;
-            default -> Visibility.ADMIN;
-        };
-    }
-
-    private static Visibility parseButtonVisibility(Object o) {
-        String v = str(o).trim();
-        if (v.isEmpty()) {
-            return Visibility.PLAYER;
-        }
-        return parseVisibility(v);
-    }
-
     private static String str(Object o) {
         return o == null ? "" : String.valueOf(o);
-    }
-
-    private static boolean parseBoolean(Object value, boolean fallback) {
-        if (value instanceof Boolean bool) return bool;
-        String text = str(value).trim();
-        if (text.isEmpty()) return fallback;
-        if (text.equalsIgnoreCase("true")) return true;
-        if (text.equalsIgnoreCase("false")) return false;
-        return fallback;
-    }
-
-    private static List<String> parseStringList(Object o) {
-        List<String> list = new ArrayList<>();
-        if (o instanceof List<?> l) {
-            for (Object s : l) {
-                list.add(str(s));
-            }
-        }
-        return list;
-    }
-
-    private static Map<String, Object> toMap(NamespaceEntry n) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", n.id());
-        m.put("visibility", n.visibility().name().toLowerCase(Locale.ROOT));
-        m.put("permission", n.permission() == null ? "" : n.permission());
-        if (!n.categoryEntry()) {
-            m.put("category-entry", false);
-        }
-        if (n.iconName() != null && !n.iconName().isBlank()) {
-            m.put("icon-name", n.iconName());
-        }
-        if (!n.itemLore().isEmpty()) {
-            m.put("item-lore", new ArrayList<>(n.itemLore()));
-        }
-        if (!n.iconLore().isEmpty()) {
-            m.put("icon-lore", new ArrayList<>(n.iconLore()));
-        }
-        if (!n.subIconLore().isEmpty()) {
-            m.put("sub-icon-lore", new ArrayList<>(n.subIconLore()));
-        }
-        if (n.sortByNamespace()) {
-            m.put("sort-by-namespace", true);
-        }
-        if (n.hideItemsWithoutRecipes()) {
-            m.put("hide-items-without-recipes", true);
-        }
-        if (!n.hiddenItems().isEmpty()) {
-            m.put("hidden-items", hiddenItemsToList(n.hiddenItems()));
-        }
-        if (!n.hiddenCategories().isEmpty()) {
-            m.put("hidden-categories", new ArrayList<>(n.hiddenCategories()));
-        }
-        if (!n.hiddenRulesAffectWorkstations()) {
-            m.put("hidden-rules-affect-workstations", false);
-        }
-        if (n.hideInaccessible()) {
-            m.put("hide-inaccessible", true);
-        }
-        return m;
-    }
-
-    private static List<Map<String, Object>> hiddenItemsToList(Map<String, Set<String>> rules) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        rules.forEach((category, items) -> {
-            Map<String, Object> rule = new LinkedHashMap<>();
-            rule.put("category", category);
-            rule.put("items", new ArrayList<>(items));
-            list.add(rule);
-        });
-        return list;
     }
 
     private void save() {
@@ -920,7 +838,7 @@ public final class CategoryNamespaces {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Entry e : this.entries) {
             if (e instanceof NamespaceEntry n) {
-                list.add(toMap(n));
+                list.add(CategoryNamespaceCodec.namespaceMap(n));
             } else if (e instanceof ButtonEntry b) {
                 list.add(buttonMap(b));
             }
@@ -934,31 +852,7 @@ public final class CategoryNamespaces {
     }
 
     public static Map<String, Object> buttonMap(ButtonEntry button) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        Map<String, Object> display = new LinkedHashMap<>();
-        display.put("material", button.display().material());
-        display.put("name", button.display().name());
-        if (!button.display().lore().isEmpty()) {
-            display.put("lore", new ArrayList<>(button.display().lore()));
-        }
-        map.put("display", display);
-        if (button.visibility() != Visibility.PLAYER) {
-            map.put("visibility", button.visibility().name().toLowerCase(Locale.ROOT));
-        }
-        if (button.permission() != null && !button.permission().isBlank()) {
-            map.put("permission", button.permission());
-        }
-        if (button.hideInaccessible()) {
-            map.put("hide-inaccessible", true);
-        }
-        if (!button.actions().isEmpty()) {
-            Map<String, Object> actions = new LinkedHashMap<>();
-            for (Map.Entry<String, List<String>> entry : button.actions().entrySet()) {
-                actions.put(entry.getKey(), new ArrayList<>(entry.getValue()));
-            }
-            map.put("actions", actions);
-        }
-        return map;
+        return CategoryNamespaceCodec.buttonMap(button);
     }
 
     private void saveExtra() {
@@ -966,8 +860,11 @@ public final class CategoryNamespaces {
         yaml.options().header(this.language.text("headers.unapplied"));
         List<Map<String, Object>> list = new ArrayList<>();
         for (Entry entry : this.extra) {
-            if (entry instanceof NamespaceEntry namespace) list.add(toMap(namespace));
-            else if (entry instanceof ButtonEntry button) list.add(buttonMap(button));
+            if (entry instanceof NamespaceEntry namespace) {
+                list.add(CategoryNamespaceCodec.namespaceMap(namespace));
+            } else if (entry instanceof ButtonEntry button) {
+                list.add(buttonMap(button));
+            }
         }
         yaml.set("entries", list);
         try {

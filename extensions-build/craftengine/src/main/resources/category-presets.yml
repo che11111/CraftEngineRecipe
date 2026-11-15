@@ -1,0 +1,15 @@
+schema: 1
+presets:
+  - id: american_chinese
+    authors:
+      - ydxc2009
+    visibility: player
+  - id: internet_banquet
+    authors:
+      - ydxc2009
+    visibility: player
+  - id: ultramarine
+    authors:
+      - 未雨屏
+    visibility: player
+    hide-items-without-recipes: true

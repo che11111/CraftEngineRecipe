@@ -1,0 +1,482 @@
+# Generated de_DE translation.
+prefix: '<#79CFC9>[<bold></bold>]</#79CFC9> '
+messages:
+  debug-usage: '<#E4D397>Usage: /cer Debug-Rezepte | /cer Debug-Leistung [zurücksetzen]</#E4D397>'
+  debug-export-start: <#E4D397>Erfassung aller Rezepte in kleinen Mengen; Der Snapshot wird asynchron im Plugin-Debug-Ordner gespeichert.</#E4D397>
+  debug-export-busy: Der Rezeptexport <#E4D397>A läuft bereits. Bitte warten.</#E4D397>
+  debug-export-cooldown: <#E4D397>Bitte warten Sie {seconds} Sekunden, bevor Sie erneut exportieren.</#E4D397>
+  debug-export-success: '<#98C69A>Rezepte gespeichert: {path} (Bukkit {bukkit}, CraftEngine {native}, CER-Anbieter {external}; Eingabefehler {errors}).</#98C69A>'
+  debug-export-failed: '<#E58B8B>Rezeptexport fehlgeschlagen: {error}. Überprüfen Sie die Konsole; Versuchen Sie es erneut, nachdem das Neuladen der Rezepte abgeschlossen ist.</#E58B8B>'
+  debug-performance-header: <#79CFC9>Leistungsstatistiken ({seconds} Sekunden seit dem Start oder letzten Zurücksetzen)</#79CFC9>
+  debug-performance-reset: <#98C69A>Plugin-Betriebs-Timer und -Zähler zurückgesetzt. Caches und Serverleistungsstatistiken bleiben unverändert.</#98C69A>
+  debug-performance-server: '<#B8C0CC>Server-TPS (1/5/15 Min.): {tps}, durchschnittlicher MSPT: {mspt}, Blatt: {folia}</#B8C0CC>'
+  debug-performance-data: <#B8C0CC>Index ready={ready} generation={generation}; CE-Artikel {items}, Kategorien {categories}, Rezepte {native}; Anbieterrezepte {external}, Artikel {externalItems}</#B8C0CC>
+  debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
+  debug-performance-operation: '<#B8C0CC>{name}: {count} Aufrufe, insgesamt {total} ms, durchschnittlich {average} ms, max. {max} ms</#B8C0CC>'
+  debug-performance-empty: <#8793A5>Noch keine Betriebszeiten. Verwenden Sie die Menüs und führen Sie diesen Befehl erneut aus.</#8793A5>
+  debug-performance-note: <#8793A5>Timings können verschachtelt sein und können nicht zu einem Server-CPU-Prozentsatz hinzugefügt werden. Zurücksetzen, die Verlangsamung reproduzieren und dann prüfen; Verwenden Sie Spark für Aufrufstapel. Globales TPS/MSPT ist auf Folia.</#8793A5> möglicherweise nicht verfügbar
+  no-permission: <#E58B8B>Sie haben keine Berechtigung dazu.</#E58B8B>
+  player-only: <#E58B8B>Dieser Befehl kann nur von einem Spieler verwendet werden.</#E58B8B>
+  personalization-saved: '<#98C69A>Einstellungen gespeichert: Menüstil {menu}, Standardhauptseite {main}, Wiederherstellungsposition: {remember}.</#98C69A>'
+  unapplied-updated: <#98C69A>Aktualisierter Namespace {namespace} in {file}.</#98C69A>
+  unapplied-update-failed: <#E58B8B>Namespace {namespace} wurde nicht gefunden; {file} wurde nicht geändert.</#E58B8B>
+  unapplied-permission-required: Der Berechtigungsknoten <#E58B8B>A ist erforderlich, wenn die Sichtbarkeit auf „permission.</#E58B8B>“ eingestellt ist
+  button-updated: <#98C69A>Die benutzerdefinierte Schaltfläche in {file}.</#98C69A> wurde aktualisiert
+  button-update-failed: <#E58B8B>Die benutzerdefinierte Schaltfläche existiert nicht mehr oder {file} konnte nicht gespeichert werden.</#E58B8B>
+  button-permission-required: Der Berechtigungsknoten <#E58B8B>A ist erforderlich, wenn die Schaltflächensichtbarkeit berechtigungsbasiert ist.</#E58B8B>
+  management-saved: <#98C69A>Verwaltungsänderung gespeichert und das Menü wurde aktualisiert.</#98C69A>
+  management-save-failed: <#E58B8B>Der Zieleintrag wurde nicht gefunden oder die Konfiguration konnte nicht gespeichert werden.</#E58B8B>
+  config-invalid: <#E58B8B>Ungültiger Konfigurationswert; Eine Zahl liegt außerhalb des zulässigen Bereichs oder eine Option fehlt. config.yml wurde nicht geändert.</#E58B8B>
+  config-save-started: <#E4D397>config.yml gespeichert; Indizes neu erstellen und die neuen Einstellungen anwenden...</#E4D397>
+  config-saved: <#98C69A>config.yml wurde erfolgreich gespeichert und neu geladen.</#98C69A>
+  config-save-failed: <#E58B8B>config.yml wurde gespeichert, aber das Neuladen ist fehlgeschlagen oder wurde durch eine neuere Anfrage ersetzt. Überprüfen Sie die Konsole.</#E58B8B>
+  menu-default-usage: '<#E4D397>Usage: /cer-Menüstandard \<cer_menu_*></#E4D397>'
+  menu-default-set: <#98C69A>Der Standard-Hauptmenüstil ist auf {menu}.</#98C69A> eingestellt
+  menu-unknown: '<#E58B8B>Unbekannter oder unvollständiger Menüstil: {menu}</#E58B8B>'
+  menu-enable-usage: '<#E4D397>Usage: /cer-Menü aktivieren \<cer_menu_*|all></#E4D397>'
+  menu-enabled-updated: <#98C69A>EAktivierte Menüstile aktualisiert.</#98C69A>
+  menu-enable-failed: <#E58B8B>Dieser Menüstil konnte nicht aktiviert werden.</#E58B8B>
+  menu-disable-usage: '<#E4D397>Usage: /cer-Menü deaktivieren \<cer_menu_*></#E4D397>'
+  menu-disabled: '<#98C69A>Deaktivierter Menüstil: {menu}</#98C69A>'
+  menu-disable-failed: <#E58B8B>Dieser Stil konnte nicht deaktiviert werden; Der Standardstil muss aktiviert bleiben.</#E58B8B>
+  menu-status-default: '<#B8C0CC>Standardstil: {menu}</#B8C0CC>'
+  menu-status-enabled: '<#B8C0CC>Enaktiviert: {menus}</#B8C0CC>'
+  menu-status-available: '<#B8C0CC>Averfügbar: {menus}</#B8C0CC>'
+  menu-unavailable: '<#E58B8B>Dieser Menüstil ist nicht aktiviert oder nicht verfügbar: {menu}</#E58B8B>'
+  management-applied: <#98C69A>{namespace} wurde auf „categories.yml“ angewendet. Sie können die Reihenfolge weiterhin in der Liste anpassen.</#98C69A>
+  management-applied-entry: <#98C69A>{entry} wurde auf „categories.yml“ angewendet. Sie können die Reihenfolge weiter anpassen.</#98C69A>
+  management-unapplied: <#98C69A>{entry} wurde nach „categories-unapplied.yml.</#98C69A>“ verschoben
+  management-moved: <#98C69A>Anzeigereihenfolge aktualisiert.</#98C69A>
+  management-edge: <#8793A5>Dieser Eintrag befindet sich bereits am Rand der Liste.</#8793A5>
+  management-applied-readonly: <#E4D397>Dieser Namespace befindet sich bereits in „categories.yml“; Bearbeiten Sie die aktive Konfiguration direkt.</#E4D397>
+  management-no-category-page: <#8793A5>Namespace {namespace} hat keine durchsuchbare Namespace-Kategorieseite.</#8793A5>
+  index-build-started: <#E4D397>Erkannt {plugins}; Erstellen des Rezeptindex...</#E4D397>
+  integration-choice-disabled: <#E58B8B>Disabled {plugins}. Vorhandene Rezeptdateien bleiben erhalten, werden jedoch nicht mehr exportiert oder indiziert.</#E58B8B>
+  integration-choice-ask: <#E4D397>Zx{plugins} wurde in den Fragemodus geändert. Vorhandene Rezeptdateien bleiben erhalten, werden jedoch erst indiziert, wenn sie aktiviert sind.</#E4D397>
+  integration-export-started: <#E4D397>EAktivierte Rezept- und Kultivierungsunterstützung für {plugins}; Exportieren von Rezepten und Erstellen des Index...</#E4D397>
+  integration-index-ready: '<#98C69A>{plugin} Index bereit: {recipes} Rezepte und {workstations} Workstations.</#98C69A>'
+  integration-index-failed: '<#E58B8B>{plugin} Indexerstellung fehlgeschlagen: {error}</#E58B8B>'
+  integration-unknown-error: Unbekannter Fehler; Überprüfen Sie die Konsole.
+  integration-config-detected: '<#D8B278>Ausstehende Integrationskonfiguration: {plugins} Integrationen und {presets} Kategorievoreinstellungen.</#D8B278>'
+  integration-config-open: <#79CFC9>[Integrationskonfiguration öffnen]</#79CFC9>
+  integration-config-open-hover: <#B8C0CC>Öffnen Sie die Integrationseinstellungen auf der /cer-Verwaltungsseite</#B8C0CC>
+  integration-config-empty: <#8793A5>Es gibt keine Integrationen oder Kategorievoreinstellungen, die auf die Konfiguration warten.</#8793A5>
+  integration-config-no-detected: <#8793A5>Es wurden keine speziell unterstützten Plugins oder angepassten Ressourcenpakete erkannt.</#8793A5>
+  integration-config-saved: <#98C69A>Integrationskonfiguration gespeichert.</#98C69A>
+  integration-config-save-failed: <#E58B8B>Die Integrationskonfiguration konnte nicht gespeichert werden. Überprüfen Sie die Konsole.</#E58B8B>
+  category-preset-linked-applied: '<#98C69A>Verknüpfte Kategorievoreinstellungen angewendet und gleichzeitig Integrationen aktiviert: {presets}.</#98C69A>'
+  api-integration-detected: '<#D8B278> Es wurde eine über die CER-API verbundene Rezeptquelle erkannt: </#D8B278> <white>{plugin}</white>'
+  api-integration-namespace: <#B8C0CC>Namespace:</#B8C0CC> <white>{namespace}</white>
+  api-integration-ready: <#98C69A>Zx{recipes} Rezepte hinzugefügt; Der Index ist bereit.</#98C69A>
+  api-integration-updated: '<#79CFC9>API-Rezeptquelle {plugin} ({namespace}) aktualisiert: {previous} -> {current} Rezepte; Der Index wurde aktualisiert.</#79CFC9>'
+  api-integration-unregistered: <#E58B8B>API-Rezeptquelle {plugin} ({namespace}) nicht registriert; {recipes} Rezepte wurden entfernt und der Index wurde aktualisiert.</#E58B8B>
+  recipe-export-usage: '<#E4D397>Verwendung: /cer export &lt;Erweiterungsquellen-ID|all></#E4D397>'
+  recipe-export-started: <#E4D397>Quell-Plugins werden gelesen und Rezeptdateien neu generiert, bitte warten.</#E4D397>
+  recipe-export-complete: '<#98C69A>Recipe-Export abgeschlossen: {sources}-Quellen, {files}-Dateien und {recipes}-Rezepte. Fehler: {failures}</#98C69A>'
+  recipe-export-failed: '<#E58B8B>Keine Rezeptquelle wurde erfolgreich exportiert: {failures}</#E58B8B>'
+  reload-start: <#E4D397>Reloading. Sie werden benachrichtigt, wenn die Indizes bereit sind.</#E4D397>
+  reload-success: <#98C69A>Konfiguration, Sprach- und Datenindizes neu geladen.</#98C69A>
+  reload-failed: <#E58B8B>Rebuild ist fehlgeschlagen oder ein neueres Neuladen hat diese Anforderung ersetzt. Überprüfen Sie die Konsole.</#E58B8B>
+  data-not-ready: '<#E4D397>Daten sind nicht bereit: {reason}</#E4D397>'
+  not-ready-reason: Die Daten werden initialisiert, neu erstellt oder die letzte Neuerstellung ist fehlgeschlagen. Bitte warten; Führen Sie bei Bedarf /cer reload aus und überprüfen Sie die Konsole.
+  category-not-found: '<#E58B8B>Kategorie nicht gefunden: {id}</#E58B8B>'
+  hand-empty: <#E4D397>Halten Sie den Gegenstand in Ihrer Haupthand, um nachzusehen, wie man ihn herstellt.</#E4D397>
+  hand-item-unavailable: <#E58B8B>YIhr Haupthandelement ist im angewendeten Menü nicht verfügbar oder durch Berechtigungen oder Ausblendregeln eingeschränkt.</#E58B8B>
+  hand-no-recipe: <#E4D397>Es wurde kein Rezept gefunden, das {id} erzeugt.</#E4D397>
+  hand-resolve-failed: <#E58B8B>Ihr Haupthandartikel konnte nicht identifiziert werden. Überprüfen Sie die Konsole.</#E58B8B>
+  target-block-empty: <#E4D397>Schauen Sie sich den Block an, dessen Herstellungsrezept Sie anzeigen möchten.</#E4D397>
+  target-block-unavailable: <#E58B8B>Kein Rezept für den Zielblock</#E58B8B> gefunden
+  target-block-no-recipe: <#E4D397>Es wurde kein Rezept gefunden, das {id} erzeugt.</#E4D397>
+  target-block-resolve-failed: <#E58B8B>Der Zielblock konnte nicht identifiziert werden. Überprüfen Sie die Konsole.</#E58B8B>
+command:
+  description: Öffnen Sie das Artikelkategoriemenü von CraftEngineRecipe
+ui:
+  default-categories:
+    vanilla-name: <white>Vanilla Items</white>
+    vanilla-click: <gray>Klicken Sie hier, um alle Vanilla-Artikel anzuzeigen</gray>
+    vanilla-count: '<dark_gray>Artikel: <count></dark_gray>'
+    divider-lore: '&#B8C0CCA-Trennscheibe'
+    manage-name: '&#D8B278Offenes Management'
+    manage-lore-1: '&#B8C0CCDiese Seite zeigt den auf diesem Server verfügbaren CraftEngine-Inhalt'
+    manage-lore-2: '&#B8C0CCAdministratoren können Inhalte anwenden, ausblenden oder ihre Reihenfolge ändern'
+    manage-lore-3: '&#B8C0CCSie können es auch mit /cer manage öffnen'
+    manage-lore-4: '&#B8C0CCDiese Schaltfläche ist nur für Administratoren sichtbar'
+    manage-lore-5: '&#B8C0CCSie können diese Schaltfläche jederzeit ausblenden oder entfernen'
+    integrations-name: '&#B8C278Offene CER-Integrationen'
+    integrations-lore-1: '&#B8C0CCDiese Seite zeigt die speziellen CraftEngine-Integrationen, die auf dem Server erkannt wurden'
+    integrations-lore-2: '&#B8C0CCEin Administrator muss eine Integration aktivieren, bevor sie aktiv wird'
+    integrations-lore-3: '&#B8C0CCSie können es auch mit /cer-Integrationen öffnen'
+    integrations-lore-4: '&#B8C0CCDiese Schaltfläche ist nur für Administratoren sichtbar'
+    integrations-lore-5: '&#B8C0CCSie können diese Schaltfläche jederzeit ausblenden oder entfernen'
+  browser:
+    title: <#374151>Artikelkategorien</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>Items</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+  category-bar:
+    icon-name: <#EEF2F6><name></#EEF2F6>
+    icon-lore:
+    - <#B8C0CC>Klicken Sie, um diese Kategorie anzuzeigen</#B8C0CC>
+    - '<#8793A5>Artikel: <count></#8793A5>'
+    sub-icon-lore:
+    - <#B8C0CC>Klicken Sie, um diese Unterkategorie zu öffnen</#B8C0CC>
+    - '<#8793A5>Artikel: <count></#8793A5>'
+    admin-only-hint: <#8793A5>Diese Kategorie ist nur für Administratoren sichtbar</#8793A5>
+    no-permission-hint: <#8793A5>Sie benötigen <permission>, um diese Kategorie anzuzeigen</#8793A5>
+    prev-category:
+      name: <#E4D397>◀ Vorherige Kategorie</#E4D397>
+    next-category:
+      name: <#E4D397>Nächste Kategorie ▶</#E4D397>
+  content:
+    prev-page:
+      name: <#79CFC9>◀ Vorherige Seite</#79CFC9>
+    next-page:
+      name: <#79CFC9>Nächste Seite ▶</#79CFC9>
+    back:
+      name: <#E58B8B>Zurück zum übergeordneten Element</#E58B8B>
+    search:
+      name: <#D8B278>Elemente suchen</#D8B278>
+      lore:
+      - <#B8C0CC>Klicken Sie, um nach Stichwort zu suchen</#B8C0CC>
+      craftable-lore: '<#79CFC9>Rechtsklick: herstellbare Gegenstände in Ihrem Inventar</#79CFC9>'
+      exit-craftable-lore: '<#79CFC9>Rechtsklick: Liste der herstellbaren Gegenstände verlassen</#79CFC9>'
+    hand:
+      name: <#79CFC9>Haupthandrezepte</#79CFC9>
+      lore:
+      - <#B8C0CC>Klicken Sie hier, um zu sehen, wie Sie Ihren Haupthandgegenstand herstellen</#B8C0CC>
+      - <#8793A5>Gleiche wie /cer hand</#8793A5>
+    query:
+      name: <#79CFC9>Rezeptsuche</#79CFC9>
+      lore:
+      - '<#B8C0CC>Left-click: Rezepte für den Haupthandartikel</#B8C0CC>'
+      - '<#B8C0CC>Right-click: Rezepte für den Zielblock</#B8C0CC>'
+    close:
+      name: <#E58B8B>Menü schließen</#E58B8B>
+      lore:
+      - <#B8C0CC>Klicken Sie hier, um das Artikelkategoriemenü zu schließen (wie ESC).</#B8C0CC>
+    glasses:
+      name: <#79CFC9>Zielblockrezepte</#79CFC9>
+      lore:
+      - <#B8C0CC>Klicken Sie hier, um zu sehen, wie Sie den Block herstellen, den Sie gerade betrachten</#B8C0CC>
+      - <#8793A5> Richten Sie Ihr Fadenkreuz auf den Block, dessen Rezept Sie anzeigen möchten</#8793A5>
+    info:
+      name: <#79CFC9>Nutzungstipps</#79CFC9>
+      lore:
+      - <#B8C0CC>Linksklick auf einen Gegenstand, um zu sehen, wie man ihn herstellt</#B8C0CC>
+      - <#B8C0CC>Rechtsklick auf ein Element, um Rezepte anzuzeigen, die es verwenden</#B8C0CC>
+      - <#B8C0CC>Klicken Sie auf einen leeren Bereich auf dem Bildschirm der Handwerkstabelle, um zurückzugehen</#B8C0CC>
+      - <#B8C0CC>Rechtsklick auf einen leeren Bereich außerhalb der Seite, um zur Hauptseite zurückzukehren</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>Mehrere Rezepte rotieren automatisch</#8793A5>
+    workstations:
+      name: <#D8B278>Durchsuchen nach Workstation</#D8B278>
+      lore:
+      - <#B8C0CC>Klicken Sie hier, um Handwerk, Schmelzen und mehr zu durchstöbern</#B8C0CC>
+      - <#8793A5>Es werden nur Rezeptausgaben angezeigt, die Sie anzeigen können</#8793A5>
+      personalization-lore: '<#79CFC9>Rechtsklick: Personalisierungseinstellungen</#79CFC9>'
+    item-lore: []
+    empty:
+      name: <#E58B8B>Nichts hier</#E58B8B>
+  personalization:
+    title: <bold><#D8B278>Personalisierung</#D8B278></bold>
+    description: <#B8C0CC>Wählen Sie Ihren Menüstil und die Standardhauptseite und ob beim erneuten Öffnen Ihre letzte Position wiederhergestellt wird.</#B8C0CC>
+    menu-pack-label: <#79CFC9>Hauptmenüstil</#79CFC9>
+    main-page-label: <#79CFC9>Standard-Hauptseite (wenn keine vorherige Position wiederhergestellt wird)</#79CFC9>
+    main-page-namespaces: Durchsuchen Sie nach Artikeltyp
+    main-page-workstations: Durchsuchen Sie nach Arbeitsplatz
+    language-label: <#79CFC9>Schnittstellensprache</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
+    remember-label: <#79CFC9>Stellen Sie die letzte Position nach dem Schließen wieder her</#79CFC9>
+    true: Aktiviert
+    false: Deaktiviert
+    save: <#98C69A>Einstellungen speichern</#98C69A>
+    save-tooltip: <#B8C0CC>Speichern Sie diese Personalisierungseinstellungen</#B8C0CC>
+    cancel: <#E58B8B>Abbrechen</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Änderungen verwerfen und zum Menü zurückkehren</#B8C0CC>
+  craftable:
+    name: <#79CFC9>Herstellbare Gegenstände</#79CFC9>
+    title: <bold><#374151>Herstellbare Gegenstände</#374151> <#465D70>»</#465D70> <#293341>Aktueller Lagerbestand</#293341></bold>
+  management:
+    name: <#D8B278>Management</#D8B278>
+    title: <bold><#374151>Management</#374151></bold>
+    return-name: <#79CFC9>Zurück zu den Artikelkategorien</#79CFC9>
+    return-lore: <#B8C0CC>Klicken Sie hier, um zur Artikelkategorieseite</#B8C0CC> zurückzukehren
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>Angewandte Namespaces und benutzerdefinierte Schaltflächen verwalten</#B8C0CC>
+    categories-summary: '<#8793A5>{entries} Einträge: {namespaces} Namespaces und {buttons} Buttons</#8793A5>'
+    unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>Überprüfen, bearbeiten und übernehmen Sie Einträge, die noch nicht im aktiven Menü vorhanden sind</#B8C0CC>
+    unapplied-summary: <#8793A5>{count} Einträge warten auf Überprüfung</#8793A5>
+    workstations-name: <#D8B278>workstations.yml</#D8B278>
+    workstations-lore: <#B8C0CC>Anpassen der Reihenfolge der Workstation- und benutzerdefinierten Tastenanzeige</#B8C0CC>
+    workstations-summary: <#8793A5>{count} Workstation-Seiteneinträge</#8793A5>
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>Nicht unterstützte Erweiterungen</#D8B278>
+    integrations-lore: <#B8C0CC>Konfigurieren Sie spezielle Unterstützung für Plugins und Ressourcenpakete</#B8C0CC>
+    integrations-summary: <#8793A5>{plugins} unterstützte Plugins und {presets} Ressourcenpaket-Voreinstellungen erkannt</#8793A5>
+    integrations-left-click: '<#79CFC9>Linksklick: verfügbare Integrationseinstellungen</#79CFC9>'
+    integrations-right-click: '<#E4D397>Rechtsklick: Erweiterungen, die von diesem Server nicht unterstützt werden</#E4D397>'
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>Konfigurieren Sie Sprache, Datenquellen, Suche, Hotkeys und Workflow-Verhalten</#B8C0CC>
+    config-summary: <#8793A5>Sprache {language} · CER {version}</#8793A5>
+    workstations-shortcut: <#79CFC9>Klicken Sie hier, um Arbeitsstationen zu verwalten</#79CFC9>
+    hidden-name: <#D8B278>Kategorien & Artikel</#D8B278>
+    items-name: <#D8B278>HVersteckte Kategorieelemente</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: '<#98C69A>Applied: vorhanden in columns.yml</#98C69A>'
+    unapplied-lore: '<#B8C0CC>Nicht angewendet: nur in „categories-unapplied.yml</#B8C0CC>“ vorhanden'
+    visibility-admin: Nur Administratoren
+    visibility-player: Alle Spieler
+    visibility-permission: Erlaubnisbasiert
+    visibility-value: '<#8793A5>Visibility: {visibility} Berechtigung: {permission}</#8793A5>'
+    category-state: '<#8793A5>Kategorieneintrag: {entry} Sortierung: {sort} Versteckte Regeln: {hide}</#8793A5>'
+    namespace-browse: '<#79CFC9>Linksklick: Durchsuchen Sie diesen Namespace im Verwaltungsmenü</#79CFC9>'
+    namespace-edit: '<#79CFC9>Rechtsklick: Namen, Berechtigungen, Überlieferungen und Sortierung bearbeiten</#79CFC9>'
+    namespace-hide: '<#79CFC9>Mittelklick: Kategorie und Artikelsichtbarkeit verwalten</#79CFC9>'
+    namespace-hide-unapplied: '<#79CFC9>Umschalt+Links: Kategorie- und Artikelsichtbarkeit verwalten</#79CFC9>'
+    namespace-order: '<#E4D397>Umschalt+Links: nach oben bewegen / Umschalt+Rechts: nach unten bewegen</#E4D397>'
+    namespace-apply: '<#98C69A>Mittelklick: Wenden Sie diesen Namensraum auf „categories.yml</#98C69A>“ an'
+    namespace-unapply: '<#E58B8B>Q-Schlüssel: Verschieben Sie ihn in „categories-unapplied.yml</#E58B8B>“.'
+    no-category-button-lore: <#8793A5>Dieser Eintrag zeigt keine Schaltfläche für die Namespace-Kategorie</#8793A5>
+    category-bar-lore: <#B8C0CC>Angewandte und nicht angewendete Namespaces anzeigen</#B8C0CC>
+    button-name: Benutzerdefinierte Schaltfläche
+    button-type: '<#8793A5>Typ: benutzerdefinierte Schaltfläche</#8793A5>'
+    button-use: '<#79CFC9>Linksklick: Führen Sie diese Schaltfläche aus</#79CFC9>'
+    button-edit: '<#79CFC9>Rechtsklick: Symbol, Text, Berechtigung und Aktionen bearbeiten</#79CFC9>'
+    button-apply: '<#98C69A>Mittelklick: Diese Schaltfläche auf „categories.yml</#98C69A>“ anwenden'
+    button-unapply: '<#E58B8B>Q-Schlüssel: Verschieben Sie ihn in „categories-unapplied.yml</#E58B8B>“.'
+    category-hidden: <#E58B8B>Kategorieeintrag ist ausgeblendet (einschließlich seiner Browserpfade)</#E58B8B>
+    category-visible: <#98C69A>Kategorieeintrag ist sichtbar</#98C69A>
+    category-count: <#8793A5>{items} direkte Elemente und {children} Unterkategorien</#8793A5>
+    category-open-items: '<#79CFC9>Linksklick: Direkte Elemente in dieser Kategorie verwalten</#79CFC9>'
+    category-toggle: '<#79CFC9>Rechtsklick: Kategorieeintrag und seine Pfade ein-/ausblenden</#79CFC9>'
+    items-all-hidden: <#E58B8B>Alle direkten Elemente in dieser Kategorie sind ausgeblendet</#E58B8B>
+    items-toggle-all: '<#79CFC9>Umschalt+Links oder Umschalt+Rechts: Alle direkten Elemente ausblenden/anzeigen</#79CFC9>'
+    item-hidden: <#E58B8B>Derzeit ausgeblendet</#E58B8B>
+    item-visible: <#98C69A>Derzeit sichtbar</#98C69A>
+    item-recipe-count: <#B8C0CC>{recipes} Rezepte, verwendet in {usages} Rezepten</#B8C0CC>
+    item-id: <#8793A5>{id}</#8793A5>
+    item-toggle: <#79CFC9>Klicken Sie, um die Sichtbarkeit umzuschalten</#79CFC9>
+    workstation-id: <#8793A5>{id}</#8793A5>
+    workstation-use: '<#79CFC9>Linksklick: Diese Workstation-Seite öffnen</#79CFC9>'
+    workstation-order: '<#E4D397>Umschalt+Links: nach oben bewegen / Umschalt+Rechts: nach unten bewegen</#E4D397>'
+  config-editor:
+    general-title: <bold><#D8B278>config.yml · Allgemein</#D8B278></bold>
+    data-title: <bold><#D8B278>config.yml · Daten und Leistung</#D8B278></bold>
+    description: <#B8C0CC>Edit häufig geänderte Einstellungen. Beim Speichern werden die Indizes neu erstellt; Detaillierte Kommentare können weiterhin in config.yml.</#B8C0CC> bearbeitet werden
+    save: <#98C69A>Speichern und neu laden</#98C69A>
+    save-tooltip: <#B8C0CC>Schreiben Sie config.yml und erstellen Sie die Menü- und Datenindizes neu</#B8C0CC>
+    cancel: <#E58B8B>Abbrechen</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Verwerfen Sie diese Änderungen und kehren Sie zur Verwaltung zurück</#B8C0CC>
+    open-data: <#79CFC9>Daten und Leistung</#79CFC9>
+    open-general: <#79CFC9>Allgemeine Einstellungen</#79CFC9>
+    open-page-tooltip: <#B8C0CC>Wechseln Sie zur anderen Einstellungsseite, ohne diesen Dialog zu speichern</#B8C0CC>
+    landing-page: <#79CFC9>Standard-Landingpage</#79CFC9>
+    landing-namespaces: Artikelkategorien
+    landing-workstations: Arbeitsplätze
+    personalization: <#79CFC9>ESpielerpersonalisierung und Browsing-Wiederaufnahme aktivieren</#79CFC9>
+    remember-page: <#79CFC9>Erinnern Sie sich an die vorherige Browserposition und stellen Sie sie wieder her</#79CFC9>
+    hotkey: <#79CFC9>EAktivieren Sie den Hotkey „Hands tauschen“</#79CFC9>
+    hotkey-sneak: <#79CFC9>Require für den Hotkey</#79CFC9> schleichen
+    updates: <#79CFC9>Überprüfen Sie GitHub auf stabile Updates</#79CFC9>
+    source-craftengine: <#79CFC9>Aktivieren Sie die CraftEngine-Rezeptquelle</#79CFC9>
+    source-minecraft: <#79CFC9>EVanille-Rezeptdaten aktivieren</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>EVanille-Anbaudaten aktivieren</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>ECraftEngine-Anbaudaten aktivieren</#79CFC9>
+    auto-reload: <#79CFC9>Überwachen Sie Rezepte/auf Dateiänderungen</#79CFC9>
+    poll-interval: <#79CFC9>Dateiprüfintervall (10-200 Ticks)</#79CFC9>
+    rotate-interval: <#79CFC9>Recipe-Rotationsintervall (5-200 Ticks)</#79CFC9>
+    search-max-length: <#79CFC9>Sucheingabelimit (1-64)</#79CFC9>
+    search-max-results: <#79CFC9>Suchergebnislimit (1-1000)</#79CFC9>
+  unapplied-editor:
+    title: <bold><#D8B278>Kategorie-Namespace bearbeiten</#D8B278> <dark_gray>{namespace}</dark_gray></bold>
+    description: <#B8C0CC>Änderungen {file}; Das Menü wird sofort aktualisiert und die vorherige Version bleibt als .bak-Datei erhalten.</#B8C0CC>
+    edit-lore: '<#79CFC9>Rechtsklick: Bearbeiten Sie diesen Namespace</#79CFC9>'
+    visibility: <#79CFC9>Visibility</#79CFC9>
+    visibility-admin: Nur Administratoren
+    visibility-player: Alle Spieler
+    visibility-permission: Erlaubnisbasiert
+    permission: <#79CFC9>Berechtigungsknoten \<permission>
+    icon-name: <#79CFC9>Vorlage für Kategorienamen \<name>
+    item-lore: <#79CFC9>Item lore \<lore> (eine Zeile pro Zeile)
+    icon-lore: <#79CFC9>Kategoriekunde der obersten Ebene \<lore> (eine Zeile pro Zeile)
+    sub-icon-lore: <#79CFC9>Subcategory lore \<lore> (eine Zeile pro Zeile)
+    category-entry: <#79CFC9>Namespace-Kategorieeintrag anzeigen</#79CFC9>
+    sort-by-namespace: <#79CFC9>Sortieren nach Namespace und Pfad</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>HVerstecke Gegenstände ohne Rezept und ohne Herstellungszweck</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>Versteckregeln auf Arbeitsstationen anwenden</#79CFC9>
+    hide-inaccessible: <#79CFC9>HVerstecken Sie den Steckplatz und fordern Sie ihn zurück, wenn er nicht zugänglich ist</#79CFC9>
+    save: <#98C69A>Änderungen speichern</#98C69A>
+    save-tooltip: <#B8C0CC>In der aktuellen Kategoriekonfiguration speichern</#B8C0CC>
+    cancel: <#E58B8B>Abbrechen</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Änderungen verwerfen und zum Konfigurationscenter zurückkehren</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>Benutzerdefinierte Schaltfläche bearbeiten</#D8B278></bold>
+    description: <#B8C0CC>Änderungen {file}. Schreiben Sie jede Aktion als „Klicktyp | Aktion“; Der Klicktyp ist standardmäßig all.</#B8C0CC>
+    material: <#79CFC9>Material- oder Artikel-ID \<material>
+    name: <#79CFC9>Button-Name \<name>
+    lore: <#79CFC9>Button lore \<lore> (eine Zeile pro Zeile)
+    visibility: <#79CFC9>Button-Sichtbarkeit \<visibility>
+    visibility-admin: Nur Administratoren
+    visibility-player: Alle Spieler
+    visibility-permission: Erlaubnisbasiert
+    permission: <#79CFC9>Berechtigungsknoten \<permission>
+    hide-inaccessible: <#79CFC9>HVerstecken Sie den Steckplatz und fordern Sie ihn zurück, wenn er nicht zugänglich ist \<hide-inaccessible>
+    actions: '<#79CFC9>Button-Aktionen \<actions> (eine Zeile: Klicktyp | Aktion)'
+    save: <#98C69A>Speichern-Schaltfläche</#98C69A>
+    save-tooltip: <#B8C0CC>In die aktuelle Konfiguration schreiben</#B8C0CC>
+    cancel: <#E58B8B>Abbrechen</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Änderungen verwerfen und zum Konfigurationscenter zurückkehren</#B8C0CC>
+  integration-config:
+    title: <#D8B278>Integrationen und Kategorievoreinstellungen</#D8B278>
+    plugins-title: <#D8B278>Integrationseinstellungen · Speziell unterstützte Plugins</#D8B278>
+    resources-title: <#D8B278>Integrationseinstellungen · Speziell angepasste Ressourcenpakete</#D8B278>
+    description: <#B8C0CC>Der Inhaltsbereich listet die auf diesem Server verfügbaren Integrationen auf. Aktivierte Einträge haben einen verzauberten Glanz; Klicken Sie mit der linken oder rechten Maustaste auf einen Eintrag, um seinen Status zu ändern.</#B8C0CC>
+    status: '<#B8C0CC>Aktueller Status: {status}</#B8C0CC>'
+    left-click: '<#8793A5>Linksklick: nächster Status</#8793A5>'
+    right-click: '<#8793A5>Rechtsklick: vorheriger Status</#8793A5>'
+    page-count: <#B8C0CC>{count} Einträge auf der anderen Seite</#B8C0CC>
+    previous-page: <#D8B278>Vorherige Seite</#D8B278>
+    next-page: <#D8B278>Nächste Seite</#D8B278>
+    page-position: <#B8C0CC>Seite {current} / {pages}</#B8C0CC>
+    preset-detected: <#98C69A>Resourcenpaket erkannt</#98C69A>
+    preset-applied: <#79CFC9>Kategorievoreinstellung angewendet</#79CFC9>
+    preset-author-mismatch: <#E58B8B>pack.yml-Autor stimmt nicht mit der voreingestellten Deklaration</#E58B8B> überein
+    unsupported-label: <#E58B8B>{extension}</#E58B8B>
+    unsupported-reason: '<#E58B8B>Nicht verfügbar: {reason}</#E58B8B>'
+    unsupported-file: '<#8793A5>JAR: {file}</#8793A5>'
+    unsupported-version: '<#8793A5>EErweiterungsversion: {version}</#8793A5>'
+    unsupported-readonly: <#B8C0CC>Dieser Diagnoseeintrag kann auf dem aktuellen Server</#B8C0CC> nicht aktiviert werden
+    source-label: <#79CFC9>{plugin}</#79CFC9>
+    preset-label: <#79CFC9>{namespace}</#79CFC9>
+    plugin-heading: <#98C69A>CER hat diese speziell unterstützten Plugins erkannt; Klicken Sie auf eine Schaltfläche, um Folgendes zu aktivieren:</#98C69A>
+    resource-heading: <#98C69A>CER hat diese speziell angepassten Ressourcenpakete erkannt; Klicken Sie auf eine Schaltfläche, um Folgendes zu aktivieren:</#98C69A>
+    item-enable-tooltip: <#B8C0CC>Klicken Sie hier, um die Unterstützung für dieses Element</#B8C0CC> zu aktivieren
+    item-disable-tooltip: <#B8C0CC>Klicken Sie hier, um die Unterstützung für diesen Artikel zu deaktivieren</#B8C0CC>
+    open-resources: <#79CFC9>Ressourcenpakete anzeigen ▶</#79CFC9>
+    open-plugins: <#E4D397>◀ Zurück zu den Plugins</#E4D397>
+    option-ask: <#E4D397>Ask</#E4D397>
+    option-enabled: <#98C69A>Enable</#98C69A>
+    option-disabled: <#E58B8B>Disable</#E58B8B>
+    enable-all: <#98C69A>EAlle erkannten aktivieren</#98C69A>
+    enable-all-tooltip: <#B8C0CC>Aktivieren Sie alle aktuell erkannten Server-Plugins und CE-Ressourcenpaket-Voreinstellungen</#B8C0CC>
+    save: <#98C69A>Speichern</#98C69A>
+    save-tooltip: <#B8C0CC>Auswahl speichern und die angeforderten Aktionen ausführen</#B8C0CC>
+    cancel: <#8793A5>Später</#8793A5>
+    cancel-tooltip: <#B8C0CC>Schließen ohne Änderung der Konfiguration</#B8C0CC>
+  workstations:
+    title: <#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>Stationen</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+    categories:
+      crafting: Vanille·Basteltisch
+      smelting: Vanille·Ofen
+      blasting: Vanille·Hochofen
+      smoking: Vanille·Smoker
+      campfire_cooking: Vanille·Lagerfeuer
+      stonecutting: Vanille·Steinmetz
+      smithing: Vanille·Schmiedetisch
+      brewing: Vanille·Brühständer
+      cultivation: Anbau
+    category-lore:
+    - <#B8C0CC>Klicken Sie hier, um Rezeptausgaben für diese Workstation</#B8C0CC> anzuzeigen
+    back-name: <#E58B8B>Zurück zu den Kategorien</#E58B8B>
+    back-lore:
+    - <#B8C0CC>Klicken Sie hier, um zum Artikelkategoriemenü</#B8C0CC> zurückzukehren
+  recipe:
+    title: <#292D35>Rezept » <name></#292D35>
+    title-crafting: <#292D35>Vanille·Basteltisch</#292D35>
+    title-smelting: <#292D35>Vanille·Ofen</#292D35>
+    title-blasting: <#292D35>Vanille·Hochofen</#292D35>
+    title-smoking: <#292D35>Vanilla·Smoker</#292D35>
+    title-campfire: <#292D35>Vanille·Lagerfeuer</#292D35>
+    title-stonecutting: <#292D35>Vanilla·Stonecutter</#292D35>
+    title-smithing: <#292D35>Vanilla·Schmiedetisch</#292D35>
+    title-brewing: <#292D35>Vanille·Brühständer</#292D35>
+    title-none: <#292D35>Kein Rezept</#292D35>
+  search:
+    dialog-title: <bold><#D8B278>Suchelemente</#D8B278></bold>
+    dialog-label: Geben Sie ein Schlüsselwort ein
+    dialog-hint: Suche nach Artikel-ID und Anzeigename
+    result-title: <bold><#374151>Suchergebnisse</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>
+    confirm: <#98C69A>Suche</#98C69A>
+    confirm-tooltip: <#B8C0CC>Elemente nach Stichwort suchen</#B8C0CC>
+    cancel: <#E58B8B>Abbrechen</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Schließen Sie den Suchdialog</#B8C0CC>
+  common:
+    all-items: Alle Artikel
+    unknown: Nicht angegeben
+    first-page: <#8793A5>Bereits auf der ersten Seite</#8793A5>
+    last-page: <#8793A5>Bereits auf der letzten Seite</#8793A5>
+    no-recipe: <#B8C0CC>Dieser Artikel hat keine Rezepte</#B8C0CC>
+    no-usage: <#B8C0CC>Dieser Artikel hat keine Verwendung</#B8C0CC>
+    dynamic-result: <#B8C0CC>Result hängt von den tatsächlichen Eingabeelementen ab</#B8C0CC>
+  vanilla-items:
+    name: Vanilleartikel
+logs:
+  debug-export-failed: Fehler beim Exportieren der Rezeptdiagnosedatei
+  recipe-source-ready: 'Rezeptquelle {source} aktualisiert: {count} Rezepte anzeigen; Dateien: {files}'
+  recipe-source-exported: Exportierte {count} {source}-Rezepte in {files}-Workstation-Dateien; „recipes/“ ist jetzt die einzige Laufzeitquelle.
+  recipe-files-reloaded: 'Geänderte Rezeptdateien: {files}; Automatisch neu geladene {count}-Anzeigerezepte.'
+  session-save-failed: 'Die Player-Menüposition konnte nicht gespeichert werden: {error}'
+  session-load-failed: 'Die Player-Menüposition konnte nicht wiederhergestellt werden. Öffnen der Standardansicht: {error}'
+  recipe-source-failed: 'Rezeptquelle {source} konnte nicht aktualisiert werden; behält seine letzten gültigen Daten bei: {error}'
+  plugin-fingerprint-mismatch: Plugin {plugin} wurde gefunden, aber die Hauptklasse {actual} stimmt nicht mit dem erwarteten {expected} überein; Die Rezeptquelle wurde ignoriert.
+  integration-setup-waiting: 'Erkannte CER-Integrationen, die auf Konfiguration warten: {plugins}. Kein Administrator ist online; Die anklickbare Setup-Eingabeaufforderung wird angezeigt, wenn jemand beitritt.'
+  category-preset-linked-applied: 'Angewandte Kategorievoreinstellungen, die mit aktivierten Integrationen verknüpft sind: {namespaces}'
+  integration-config-waiting: Ausstehende {plugins}-Integrationen und {presets}-Kategorievoreinstellungen wurden erkannt. Kein Administrator ist online; Der Eintrag auf der Verwaltungsseite wird angezeigt, wenn jemand beitritt.
+  update-available: 'Neue Version {latest} ist verfügbar (aktueller {current}): {url}'
+  update-check-failed: 'GitHub konnte nicht auf Updates überprüft werden; wird es beim nächsten Start oder Neuladen erneut versuchen, ohne das Plugin zu beeinträchtigen: {error}'
+  compatibility-fallback: Kompatibilitätsvorgang {operation} fehlgeschlagen; Beibehaltung des bestehenden Fallbacks. Jede Anrufstelle wird einmal pro Datengenerierung protokolliert; Ausnahmedetails folgen.
+  search-input-failed: Sucheingabe konnte nicht gelesen werden; Rückkehr zum Menü.
+  config-invalid-id: 'Ungültige konfigurierte ID: {path} = {value}; Beibehaltung des bestehenden Fallback-Verhaltens. Überprüfen Sie den Namespace und den Pfad.'
+  config-invalid-material: 'Unbekanntes konfiguriertes Material: {path} = {value}; Beibehaltung des bestehenden Fallback-Verhaltens.'
+  config-missing-category: 'Konfigurierte CraftEngine-Kategorie existiert nicht: {path} = {value}; Beibehaltung der Konfiguration. Überprüfen Sie die Rechtschreibung und ob das Paket geladen ist.'
+  config-update-failed: 'Fehlende config.yml-Standardwerte konnten nicht hinzugefügt werden; Beibehaltung der Originaldatei: {error}'
+  search-pack-ready: 'Geladene Ressourcenpaket-Übersetzungen: {count}-Schlüssel, {files}-Sprachdateien, Pfad {path}'
+  search-pack-failed: 'Die Übersetzungen des Ressourcenpakets konnten nicht gelesen werden: {path} ({error}); Verwenden der vorhandenen Namens- und ID-Suche. Führen Sie /cer reload aus, nachdem Sie das Paket generiert haben.'
+  search-pack-skipped: 'Eine ungültige Ressourcenpaket-Sprachdatei wurde übersprungen: {error}'
+  hand-resolve-failed: 'Das Haupthandelement konnte nicht identifiziert werden: {error}'
+  target-block-resolve-failed: 'Der Zielblock konnte nicht identifiziert werden: {error}'
+  player-task-failed: Die Ausführung einer Player-Menüaufgabe ist fehlgeschlagen
+  folia-op-unsupported: Temporäre OP-Aktionen stoppen die Aktionskette ohne Ausführung auf Folia; Verwenden Sie einen expliziten Konsolenbefehl oder erteilen Sie dem Spieler Befehlsberechtigungen.
+  enabled: CraftEngineRecipe aktiviert; Initialisierung des Datencaches...
+  disabled: CraftEngineRecipe deaktiviert.
+  pack-install-failed: 'Das gebündelte Ressourcenpaket konnte nicht vorbereitet werden: {error}'
+  pack-copy-ready: Lokale Ressourcenkopie bereit unter {path} ({count}-Dateien wiederhergestellt; vorhandene Dateien bleiben erhalten)
+  pack-first-installed: Zum ersten Mal installierte Ressourcen unter {path} ({count}-Dateien hinzugefügt); Bei zukünftigen Neustarts oder Neuladungen bleiben die CraftEngine-Ressourcen unberührt.
+  data-ready: 'CraftEngineRecipe-Daten bereit: {items}-Elemente, {categories}-Top-Level-Kategorien, {elapsed} ms insgesamt (einschließlich Zeit zwischen den Chargen)'
+  data-build-failed: CraftEngineRecipe-Daten konnten nicht erstellt werden
+  metrics-ready: bStats initialisiert.
+  metrics-failed: 'bStats-Initialisierung fehlgeschlagen; Das Durchsuchen von Rezepten ist davon nicht betroffen: {error}'
+  category-read-failed: 'Kategoriekonfiguration konnte nicht gelesen werden: {file}'
+  category-save-failed: 'Die Konfiguration des Kategorie-Namespace konnte nicht gespeichert werden: {error}'
+  unapplied-save-failed: 'Die nicht angewendete Eintragskonfiguration konnte nicht gespeichert werden: {error}'
+  result-query-failed: 'Ausgaberezepte konnten nicht abgefragt werden ({id}): {error}'
+  usage-query-failed: 'Die Verwendung von Inhaltsstoffen konnte nicht abgefragt werden ({id}): {error}'
+  layout-reserved: 'Layoutkonflikt: Eine Schaltfläche verwendet das reservierte #-Zeichen und wird nicht angezeigt'
+  layout-conflict: 'Layoutkonflikt: Das Schaltflächenzeichen {symbol} wird von Kategorie-/Inhaltsslots verwendet und nicht angezeigt'
+  language-unknown: Nicht unterstützte Sprache {locale}; Englisch verwenden.
+  language-detected: 'Erkanntes Servergebietsschema: {locale}.'
+  language-save-failed: 'Sprachdateien konnten nicht extrahiert werden; Verwendung gebündelter Übersetzungen: {error}'
+  language-update-failed: 'Fehlende Übersetzungen konnten nicht zu {file} hinzugefügt werden; Beibehaltung der Originaldatei: {error}'
+  language-read-failed: 'Fehler beim Lesen der Sprachdatei {file}; Verwendung gebündelter oder Fallback-Übersetzungen: {error}'
+headers:
+  unapplied: 'CraftEngineRecipe 未应用条目 / Nicht angewendete Einträge
+
+    的命名空间和自定义按钮
+
+    Listet Namespaces und benutzerdefinierte Schaltflächen auf, die in der Datei „categories.yml“ nicht vorhanden sind
+
+    将需要的条目复制到 Kategorien.yml 的 Einträge 中，调整可见性后 /cer reload
+
+    Kopieren Sie die gewünschten Einträge in navigation/categories.yml, passen Sie die Sichtbarkeit an und führen Sie dann /cer reload aus
+
+    已应用的条目在重载后移除,其他条目保留原有属性
+
+    Angewandte Einträge werden beim Neuladen entfernt; andere Einträge behalten ihre Eigenschaften'

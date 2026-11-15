@@ -1,0 +1,482 @@
+# Generated zh_TW translation from en_US.yml.
+prefix: '<#79CFC9>[<bold>CER</bold>]</#79CFC9> '
+messages:
+  debug-usage: <#E4D397>用法：/cer debug recipes | /cer debug performance [reset]</#E4D397>
+  debug-export-start: <#E4D397>正在分批採集全部配方，完成後會非同步儲存到外掛 debug 資料夾。</#E4D397>
+  debug-export-busy: <#E4D397>已有配方匯出正在進行，請等待完成。</#E4D397>
+  debug-export-cooldown: <#E4D397>請在 {seconds} 秒後再次匯出配方。</#E4D397>
+  debug-export-success: <#98C69A>配方已儲存：{path}（Bukkit {bukkit}、CraftEngine {native}、CER 附加 {external}，採集異常 {errors} 條）。</#98C69A>
+  debug-export-failed: <#E58B8B>配方匯出失敗：{error}。請檢視控制檯；過載完成後可重試。</#E58B8B>
+  debug-performance-header: <#79CFC9>效能統計（啟動或上次 reset 後 {seconds} 秒）</#79CFC9>
+  debug-performance-reset: <#98C69A>已重置外掛操作計時與計數；快取與伺服器效能統計保持原樣。</#98C69A>
+  debug-performance-server: <#B8C0CC>伺服器 TPS（1/5/15 分鐘）：{tps}，平均 MSPT：{mspt}，Folia：{folia}</#B8C0CC>
+  debug-performance-data: <#B8C0CC>索引 ready={ready} generation={generation}；CE 物品 {items}、分類 {categories}、配方 {native}；檔案配方 {external}、物品 {externalItems}</#B8C0CC>
+  debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
+  debug-performance-operation: '<#B8C0CC>{name}: {count} 次，總計 {total} ms，平均 {average} ms，最高 {max} ms</#B8C0CC>'
+  debug-performance-empty: <#8793A5>暫無操作計時，請實際操作選單後再次檢視。</#8793A5>
+  debug-performance-note: <#8793A5>操作計時可巢狀，不能相加為伺服器佔比；reset 後復現卡頓再檢視，呼叫棧分析請配合 spark。Folia 的全服 TPS/MSPT 可能不可用。</#8793A5>
+  no-permission: <#E58B8B>你沒有許可權執行此操作。</#E58B8B>
+  player-only: <#E58B8B>該指令只能由玩家執行。</#E58B8B>
+  personalization-saved: <#98C69A>個性化設定已儲存：選單樣式 {menu}，預設主頁面 {main}，恢復瀏覽位置：{remember}。</#98C69A>
+  unapplied-updated: <#98C69A>已更新 {file} 中的名稱空間 {namespace}。</#98C69A>
+  unapplied-update-failed: <#E58B8B>未找到名稱空間 {namespace}，{file} 未修改。</#E58B8B>
+  unapplied-permission-required: <#E58B8B>可見性設為 permission 時必須填寫許可權節點。</#E58B8B>
+  button-updated: <#98C69A>已更新 {file} 中的自定義按鈕。</#98C69A>
+  button-update-failed: <#E58B8B>自定義按鈕已不存在或 {file} 儲存失敗。</#E58B8B>
+  button-permission-required: <#E58B8B>按鈕可見性設為 permission 時必須填寫許可權節點。</#E58B8B>
+  management-saved: <#98C69A>管理修改已儲存，選單已立即重新整理。</#98C69A>
+  management-save-failed: <#E58B8B>沒有找到目標條目，或配置儲存失敗。</#E58B8B>
+  config-invalid: <#E58B8B>配置值無效；數值超出允許範圍或選項缺失，config.yml 未修改。</#E58B8B>
+  config-save-started: <#E4D397>config.yml 已儲存，正在重建索引並應用新配置…</#E4D397>
+  config-saved: <#98C69A>config.yml 已儲存並完成過載。</#98C69A>
+  config-save-failed: <#E58B8B>config.yml 已儲存，但過載失敗或請求被新過載替代；請檢查控制檯。</#E58B8B>
+  menu-default-usage: <#E4D397>用法：/cer menu default \<cer_menu_*></#E4D397>
+  menu-default-set: <#98C69A>預設主選單樣式已設定為 {menu}。</#98C69A>
+  menu-unknown: <#E58B8B>未知或不完整的選單樣式：{menu}</#E58B8B>
+  menu-enable-usage: <#E4D397>用法：/cer menu enable \<cer_menu_*|all></#E4D397>
+  menu-enabled-updated: <#98C69A>已更新啟用的選單樣式。</#98C69A>
+  menu-enable-failed: <#E58B8B>無法啟用該選單樣式。</#E58B8B>
+  menu-disable-usage: <#E4D397>用法：/cer menu disable \<cer_menu_*></#E4D397>
+  menu-disabled: <#98C69A>已停用選單樣式：{menu}</#98C69A>
+  menu-disable-failed: <#E58B8B>無法停用該樣式；預設樣式必須保持啟用。</#E58B8B>
+  menu-status-default: <#B8C0CC>預設樣式：{menu}</#B8C0CC>
+  menu-status-enabled: <#B8C0CC>已啟用：{menus}</#B8C0CC>
+  menu-status-available: <#B8C0CC>全部可用：{menus}</#B8C0CC>
+  menu-unavailable: <#E58B8B>該選單樣式未啟用或不可用：{menu}</#E58B8B>
+  management-applied: <#98C69A>已將 {namespace} 應用到 categories.yml，可在列表中繼續調整順序。</#98C69A>
+  management-applied-entry: <#98C69A>已將 {entry} 應用到 categories.yml，可繼續調整順序。</#98C69A>
+  management-unapplied: <#98C69A>已將 {entry} 移動到 categories-unapplied.yml。</#98C69A>
+  management-moved: <#98C69A>顯示順序已更新。</#98C69A>
+  management-edge: <#8793A5>已經到達列表邊界，無法繼續移動。</#8793A5>
+  management-applied-readonly: <#E4D397>該名稱空間已寫入正式 categories.yml，請直接編輯正式配置。</#E4D397>
+  management-no-category-page: <#8793A5>名稱空間 {namespace} 沒有可瀏覽的名稱空間分類頁面。</#8793A5>
+  index-build-started: <#E4D397>已檢測到 {plugins}，正在構建配方索引...</#E4D397>
+  integration-choice-disabled: <#E58B8B>已停用 {plugins}；現有配方檔案會保留，但不會再匯出或建立索引。</#E58B8B>
+  integration-choice-ask: <#E4D397>已將 {plugins} 改為詢問模式；現有配方檔案會保留，但暫時不再建立索引。</#E4D397>
+  integration-export-started: <#E4D397>已啟用 {plugins} 配方與栽培支援，正在匯出配方並構建索引...</#E4D397>
+  integration-index-ready: <#98C69A>{plugin} 索引構建完成：共 {recipes} 個配方、{workstations} 個工作站。</#98C69A>
+  integration-index-failed: <#E58B8B>{plugin} 索引構建失敗：{error}</#E58B8B>
+  integration-unknown-error: 未知錯誤，請檢視控制檯
+  integration-config-detected: <#D8B278>檢測到待處理的適配配置：適配外掛 {plugins} 項，分類預設 {presets} 項。</#D8B278>
+  integration-config-open: <#79CFC9>[開啟適配配置]</#79CFC9>
+  integration-config-open-hover: <#B8C0CC>開啟 /cer manage 管理頁中的適配配置</#B8C0CC>
+  integration-config-empty: <#8793A5>當前沒有需要處理的適配外掛或分類預設。</#8793A5>
+  integration-config-no-detected: <#8793A5>當前沒有檢測到 CER 特別支援的外掛或資源包。</#8793A5>
+  integration-config-saved: <#98C69A>適配配置已儲存。</#98C69A>
+  integration-config-save-failed: <#E58B8B>適配配置儲存失敗，請檢視控制檯。</#E58B8B>
+  category-preset-linked-applied: <#98C69A>已隨適配外掛啟用自動應用分類預設：{presets}。</#98C69A>
+  api-integration-detected: <#D8B278>檢測到透過 API 接入的配方來源：</#D8B278><white>{plugin}</white>
+  api-integration-namespace: <#B8C0CC>名稱空間：</#B8C0CC><white>{namespace}</white>
+  api-integration-ready: <#98C69A>已接入 {recipes} 條配方，索引構建完成。</#98C69A>
+  api-integration-updated: <#79CFC9>API 配方來源 {plugin}（{namespace}）已更新：{previous} → {current} 條配方，索引已重新整理。</#79CFC9>
+  api-integration-unregistered: <#E58B8B>API 配方來源 {plugin}（{namespace}）已登出，移除 {recipes} 條配方，索引已重新整理。</#E58B8B>
+  recipe-export-usage: <#E4D397>用法：/cer export &lt;擴充套件來源ID|all&gt;</#E4D397>
+  recipe-export-started: <#E4D397>正在讀取來源外掛並重新生成配方檔案，請稍候。</#E4D397>
+  recipe-export-complete: <#98C69A>配方匯出完成：成功 {sources} 個來源，共 {files} 個檔案、{recipes} 個配方。失敗：{failures}</#98C69A>
+  recipe-export-failed: <#E58B8B>沒有成功匯出任何配方來源：{failures}</#E58B8B>
+  reload-start: <#E4D397>正在過載，索引構建完成後會通知你。</#E4D397>
+  reload-success: <#98C69A>配置、語言與資料索引已過載完成。</#98C69A>
+  reload-failed: <#E58B8B>構建失敗或請求被新的過載替代，請檢視控制檯。</#E58B8B>
+  data-not-ready: <#E4D397>資料尚未就緒：{reason}</#E4D397>
+  not-ready-reason: 資料正在初始化、重建或上次構建失敗，請稍候；仍未就緒時執行 /cer reload 並檢查控制檯
+  category-not-found: <#E58B8B>分類不存在：{id}</#E58B8B>
+  hand-empty: <#E4D397>請先在主手拿著要查詢合成配方的物品。</#E4D397>
+  hand-item-unavailable: <#E58B8B>主手物品未在正式選單中開放，或被許可權、隱藏規則限制。</#E58B8B>
+  hand-no-recipe: <#E4D397>未找到製作 {id} 的配方。</#E4D397>
+  hand-resolve-failed: <#E58B8B>無法識別主手物品，請檢視控制檯。</#E58B8B>
+  target-block-empty: <#E4D397>請先看向要查詢合成配方的方塊。</#E4D397>
+  target-block-unavailable: <#E58B8B>目標方塊未查詢到配方</#E58B8B>
+  target-block-no-recipe: <#E4D397>未找到製作 {id} 的配方。</#E4D397>
+  target-block-resolve-failed: <#E58B8B>無法識別目標方塊，請檢視控制檯。</#E58B8B>
+command:
+  description: 開啟 CraftEngineRecipe 物品分類選單
+ui:
+  default-categories:
+    vanilla-name: <white>原版物品</white>
+    vanilla-click: <gray>點選檢視所有原版物品</gray>
+    vanilla-count: '<dark_gray>物品數: <count></dark_gray>'
+    divider-lore: '&#B8C0CC一個分隔玻璃板'
+    manage-name: '&#D8B278開啟「管理頁面」'
+    manage-lore-1: '&#B8C0CC在頁面中會顯示出當前伺服器中CE的內容'
+    manage-lore-2: '&#B8C0CC管理員需要手動應用這些內容，並可以選擇遮蔽，或者排序'
+    manage-lore-3: '&#B8C0CC透過/cer manage指令也可以進入'
+    manage-lore-4: '&#B8C0CC此按鈕僅管理員可見'
+    manage-lore-5: '&#B8C0CC可以試試將這個按鈕隱藏/刪掉？'
+    integrations-name: '&#D8B278開啟「CER的適配外掛頁面」'
+    integrations-lore-1: '&#B8C0CC在頁面中會顯示當前伺服器中有哪些CER特殊適配內容'
+    integrations-lore-2: '&#B8C0CC需要管理員手動開啟，適配內容方可工作'
+    integrations-lore-3: '&#B8C0CC透過/cer integrations指令也可以進入'
+    integrations-lore-4: '&#B8C0CC此按鈕僅管理員可見'
+    integrations-lore-5: '&#B8C0CC可以試試將這個按鈕隱藏/刪掉？'
+  browser:
+    title: <bold><#374151>物品分類</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>
+    title-compact: <bold><#374151>物品分類</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>
+  category-bar:
+    icon-name: <#EEF2F6><name></#EEF2F6>
+    icon-lore:
+    - <#B8C0CC>點選檢視此分類</#B8C0CC>
+    - '<#8793A5>物品數: <count></#8793A5>'
+    sub-icon-lore:
+    - <#B8C0CC>點選進入子分類</#B8C0CC>
+    - '<#8793A5>物品數: <count></#8793A5>'
+    admin-only-hint: <#8793A5>此分類配方僅管理員可見</#8793A5>
+    no-permission-hint: <#8793A5>無許可權檢視此分類配方（需要許可權 <permission>）</#8793A5>
+    prev-category:
+      name: <#E4D397>◀ 上一個</#E4D397>
+    next-category:
+      name: <#E4D397>下一個 ▶</#E4D397>
+  content:
+    prev-page:
+      name: <#79CFC9>◀ 上一頁</#79CFC9>
+    next-page:
+      name: <#79CFC9>下一頁 ▶</#79CFC9>
+    back:
+      name: <#E58B8B>返回上級</#E58B8B>
+    search:
+      name: <#D8B278>搜尋物品</#D8B278>
+      lore:
+      - <#B8C0CC>點選輸入關鍵字搜尋</#B8C0CC>
+      craftable-lore: <#79CFC9>右鍵：檢視當前揹包可合成物品</#79CFC9>
+      exit-craftable-lore: <#79CFC9>右鍵：退出可合成物品列表</#79CFC9>
+    hand:
+      name: <#79CFC9>查詢主手配方</#79CFC9>
+      lore:
+      - <#B8C0CC>點選檢視如何合成主手物品</#B8C0CC>
+      - <#8793A5>與 /cer hand 相同</#8793A5>
+    query:
+      name: <#79CFC9>查詢配方</#79CFC9>
+      lore:
+      - <#B8C0CC>左鍵：查詢主手物品的配方</#B8C0CC>
+      - <#B8C0CC>右鍵：查詢準星方塊的配方</#B8C0CC>
+    close:
+      name: <#E58B8B>關閉選單</#E58B8B>
+      lore:
+      - <#B8C0CC>點選關閉物品分類選單（等同於 ESC）</#B8C0CC>
+    glasses:
+      name: <#79CFC9>查詢目標方塊配方</#79CFC9>
+      lore:
+      - <#B8C0CC>點選檢視如何合成視線中的方塊</#B8C0CC>
+      - <#8793A5>螢幕準星對準所需查詢配方的方塊</#8793A5>
+    info:
+      name: <#79CFC9>操作說明</#79CFC9>
+      lore:
+      - <#B8C0CC>左鍵物品：檢視合成配方</#B8C0CC>
+      - <#B8C0CC>右鍵物品：檢視參與合成</#B8C0CC>
+      - <#B8C0CC>左鍵點選頁面外：返回上一頁</#B8C0CC>
+      - <#B8C0CC>右鍵點選頁面外：返回主頁面</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>多條配方會自動輪播</#8793A5>
+    workstations:
+      name: <#D8B278>按合成器瀏覽</#D8B278>
+      lore:
+      - <#B8C0CC>點選按工作臺、熔爐等型別瀏覽</#B8C0CC>
+      - <#8793A5>僅展示你有權檢視的配方產物</#8793A5>
+      personalization-lore: <#79CFC9>右鍵：開啟個性化設定</#79CFC9>
+    item-lore: []
+    empty:
+      name: <#E58B8B>空空如也</#E58B8B>
+  personalization:
+    title: <bold><#D8B278>個性化設定</#D8B278></bold>
+    description: <#B8C0CC>選擇選單樣式、預設主頁面，並決定重新開啟選單時是否恢復上次瀏覽位置。</#B8C0CC>
+    menu-pack-label: <#79CFC9>主頁面樣式</#79CFC9>
+    main-page-label: <#79CFC9>預設主頁面（未恢復上次位置時）</#79CFC9>
+    main-page-namespaces: 按物品種類分類
+    main-page-workstations: 按合成器分類
+    language-label: <#79CFC9>介面語言</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
+    remember-label: <#79CFC9>關閉後恢復上次瀏覽位置</#79CFC9>
+    true: 開啟
+    false: 關閉
+    save: <#98C69A>儲存設定</#98C69A>
+    save-tooltip: <#B8C0CC>儲存本次個性化選擇</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放棄修改並返回選單</#B8C0CC>
+  craftable:
+    name: <#79CFC9>可合成物品</#79CFC9>
+    title: <bold><#374151>可合成物品</#374151> <#465D70>»</#465D70> <#293341>當前揹包</#293341></bold>
+  management:
+    name: <#D8B278>管理</#D8B278>
+    title: <bold><#374151>管理</#374151></bold>
+    return-name: <#79CFC9>返回物品分類</#79CFC9>
+    return-lore: <#B8C0CC>點選返回物品分類頁面</#B8C0CC>
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>管理已應用的名稱空間與自定義按鈕</#B8C0CC>
+    categories-summary: <#8793A5>共 {entries} 項：{namespaces} 個名稱空間、{buttons} 個按鈕</#8793A5>
+    unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>檢查、編輯並應用尚未進入正式選單的條目</#B8C0CC>
+    unapplied-summary: <#8793A5>共 {count} 個待應用條目</#8793A5>
+    workstations-name: <#D8B278>workstations.yml</#D8B278>
+    workstations-lore: <#B8C0CC>調整合成器與自定義按鈕的顯示順序</#B8C0CC>
+    workstations-summary: <#8793A5>共 {count} 個合成器頁條目</#8793A5>
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>不支援的擴充套件</#D8B278>
+    integrations-lore: <#B8C0CC>配置外掛與資源包的特別適配</#B8C0CC>
+    integrations-summary: <#8793A5>檢測到 {plugins} 個適配外掛、{presets} 個資源包預設</#8793A5>
+    integrations-left-click: <#79CFC9>左鍵：檢視當前可啟用的適配項</#79CFC9>
+    integrations-right-click: <#E4D397>右鍵：檢視當前伺服器不支援的擴充套件</#E4D397>
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>配置語言、資料來源、搜尋、快捷鍵與流程行為</#B8C0CC>
+    config-summary: <#8793A5>語言 {language}  ·  CER {version}</#8793A5>
+    workstations-shortcut: <#79CFC9>點選進入合成器配置</#79CFC9>
+    hidden-name: <#D8B278>分類與物品</#D8B278>
+    items-name: <#D8B278>隱藏分類物品</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: <#98C69A>已應用：存在於 categories.yml</#98C69A>
+    unapplied-lore: <#B8C0CC>未應用：僅存在於 categories-unapplied.yml</#B8C0CC>
+    visibility-admin: 僅管理員
+    visibility-player: 所有玩家
+    visibility-permission: 按許可權
+    visibility-value: <#8793A5>可見性：{visibility}  許可權：{permission}</#8793A5>
+    category-state: <#8793A5>分類入口：{entry}  排序：{sort}  隱藏規則：{hide}</#8793A5>
+    namespace-browse: <#79CFC9>左鍵：在管理中瀏覽此名稱空間的分類與物品</#79CFC9>
+    namespace-edit: <#79CFC9>右鍵：編輯名稱、許可權、提示與排序選項</#79CFC9>
+    namespace-hide: <#79CFC9>中鍵：管理分類隱藏與物品隱藏</#79CFC9>
+    namespace-hide-unapplied: <#79CFC9>Shift+左鍵：管理分類隱藏與物品隱藏</#79CFC9>
+    namespace-order: <#E4D397>Shift+左鍵上移 / Shift+右鍵下移</#E4D397>
+    namespace-apply: <#98C69A>中鍵：應用此名稱空間到 categories.yml</#98C69A>
+    namespace-unapply: <#E58B8B>Q 鍵：移動到 categories-unapplied.yml</#E58B8B>
+    no-category-button-lore: <#8793A5>該條目不顯示名稱空間分類按鈕</#8793A5>
+    category-bar-lore: <#B8C0CC>檢視已應用與未應用的名稱空間</#B8C0CC>
+    button-name: 自定義按鈕
+    button-type: <#8793A5>型別：自定義按鈕</#8793A5>
+    button-use: <#79CFC9>左鍵：執行按鈕動作</#79CFC9>
+    button-edit: <#79CFC9>右鍵：編輯圖示、文案、許可權與動作</#79CFC9>
+    button-apply: <#98C69A>中鍵：應用此按鈕到 categories.yml</#98C69A>
+    button-unapply: <#E58B8B>Q 鍵：移動到 categories-unapplied.yml</#E58B8B>
+    category-hidden: <#E58B8B>分類入口已隱藏（含其瀏覽路徑）</#E58B8B>
+    category-visible: <#98C69A>分類入口可見</#98C69A>
+    category-count: <#8793A5>直接物品 {items} 個，子分類 {children} 個</#8793A5>
+    category-open-items: <#79CFC9>左鍵：管理此分類的直接物品</#79CFC9>
+    category-toggle: <#79CFC9>右鍵：隱藏 / 顯示分類入口及路徑</#79CFC9>
+    items-all-hidden: <#E58B8B>該分類全部直接物品已隱藏</#E58B8B>
+    items-toggle-all: <#79CFC9>Shift+左鍵或右鍵：隱藏 / 顯示全部直接物品</#79CFC9>
+    item-hidden: <#E58B8B>當前已隱藏</#E58B8B>
+    item-visible: <#98C69A>當前可見</#98C69A>
+    item-recipe-count: <#B8C0CC>有 {recipes} 個配方，參與 {usages} 個合成</#B8C0CC>
+    item-id: <#8793A5>{id}</#8793A5>
+    item-toggle: <#79CFC9>點選切換隱藏狀態</#79CFC9>
+    workstation-id: <#8793A5>{id}</#8793A5>
+    workstation-use: <#79CFC9>左鍵：開啟此合成器頁面</#79CFC9>
+    workstation-order: <#E4D397>Shift+左鍵上移 / Shift+右鍵下移</#E4D397>
+  config-editor:
+    general-title: <bold><#D8B278>config.yml · 通用設定</#D8B278></bold>
+    data-title: <bold><#D8B278>config.yml · 資料與效能</#D8B278></bold>
+    description: <#B8C0CC>修改常用配置。儲存後自動重建索引；詳細註釋仍可直接在 config.yml 中編輯。</#B8C0CC>
+    save: <#98C69A>儲存並過載</#98C69A>
+    save-tooltip: <#B8C0CC>寫入 config.yml 並重建選單與資料索引</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放棄修改並返回管理頁</#B8C0CC>
+    open-data: <#79CFC9>資料與效能</#79CFC9>
+    open-general: <#79CFC9>通用設定</#79CFC9>
+    open-page-tooltip: <#B8C0CC>切換到另一組配置，不儲存當前 Dialog</#B8C0CC>
+    landing-page: <#79CFC9>預設主頁</#79CFC9>
+    landing-namespaces: 按物品種類
+    landing-workstations: 按合成器
+    personalization: <#79CFC9>啟用玩家個性化和瀏覽恢復</#79CFC9>
+    remember-page: <#79CFC9>儲存並恢復上次瀏覽位置</#79CFC9>
+    hotkey: <#79CFC9>啟用交換副手快捷鍵</#79CFC9>
+    hotkey-sneak: <#79CFC9>快捷鍵必須潛行</#79CFC9>
+    updates: <#79CFC9>檢查 GitHub 正式版更新</#79CFC9>
+    source-craftengine: <#79CFC9>啟用 CraftEngine 配方來源</#79CFC9>
+    source-minecraft: <#79CFC9>啟用原版配方資料</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>啟用原版栽培資料</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>啟用 CraftEngine 栽培資料</#79CFC9>
+    auto-reload: <#79CFC9>自動監聽 recipes/ 檔案變化</#79CFC9>
+    poll-interval: <#79CFC9>檔案檢查間隔（10-200 tick）</#79CFC9>
+    rotate-interval: <#79CFC9>配方輪播間隔（5-200 tick）</#79CFC9>
+    search-max-length: <#79CFC9>搜尋長度上限（1-64）</#79CFC9>
+    search-max-results: <#79CFC9>搜尋結果上限（1-1000）</#79CFC9>
+  unapplied-editor:
+    title: <bold><#D8B278>編輯分類名稱空間</#D8B278> <dark_gray>{namespace}</dark_gray></bold>
+    description: <#B8C0CC>修改 {file}；儲存後選單立即重新整理，並在同目錄保留上一版 .bak。</#B8C0CC>
+    edit-lore: <#79CFC9>右鍵：編輯此名稱空間</#79CFC9>
+    visibility: <#79CFC9>可見性</#79CFC9>
+    visibility-admin: 僅管理員
+    visibility-player: 所有玩家
+    visibility-permission: 按許可權
+    permission: <#79CFC9>許可權節點\<permission>
+    icon-name: <#79CFC9>分類名稱模板\<name>
+    item-lore: <#79CFC9>物品提示\<lore>（每行一條）
+    icon-lore: <#79CFC9>頂層分類提示\<lore>（每行一條）
+    sub-icon-lore: <#79CFC9>子分類提示\<lore>（每行一條）
+    category-entry: <#79CFC9>顯示名稱空間分類入口</#79CFC9>
+    sort-by-namespace: <#79CFC9>按名稱空間和路徑排序</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>隱藏沒有配方且不參與合成的物品</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>隱藏規則影響合成器頁面</#79CFC9>
+    hide-inaccessible: <#79CFC9>無權檢視時隱藏並讓出選單位置</#79CFC9>
+    save: <#98C69A>儲存修改</#98C69A>
+    save-tooltip: <#B8C0CC>儲存到當前分類配置檔案</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放棄修改並返回配置管理中心</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>編輯自定義按鈕</#D8B278></bold>
+    description: <#B8C0CC>修改 {file}。動作每行寫成“點選型別 | 動作”，點選型別可省略並預設為 all。</#B8C0CC>
+    material: <#79CFC9>材質或物品 ID\<material>
+    name: <#79CFC9>按鈕名稱\<name>
+    lore: <#79CFC9>按鈕提示\<lore>（每行一條）
+    visibility: <#79CFC9>可見性\<visibility>
+    visibility-admin: 僅管理員
+    visibility-player: 所有玩家
+    visibility-permission: 按許可權
+    permission: <#79CFC9>許可權節點\<permission>
+    hide-inaccessible: <#79CFC9>無權檢視時隱藏並讓出選單位置\<hide-inaccessible>
+    actions: <#79CFC9>按鈕動作\<actions>（每行：點選型別 | 動作）
+    save: <#98C69A>儲存按鈕</#98C69A>
+    save-tooltip: <#B8C0CC>寫回當前配置檔案</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放棄修改並返回配置中心</#B8C0CC>
+  integration-config:
+    title: <#D8B278>適配外掛與分類預設</#D8B278>
+    plugins-title: <#D8B278>適配配置 · 特殊支援的外掛</#D8B278>
+    resources-title: <#D8B278>適配配置 · 特別適配的資源包</#D8B278>
+    description: <#B8C0CC>內容區列出當前可啟用的專案；已啟用專案帶附魔光效，左鍵或右鍵可切換狀態</#B8C0CC>
+    status: <#B8C0CC>當前狀態：{status}</#B8C0CC>
+    left-click: <#8793A5>左鍵：切換到下一狀態</#8793A5>
+    right-click: <#8793A5>右鍵：切換到上一狀態</#8793A5>
+    page-count: <#B8C0CC>另一頁共有 {count} 項</#B8C0CC>
+    previous-page: <#D8B278>上一頁</#D8B278>
+    next-page: <#D8B278>下一頁</#D8B278>
+    page-position: <#B8C0CC>第 {current} / {pages} 頁</#B8C0CC>
+    preset-detected: <#98C69A>資源包已檢測到</#98C69A>
+    preset-applied: <#79CFC9>分類預設已應用</#79CFC9>
+    preset-author-mismatch: <#E58B8B>pack.yml 作者與預設宣告不匹配</#E58B8B>
+    unsupported-label: <#E58B8B>{extension}</#E58B8B>
+    unsupported-reason: <#E58B8B>無法啟用：{reason}</#E58B8B>
+    unsupported-file: <#8793A5>JAR：{file}</#8793A5>
+    unsupported-version: <#8793A5>擴充套件版本：{version}</#8793A5>
+    unsupported-readonly: <#B8C0CC>此條目僅用於診斷，當前伺服器無法啟用它</#B8C0CC>
+    source-label: <#79CFC9>{plugin}</#79CFC9>
+    preset-label: <#79CFC9>{namespace}</#79CFC9>
+    plugin-heading: <#98C69A>檢測到CER特殊支援的外掛，點選按鈕以啟用：</#98C69A>
+    resource-heading: <#98C69A>檢測到CER特別適配的資源包，點選按鈕以啟用：</#98C69A>
+    item-enable-tooltip: <#B8C0CC>點選啟用此項支援</#B8C0CC>
+    item-disable-tooltip: <#B8C0CC>點選禁用此項支援</#B8C0CC>
+    open-resources: <#79CFC9>檢視資源包 ▶</#79CFC9>
+    open-plugins: <#E4D397>◀ 返回外掛</#E4D397>
+    option-ask: <#E4D397>詢問</#E4D397>
+    option-enabled: <#98C69A>啟用</#98C69A>
+    option-disabled: <#E58B8B>禁用</#E58B8B>
+    enable-all: <#98C69A>全部啟用</#98C69A>
+    enable-all-tooltip: <#B8C0CC>啟用所有當前已檢測到的伺服器外掛和 CE 資源包預設</#B8C0CC>
+    save: <#98C69A>儲存</#98C69A>
+    save-tooltip: <#B8C0CC>儲存選擇並執行對應操作</#B8C0CC>
+    cancel: <#8793A5>稍後</#8793A5>
+    cancel-tooltip: <#B8C0CC>關閉頁面，本次不修改配置</#B8C0CC>
+  workstations:
+    title: <bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>
+    title-compact: <bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>
+    categories:
+      crafting: 原版·工作臺
+      smelting: 原版·熔爐
+      blasting: 原版·高爐
+      smoking: 原版·煙燻爐
+      campfire_cooking: 原版·營火
+      stonecutting: 原版·切石機
+      smithing: 原版·鍛造臺
+      brewing: 原版·釀造臺
+      cultivation: 耕地
+    category-lore:
+    - <#B8C0CC>點選檢視此合成器的配方產物</#B8C0CC>
+    back-name: <#E58B8B>返回分類瀏覽</#E58B8B>
+    back-lore:
+    - <#B8C0CC>點選返回物品分類選單</#B8C0CC>
+  recipe:
+    title: <#292D35><bold>配方 » <name></bold></#292D35>
+    title-crafting: <#292D35><bold>原版·工作臺</bold></#292D35>
+    title-smelting: <#292D35><bold>原版·熔爐</bold></#292D35>
+    title-blasting: <#292D35><bold>原版·高爐</bold></#292D35>
+    title-smoking: <#292D35><bold>原版·煙燻爐</bold></#292D35>
+    title-campfire: <#292D35><bold>原版·營火</bold></#292D35>
+    title-stonecutting: <#292D35><bold>原版·切石機</bold></#292D35>
+    title-smithing: <#292D35><bold>原版·鍛造臺</bold></#292D35>
+    title-brewing: <#292D35><bold>原版·釀造臺</bold></#292D35>
+    title-none: <#292D35><bold>無配方</bold></#292D35>
+  search:
+    dialog-title: <bold><#D8B278>搜尋物品</#D8B278></bold>
+    dialog-label: 請輸入關鍵字
+    dialog-hint: 支援物品 ID、顯示名與拼音（如 茄子 / qie / zi / qiez / qz）
+    result-title: <bold><#374151>搜尋結果</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>
+    confirm: <#98C69A>搜尋</#98C69A>
+    confirm-tooltip: <#B8C0CC>按關鍵字查詢物品</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>關閉搜尋</#B8C0CC>
+  common:
+    all-items: 全部物品
+    unknown: 未填寫
+    first-page: <#8793A5>已是第一頁</#8793A5>
+    last-page: <#8793A5>已是最後一頁</#8793A5>
+    no-recipe: <#B8C0CC>該物品暫無配方</#B8C0CC>
+    no-usage: <#B8C0CC>該物品暫無用途</#B8C0CC>
+    dynamic-result: <#B8C0CC>結果取決於實際投入物品</#B8C0CC>
+  vanilla-items:
+    name: 原版物品
+logs:
+  debug-export-failed: 配方除錯檔案匯出失敗
+  recipe-source-ready: 配方來源 {source} 已更新：{count} 個展示配方；檔案：{files}
+  recipe-source-exported: '{source} 配方已匯出為 {files} 個合成器檔案，共 {count} 個配方；以後只讀取 recipes/。'
+  recipe-files-reloaded: 檢測到 recipes/ 變更檔案：{files}；已自動過載 {count} 個展示配方。
+  session-save-failed: 儲存玩家選單進度失敗：{error}
+  session-load-failed: 恢復玩家選單進度失敗，將開啟預設頁面：{error}
+  recipe-source-failed: 配方來源 {source} 更新失敗，保留上次有效資料：{error}
+  plugin-fingerprint-mismatch: 檢測到名為 {plugin} 的外掛，但主類 {actual} 不匹配預期 {expected}；已忽略該配方來源。
+  integration-setup-waiting: 檢測到待配置的 CER 適配外掛：{plugins}。當前沒有線上管理員，管理員上線後會顯示可點選的啟用詢問。
+  category-preset-linked-applied: 已隨已啟用的適配外掛自動應用分類預設：{namespaces}
+  integration-config-waiting: 檢測到待處理的適配外掛 {plugins} 項、分類預設 {presets} 項；當前沒有線上管理員，管理員上線後會顯示管理頁入口。
+  compatibility-fallback: 相容性處理 {operation} 失敗，繼續使用原有回退；本次資料版本內相同位置僅記錄一次，異常詳情如下。
+  search-input-failed: 讀取搜尋輸入失敗，已返回選單。
+  config-invalid-id: 配置中的 ID 格式無效：{path} = {value}；保留原有回退處理，請檢查名稱空間和路徑。
+  config-invalid-material: 配置中的材質未知：{path} = {value}；保留原有回退處理。
+  config-missing-category: 配置引用的 CraftEngine 分類不存在：{path} = {value}；保留配置，請檢查拼寫或資源包是否已載入。
+  config-update-failed: 補齊 config.yml 缺失配置失敗，保留原檔案：{error}
+  search-pack-ready: 已讀取資源包翻譯：{count} 個鍵，{files} 個語言檔案，路徑 {path}
+  search-pack-failed: 讀取資源包翻譯失敗：{path}（{error}）；繼續使用原有名稱與 ID 搜尋。生成資源包後可執行 /cer reload。
+  search-pack-skipped: 已跳過資源包中的異常語言檔案：{error}
+  hand-resolve-failed: 識別主手物品失敗：{error}
+  target-block-resolve-failed: 識別目標方塊失敗：{error}
+  player-task-failed: 玩家選單任務執行失敗
+  folia-op-unsupported: 'Folia 不執行臨時 OP 動作並停止動作鏈；請改用明確的 console: 命令，或給玩家授予命令許可權。'
+  enabled: CraftEngineRecipe 已啟用，正在初始化資料快取…
+  disabled: CraftEngineRecipe 已解除安裝。
+  pack-install-failed: 準備內建資源包失敗：{error}
+  pack-copy-ready: 資源副本已就緒：{path}（本次補齊 {count} 個檔案，保留已有檔案）
+  pack-first-installed: 已首次安裝資源到 {path}（新增 {count} 個檔案）；以後重啟或過載不再修改 CraftEngine 資源目錄。
+  data-ready: CraftEngineRecipe 資料就緒：物品 {items} 個，頂層分類 {categories} 個，總耗時 {elapsed} ms（含分幀等待）
+  data-build-failed: 構建 CraftEngineRecipe 資料失敗
+  metrics-ready: bStats 已初始化。
+  metrics-failed: bStats 初始化失敗，不影響配方瀏覽：{error}
+  update-available: 發現新版本 {latest}（當前 {current}）：{url}
+  update-check-failed: 檢查 GitHub 更新失敗，將在下次啟動或過載時重試，不影響外掛使用：{error}
+  category-read-failed: 讀取分類配置失敗：{file}
+  category-save-failed: 儲存分類名稱空間資料檔案失敗：{error}
+  unapplied-save-failed: 儲存未應用條目資料檔案失敗：{error}
+  result-query-failed: 查詢產出配方失敗（{id}）：{error}
+  usage-query-failed: 查詢用途配方失敗（{id}）：{error}
+  layout-reserved: 'layout 字元衝突：按鈕使用了保留字元 #，該按鈕不會顯示'
+  layout-conflict: layout 字元衝突：按鈕字元 {symbol} 已被分類槽或內容區佔用，該按鈕不會顯示
+  language-unknown: 不支援的語言 {locale}，將使用英語。
+  language-detected: 服務端語言環境已識別為 {locale}。
+  language-save-failed: 釋放語言檔案失敗，繼續使用內建文案：{error}
+  language-update-failed: 補齊語言檔案 {file} 缺失文案失敗，保留原檔案：{error}
+  language-read-failed: 讀取語言檔案 {file} 失敗，使用內建或回退文案：{error}
+headers:
+  unapplied: 'CraftEngineRecipe 未應用條目 / Unapplied entries
+
+    此檔案列出未進入 categories.yml 的名稱空間和自定義按鈕
+
+    Lists namespaces and custom buttons not present in categories.yml
+
+    將需要的條目複製到 navigation/categories.yml 的 entries 中，調整可見性後 /cer reload
+
+    Copy desired entries into categories.yml, adjust visibility, then run /cer reload
+
+    已應用的條目在過載後移除，其他條目保留原有屬性
+
+    Applied entries are removed on reload; other entries retain their properties'

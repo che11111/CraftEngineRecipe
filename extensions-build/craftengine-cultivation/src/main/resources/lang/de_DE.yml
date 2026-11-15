@@ -1,0 +1,29 @@
+# Generated de_DE translation from en_US.yml.
+station: Vanille·Anbau
+seed.lore: <#98C69A>Pflanzsubstrat:</#98C69A><white> siehe Substratsymbol</white>
+note.special_substrate: Spezielles Substrat oder Flüssigkeit
+note.craftengine_block: Gemäß der CraftEngine-Blockkonfiguration
+note.placement: Pflanzen Sie gemäß den Blockplatzbedingungen
+note.customcrops_farmland: Pflanzen Sie mit dem Original-CustomCrops-Substrat
+note.wheat: Reifer Weizen; Bei der Ernte werden auch Samen zurückgegeben
+note.carrots: Reife Karotten
+note.potatoes: Reife Kartoffeln; kann auch giftige Kartoffeln zurückgeben
+note.beetroots: Reife Rote Bete; Bei der Ernte werden auch Samen zurückgegeben
+note.torchflower_crop: Reife Fackelblume; Bei der Ernte werden auch Samen zurückgegeben
+note.pitcher_crop: Reife Kannenpflanze; Beim Ernten werden auch Schoten zurückgegeben
+note.melon_stem: Die Frucht erscheint neben dem Stiel; Silk Touch gibt den Melonenblock zurück
+note.pumpkin_stem: Die Frucht erscheint neben dem Stiel
+note.sugar_cane: Auf Sand oder Erde neben Wasser pflanzen
+note.cactus: Sand oder roter Sand
+note.sweet_berry_bush: Grasblock, Schmutz, Podzol oder grober Schmutz
+note.bamboo: Kann auf Grasblöcken, Erde oder Sand gepflanzt werden
+note.kelp: Unterwassersand, Erde, Kies und ähnliche Stützblöcke
+note.sea_pickle: Muss unter Wasser gepflanzt werden
+note.vine: Wird an der Seite eines Blocks befestigt
+note.cave_vines: Pflanzen Sie Leuchtbeeren auf die Unterseite eines Blocks
+note.twisting_vines: Pflanzen Sie auf der Unterseite eines Blocks
+note.weeping_vines: Pflanzen Sie auf der Unterseite eines Blocks
+note.cocoa: Pflanzen Sie an der Seite eines Dschungelstamms
+note.nether_wart: Pflanze auf Seelensand
+note.chorus_flower: Auf Endstein pflanzen
+note.lily_pad: Auf die Wasseroberfläche legen

@@ -1,0 +1,24 @@
+schema: 1
+navigation:
+  - id: "kc:pot"
+  - id: "kc:stockpot"
+  - id: "kc:steamer"
+  - id: "kc:chopping_board"
+  - id: "kc:millstone"
+  - id: "kc:shawarma"
+  - id: "kc:teapot"
+presentation:
+  station-prefixes:
+    - "kc:"
+    - "kaleidoscopecookery:"
+  styles:
+    default:
+      remove-spaces: false
+      bold: false
+    en_US:
+      remove-spaces: true
+      bold: false
+    zh_CN:
+      bold: true
+    zh_TW:
+      bold: true

@@ -1,0 +1,29 @@
+# Generated zh_TW translation from zh_CN.yml.
+station: 原版·耕地
+seed.lore: <#98C69A>種植基質：</#98C69A><white>見旁邊的基質圖示</white>
+note.special_substrate: 特殊基質或液體
+note.craftengine_block: 按 CE 方塊配置
+note.placement: 按方塊放置條件種植
+note.customcrops_farmland: 使用 CustomCrops 原始基質種植
+note.wheat: 成熟小麥；收穫時還會獲得種子
+note.carrots: 成熟紅蘿蔔
+note.potatoes: 成熟馬鈴薯，可能額外獲得毒馬鈴薯
+note.beetroots: 成熟甜菜根；收穫時還會獲得種子
+note.torchflower_crop: 成熟火把花；收穫時還會獲得種子
+note.pitcher_crop: 成熟瓶子草；收穫時還會獲得種莢
+note.melon_stem: 果實生成在莖旁；精準採集可獲得西瓜方塊
+note.pumpkin_stem: 果實生成在莖旁
+note.sugar_cane: 沙子或泥土緊鄰水時種植
+note.cactus: 沙或紅沙
+note.sweet_berry_bush: 草方塊、泥土、灰化土或粗泥
+note.bamboo: 可種植在草方塊、泥土或沙上
+note.kelp: 水下沙、泥土、沙礫等可支撐方塊
+note.sea_pickle: 必須種在水下
+note.vine: 附著在方塊側面
+note.cave_vines: 種在方塊底部，用發光漿果種植
+note.twisting_vines: 種在方塊底部
+note.weeping_vines: 種在方塊底部
+note.cocoa: 種在叢林原木側面
+note.nether_wart: 種在靈魂沙上
+note.chorus_flower: 種在末地石上
+note.lily_pad: 放置在水面

@@ -1,0 +1,46 @@
+schema: 1
+id: minecraft_cultivation
+names:
+  en_US: Minecraft Cultivation
+  zh_CN: 原版耕地
+  zh_TW: 原版耕地
+  ja_JP: Minecraft 栽培
+  ko_KR: Minecraft 경작
+  de_DE: Minecraft-Anbau
+  fr_FR: Culture Minecraft
+  es_ES: Cultivo de Minecraft
+  ru_RU: Выращивание Minecraft
+descriptions:
+  en_US: Provides vanilla cultivation data matching the exact server version.
+  zh_CN: 提供与当前服务端版本完全匹配的原版耕地数据。
+  zh_TW: 提供與目前伺服器版本完全相符的原版耕地資料。
+  ja_JP: 現在のサーバーバージョンに完全対応したバニラ栽培データを提供します。
+  ko_KR: 현재 서버 버전과 정확히 일치하는 바닐라 경작 데이터를 제공합니다.
+  de_DE: Bietet Vanilla-Anbaudaten, die exakt zur aktuellen Serverversion passen.
+  fr_FR: Fournit des données de culture vanilla correspondant exactement à la version actuelle du serveur.
+  es_ES: Proporciona datos de cultivo vanilla que coinciden exactamente con la versión actual del servidor.
+  ru_RU: Предоставляет ванильные данные выращивания, точно соответствующие текущей версии сервера.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: cultivation
+dependencies:
+  plugins: []
+integration-defaults:
+  mode: enabled
+  cultivation: false
+  export-missing: true
+  reexport-on-reload: false
+  reexport-craftengine-on-ce-reload: false
+integration-button:
+  icons:
+    - minecraft:wheat

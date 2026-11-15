@@ -54,7 +54,19 @@
   # false hides the category entries while keeping recipe search, direct queries and workstation outputs available.
   category-entry: true
 
-  # 以下四个字段可选：自定义该命名空间下的悬浮提示，不写则用语言文件中的默认值 / Optional text overrides for this namespace; otherwise use language defaults.
+# 以下四个字段可选：自定义该命名空间下的悬浮提示，不写则用语言文件中的默认值 / Optional text overrides for this namespace; otherwise use language defaults.
+# icon-name / icon-lore / sub-icon-lore / item-lore 以及按钮 display.name / display.lore 支持：
+# All text fields above, plus button display.name / display.lore, support:
+#   1. 普通字符串或字符串列表 / plain strings or string lists
+#   2. zh_CN / en_US 多语言映射 / per-locale zh_CN and en_US maps
+#   3. lang:<key> 语言文件引用 / lang:<key> language-file references
+# 示例 / Example:
+#   name:
+#     zh_CN: '中文名称'
+#     en_US: 'English name'
+#   lore:
+#     zh_CN: ['中文第一行', '中文第二行']
+#     en_US: ['English line 1', 'English line 2']
   icon-name: '<#EEF2F6><name></#EEF2F6>'   # 分类图标名字模板（<name> 会被替换为分类名） / Category icon name template; <name> is the category name
   item-lore:                       # 该命名空间下物品的悬浮提示 / Item lore for this namespace
   - '<#B8C0CC>左键查看合成配方</#B8C0CC>'

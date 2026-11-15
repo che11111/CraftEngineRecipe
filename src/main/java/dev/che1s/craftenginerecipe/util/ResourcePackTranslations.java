@@ -27,7 +27,9 @@ import java.util.zip.ZipFile;
 
 /** 读取生成的资源包，不访问服务器或玩家 API。 */
 public final class ResourcePackTranslations {
-    private static final List<String> DEFAULT_LANGUAGES = List.of("zh_cn", "en_us");
+    private static final List<String> DEFAULT_LANGUAGES = List.of(
+            "en_us", "zh_cn", "zh_tw", "ja_jp", "ko_kr",
+            "de_de", "fr_fr", "es_es", "ru_ru");
     private static final Pattern LANGUAGE = Pattern.compile("[a-z0-9]+(?:_[a-z0-9]+)*");
     private static final Pattern LANGUAGE_PATH = Pattern.compile(
             "assets/([a-z0-9_.-]+)/lang/([a-zA-Z0-9_-]+)\\.json");

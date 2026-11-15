@@ -32,17 +32,6 @@ import java.util.Set;
 
 /** 解析单个配方 YAML 文档。 */
 final class RecipeDocumentParser {
-    private static final List<Integer> KALEIDOSCOPE_INGREDIENT_SLOTS =
-            List.of(5, 6, 7, 8, 14, 15, 16, 17, 23, 24, 25, 26);
-    private static final List<Integer> KALEIDOSCOPE_RESULT_SLOTS =
-            List.of(41, 42, 43, 44, 50, 51, 52, 53);
-    private static final Set<String> LAYOUT_KEYS = Set.of("template", "type", "rows", "title", "workstation-slot",
-            "information-slot", "previous-slot", "back-slot", "next-slot");
-    private static final Set<String> ITEM_KEYS = Set.of("provider", "id", "name", "lore");
-    private static final Set<String> INGREDIENT_KEYS = Set.of("provider", "id", "name", "lore", "item", "choices",
-            "amount", "slot", "role");
-    private static final Set<String> RESULT_KEYS = Set.of("provider", "id", "name", "lore", "item", "amount", "slot",
-            "note");
     private final Path file;
 
     RecipeDocumentParser(Path file) { this.file = file; }
@@ -50,6 +39,8 @@ final class RecipeDocumentParser {
     Map<String, Object> read() throws IOException {
         LoaderOptions options = new LoaderOptions();
         options.setAllowDuplicateKeys(false);
+        // Generated vanilla crafting files can legitimately exceed SnakeYAML's 3 MiB default.
+        options.setCodePointLimit(64 * 1024 * 1024);
         try (Reader reader = Files.newBufferedReader(this.file, StandardCharsets.UTF_8)) {
             Object root = new Yaml(new SafeConstructor(options)).load(reader);
             return root == null ? Map.of() : this.map(root, "root");
@@ -281,10 +272,10 @@ final class RecipeDocumentParser {
         for (RecipeIngredient ingredient : ingredients) {
             int slot = ingredient.slot();
             if (slot < 0) {
-                while (next < KALEIDOSCOPE_INGREDIENT_SLOTS.size()
-                        && used.contains(KALEIDOSCOPE_INGREDIENT_SLOTS.get(next))) next++;
-                if (next < KALEIDOSCOPE_INGREDIENT_SLOTS.size()) {
-                    slot = KALEIDOSCOPE_INGREDIENT_SLOTS.get(next++);
+                while (next < RecipeDocumentSchema.KALEIDOSCOPE_INGREDIENT_SLOTS.size()
+                        && used.contains(RecipeDocumentSchema.KALEIDOSCOPE_INGREDIENT_SLOTS.get(next))) next++;
+                if (next < RecipeDocumentSchema.KALEIDOSCOPE_INGREDIENT_SLOTS.size()) {
+                    slot = RecipeDocumentSchema.KALEIDOSCOPE_INGREDIENT_SLOTS.get(next++);
                     used.add(slot);
                 }
             }
@@ -339,10 +330,10 @@ final class RecipeDocumentParser {
         for (RecipeResult result : results) {
             int slot = result.slot();
             if (slot < 0) {
-                while (next < KALEIDOSCOPE_RESULT_SLOTS.size()
-                        && used.contains(KALEIDOSCOPE_RESULT_SLOTS.get(next))) next++;
-                if (next < KALEIDOSCOPE_RESULT_SLOTS.size()) {
-                    slot = KALEIDOSCOPE_RESULT_SLOTS.get(next++);
+                while (next < RecipeDocumentSchema.KALEIDOSCOPE_RESULT_SLOTS.size()
+                        && used.contains(RecipeDocumentSchema.KALEIDOSCOPE_RESULT_SLOTS.get(next))) next++;
+                if (next < RecipeDocumentSchema.KALEIDOSCOPE_RESULT_SLOTS.size()) {
+                    slot = RecipeDocumentSchema.KALEIDOSCOPE_RESULT_SLOTS.get(next++);
                     used.add(slot);
                 }
             }
@@ -835,7 +826,7 @@ final class RecipeDocumentParser {
             layoutValues = configuredLayout == null ? Map.of() : this.map(configuredLayout, path + ".layout");
             if (layoutValues.containsKey("template")) templateId = this.string(layoutValues.get("template"), path + ".layout.template", true);
         }
-        this.keys(layoutValues, path + ".layout", LAYOUT_KEYS);
+        this.keys(layoutValues, path + ".layout", RecipeDocumentSchema.LAYOUT_KEYS);
         Map<String, Object> merged = new LinkedHashMap<>();
         if (templateId != null) {
             if (!templates.containsKey(templateId)) throw this.error(path + ".layout.template", "unknown template " + templateId);
@@ -854,7 +845,7 @@ final class RecipeDocumentParser {
         for (int i = 0; i < configuredResults.size(); i++) {
             String resultPath = path + ".results[" + i + "]";
             Map<String, Object> result = this.map(configuredResults.get(i), resultPath);
-            this.keys(result, resultPath, RESULT_KEYS);
+            this.keys(result, resultPath, RecipeDocumentSchema.RESULT_KEYS);
             results.add(new RecipeResult(this.entryItem(result, resultPath), this.amount(result, resultPath),
                     this.contentSlot(result, resultPath, layout.rows()), this.string(result.get("note"), resultPath + ".note", false)));
         }
@@ -873,7 +864,7 @@ final class RecipeDocumentParser {
         for (int i = 0; i < entries.size(); i++) {
             String entryPath = path + "[" + i + "]";
             Map<String, Object> entry = this.map(entries.get(i), entryPath);
-            this.keys(entry, entryPath, INGREDIENT_KEYS);
+            this.keys(entry, entryPath, RecipeDocumentSchema.INGREDIENT_KEYS);
             RecipeIngredient.Role role = decoration ? RecipeIngredient.Role.INFO : RecipeIngredient.Role.INGREDIENT;
             if (entry.containsKey("role")) {
                 try { role = RecipeIngredient.Role.valueOf(this.string(entry.get("role"), entryPath + ".role", true).toUpperCase(Locale.ROOT)); }
@@ -907,7 +898,9 @@ final class RecipeDocumentParser {
                     entry.containsKey("lore") ? this.optionalLore(entry, path) : item.lore());
         }
         Map<String, Object> item = new LinkedHashMap<>();
-        for (String key : ITEM_KEYS) if (entry.containsKey(key)) item.put(key, entry.get(key));
+        for (String key : RecipeDocumentSchema.ITEM_KEYS) {
+            if (entry.containsKey(key)) item.put(key, entry.get(key));
+        }
         return this.item(item, path);
     }
 
@@ -917,7 +910,7 @@ final class RecipeDocumentParser {
             catch (IllegalArgumentException error) { throw this.error(path, error.getMessage(), error); }
         }
         Map<String, Object> item = this.map(value, path);
-        this.keys(item, path, ITEM_KEYS);
+        this.keys(item, path, RecipeDocumentSchema.ITEM_KEYS);
         String id = this.string(item.get("id"), path + ".id", true);
         String provider = item.containsKey("provider") ? this.string(item.get("provider"), path + ".provider", true)
                 : id.startsWith("minecraft:") ? "minecraft" : "craftengine";

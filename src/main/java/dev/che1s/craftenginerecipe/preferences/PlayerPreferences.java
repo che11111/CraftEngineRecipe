@@ -1,5 +1,6 @@
 package dev.che1s.craftenginerecipe.preferences;
 
+import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.nio.file.Files;
@@ -31,16 +32,18 @@ public final class PlayerPreferences implements AutoCloseable {
                 menu_pack TEXT,
                 remember_last_page INTEGER,
                 landing_page TEXT,
+                language TEXT,
                 updated_at INTEGER NOT NULL
             )
             """;
     private static final String UPSERT = """
-            INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, landing_page, updated_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, landing_page, language, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(player_uuid) DO UPDATE SET
                 menu_pack = excluded.menu_pack,
                 remember_last_page = excluded.remember_last_page,
                 landing_page = excluded.landing_page,
+                language = excluded.language,
                 updated_at = excluded.updated_at
             """;
     private static final String CREATE_SESSION_TABLE = """
@@ -141,6 +144,15 @@ public final class PlayerPreferences implements AutoCloseable {
                 ? stored.rememberLastPage() : this.settings.defaultRememberLastPage();
     }
 
+    /** Player language override; falls back to the locale detected from the server environment. */
+    public String language(UUID player, String fallbackLocale) {
+        Stored stored = this.preferences.get(player);
+        String selected = stored == null ? null : normalizeLanguage(stored.language());
+        if (selected != null) return selected;
+        String fallback = normalizeLanguage(fallbackLocale);
+        return fallback == null ? "en_US" : fallback;
+    }
+
     public LandingPage landingPage(UUID player) {
         if (!this.settings.enabled()) return this.settings.defaultLandingPage();
         Stored stored = this.preferences.get(player);
@@ -151,24 +163,33 @@ public final class PlayerPreferences implements AutoCloseable {
     public boolean setMenuPack(UUID player, String menuPack) {
         String normalized = normalize(menuPack);
         if (normalized == null || !this.settings.menuPacks().contains(normalized)) return false;
-        this.update(player, normalized, null, null);
+        this.update(player, normalized, null, null, null);
         return true;
     }
 
     public void setRememberLastPage(UUID player, boolean remember) {
-        this.update(player, null, remember, null);
+        this.update(player, null, remember, null, null);
     }
 
     public void setLandingPage(UUID player, LandingPage landingPage) {
-        if (landingPage != null) this.update(player, null, null, landingPage);
+        if (landingPage != null) this.update(player, null, null, landingPage, null);
     }
 
-    private void update(UUID player, String menuPack, Boolean remember, LandingPage landingPage) {
+    public boolean setLanguage(UUID player, String language) {
+        String normalized = normalizeLanguage(language);
+        if (normalized == null) return false;
+        this.update(player, null, null, null, normalized);
+        return true;
+    }
+
+    private void update(UUID player, String menuPack, Boolean remember,
+                        LandingPage landingPage, String language) {
         Stored stored = this.preferences.compute(player, (ignored, current) -> {
             Stored value = current == null ? Stored.EMPTY : current;
             return new Stored(menuPack == null ? value.menuPack() : menuPack,
                     remember == null ? value.rememberLastPage() : remember,
-                    landingPage == null ? value.landingPage() : landingPage);
+                    landingPage == null ? value.landingPage() : landingPage,
+                    language == null ? value.language() : language);
         });
         this.writer.execute(() -> this.persist(player, stored));
     }
@@ -183,6 +204,7 @@ public final class PlayerPreferences implements AutoCloseable {
                 statement.execute(CREATE_TABLE);
                 statement.execute(CREATE_SESSION_TABLE);
                 ensureColumn(connection, "landing_page", "TEXT");
+                ensureColumn(connection, "language", "TEXT");
             }
         } catch (Exception error) {
             this.logger.warning("Cannot initialize player preferences database: " + error.getMessage());
@@ -193,7 +215,8 @@ public final class PlayerPreferences implements AutoCloseable {
         try (Connection connection = this.connection();
              Statement statement = connection.createStatement();
              ResultSet result = statement.executeQuery(
-                     "SELECT player_uuid, menu_pack, remember_last_page, landing_page FROM player_preferences")) {
+                     "SELECT player_uuid, menu_pack, remember_last_page, landing_page, language "
+                             + "FROM player_preferences")) {
             while (result.next()) {
                 try {
                     UUID player = UUID.fromString(result.getString("player_uuid"));
@@ -201,7 +224,8 @@ public final class PlayerPreferences implements AutoCloseable {
                     int remember = result.getInt("remember_last_page");
                     Boolean rememberLastPage = result.wasNull() ? null : remember != 0;
                     LandingPage landingPage = LandingPage.parse(result.getString("landing_page"));
-                    this.preferences.put(player, new Stored(menuPack, rememberLastPage, landingPage));
+                    String language = normalizeLanguage(result.getString("language"));
+                    this.preferences.put(player, new Stored(menuPack, rememberLastPage, landingPage, language));
                 } catch (IllegalArgumentException ignored) {
                     // 忽略 UUID 格式错误的行，不影响数据库中的其他记录。
                 }
@@ -219,7 +243,8 @@ public final class PlayerPreferences implements AutoCloseable {
             else statement.setInt(3, stored.rememberLastPage() ? 1 : 0);
             if (stored.landingPage() == null) statement.setNull(4, java.sql.Types.VARCHAR);
             else statement.setString(4, stored.landingPage().name().toLowerCase(Locale.ROOT));
-            statement.setLong(5, System.currentTimeMillis());
+            statement.setString(5, stored.language());
+            statement.setLong(6, System.currentTimeMillis());
             statement.executeUpdate();
         } catch (SQLException error) {
             this.logger.warning("Cannot save player preferences: " + error.getMessage());
@@ -302,6 +327,10 @@ public final class PlayerPreferences implements AutoCloseable {
         return value.startsWith("cer_menu_") ? value : "cer_menu_" + value;
     }
 
+    private static String normalizeLanguage(String language) {
+        return LanguageManager.normalizeSupportedLocale(language);
+    }
+
     private static void ensureColumn(Connection connection, String name, String type) throws SQLException {
         try (Statement statement = connection.createStatement();
              ResultSet columns = statement.executeQuery("PRAGMA table_info(player_preferences)")) {
@@ -314,8 +343,9 @@ public final class PlayerPreferences implements AutoCloseable {
         }
     }
 
-    private record Stored(String menuPack, Boolean rememberLastPage, LandingPage landingPage) {
-        private static final Stored EMPTY = new Stored(null, null, null);
+    private record Stored(String menuPack, Boolean rememberLastPage,
+                          LandingPage landingPage, String language) {
+        private static final Stored EMPTY = new Stored(null, null, null, null);
     }
 
     public record StoredSession(String snapshot, long savedAt) {

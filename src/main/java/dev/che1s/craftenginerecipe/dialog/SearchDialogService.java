@@ -27,12 +27,10 @@ public final class SearchDialogService {
     private static final String INPUT_KEY = "cer_search_keyword";
 
     private final CraftEngineRecipePlugin plugin;
-    private final CerConfig config;
     private final AtomicBoolean inputFailureLogged = new AtomicBoolean();
 
     public SearchDialogService(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
-        this.config = plugin.config();
     }
 
     public void open(Player player) {
@@ -44,7 +42,8 @@ public final class SearchDialogService {
     public void open(Player player, Consumer<String> results, Runnable cancel) {
         if (!this.plugin.browser(player).claim(player)) return;
         long generation = this.plugin.data().generation();
-        CerConfig c = this.plugin.config();
+        CerConfig c = this.plugin.browser(player).configFor(player);
+        var language = this.plugin.lang(player);
         int maxLength = c.searchMaxLength();
         TextDialogInput input = DialogInput.text(INPUT_KEY, c.mm(c.searchDialogLabel()))
                 .width(300)
@@ -53,8 +52,8 @@ public final class SearchDialogService {
                 .maxLength(maxLength)
                 .build();
         ActionButton confirm = ActionButton.create(
-                this.plugin.lang().component("ui.search.confirm"),
-                this.plugin.lang().component("ui.search.confirm-tooltip"),
+                language.component("ui.search.confirm"),
+                language.component("ui.search.confirm-tooltip"),
                 100,
                 DialogAction.customClick(
                         (view, audience) -> this.handleResult(player, view, generation, maxLength, results, cancel),
@@ -62,8 +61,8 @@ public final class SearchDialogService {
                 )
         );
         ActionButton cancelButton = ActionButton.create(
-                this.plugin.lang().component("ui.search.cancel"),
-                this.plugin.lang().component("ui.search.cancel-tooltip"),
+                language.component("ui.search.cancel"),
+                language.component("ui.search.cancel-tooltip"),
                 100,
                 DialogAction.customClick(
                         (view, audience) -> this.schedule(player, generation, cancel),
@@ -81,7 +80,7 @@ public final class SearchDialogService {
                 .type(DialogType.confirmation(confirm, cancelButton)));
         this.plugin.browser(player).leaveForDialog(player);
         player.showDialog(dialog);
-        Sounds.play(player, this.config.sounds().search());
+        Sounds.play(player, c.sounds().search());
     }
 
     private void handleResult(Player player, DialogResponseView view, long generation, int maxLength,

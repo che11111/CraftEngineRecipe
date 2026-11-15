@@ -1,0 +1,29 @@
+# Generated es_ES translation from en_US.yml.
+station: Vainilla·Cultivo
+seed.lore: <#98C69A>Sustrato de plantación:</#98C69A><white> ver el icono del sustrato</white>
+note.special_substrate: Sustrato o líquido especial
+note.craftengine_block: Según la configuración del bloque CraftEngine
+note.placement: Plantar según condiciones de colocación de bloques.
+note.customcrops_farmland: Plantar utilizando el sustrato CustomCrops original.
+note.wheat: trigo maduro; la cosecha también devuelve semillas
+note.carrots: Zanahorias maduras
+note.potatoes: Patatas maduras; También puede devolver patatas venenosas.
+note.beetroots: Remolachas maduras; la cosecha también devuelve semillas
+note.torchflower_crop: Flor de antorcha madura; la cosecha también devuelve semillas
+note.pitcher_crop: Planta de jarra madura; la cosecha también devuelve vainas
+note.melon_stem: El fruto aparece al lado del tallo; Silk Touch devuelve el bloque de melón
+note.pumpkin_stem: El fruto aparece al lado del tallo.
+note.sugar_cane: Plantar sobre arena o tierra adyacente al agua.
+note.cactus: Arena o arena roja
+note.sweet_berry_bush: Bloque de hierba, tierra, podzol o tierra gruesa
+note.bamboo: Se puede plantar sobre bloques de césped, tierra o arena.
+note.kelp: Arena, tierra, grava y bloques de soporte similares bajo el agua.
+note.sea_pickle: Debe plantarse bajo el agua.
+note.vine: Se fija al lado de un bloque.
+note.cave_vines: Plante en la parte inferior de un bloque usando bayas luminosas.
+note.twisting_vines: Plantar en la parte inferior de un bloque.
+note.weeping_vines: Plantar en la parte inferior de un bloque.
+note.cocoa: Planta al lado de un tronco de la selva.
+note.nether_wart: Planta en la arena del alma.
+note.chorus_flower: Planta en piedra final
+note.lily_pad: Colocar en la superficie del agua.

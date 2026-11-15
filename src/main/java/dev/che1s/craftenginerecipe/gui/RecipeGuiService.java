@@ -408,7 +408,9 @@ public final class RecipeGuiService {
     public void openNoRecipe(Player player, Key itemId, boolean usageMode) {
         ItemStack icon = itemId == null ? new ItemStack(Material.BARRIER) : ItemBridge.build(itemId, player);
         Component name = this.config.recipeTitleComponentFor("NONE");
-        ItemStack decorated = ItemBridge.decorate(icon, name, List.of(this.plugin.lang().component(usageMode ? "ui.common.no-usage" : "ui.common.no-recipe")));
+        ItemStack decorated = ItemBridge.decorate(icon, name, List.of(
+                this.plugin.lang(player).component(
+                        usageMode ? "ui.common.no-usage" : "ui.common.no-recipe")));
         Gui gui = Gui.builder()
                 .setStructure("#########", "#########", "####x####", "#########", "#########", "#########")
                 .addIngredient('#', Item.EMPTY)
@@ -570,7 +572,7 @@ public final class RecipeGuiService {
         ItemStack additionIcon = ItemBridge.buildIngredient(addition, player, 1);
         Key result = this.resultKey(recipe);
         ItemStack smithResultIcon = result != null ? ItemBridge.build(result, player, this.resultCount(recipe))
-                : ItemBridge.barrier(this.plugin.lang().component("ui.common.dynamic-result"));
+                : ItemBridge.barrier(this.plugin.lang(player).component("ui.common.dynamic-result"));
         Gui upper = Gui.builder()
                 .setStructure("tbar")
                 .addIngredient('t', this.clickable(ItemBridge.firstIngredientKey(template).orElse(null), templateIcon))

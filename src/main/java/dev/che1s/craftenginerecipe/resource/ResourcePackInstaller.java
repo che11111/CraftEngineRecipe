@@ -1,23 +1,37 @@
 package dev.che1s.craftenginerecipe.resource;
 
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.Base64;
+import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /** 保留本地副本，并在 CraftEngine 启用前安装一次。 */
 public final class ResourcePackInstaller {
     public static final String RESOURCES_DIRECTORY = "resources";
     public static final String BUNDLE_DIRECTORY = "CraftEngineRecipe";
+    public static final String STATE_FILE = ".cer-resource-state.yml";
     public static final String PACK_DIRECTORY = "cer_menu_rough";
     public static final String MENU_CUTE_DIRECTORY = "cer_menu_cute";
     public static final String GUI_PACK_DIRECTORY = "cer_kc_gui";
@@ -26,10 +40,12 @@ public final class ResourcePackInstaller {
     public static final String CULTIVATION_PACK_DIRECTORY = "cer_cultivation_gui";
     public static final String API_PACK_DIRECTORY = "cer_api_gui";
     public static final String MANAGEMENT_PACK_DIRECTORY = "cer_manage_gui";
+    /**
+     * Packs whose lifetime is owned by the core. Source-specific packs
+     * ({@code cer_kc_gui}, {@code cer_fd_gui}, {@code cer_ccrops_gui}) are installed from their
+     * extension JARs and must not be replenished from the core as empty fallbacks.
+     */
     public static final List<String> REQUIRED_GUI_PACKS = List.of(
-            GUI_PACK_DIRECTORY,
-            FD_PACK_DIRECTORY,
-            CUSTOMCROPS_PACK_DIRECTORY,
             CULTIVATION_PACK_DIRECTORY,
             API_PACK_DIRECTORY,
             MANAGEMENT_PACK_DIRECTORY);
@@ -52,7 +68,7 @@ public final class ResourcePackInstaller {
 
     private static Result install(Path jarPath, Path localRoot, Path targetRoot,
                                   String packDirectory, String jarPrefix) throws IOException {
-        int localFiles = replenish(jarPath, localRoot, jarPrefix);
+        int localFiles = replenish(jarPath, localRoot, jarPrefix, "", "legacy");
         boolean alreadyInstalled = Files.isRegularFile(
                 targetRoot.resolve("pack.yml"), LinkOption.NOFOLLOW_LINKS);
         Path root = targetRoot.toAbsolutePath().normalize();
@@ -60,6 +76,7 @@ public final class ResourcePackInstaller {
         if (Files.isDirectory(localRoot, LinkOption.NOFOLLOW_LINKS)) {
             try (var paths = Files.walk(localRoot)) {
                 for (Path source : paths.filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
+                        .filter(path -> !path.getFileName().toString().equals(STATE_FILE))
                         .toList()) {
                     Path target = child(root, localRoot.relativize(source).toString());
                     if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) continue;
@@ -79,19 +96,34 @@ public final class ResourcePackInstaller {
 
     /** 只在本地补齐缺失的内置文件，不读取或修改 CraftEngine 目录。 */
     public static int replenish(Path jarPath, Path localRoot) throws IOException {
-        return replenish(jarPath, localRoot, PACK_DIRECTORY);
+        return replenish(jarPath, localRoot, PACK_DIRECTORY, "", "legacy");
     }
 
     public static int replenishGui(Path jarPath, Path localRoot) throws IOException {
-        return replenish(jarPath, localRoot, GUI_PACK_DIRECTORY);
+        return replenish(jarPath, localRoot, GUI_PACK_DIRECTORY, "", "legacy");
     }
 
     public static int replenishFd(Path jarPath, Path localRoot) throws IOException {
-        return replenish(jarPath, localRoot, FD_PACK_DIRECTORY);
+        return replenish(jarPath, localRoot, FD_PACK_DIRECTORY, "", "legacy");
     }
 
     public static int replenishBundled(Path jarPath, Path localRoot, String packId) throws IOException {
-        return replenish(jarPath, localRoot, RESOURCES_DIRECTORY + "/" + packId);
+        return replenishBundled(jarPath, localRoot, packId, "", "legacy");
+    }
+
+    public static int replenishBundled(Path jarPath, Path localRoot, String packId,
+                                       String owner, String version) throws IOException {
+        return replenish(jarPath, localRoot, RESOURCES_DIRECTORY + "/" + packId, owner, version);
+    }
+
+    /** 从扩展 JAR 的指定前缀释放资源包，例如 resourcepack/cer_fd_gui。 */
+    public static int replenishPrefix(Path jarPath, Path localRoot, String prefix) throws IOException {
+        return replenish(jarPath, localRoot, prefix, "", "legacy");
+    }
+
+    public static int replenishPrefix(Path jarPath, Path localRoot, String prefix,
+                                      String owner, String version) throws IOException {
+        return replenish(jarPath, localRoot, prefix, owner, version);
     }
 
     public static Set<String> bundledMenuPacks(Path jarPath) throws IOException {
@@ -115,37 +147,80 @@ public final class ResourcePackInstaller {
      */
     public static void installBundle(Path localRoot, Path targetResources, Collection<String> subpacks)
             throws IOException {
+        installBundle(localRoot, targetResources, subpacks, "1");
+    }
+
+    /** Builds the managed bundle in a staging directory, then swaps it into place. */
+    public static void installBundle(Path localRoot, Path targetResources, Collection<String> subpacks,
+                                     String version) throws IOException {
         LinkedHashSet<String> selected = new LinkedHashSet<>(subpacks);
         Path root = targetResources.toAbsolutePath().normalize();
         Files.createDirectories(root);
         Path bundle = child(root, BUNDLE_DIRECTORY);
-        deleteRecursively(bundle);
-        Path subpackRoot = bundle.resolve("subpacks");
+        Path staging = root.resolve("." + BUNDLE_DIRECTORY + "-staging-" + UUID.randomUUID());
+        Path backup = root.resolve("." + BUNDLE_DIRECTORY + "-backup-" + UUID.randomUUID());
+        Path subpackRoot = staging.resolve("subpacks");
         Files.createDirectories(subpackRoot);
         Path sourceRoot = localRoot.toAbsolutePath().normalize();
-        for (String id : selected) {
-            Path source = sourceRoot.resolve(id);
-            if (!Files.isRegularFile(source.resolve("pack.yml"), LinkOption.NOFOLLOW_LINKS)) {
-                throw new IOException("Missing managed resource pack: " + id);
-            }
-            Path destination = child(subpackRoot, id);
-            try (var paths = Files.walk(source)) {
-                for (Path path : paths.filter(Files::isRegularFile).toList()) {
-                    Path target = child(destination, source.relativize(path).toString());
-                    Files.createDirectories(target.getParent());
-                    Files.copy(path, target);
+        try {
+            for (String id : selected) {
+                Path source = child(sourceRoot, id);
+                if (!Files.isRegularFile(source.resolve("pack.yml"), LinkOption.NOFOLLOW_LINKS)) {
+                    throw new IOException("Missing managed resource pack: " + id);
+                }
+                Path destination = child(subpackRoot, id);
+                try (var paths = Files.walk(source)) {
+                    for (Path path : paths.filter(Files::isRegularFile)
+                            .filter(value -> !value.getFileName().toString().equals(STATE_FILE)).toList()) {
+                        Path target = child(destination, source.relativize(path).toString());
+                        Files.createDirectories(target.getParent());
+                        Files.copy(path, target);
+                    }
                 }
             }
+            StringBuilder metadata = new StringBuilder()
+                    .append("author: CraftEngineRecipe\n")
+                    .append("version: ").append(version == null || version.isBlank() ? "1" : version).append("\n")
+                    .append("description: CraftEngineRecipe managed resource bundle\n")
+                    .append("namespace: cer_bundle\n")
+                    .append("enable: true\n")
+                    .append("subpacks:\n");
+            for (String id : selected) metadata.append("  ").append(id).append(": true\n");
+            Files.writeString(staging.resolve("pack.yml"), metadata.toString(), StandardCharsets.UTF_8);
+            replaceDirectory(staging, bundle, backup);
+        } finally {
+            deleteRecursively(staging);
         }
-        StringBuilder metadata = new StringBuilder()
-                .append("author: CraftEngineRecipe\n")
-                .append("version: 1\n")
-                .append("description: CraftEngineRecipe managed resource bundle\n")
-                .append("namespace: cer_bundle\n")
-                .append("enable: true\n")
-                .append("subpacks:\n");
-        for (String id : selected) metadata.append("  ").append(id).append(": true\n");
-        Files.writeString(bundle.resolve("pack.yml"), metadata.toString(), StandardCharsets.UTF_8);
+    }
+
+    private static void replaceDirectory(Path staging, Path target, Path backup) throws IOException {
+        if (!Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
+            moveDirectory(staging, target);
+            return;
+        }
+        moveDirectory(target, backup);
+        try {
+            moveDirectory(staging, target);
+        } catch (IOException error) {
+            if (Files.exists(backup, LinkOption.NOFOLLOW_LINKS)
+                    && !Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
+                try {
+                    moveDirectory(backup, target);
+                } catch (IOException restoreError) {
+                    error.addSuppressed(restoreError);
+                }
+            }
+            throw error;
+        }
+        deleteRecursively(backup);
+    }
+
+    private static void moveDirectory(Path source, Path target) throws IOException {
+        try {
+            Files.move(source, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException ignored) {
+            Files.move(source, target);
+        }
     }
 
     static void deleteRecursively(Path directory) throws IOException {
@@ -163,21 +238,49 @@ public final class ResourcePackInstaller {
         deleteRecursively(packRoot.resolve("pages"));
     }
 
-    private static int replenish(Path jarPath, Path localRoot, String packDirectory) throws IOException {
+    private static int replenish(Path jarPath, Path localRoot, String packDirectory,
+                                 String owner, String version) throws IOException {
         Path root = localRoot.toAbsolutePath().normalize();
         int copied = 0;
         String prefix = packDirectory + "/";
+        Map<String, JarEntry> entriesByName = new LinkedHashMap<>();
+        Map<String, String> bundledHashes = new LinkedHashMap<>();
         try (JarFile jar = new JarFile(jarPath.toFile())) {
             var entries = jar.entries();
             while (entries.hasMoreElements()) {
                 var entry = entries.nextElement();
                 if (entry.isDirectory() || !entry.getName().startsWith(prefix)) continue;
-                Path target = child(root, entry.getName().substring(prefix.length()));
-                if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) continue;
+                String relative = entry.getName().substring(prefix.length());
+                if (relative.isBlank() || relative.equals(STATE_FILE)) continue;
+                child(root, relative);
+                entriesByName.put(relative, entry);
                 try (InputStream input = jar.getInputStream(entry)) {
-                    copied += copyMissing(input, root, target);
+                    bundledHashes.put(relative, sha256(input));
                 }
             }
+            State previous = readState(root);
+            boolean versionChanged = !owner.equals(previous.owner())
+                    || !version.equals(previous.version())
+                    || !bundledHashes.equals(previous.files());
+            for (var prepared : entriesByName.entrySet()) {
+                Path target = child(root, prepared.getKey());
+                try (InputStream input = jar.getInputStream(prepared.getValue())) {
+                    if (!Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
+                        copied += copyMissing(input, root, target);
+                    } else if (versionChanged && matchesHash(target, previous.files().get(prepared.getKey()))) {
+                        copyReplacing(input, root, target);
+                        copied++;
+                    }
+                }
+            }
+            if (versionChanged) {
+                for (var previousFile : previous.files().entrySet()) {
+                    if (entriesByName.containsKey(previousFile.getKey())) continue;
+                    Path target = child(root, previousFile.getKey());
+                    if (matchesHash(target, previousFile.getValue())) Files.deleteIfExists(target);
+                }
+            }
+            writeState(root, new State(owner, version, Map.copyOf(bundledHashes)));
         }
         if (!Files.isRegularFile(child(root, "pack.yml"), LinkOption.NOFOLLOW_LINKS)) {
             throw new IOException("Missing bundled resource pack.yml");
@@ -216,5 +319,92 @@ public final class ResourcePackInstaller {
         } finally {
             Files.deleteIfExists(temporary);
         }
+    }
+
+    private static void copyReplacing(InputStream input, Path root, Path target) throws IOException {
+        child(root, root.relativize(target).toString());
+        Files.createDirectories(target.getParent());
+        Path temporary = Files.createTempFile(target.getParent(), ".cer-resource-", ".tmp");
+        try {
+            Files.copy(input, temporary, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+    }
+
+    private static State readState(Path root) {
+        Path file = root.resolve(STATE_FILE);
+        if (!Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) return State.EMPTY;
+        try {
+            YamlConfiguration yaml = new YamlConfiguration();
+            yaml.load(file.toFile());
+            Map<String, String> files = new LinkedHashMap<>();
+            var section = yaml.getConfigurationSection("files");
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    String hash = section.getString(key);
+                    if (hash != null && !hash.isBlank()) {
+                        try {
+                            files.put(new String(Base64.getUrlDecoder().decode(key), StandardCharsets.UTF_8),
+                                    hash);
+                        } catch (IllegalArgumentException ignored) {
+                        }
+                    }
+                }
+            }
+            return new State(yaml.getString("owner", ""), yaml.getString("version", ""), Map.copyOf(files));
+        } catch (IOException | InvalidConfigurationException | RuntimeException ignored) {
+            return State.EMPTY;
+        }
+    }
+
+    private static void writeState(Path root, State state) throws IOException {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.set("owner", state.owner());
+        yaml.set("version", state.version());
+        for (var entry : state.files().entrySet()) {
+            yaml.set("files." + Base64.getUrlEncoder().withoutPadding().encodeToString(
+                    entry.getKey().getBytes(StandardCharsets.UTF_8)), entry.getValue());
+        }
+        Path target = root.resolve(STATE_FILE);
+        Path temporary = Files.createTempFile(root, ".cer-state-", ".tmp");
+        try {
+            Files.writeString(temporary, yaml.saveToString(), StandardCharsets.UTF_8);
+            try {
+                Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE,
+                        StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+    }
+
+    private static boolean matchesHash(Path file, String expected) throws IOException {
+        if (expected == null || expected.isBlank()
+                || !Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) return false;
+        try (InputStream input = Files.newInputStream(file)) {
+            return expected.equals(sha256(input));
+        }
+    }
+
+    private static String sha256(InputStream input) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer)) >= 0) {
+                if (read > 0) digest.update(buffer, 0, read);
+            }
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (NoSuchAlgorithmException error) {
+            throw new IllegalStateException("SHA-256 is unavailable", error);
+        }
+    }
+
+    private record State(String owner, String version, Map<String, String> files) {
+        private static final State EMPTY = new State("", "", Map.of());
     }
 }

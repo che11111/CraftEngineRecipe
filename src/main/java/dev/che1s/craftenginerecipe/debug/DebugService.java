@@ -267,7 +267,9 @@ public final class DebugService {
 
     private void reply(CommandSender sender, String key, String... arguments) {
         if (this.stopped) return;
-        Runnable action = () -> sender.sendMessage(this.plugin.lang().message(key, arguments));
+        Runnable action = () -> sender.sendMessage(
+                this.plugin.lang(sender instanceof Player player ? player : null)
+                        .message(key, arguments));
         if (sender instanceof Player player) this.plugin.tasks().player(player, action);
         else action.run();
     }

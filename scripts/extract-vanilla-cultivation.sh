@@ -5,7 +5,7 @@ set -eu
 
 project_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 library_dir=${VANILLA_LIB_DIR:-"$project_root/lib"}
-output_root="$project_root/src/main/resources/recipes/cultivation"
+output_root="$project_root/extensions-build/minecraft-cultivation/src/main/resources/cultivation"
 staging_root=$(mktemp -d "${TMPDIR:-/tmp}/cer-vanilla-cultivation.XXXXXX")
 trap 'rm -rf "$staging_root"' 0
 trap 'exit 1' HUP INT TERM
@@ -18,6 +18,8 @@ extract_version() {
     jar_path="$library_dir/$jar_name"
     target="$output_root/$output_name"
 
+    sh "$project_root/scripts/fetch-vanilla-client.sh" \
+        "${jar_name%.jar}" "$jar_path"
     if [ ! -f "$jar_path" ]; then
         printf 'Missing vanilla client JAR: %s\n' "$jar_path" >&2
         exit 1
@@ -133,3 +135,8 @@ PY
 extract_version '26.1.2.jar' 'minecraft-26.1'
 extract_version '26.2.jar' 'minecraft-26.2'
 extract_version '26.3.jar' 'minecraft-26.3'
+extract_version '1.21.7.jar' 'minecraft-1.21.7'
+extract_version '1.21.8.jar' 'minecraft-1.21.8'
+extract_version '1.21.9.jar' 'minecraft-1.21.9'
+extract_version '1.21.10.jar' 'minecraft-1.21.10'
+extract_version '1.21.11.jar' 'minecraft-1.21.11'

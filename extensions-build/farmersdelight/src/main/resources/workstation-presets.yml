@@ -1,0 +1,20 @@
+schema: 1
+navigation:
+  - id: "farmersdelight:cooking_pot"
+  - id: "farmersdelight:cutting_board"
+  - id: "farmersdelight:skillet"
+  - id: "farmersdelight:special"
+presentation:
+  station-prefixes:
+    - "farmersdelight:"
+  styles:
+    default:
+      remove-spaces: false
+      bold: false
+    en_US:
+      remove-spaces: true
+      bold: false
+    zh_CN:
+      bold: true
+    zh_TW:
+      bold: true

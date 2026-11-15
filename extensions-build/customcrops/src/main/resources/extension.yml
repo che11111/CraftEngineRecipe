@@ -1,0 +1,56 @@
+schema: 1
+id: customcrops
+names:
+  en_US: CustomCrops
+  zh_CN: CustomCrops
+  zh_TW: CustomCrops
+  ja_JP: CustomCrops
+  ko_KR: CustomCrops
+  de_DE: CustomCrops
+  fr_FR: CustomCrops
+  es_ES: CustomCrops
+  ru_RU: CustomCrops
+descriptions:
+  en_US: Imports CustomCrops pots, crops, fertilizers and watering-can data.
+  zh_CN: 导入 CustomCrops 的种植盆、作物、肥料和浇水壶数据。
+  zh_TW: 匯入 CustomCrops 的種植盆、作物、肥料與澆水壺資料。
+  ja_JP: CustomCrops の植木鉢、作物、肥料、じょうろのデータをインポートします。
+  ko_KR: CustomCrops의 화분, 작물, 비료 및 물뿌리개 데이터를 가져옵니다.
+  de_DE: Importiert Töpfe, Pflanzen, Dünger und Gießkannen-Daten von CustomCrops.
+  fr_FR: Importe les données de pots, cultures, engrais et arrosoirs de CustomCrops.
+  es_ES: Importa datos de macetas, cultivos, fertilizantes y regaderas de CustomCrops.
+  ru_RU: Импортирует данные горшков, культур, удобрений и леек CustomCrops.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: customcrops
+resource-packs:
+  - cer_ccrops_gui
+dependencies:
+  plugins:
+    - name: CustomCrops
+      main-classes:
+        - net.momirealms.customcrops.bukkit.BukkitBootstrap
+      authors:
+        - XiaoMoMi
+      version: ">=3.6.58"
+      primary: true
+integration-defaults:
+  mode: ask
+  cultivation: true
+  export-missing: true
+  reexport-on-reload: true
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - customcrops:watering_can
+    - minecraft:flower_pot

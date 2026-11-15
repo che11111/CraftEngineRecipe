@@ -16,9 +16,6 @@ import java.util.Objects;
 
 /** 外部适配插件的持久化启用策略。 */
 public final class IntegrationSettings {
-    public static final List<String> PROMPTABLE_SOURCES =
-            List.of("farmersdelight", "kaleidoscope", "customcrops");
-
     public enum Mode {
         ASK,
         ENABLED,
@@ -65,7 +62,15 @@ public final class IntegrationSettings {
     }
 
     public Mode mode(String sourceId) {
-        return mode(this.config, sourceId);
+        return mode(sourceId, this.plugin.extensions().defaultMode(sourceId));
+    }
+
+    public Mode mode(String sourceId, Mode fallback) {
+        return mode(this.config, sourceId, fallback);
+    }
+
+    public boolean isConfigured(String sourceId) {
+        return this.config.isSet(path(sourceId) + ".mode");
     }
 
     public Mode categoryPresetMode(String namespace) {
@@ -93,16 +98,27 @@ public final class IntegrationSettings {
             }
             updated.add(copied);
         }
+        if (!found && namespace != null && !namespace.isBlank() && mode != null) {
+            Map<String, Object> state = new java.util.LinkedHashMap<>();
+            state.put("id", namespace);
+            state.put("mode", mode.name().toLowerCase(Locale.ROOT));
+            updated.add(state);
+            found = true;
+        }
         if (found) config.set("category-presets", updated);
         return found;
     }
 
     static Mode mode(FileConfiguration config, String sourceId) {
+        return mode(config, sourceId, Mode.ASK);
+    }
+
+    static Mode mode(FileConfiguration config, String sourceId, Mode fallback) {
         String path = path(sourceId) + ".mode";
         if (!config.isSet(path)) {
-            return Mode.ASK;
+            return fallback;
         }
-        return parseMode(config.getString(path, "ask"), Mode.ASK);
+        return parseMode(config.getString(path, fallback.name().toLowerCase(Locale.ROOT)), fallback);
     }
 
     private static Mode parseMode(Object value, Mode fallback) {
@@ -119,25 +135,36 @@ public final class IntegrationSettings {
         return this.mode(sourceId) == Mode.ENABLED;
     }
 
+    public boolean enabled(String sourceId, Mode fallback) {
+        return this.mode(sourceId, fallback) == Mode.ENABLED;
+    }
+
     public boolean cultivation(String sourceId) {
         return this.enabled(sourceId)
-                && this.config.getBoolean(path(sourceId) + ".cultivation", true);
+                && this.option(sourceId, "cultivation", true);
     }
 
     public boolean exportMissing(String sourceId) {
-        return this.config.getBoolean(path(sourceId) + ".export-missing", true);
+        return this.option(sourceId, "export-missing", true);
     }
 
     public boolean reexportOnReload(String sourceId) {
-        return this.config.getBoolean(path(sourceId) + ".reexport-on-reload", true);
+        return this.option(sourceId, "reexport-on-reload", true);
     }
 
     public boolean reexportOnCeReload(String sourceId) {
-        return this.config.getBoolean(path(sourceId) + ".reexport-craftengine-on-ce-reload", true);
+        return this.option(sourceId, "reexport-craftengine-on-ce-reload", true);
+    }
+
+    public boolean option(String sourceId, String option, boolean fallback) {
+        if (sourceId == null || sourceId.isBlank() || option == null || option.isBlank()) return fallback;
+        String optionPath = path(sourceId) + "." + option;
+        if (this.config.isSet(optionPath)) return this.config.getBoolean(optionPath, fallback);
+        return this.plugin.extensions().integrationOption(sourceId, option, fallback);
     }
 
     public List<String> enabledSources() {
-        return PROMPTABLE_SOURCES.stream().filter(this::enabled).toList();
+        return configuredSources().stream().filter(this::enabled).toList();
     }
 
     /** 启用该适配插件时要同步应用的内置分类预设。 */
@@ -155,8 +182,17 @@ public final class IntegrationSettings {
 
     public java.util.Set<String> linkedCategoryPresets() {
         java.util.LinkedHashSet<String> linked = new java.util.LinkedHashSet<>();
-        for (String source : PROMPTABLE_SOURCES) linked.addAll(this.categoryPresets(source));
+        for (String source : this.configuredSources()) linked.addAll(this.categoryPresets(source));
         return java.util.Collections.unmodifiableSet(linked);
+    }
+
+    /** All source IDs currently declared under integrations, including extension-only IDs. */
+    public List<String> configuredSources() {
+        java.util.LinkedHashSet<String> sources =
+                new java.util.LinkedHashSet<>(this.plugin.extensions().ids());
+        var section = this.config.getConfigurationSection("integrations");
+        if (section != null) sources.addAll(section.getKeys(false));
+        return List.copyOf(sources);
     }
 
     /** 交互式启用会同时打开普通配方和对应栽培数据。 */
@@ -174,21 +210,31 @@ public final class IntegrationSettings {
     }
 
     /**
-     * 逐项保存适配插件的显式选择。Dialog 中的 ask 也必须是持久化的真实状态，
+     * 逐项保存适配插件的显式选择。管理页中的 ask 也必须是持久化的真实状态，
      * 不能只处理 enabled/disabled，否则旧状态会继续生效。
      */
     public boolean setModes(Map<String, Mode> modes) {
+        return this.setModes(modes, this.configuredSources());
+    }
+
+    public boolean setModes(Map<String, Mode> modes, Collection<String> knownSources) {
         if (modes == null || modes.isEmpty()) return true;
-        return !setModes(this.config, modes) || this.save();
+        return !setModes(this.config, modes, knownSources) || this.save();
     }
 
     static boolean setModes(FileConfiguration config, Map<String, Mode> modes) {
+        return setModes(config, modes, modes == null ? List.of() : modes.keySet());
+    }
+
+    static boolean setModes(FileConfiguration config, Map<String, Mode> modes,
+                            Collection<String> knownSources) {
         if (config == null || modes == null || modes.isEmpty()) return false;
         boolean changed = false;
         for (var entry : modes.entrySet()) {
             String source = entry.getKey();
             Mode mode = entry.getValue();
-            if (!PROMPTABLE_SOURCES.contains(source) || mode == null) continue;
+            if (source == null || knownSources == null || !knownSources.contains(source)
+                    || !source.matches("[a-z0-9_.-]+") || mode == null) continue;
             String modePath = path(source) + ".mode";
             String cultivationPath = path(source) + ".cultivation";
             String value = mode.name().toLowerCase(Locale.ROOT);

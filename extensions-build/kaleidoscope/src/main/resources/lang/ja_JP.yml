@@ -1,0 +1,46 @@
+# Generated ja_JP translation from en_US.yml.
+accurate.title: 万華鏡調理・精密加工
+accurate.weight_note: 1 つの候補出力が相対的な重みによって選択されます。重みはパーセンテージではありません。
+flex.title: 万華鏡クッキング・ダイナミッククッキング
+flex.ratio_note: 成分の量は理想的な比率を表しています。実際の量により、出力の量と品質が変化する可能性があります。
+flex.output_note: 基本出力が表示されます。品質の名前、言い伝え、食べ物の効果は実際の調理によって決定されます。
+flex.no_container: 手で集めます。コンテナは必要ありません。
+flex.container: コンテナを持ち、ポットを右クリックして出力を収集します。
+flex.liquid_item: '許可されるスープの種類: {liquid}'
+flex.equivalent_foods: Kaleidscope の現在の成分グループに従って、同等の成分が許可されます。
+flex.seasonings: 調味料の使用は許可されています。理想比率の品質計算には参加しません。
+flex.quality_ratio: 理想的な比率に近づくほど、より高い品質が得られます。
+flex.extra_penalty: 無関係な材料を過剰に追加すると、品質が低下します。
+flex.any_liquid: どのスープでも許されます。
+flex.allowed_liquid: 使用可能な液体：{liquid}
+flex.heat_oil: 通常は熱と油が必要です。他のプラグインは調理条件を変更する可能性があります。
+flex.result_note: '例: 1 人前。実際の量は材料によって異なります'
+chopping.title: 万華鏡クッキング・まな板
+chopping.knife_note: ナイフが必要です。利用可能なツールは、まな板の構成とカレイドスコープのタグによって異なります。
+chopping.stage: カット数：{stage}
+chopping.single_extra: 1 つのメイン出力が相対的な重みによって選択されます。副産物は独立して圧延されます。
+chopping.multi_random: 各出力は独立してロールされます。どれも成功しなかった場合は、重量によって 1 つが保証されます。表示されているパーセンテージにはその保証は含まれていません。
+chopping.weighted: 1 つの出力は相対的な重みによって選択されます。重みはパーセンテージではありません。
+note.byproduct_prefix: '副産物・ '
+note.independent: '独立したロール: {percent}% (構成された {weight})'
+note.relative_weight: '相対的な重み: {weight}'
+teapot.title: 万華鏡クッキング・ティーポット
+teapot.liquid: '必要な液体: {liquid} (液体の状態をアイコンで説明)'
+label.processing_time: 処理時間
+label.rotations: 研削ラウンド
+label.stir_fry_count: 炒め回数
+label.cooking_time: 調理時間
+label.brew_time: 抽出時間
+unit.tick: ' ダニ'
+unit.round: ' ラウンド'
+unit.times: ' 回'
+station.prefix: '万華鏡料理·'
+processing.value: '{label}: {value}{unit}'
+processing.inherited: '{label}: アプライアンスのデフォルトを継承します (0 は即時を意味しません)'
+appliance.pot: 中華鍋
+appliance.stockpot: ストックポット
+appliance.steamer: 蒸し器
+appliance.shawarma: シャワルマ グリル
+appliance.millstone: 石臼
+appliance.chopping_board: まな板
+appliance.teapot: ティーポット

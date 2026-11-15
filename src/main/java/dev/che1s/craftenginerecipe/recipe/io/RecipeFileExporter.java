@@ -34,20 +34,19 @@ public final class RecipeFileExporter {
     }
 
     public static Result export(Path recipesDirectory, String source, List<DisplayRecipe> recipes) throws IOException {
-        Path target = recipesDirectory.resolve(source);
+        return export(recipesDirectory, source, source, recipes);
+    }
+
+    public static Result export(Path recipesDirectory, String source, String outputDirectory,
+                                List<DisplayRecipe> recipes) throws IOException {
+        Path target = target(recipesDirectory, outputDirectory);
         if (Files.exists(target)) return new Result(false, 0, 0);
         Files.createDirectories(recipesDirectory);
 
-        Map<String, List<DisplayRecipe>> grouped = new LinkedHashMap<>();
-        recipes.stream().sorted(Comparator.comparing(DisplayRecipe::id)).forEach(recipe ->
-                grouped.computeIfAbsent(recipe.workstation().id(), ignored -> new ArrayList<>()).add(recipe));
-        Map<String, String> files = new LinkedHashMap<>();
-        for (var entry : grouped.entrySet()) {
-            String fileName = uniqueFile(entry.getKey(), files);
-            files.put(fileName, dump(source, entry.getKey(), entry.getValue()));
-        }
+        Map<String, String> files = render(source, recipes);
 
-        Path staging = recipesDirectory.resolve("." + source + "-export-" + UUID.randomUUID());
+        Path staging = recipesDirectory.resolve("." + source.replaceAll("[^a-z0-9_.-]+", "_")
+                + "-export-" + UUID.randomUUID());
         Files.createDirectories(staging);
         try {
             for (var entry : files.entrySet()) {
@@ -63,6 +62,85 @@ public final class RecipeFileExporter {
             throw error;
         }
         return new Result(true, files.size(), recipes.size());
+    }
+
+    /** Replaces a source directory only after the complete new export is ready on disk. */
+    public static Result exportReplacing(Path recipesDirectory, String source,
+                                         List<DisplayRecipe> recipes) throws IOException {
+        return exportReplacing(recipesDirectory, source, source, recipes);
+    }
+
+    /** Replaces a source directory only after the complete new export is ready on disk. */
+    public static Result exportReplacing(Path recipesDirectory, String source, String outputDirectory,
+                                         List<DisplayRecipe> recipes) throws IOException {
+        Path target = target(recipesDirectory, outputDirectory);
+        Files.createDirectories(recipesDirectory);
+        Map<String, String> files = render(source, recipes);
+        Path staging = recipesDirectory.resolve("." + source.replaceAll("[^a-z0-9_.-]+", "_")
+                + "-export-" + UUID.randomUUID());
+        Path backup = recipesDirectory.resolve("." + source.replaceAll("[^a-z0-9_.-]+", "_")
+                + "-backup-" + UUID.randomUUID());
+        Files.createDirectories(staging);
+        try {
+            for (var entry : files.entrySet()) {
+                Files.writeString(staging.resolve(entry.getKey()), entry.getValue(), StandardCharsets.UTF_8);
+            }
+            if (!Files.exists(target)) {
+                moveDirectory(staging, target);
+            } else {
+                moveDirectory(target, backup);
+                try {
+                    moveDirectory(staging, target);
+                } catch (IOException error) {
+                    if (Files.exists(backup) && !Files.exists(target)) {
+                        try {
+                            moveDirectory(backup, target);
+                        } catch (IOException restoreError) {
+                            error.addSuppressed(restoreError);
+                        }
+                    }
+                    throw error;
+                }
+                deleteRecursively(backup);
+            }
+        } catch (IOException error) {
+            deleteRecursively(staging);
+            throw error;
+        }
+        return new Result(true, files.size(), recipes.size());
+    }
+
+    private static Path target(Path recipesDirectory, String outputDirectory) throws IOException {
+        if (outputDirectory == null || outputDirectory.isBlank()
+                || outputDirectory.startsWith(".") || outputDirectory.contains("..")
+                || outputDirectory.contains("/") || outputDirectory.contains("\\")) {
+            throw new IOException("invalid recipe output directory: " + outputDirectory);
+        }
+        Path target = recipesDirectory.resolve(outputDirectory).normalize();
+        if (!target.startsWith(recipesDirectory.normalize())) {
+            throw new IOException("invalid recipe output directory: " + outputDirectory);
+        }
+        return target;
+    }
+
+    private static Map<String, String> render(String source, List<DisplayRecipe> recipes) {
+        Map<String, List<DisplayRecipe>> grouped = new LinkedHashMap<>();
+        recipes.stream().sorted(Comparator.comparing(DisplayRecipe::id)).forEach(recipe ->
+                grouped.computeIfAbsent(recipe.workstation().id(), ignored -> new ArrayList<>()).add(recipe));
+        Map<String, String> files = new LinkedHashMap<>();
+        for (var entry : grouped.entrySet()) {
+            String fileName = uniqueFile(entry.getKey(), files);
+            files.put(fileName, dump(source, entry.getKey(), entry.getValue()));
+        }
+        return files;
+    }
+
+    private static void moveDirectory(Path source, Path target) throws IOException {
+        try {
+            Files.move(source, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException ignored) {
+            Files.move(source, target);
+        }
     }
 
     public record Result(boolean installed, int files, int recipes) {

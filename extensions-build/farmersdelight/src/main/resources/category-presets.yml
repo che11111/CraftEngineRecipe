@@ -1,0 +1,38 @@
+schema: 1
+presets:
+  - id: farmersdelight
+    authors:
+      - HuiDu_OwO
+    visibility: player
+    hidden-categories:
+      - farmersdelight:gui
+      - farmersdelight:item_display
+  - id: barbequesdelight
+    authors:
+      - huidu
+      - HuiDu_OwO
+    visibility: player
+  - id: brewinandchewin
+    authors:
+      - HuiDu_OwO
+    visibility: player
+    hidden-categories:
+      - brewinandchewin:gui
+      - brewinandchewin:item_display
+  - id: corndelight
+    authors:
+      - HuiDu_OwO
+    visibility: player
+  - id: crabbersdelight
+    authors:
+      - HuiDu_OwO
+    visibility: player
+    hidden-categories:
+      - crabbersdelight:gui
+      - crabbersdelight:item_display
+  - id: endsdelight
+    authors:
+      - HuiDu_OwO
+    visibility: player
+    hidden-categories:
+      - endsdelight:item_display

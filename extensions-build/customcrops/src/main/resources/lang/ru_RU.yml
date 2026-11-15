@@ -1,0 +1,90 @@
+# Generated ru_RU translation from en_US.yml.
+separator: ', '
+title.station: CustomCrops·{pot}
+title.recipe: CustomCrops·{suffix}
+title.suffix.default: Горшок
+title.suffix.aquatic_crops: Гидропонный горшок
+title.suffix.nether: Горшок Нижнего мира
+title.suffix.end: Горшок Края
+pot.default: горшок
+pot.aquatic_crops: Гидропонный горшок
+pot.nether: Горшок Пустоты
+pot.end: Конечный горшок
+season.spring: Весна
+season.summer: Лето
+season.autumn: Осень
+season.winter: Зима
+environment.normal: Внешний мир
+environment.world: Внешний мир
+environment.the_nether: Пустота
+environment.nether: Пустота
+environment.the_end: Конец
+environment.end: Конец
+fertilizer.quality: Качество
+fertilizer.speed_grow: Скорость роста
+fertilizer.yield_increase: Увеличение урожайности
+fertilizer.variation: Вариация
+fertilizer.soil_retain: Удержание почвы
+vanilla.minecraft.water_bucket: Ведро с водой
+vanilla.minecraft.lava_bucket: Ведро лавы
+vanilla.minecraft.dragon_breath: Дыхание Дракона
+vanilla.minecraft.glass_bottle: Стеклянная бутылка
+vanilla.minecraft.bucket: Ведро
+vanilla.minecraft.potion: Зелье
+vanilla.minecraft.stick: Палка
+vanilla.minecraft.dark_oak_log: Бревно темного дуба
+note.mature: Зрелый продукт
+note.quality: ' · Качество: {qualities}'
+note.byproduct: ' · Побочный продукт'
+note.amount_exact: ' · Сумма {amount}'
+note.amount_range: ' · Сумма {min}-{max}'
+lore.plant_block: '<#B8C0CC>Посадочный блок: </#B8C0CC><white>{pot}</white>'
+lore.season: '<#98C69A>Подходящие сезоны: </#98C69A><white>{seasons}</white>'
+lore.season_none: '<#98C69A>Сезонное ограничение: </#98C69A><white>Нет сезонных требований</white>'
+lore.environment: '<#98C69A>Подходящая среда: </#98C69A><white>{environments}</white>'
+lore.greenhouse: '<#D8B278>Неподходящий сезон: </#D8B278><white>Поместите {item} над культурой, чтобы избежать сезонных эффектов.</white>'
+lore.mature_stage: '<#B8C0CC>Зрелая стадия: </#B8C0CC><white>{points} баллов</white>'
+lore.water_storage: '<#B8C0CC>Хранилище воды: </#B8C0CC><white>{points} точки</white>'
+lore.water_disabled: '<#B8C0CC>Полив: </#B8C0CC><white>В этом горшке не используется подключаемая система хранения воды </white>'
+lore.water_consumption: '<#B8C0CC>Естественное потребление: </#B8C0CC><white>Потребляет 1 единицу воды при каждом обновлении горшка {updates}</white>'
+lore.water_interval: '<#B8C0CC>Интервал полива: </#B8C0CC><white>{prefix} {duration} на 1 очко воды</white>'
+lore.water_full: '<#B8C0CC> Продолжительность полной воды: </#B8C0CC><white>{prefix} {duration}</white>'
+lore.water_random: '<#B8C0CC>Интервал полива: </#B8C0CC><white> Определяется случайными тиками; нет фиксированной продолжительности</white>'
+lore.rain: '<#98C69A>Дождь: </#98C69A><white>Останавливает потребление и автоматически пополняет запасы во время дождя</white>'
+lore.nearby_water: '<#98C69A>Близлежащая вода: </#98C69A><white>Останавливает потребление и восполняет запасы воды в радиусе 4 блоков </white>'
+lore.settings_note: <#8793A5>Фактический цикл соответствует соответствующим настройкам </#8793A5>
+lore.can_capacity: '<#B8C0CC>Емкость лейки: </#B8C0CC><white>{amount} точек</white>'
+lore.can_refill: '<#B8C0CC>Вода за одну заправку: </#B8C0CC><white>{amount} баллов </white>'
+lore.compatible_pot: '<#B8C0CC>Совместимый банк: </#B8C0CC><white>{pot}</white>'
+lore.can_refill_source: <#8793A5>Нажмите правой кнопкой мыши на источнике воды, чтобы наполнить лейку</#8793A5>
+lore.fill_usage: '<#B8C0CC>Использование: </#B8C0CC><white>Удерживайте {item} и щелкните правой кнопкой мыши {pot}; каждое использование добавляет очки {amount}</white>'
+lore.return_item: '<#B8C0CC>Возвращенный товар: </#B8C0CC><white>{amount}{item}</white>'
+lore.return_item_count: '{amount} × '
+lore.fertilizer_optional: '<#D8B278>Дополнительное удобрение/гормон: </#D8B278><white>{type}</white>'
+lore.fertilizer_duration: '<#B8C0CC>Продолжительность: </#B8C0CC><white>{times} обновления урожая </white>'
+lore.fertilizer_before: '<#D8B278>Время: </#D8B278><white>Необходимо применять перед посадкой </white>'
+lore.fertilizer_limit: '<#B8C0CC>Лимит: </#B8C0CC><white>До {amount} на банк</white>'
+lore.sprinkler_auto: '<#98C69A>Автоматический полив: </#98C69A><white>Дозаправка совместимых горшков в ассортименте</white>'
+lore.sprinkler_range: '<#B8C0CC>Диапазон: </#B8C0CC><white>{range} блоков</white>'
+lore.sprinkler_refill: '<#B8C0CC>Вода за операцию: </#B8C0CC><white>{amount} баллов </white>'
+lore.sprinkler_storage: '<#B8C0CC>Хранилище воды: </#B8C0CC><white>{storage}</white>'
+lore.sprinkler_infinite: бесконечный
+lore.sprinkler_cycle: '<#8793A5>Цикл: каждое обновление спринклера {updates}</#8793A5>'
+lore.points: '{points} баллов'
+lore.greenhouse_protect: '<#98C69A>Сезонная защита: </#98C69A><white> Предотвращает гибель урожая вне подходящего сезона </white>'
+lore.greenhouse_place: '<#B8C0CC>Размещение: </#B8C0CC><white>Над культурой или в пределах ее эффективной зоны </white>'
+lore.scarecrow_protect: '<#98C69A>Защита от ворон: </#98C69A><white> Предотвращает повреждение близлежащих культур </white>'
+lore.scarecrow_place: '<#B8C0CC>Размещение: </#B8C0CC><white>Рядом с банком</white>'
+lore.scope: '<#B8C0CC>Действующий диапазон: </#B8C0CC><white>{scope}</white>'
+lore.whole_chunk: Целый кусок
+lore.blocks: Блоки {range}
+lore.harvest_amount: '<#B8C0CC>Объем сбора: </#B8C0CC><white>{amount}</white>'
+lore.quality_candidates: '<#B8C0CC>Возможные качества: </#B8C0CC><white>{qualities}</white>'
+lore.quality_chance: '<#B8C0CC>Шанс качества: </#B8C0CC><white>Зависит от пользовательских показателей качества культур и удобрений</white>'
+amount.range: '{min}-{max}'
+duration.default: о
+duration.scheduled: запланировано как минимум
+time.seconds: '{value} секунд'
+time.minutes: '{value} минут'
+time.hours: '{value} часов'
+time.hours_minutes: '{hours} часов {minutes} минут'

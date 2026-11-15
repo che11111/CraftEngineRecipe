@@ -6,20 +6,19 @@
 
 <p align="center">An item and recipe browser for CraftEngine, supporting category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
 
-> Version 1.1.0 may currently be unstable.
-
+> Version 1.2.0-alpha.1 may currently be unstable. Prefer a version published in Releases.
 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-26.1.2%20%2F%2026.2%20%2F%2026.3-3fb950" alt="Minecraft 26.1.2 / 26.2 / 26.3">
-  <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 compile-time API; see the Wiki for requirements"></a>
-  <img src="https://img.shields.io/badge/Java-25-orange" alt="Java 25">
+  <img src="https://img.shields.io/badge/Minecraft-1.21.7--1.21.11%20%2F%2026.1--26.3-3fb950" alt="Minecraft 1.21.7-1.21.11 / 26.1-26.3">
+  <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/"><img src="https://img.shields.io/badge/CraftEngine-API_26.8.1%20%2F%20Extensions_26.9.2+-5865F2" alt="CraftEngine 26.8.1 compile-time API; bundled source extensions require 26.9.2+"></a>
+  <img src="https://img.shields.io/badge/Java-21%20%2F%2025-orange" alt="Java 21 / 25">
   <img src="https://img.shields.io/badge/Paper-supported-blue" alt="Paper supported">
   <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/#folia-support"><img src="https://img.shields.io/badge/Folia-experimental-blueviolet" alt="Experimental Folia support; see the Wiki for details"></a>
 </p>
 
 <p align="center">
-  <a href="README-zh.md">简体中文</a> · <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/">User Wiki</a> · <a href="#quick-start">Quick Start</a> · <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/">FAQ</a>
+  <a href="https://github.com/che11111/CraftEngineRecipe/blob/main/README-zh.md">简体中文</a> · <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/intro/">User Wiki</a> · <a href="#quick-start">Quick Start</a> · <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/">FAQ</a>
 </p>
 
 ## Demo
@@ -41,38 +40,36 @@
 
 ## Menu Interface Styles
 
-CER includes four main menu texture styles. Players can switch between any styles enabled by the server.
+CER includes five main menu texture styles. Players can switch between any styles enabled by the server.
 
 <table>
   <thead>
     <tr>
-      <th width="25%" align="center">CER Cute Style Interface (default)</th>
-      <th width="25%" align="center">CER Rough Style Interface</th>
-      <th width="25%" align="center">CER Vanilla Style Interface</th>
-      <th width="25%" align="center">CER Map Style Interface</th>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-cute.png" alt="CER Cute Style Interface" width="100%">
+        <br><small>CER Cute Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-rough.png" alt="CER Rough Style Interface" width="100%">
+        <br><small>CER Rough Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-vanilla.png" alt="CER Vanilla Style Interface" width="100%">
+        <br><small>CER Vanilla Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-map.png" alt="CER Map Style Interface" width="100%">
+        <br><small>CER Map Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-wood.png" alt="CER Wood Style Interface" width="100%">
+        <br><small>CER Wood Style Interface</small>
+      </td>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <td width="25%" align="center">
-        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-cute.png" alt="CER Cute Style Interface" width="100%">
-        <br><small>Default main menu style</small>
-      </td>
-      <td width="25%" align="center">
-        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-rough.png" alt="CER Rough Style Interface" width="100%">
-        <br><small>Rough main menu style</small>
-      </td>
-      <td width="25%" align="center">
-        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-vanilla.png" alt="CER Vanilla Style Interface" width="100%">
-        <br><small>Vanilla-style main menu</small>
-      </td>
-      <td width="25%" align="center">
-        <img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/menu-styles/menu-style-map.png" alt="CER Map Style Interface" width="100%">
-        <br><small>Map-style main menu</small>
-      </td>
-    </tr>
-  </tbody>
 </table>
+
+The `CER Cute Style Interface` is the default page.
 
 ## Special Integration Textures
 
@@ -116,7 +113,9 @@ Only a selection is shown here. For more CER interface textures, visit the [Scre
 - **Fast search**: search by item ID, name, translation key, Chinese pinyin, or pinyin initials.
 - **In-game management**: use `/cer manage` to edit categories, visibility permissions, hiding rules, ordering, workstation order, and custom buttons, including moving entries between applied and unapplied configurations.
 - **Unified recipe index**: vanilla, CraftEngine, and supported integration recipes can be exported under `recipes/` and browsed together, with automatic reload after file edits; other plugins can also publish through the CER Recipe API.
-- **Integration management**: enable or disable CER's special integrations for other plugins and resource packs through `/cer integrations`.
+- **Optional recipe extensions**: Farmer's Delight, Kaleidoscope Cookery, CustomCrops, and private source adapters ship as separate JARs under `plugins/CraftEngineRecipe/extensions/`, so they can be updated without rebuilding the core plugin. Enable them through `/cer integrations`.
+- **Config management**: open `config.yml` from `/cer manage` to edit data sources, search limits, hotkeys, and reload behavior in game.
+- **Automatic and per-player localization**: CER ships English, Simplified Chinese, Traditional Chinese, Japanese, Korean, German, French, Spanish, and Russian. The server language is detected automatically, and players can choose any of the nine languages in Personalization.
 - **Personalization and resume**: players can choose a menu style, landing page, and reopen behavior; preferences and browsing sessions share `player-preferences.db`.
 
 ## Specially Integrated Plugins or Content
@@ -128,18 +127,22 @@ Only a selection is shown here. For more CER interface textures, visit the [Scre
 | <a href="https://github.com/Nicoppara/KaleidoscopeCookery_Plugin"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/compatible-plugin-logos/kaleidoscope-cookery.png" alt="Kaleidoscope Cookery" width="64"></a> | [Kaleidoscope Cookery](https://github.com/Nicoppara/KaleidoscopeCookery_Plugin) | Imports recipes for the pot, chopping board, millstone, shawarma grill, stockpot, steamer, teapot, and other appliances. Each appliance page uses its corresponding dedicated `cer_kc_gui` texture. |
 | <a href="https://github.com/Xiao-MoMi/Custom-Crops"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/compatible-plugin-logos/customcrops.png" alt="CustomCrops" width="64"></a> | [CustomCrops](https://github.com/Xiao-MoMi/Custom-Crops) | Builds crop pages for CustomCrops pots, including seeds, products, seasons, water, fertilizer, sprinklers, greenhouses, and scarecrows. Pot pages use the dedicated `cer_ccrops_gui` texture. |
 | <a href="https://github.com/che11111/WoodworkingSaw"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/compatible-plugin-logos/woodworkingsaw.png" alt="WoodworkingSaw" width="64"></a> | [WoodworkingSaw](https://github.com/che11111/WoodworkingSaw) | Publishes `transformations.yml` transformation rules directly to recipe pages through the CER Recipe API. CER provides the shared `cer_api_gui` UI textures for API recipes. |
-| <a href="https://github.com/THExuri/Ultramarine-CraftEngine"><img src="https://raw.githubusercontent.com/che11111/CraftEngineRecipe/main/img/compatible-plugin-logos/ultramarine.png" alt="Ultramarine" width="64"></a> | [Ultramarine](https://github.com/THExuri/Ultramarine-CraftEngine) | Provides a namespace preset for Ultramarine content and hides items that neither have a result recipe nor participate in any crafting recipe. |
 
 > CER provides dedicated recipe UI texture sets for the skillet, Kaleidoscope Cookery appliances, CustomCrops pot pages, and API recipes.
 
 ## Requirements
 
-Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a compatible **CraftEngine** release.
+Use Java **21** on Paper **1.21.7 / 1.21.8 / 1.21.9 / 1.21.10 / 1.21.11**, and Java **25** on Paper or Folia **26.1.2 / 26.2 / 26.3**. A compatible **CraftEngine** release is required.
+
+The core uses the CraftEngine **26.8.1** compile API. The bundled `craftengine` and `craftengine-cultivation` source extensions require CraftEngine **26.9.2 or newer**. Core-only browsing and manually managed recipes can continue on the compatible 26.8.1 API; upgrade to 26.9.2+ when using the bundled CE source exporters.
+
+
+
 
 
 ## Quick Start
 
-1. Install compatible versions of CraftEngine and CraftEngineRecipe, then wait for startup to finish.
+1. Install compatible versions of CraftEngine and CraftEngineRecipe. Place the core JAR under `plugins/` and the required extensions under `plugins/CraftEngineRecipe/extensions/` using their stable file names, then fully stop and start the server. Do not use `/reload` or plugin-manager hot reloading.
 
 2. As an administrator, run `/cer integrations` to enable CER's special integrations for other plugins or resource packs (for example, Farmer's Delight, Kaleidoscope Cookery, and others; see the compatibility list in this README).
 
@@ -148,21 +151,9 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 4. Players can run `/cer` or press `Shift+F` to open item categories. They can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
 
 
-## Player Commands
-
-| Command | Purpose |
-| --- | --- |
-| `/cer` | Open the main menu; shortcut `Shift+F` |
-| `/cer craft` | Open the workstation browser directly |
-| `/cer items` | Open the item-type browser directly |
-| `/cer search` | Search for items |
-| `/cer hand` | View recipes producing the vanilla or CraftEngine item in your main hand, respecting configured category restrictions |
-| `/cer target` | View recipes producing the vanilla or CraftEngine block under your crosshair, respecting configured category restrictions |
-| `/cer open <UI pack>` | Open the menu using the specified enabled UI style |
-
 ## Configuration Guide
 
-[Categories](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Commands](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/commands/) · [Search](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/search/) · [Menu Styles](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menus/) · [Plugin Integrations](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/integrations/) · [Recipe API](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/api/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
+[Categories](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Commands](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/commands/) · [Search](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/search/) · [Menu Styles](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menus/) · [Plugin Integrations](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/integrations/) · [Extension Development](https://github.com/che11111/CraftEngineRecipe/blob/main/docs/extensions.md) · [Recipe API](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/api/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
 
 
 ## Usage Statistics
@@ -170,6 +161,12 @@ Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a com
 [View usage statistics on bStats](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772).
 
 [![bStats](https://bstats.org/signatures/bukkit/CraftEngineRecipe.svg)](https://bstats.org/plugin/bukkit/CraftEngineRecipe/34772)
+
+## License
+
+The source code of this project is open source under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+Texture files in this project are licensed separately: they are authorized **only for use by the CraftEngineRecipe (CER) plugin**. Without explicit permission, other plugins may not copy, modify, distribute, or reuse the texture files from this project.
 
 ## Sponsorship and Support
 
@@ -179,10 +176,3 @@ If this project helps you, you can support development through Ko-fi or Afdian. 
   <a href='https://ko-fi.com/J5C529ZWWL' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
   <a href='https://afdian.com/a/sss000' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://img.shields.io/badge/Afdian-Support-946CE6?style=for-the-badge&logo=afdian&logoColor=white' border='0' alt='Support on Afdian' /></a>
 </p>
-
-## License
-
-The source code of this project is open source under the **GNU General Public License v3.0 (GPL-3.0)**.
-
-Texture files in this project are licensed separately: they are authorized **only for use by the CraftEngineRecipe (CER) plugin**. Without explicit permission, other plugins may not copy, modify, distribute, or reuse the texture files from this project.
-

@@ -1,0 +1,29 @@
+# Generated ko_KR translation from en_US.yml.
+station: 바닐라·재배
+seed.lore: <#98C69A>기질 심기:</#98C69A><white> 기질 아이콘 참조</white>
+note.special_substrate: 특수 기질 또는 액체
+note.craftengine_block: CraftEngine 블록 구성에 따르면
+note.placement: 블록 배치 조건에 따라 식물을 심는다
+note.customcrops_farmland: 원래 CustomCrops 기질을 사용하여 식물을 심습니다.
+note.wheat: 성숙한 밀; 수확하면 씨앗도 반환됩니다.
+note.carrots: 성숙한 당근
+note.potatoes: 성숙한 감자; 유독한 감자가 추가로 반환될 수 있습니다.
+note.beetroots: 성숙한 비트뿌리; 수확하면 씨앗도 반환됩니다.
+note.torchflower_crop: 성숙한 횃불꽃; 수확하면 씨앗도 반환됩니다.
+note.pitcher_crop: 성숙한 투수 식물; 수확하면 꼬투리도 반환됩니다.
+note.melon_stem: 열매는 줄기 옆에 나타납니다. 실크 터치가 멜론 블록을 반환합니다.
+note.pumpkin_stem: 열매는 줄기 옆에 나타납니다
+note.sugar_cane: 물 근처의 모래나 흙 위에 심는다.
+note.cactus: 모래 또는 붉은 모래
+note.sweet_berry_bush: 잔디 블록, 흙, 회백토 또는 거친 흙
+note.bamboo: 잔디 블록, 흙, 모래 위에 심을 수 있음
+note.kelp: 수중 모래, 흙, 자갈 및 이와 유사한 지지 블록
+note.sea_pickle: 수중에 심어야 함
+note.vine: 블록의 측면에 부착
+note.cave_vines: 빛나는 열매를 사용하여 블록 아래쪽에 심습니다.
+note.twisting_vines: 블록 아래쪽에 식물을 심습니다.
+note.weeping_vines: 블록 아래쪽에 식물을 심습니다.
+note.cocoa: 정글 통나무 옆에 식물
+note.nether_wart: 영혼의 모래 위에 식물을 심다
+note.chorus_flower: 엔드 스톤에 식물을 심습니다.
+note.lily_pad: 물 표면에 놓으십시오.

@@ -1,0 +1,54 @@
+schema: 1
+id: kaleidoscope
+names:
+  en_US: Kaleidoscope Cookery
+  zh_CN: 森罗物语
+  zh_TW: 森羅物語
+  ja_JP: Kaleidoscope Cookery
+  ko_KR: Kaleidoscope Cookery
+  de_DE: Kaleidoscope Cookery
+  fr_FR: Kaleidoscope Cookery
+  es_ES: Kaleidoscope Cookery
+  ru_RU: Kaleidoscope Cookery
+descriptions:
+  en_US: Imports Kaleidoscope accurate cooking, dynamic dishes, chopping board, teapot and steamer recipes.
+  zh_CN: 导入森罗物语的精准加工、动态烹饪、砧板、茶壶和蒸笼配方。
+  zh_TW: 匯入森羅物語的精準加工、動態烹飪、砧板、茶壺與蒸籠配方。
+  ja_JP: Kaleidoscope Cookery の精密調理、動的料理、まな板、ティーポット、蒸し器のレシピをインポートします。
+  ko_KR: Kaleidoscope Cookery의 정밀 조리, 동적 요리, 도마, 찻주전자 및 찜기 레시피를 가져옵니다.
+  de_DE: Importiert Rezepte für präzises Kochen, dynamische Gerichte, Schneidebrett, Teekanne und Dampfgarer von Kaleidoscope Cookery.
+  fr_FR: Importe les recettes de cuisson précise, plats dynamiques, planche à découper, théière et autocuiseur de Kaleidoscope Cookery.
+  es_ES: Importa recetas de cocina precisa, platos dinámicos, tabla de cortar, tetera y vaporera de Kaleidoscope Cookery.
+  ru_RU: Импортирует рецепты точной готовки, динамических блюд, разделочной доски, чайника и пароварки Kaleidoscope Cookery.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: kaleidoscope
+resource-packs:
+  - cer_kc_gui
+dependencies:
+  plugins:
+    - name: KaleidoscopeCookeryPlugin
+      main-classes:
+        - net.kaleidoscope.cookery.plugin.KaleidoscopeCookeryPlugin
+      version: ">=1.3.1"
+      primary: true
+integration-defaults:
+  mode: ask
+  cultivation: true
+  export-missing: true
+  reexport-on-reload: true
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - kaleidoscopecookery:pot
+    - minecraft:campfire

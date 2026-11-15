@@ -1,0 +1,29 @@
+# Generated fr_FR translation from en_US.yml.
+title.cooking_pot: Délice du fermier·Marmite
+title.cooking_pot_group: Délice du fermier·Marmite·{group}
+title.cutting_board: Délice du fermier·Planche à découper
+title.special: Délice du fermier·Recettes spéciales
+title.skillet: Délice du fermier·Poêle
+title.unknown_addon: Délice du fermier·Recettes supplémentaires
+title.addon_prefix: 'Délice du fermier·'
+addon.keg: Baril de fermentation
+addon.grill: Griller
+addon.skewer: Bassin à brochettes
+skillet.note: 'Cuisson au feu de camp : oui ; temps de cuisson : {ticks} ticks ; expérience : {experience}'
+flame.name: <gold>RInformations sur la recette
+flame.time: '<gray>Heure : {ticks} ticks'
+flame.experience: '<gray>Expérience : {experience}'
+pot.cooking_time: Temps de cuisson : {seconds} secondes
+pot.experience: 'Expérience : {experience}'
+pot.group: 'Marmite spéciale : {group}'
+item.required_tool: Outil requis
+item.required_tool_lore: Les exigences en matière d'outils ne peuvent pas être étendues ; inspecter la recette /fd
+item.unresolved: Ingrédient non résolu
+note.candidate_result: Résultat du candidat
+note.description_display: Affichage de la description
+note.description_entry: Entrée de description ; pas une recette de craft exécutable
+note.auto_cycle: <gray>Cycles automatiquement</gray>
+addon.type: 'Type de recette du module complémentaire : {type}'
+addon.conditions: Inspectez la recette /fd pour connaître les conditions supplémentaires et les notes spécifiques au joueur.
+note.probability_unknown: Chance inconnue
+note.independent_chance: 'Chance indépendante : {percent}%'

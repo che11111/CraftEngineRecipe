@@ -7,14 +7,8 @@ import dev.che1s.craftenginerecipe.config.IntegrationSettings;
 import dev.che1s.craftenginerecipe.recipe.io.CustomRecipeLoader;
 import dev.che1s.craftenginerecipe.recipe.io.RecipeFileExporter;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
-import dev.che1s.craftenginerecipe.integration.minecraft.BundledMinecraftRecipeSource;
-import dev.che1s.craftenginerecipe.integration.craftengine.CraftEngineRecipeSource;
-import dev.che1s.craftenginerecipe.integration.common.CultivationDataExporter;
-import dev.che1s.craftenginerecipe.integration.customcrops.CustomCropsRecipeSource;
-import dev.che1s.craftenginerecipe.integration.farmersdelight.FarmersDelightRecipeSource;
-import dev.che1s.craftenginerecipe.integration.kaleidoscope.KaleidoscopeRecipeSource;
-import dev.che1s.craftenginerecipe.integration.common.PluginFingerprints;
-import dev.che1s.craftenginerecipe.integration.common.RecipeSource;
+import dev.che1s.craftenginerecipe.api.extension.RecipeSource;
+import dev.che1s.craftenginerecipe.api.extension.RecipeSourceProvider;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -24,11 +18,16 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -39,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -51,10 +51,8 @@ import java.util.function.Consumer;
  * 指纹后才重载，以减少编辑器保存时产生的重复刷新。</p>
  */
 public final class ExternalRecipeService implements Listener {
-    private static final List<String> BUILT_IN_SOURCES =
-            List.of("craftengine", "farmersdelight", "kaleidoscope", CustomCropsRecipeSource.SOURCE_ID);
     private final CraftEngineRecipePlugin plugin;
-    private final Map<Plugin, Adapter> adapters = new ConcurrentHashMap<>();
+    private final Map<String, Adapter> adapters = new ConcurrentHashMap<>();
     private final Map<String, String> failures = new ConcurrentHashMap<>();
     private volatile ExternalRecipeSnapshot snapshot = ExternalRecipeSnapshot.EMPTY;
     private volatile long generation;
@@ -62,18 +60,21 @@ public final class ExternalRecipeService implements Listener {
     private volatile Map<String, String> lastFileState = Map.of();
     private volatile CustomRecipeLoader.PreparedDocuments parsedDocuments =
             CustomRecipeLoader.PreparedDocuments.EMPTY;
+    private volatile Map<String, String> sourceDirectories = Map.of();
+    private volatile Set<String> enabledSourceDirectories = Set.of();
     private Map<String, String> pendingFileState;
     private boolean pendingChanged;
     private ScheduledTask pollTask;
-    private int sourceCheckTicks;
-    private boolean sourcesSettled;
     private final AtomicBoolean sourceCheckScheduled = new AtomicBoolean();
+    private final AtomicBoolean sourcesSettled = new AtomicBoolean();
+    private final AtomicInteger sourceCheckTicks = new AtomicInteger();
     private final AtomicBoolean reloadScheduled = new AtomicBoolean();
     private final AtomicBoolean loadInProgress = new AtomicBoolean();
     private final AtomicLong loadRevision = new AtomicLong();
 
     public ExternalRecipeService(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
+        this.sourceDirectories = this.readSourceDirectories();
     }
 
     public void start() {
@@ -87,6 +88,8 @@ public final class ExternalRecipeService implements Listener {
     /** 手动执行 /cer reload 时重载文件，并只重试仍然缺失的来源导出。 */
     public void reload() {
         if (this.stopped) return;
+        this.sourcesSettled.set(false);
+        this.sourceCheckTicks.set(0);
         this.discover();
         this.exportMissingSources();
         this.reloadFiles(true);
@@ -113,7 +116,10 @@ public final class ExternalRecipeService implements Listener {
 
     /** 配置中的启用状态变化后，重新读取现有 recipes/，不强制执行来源导出。 */
     public void reloadIndex() {
-        this.plugin.tasks().global(() -> this.reloadFiles(false));
+        this.plugin.tasks().global(() -> {
+            this.discover();
+            this.reloadFiles(false);
+        });
     }
 
     /** 指令入口：先采集数据，再仅替换调用方请求的来源目录。 */
@@ -127,15 +133,8 @@ public final class ExternalRecipeService implements Listener {
 
     private List<String> reexportSources(boolean onPluginReload) {
         LinkedHashSet<String> requested = new LinkedHashSet<>();
-        String configKey = onPluginReload
-                ? "sources.reexport-on-reload"
-                : "sources.reexport-craftengine-on-ce-reload";
-        if (this.sourceEnabled(CraftEngineRecipeSource.SOURCE_ID)
-                && this.plugin.getConfig().getBoolean(configKey, false)) {
-            requested.add(CraftEngineRecipeSource.SOURCE_ID);
-        }
-        for (String source : IntegrationSettings.PROMPTABLE_SOURCES) {
-            if (!this.plugin.integrations().enabled(source)) continue;
+        for (String source : this.plugin.extensions().ids()) {
+            if (!this.sourceEnabled(source)) continue;
             boolean enabled = onPluginReload
                     ? this.plugin.integrations().reexportOnReload(source)
                     : this.plugin.integrations().reexportOnCeReload(source);
@@ -162,26 +161,9 @@ public final class ExternalRecipeService implements Listener {
                 failures.put(sourceId, "source plugin is missing or disabled");
                 continue;
             }
-            int sourceFiles = 0;
-            boolean cultivationExported = false;
-            try {
-                int cultivation = CultivationDataExporter.export(this.plugin, sourceId);
-                if (cultivation > 0) {
-                    sourceFiles++;
-                    cultivationExported = true;
-                }
-            } catch (IOException | RuntimeException error) {
-                failures.put(sourceId + "-cultivation", error.getMessage());
-            }
             RecipeSource recipeSource = this.recipeSource(sourceId);
             if (recipeSource == null) {
-                if (cultivationExported) {
-                    files += sourceFiles;
-                    sources++;
-                    bySource.put(sourceId, new SourceReport(sourceFiles, 0, 0));
-                } else {
-                    failures.put(sourceId, "source plugin is missing or disabled");
-                }
+                failures.put(sourceId, "source plugin is missing or disabled");
                 continue;
             }
             try {
@@ -190,19 +172,14 @@ public final class ExternalRecipeService implements Listener {
                     continue;
                 }
                 List<DisplayRecipe> captured = List.copyOf(recipeSource.capture());
-                Path target = this.recipesDirectory().resolve(sourceId).normalize();
-                if (!target.startsWith(this.recipesDirectory().normalize())) {
-                    throw new IOException("invalid source directory");
-                }
-                deleteRecursively(target);
-                RecipeFileExporter.Result result = RecipeFileExporter.export(
-                        this.recipesDirectory(), sourceId, captured);
+                String outputDirectory = safeOutputDirectory(recipeSource);
+                RecipeFileExporter.Result result = RecipeFileExporter.exportReplacing(
+                        this.recipesDirectory(), sourceId, outputDirectory, captured);
                 if (!result.installed()) throw new IOException("exporter did not install the refreshed files");
-                sourceFiles += result.files();
-                files += sourceFiles;
+                files += result.files();
                 recipes += result.recipes();
                 sources++;
-                bySource.put(sourceId, new SourceReport(sourceFiles, result.recipes(),
+                bySource.put(sourceId, new SourceReport(result.files(), result.recipes(),
                         workstationCount(captured)));
                 this.failures.remove(sourceId);
             } catch (IOException | RuntimeException | LinkageError error) {
@@ -219,29 +196,31 @@ public final class ExternalRecipeService implements Listener {
     }
 
     private Adapter adapter(String sourceId) {
-        for (Adapter adapter : this.adapters.values()) {
-            if (adapter.source.id().equals(sourceId)) return adapter;
-        }
-        return null;
+        return this.adapters.get(sourceId);
     }
 
     private RecipeSource recipeSource(String sourceId) {
         Adapter adapter = this.adapter(sourceId);
-        if (adapter != null && this.sourceEnabled(sourceId)) return adapter.source;
-        // CraftEngine 是硬依赖，始终从其实时 API 读取，不依赖插件名扫描是否成功。
-        if ("craftengine".equals(sourceId)
-                && this.sourceEnabled(sourceId)
-                && this.plugin.data().isReady()) {
-            return new CraftEngineRecipeSource(this.plugin);
-        }
+        if (adapter != null && this.sourceEnabled(sourceId)) return adapter.source();
         return null;
     }
 
-    private static void deleteRecursively(Path directory) throws IOException {
-        if (!Files.exists(directory, LinkOption.NOFOLLOW_LINKS)) return;
-        try (var paths = Files.walk(directory)) {
-            for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+    private String safeOutputDirectory(RecipeSource source) throws IOException {
+        String output = source.outputDirectory();
+        if (output == null || output.isBlank() || output.startsWith(".")
+                || output.contains("..") || output.contains("/")
+                || output.contains("\\")) {
+            throw new IOException("invalid source output directory: " + output);
         }
+        Path target = this.recipesDirectory().resolve(output).normalize();
+        if (!target.startsWith(this.recipesDirectory().normalize())) {
+            throw new IOException("invalid source output directory: " + output);
+        }
+        String owner = this.sourceDirectories.get(output);
+        if (owner != null && !owner.equals(source.id())) {
+            throw new IOException("source output directory " + output + " is owned by " + owner);
+        }
+        return output;
     }
 
     private void startPolling() {
@@ -254,7 +233,8 @@ public final class ExternalRecipeService implements Listener {
     private void pollAsync() {
         if (this.stopped || !this.plugin.isEnabled()) return;
         // 来源插件可能晚于 CER 启用；等待 CE 数据就绪后低频重试导出，直到来源集合稳定。
-        if (!this.sourcesSettled && this.plugin.data().isReady() && this.sourceCheckTicks++ % 20 == 0
+        if (!this.sourcesSettled.get() && this.plugin.data().isReady()
+                && Math.floorMod(this.sourceCheckTicks.getAndIncrement(), 20) == 0
                 && this.sourceCheckScheduled.compareAndSet(false, true)) {
             this.plugin.tasks().global(() -> {
                 try {
@@ -292,20 +272,28 @@ public final class ExternalRecipeService implements Listener {
         if (this.stopped) return;
         // 只有在 CER 捕获 CraftEngine 物品与资源包数据后，才导出依赖界面和翻译标题的来源。
         if (!this.plugin.data().isReady()) return;
-        CultivationDataExporter.exportMissing(this.plugin);
+        boolean awaitingSource = false;
         for (var entry : List.copyOf(this.adapters.entrySet())) {
+            String sourceId = entry.getKey();
             Adapter adapter = entry.getValue();
-            if (!this.sourceEnabled(adapter.source.id())) {
+            if (!this.sourceEnabled(sourceId)) {
                 this.adapters.remove(entry.getKey(), adapter);
                 continue;
             }
-            if (!this.exportMissing(adapter.source.id())) continue;
-            Path target = this.recipesDirectory().resolve(adapter.source.id());
+            if (!this.exportMissing(sourceId)) continue;
+            String outputDirectory;
+            try {
+                outputDirectory = this.safeOutputDirectory(adapter.source());
+            } catch (IOException error) {
+                this.warn(sourceId, error);
+                continue;
+            }
+            Path target = this.recipesDirectory().resolve(outputDirectory);
             boolean exported;
             try {
                 exported = hasExportedRecipeFiles(target);
             } catch (IOException error) {
-                this.warn(adapter.source.id(), error);
+                this.warn(sourceId, error);
                 continue;
             }
             if (exported) {
@@ -313,48 +301,26 @@ public final class ExternalRecipeService implements Listener {
                 continue;
             }
             try {
-                if (!adapter.source.ready()) continue;
-                if (Files.exists(target)) deleteRecursively(target);
-                List<DisplayRecipe> captured = adapter.source.capture();
-                RecipeFileExporter.Result result = RecipeFileExporter.export(
-                        this.recipesDirectory(), adapter.source.id(), captured);
+                if (!adapter.source().ready()) {
+                    awaitingSource = true;
+                    continue;
+                }
+                List<DisplayRecipe> captured = adapter.source().capture();
+                RecipeFileExporter.Result result = RecipeFileExporter.exportReplacing(
+                        this.recipesDirectory(), sourceId, outputDirectory, captured);
                 this.adapters.remove(entry.getKey(), adapter);
-                this.failures.remove(entry.getKey().getName());
+                this.failures.remove(sourceId);
                 if (result.installed()) {
                     this.plugin.getLogger().info(this.plugin.lang().text("logs.recipe-source-exported",
-                            "source", entry.getKey().getName(), "files", String.valueOf(result.files()),
+                            "source", this.plugin.extensions().displayName(sourceId),
+                            "files", String.valueOf(result.files()),
                             "count", String.valueOf(result.recipes())));
                 }
             } catch (IOException | RuntimeException | LinkageError error) {
-                this.warn(entry.getKey().getName(), error);
+                this.warn(sourceId, error);
             }
         }
-        this.exportMissingCraftEngine();
-        this.sourcesSettled = true;
-    }
-
-    private void exportMissingCraftEngine() {
-        if (!this.plugin.getConfig().getBoolean("sources.craftengine", true)
-                || !this.plugin.data().isReady()) return;
-        Path target = this.recipesDirectory().resolve(CraftEngineRecipeSource.SOURCE_ID);
-        try {
-            if (hasExportedRecipeFiles(target)) return;
-            if (Files.exists(target)) deleteRecursively(target);
-            RecipeSource source = new CraftEngineRecipeSource(this.plugin);
-            if (!source.ready()) return;
-            List<DisplayRecipe> captured = source.capture();
-            RecipeFileExporter.Result result = RecipeFileExporter.export(
-                    this.recipesDirectory(), source.id(), captured);
-            this.adapters.entrySet().removeIf(entry ->
-                    entry.getValue().source.id().equals(CraftEngineRecipeSource.SOURCE_ID));
-            if (result.installed()) {
-                this.plugin.getLogger().info(this.plugin.lang().text("logs.recipe-source-exported",
-                        "source", "CraftEngine", "files", String.valueOf(result.files()),
-                        "count", String.valueOf(result.recipes())));
-            }
-        } catch (IOException | RuntimeException | LinkageError error) {
-            this.warn("CraftEngine", error);
-        }
+        this.sourcesSettled.set(!awaitingSource);
     }
 
     static boolean hasExportedRecipeFiles(Path directory) throws IOException {
@@ -383,22 +349,9 @@ public final class ExternalRecipeService implements Listener {
             if (completion != null) completion.run();
             return;
         }
-        if (this.plugin.getConfig().getBoolean("sources.minecraft", true)) {
-            try {
-                BundledMinecraftRecipeSource.installRecipeFiles(this.plugin);
-            } catch (IOException | RuntimeException | LinkageError error) {
-                this.warn("minecraft", error);
-            }
-        }
-        Set<String> enabledOptionalSources = new LinkedHashSet<>();
-        for (String source : IntegrationSettings.PROMPTABLE_SOURCES) {
-            if (this.plugin.integrations().enabled(source)) enabledOptionalSources.add(source);
-        }
-        CustomRecipeLoader loader = new CustomRecipeLoader(
-                this.plugin.getDataFolder().toPath(),
-                this.plugin.getConfig().getBoolean("sources.minecraft", true),
-                this.plugin.getConfig().getBoolean("sources.craftengine", true),
-                enabledOptionalSources);
+        Set<String> enabledDirectories = this.enabledSourceDirectories;
+        CustomRecipeLoader loader = new CustomRecipeLoader(this.plugin.getDataFolder().toPath(),
+                this.managedSourceDirectories(), enabledDirectories::contains);
         long revision = this.loadRevision.incrementAndGet();
         this.loadInProgress.set(true);
         AtomicBoolean completed = new AtomicBoolean();
@@ -471,26 +424,8 @@ public final class ExternalRecipeService implements Listener {
                                     CustomRecipeLoader.PreparedDocuments parsed) {
         try (var timing = this.plugin.diagnostics().measure(Diagnostics.Operation.SOURCE_REFRESH)) {
             List<DisplayRecipe> recipes = new ArrayList<>(loader.build(parsed));
-            boolean bundledEnabled = this.plugin.getConfig().getBoolean("sources.minecraft", true)
-                    || this.plugin.getConfig().getBoolean("sources.minecraft-cultivation", true)
-                    || this.plugin.integrations().cultivation("farmersdelight")
-                    || this.plugin.integrations().cultivation("kaleidoscope")
-                    || this.plugin.integrations().cultivation("customcrops")
-                    || this.plugin.getConfig().getBoolean("sources.craftengine-cultivation", true);
-            if (bundledEnabled) {
-                try {
-                    recipes.addAll(new BundledMinecraftRecipeSource(this.plugin).load());
-                    this.failures.remove("minecraft");
-                } catch (IOException | RuntimeException | LinkageError error) {
-                    // 即使内置数据损坏，也保留可编辑配方可用。
-                    this.warn("minecraft", error);
-                }
-            } else {
-                this.failures.remove("minecraft");
-            }
             List<RecipeEntry> entries = new ArrayList<>(recipes.stream().map(recipe ->
-                    new RecipeEntry(recipe.id().startsWith("minecraft_data:")
-                            || recipe.id().startsWith("minecraft_cultivation:") ? "minecraft" : "recipes",
+                    new RecipeEntry(recipe.id().startsWith("minecraft_data:") ? "minecraft" : "recipes",
                             null, recipe, () -> !this.stopped)).toList());
             if (this.plugin.recipeApi() != null) {
                 // API 与文件配方先合并，再一次性编译成快照；玩家不会看到只更新了一半的索引。
@@ -558,13 +493,14 @@ public final class ExternalRecipeService implements Listener {
 
     private boolean isRecipeFile(Path path) {
         String name = path.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
-        if (name.equals(CultivationDataExporter.FILE_NAME)) return true;
         if (!name.endsWith(".yml") && !name.endsWith(".yaml")) return false;
         Path relative = this.recipesDirectory().relativize(path);
         if (relative.getNameCount() > 1) {
             String source = relative.getName(0).toString().toLowerCase(java.util.Locale.ROOT);
-            if (IntegrationSettings.PROMPTABLE_SOURCES.contains(source)
-                    && !this.plugin.integrations().enabled(source)) return false;
+            if (this.sourceDirectories.containsKey(source)
+                    && !this.enabledSourceDirectories.contains(source)) {
+                return false;
+            }
         }
         for (Path part : relative) {
             String segment = part.toString().toLowerCase(java.util.Locale.ROOT);
@@ -581,60 +517,178 @@ public final class ExternalRecipeService implements Listener {
 
     private void discover() {
         if (this.stopped) return;
-        this.adapters.entrySet().removeIf(entry -> !this.sourceEnabled(entry.getValue().source.id()));
-        for (Plugin installed : Bukkit.getPluginManager().getPlugins()) this.attach(installed);
+        try {
+            this.registerSourceDirectories();
+        } catch (RuntimeException error) {
+            this.warn("source-directories", error);
+        }
+        this.enabledSourceDirectories = Set.copyOf(this.sourceDirectories.keySet().stream()
+                .filter(this::sourceDirectoryEnabled).toList());
+        this.adapters.entrySet().removeIf(entry -> !this.sourceEnabled(entry.getKey()));
+        this.attachProviders();
     }
 
-    private void attach(Plugin source) {
-        if (!source.isEnabled() || this.adapters.containsKey(source)) return;
-        // 插件名可以伪造，先通过主类和实现特征确认来源，再选择对应的反射适配器。
-        PluginFingerprints.Fingerprint fingerprint = PluginFingerprints.identify(source).orElse(null);
-        if (fingerprint == null) {
-            PluginFingerprints.byPluginName(source.getName()).ifPresent(expected -> this.warnMismatch(source, expected));
-            return;
-        }
-        try {
-            RecipeSource adapter = switch (fingerprint.sourceId()) {
-                case "craftengine" -> this.sourceEnabled("craftengine")
-                        ? new CraftEngineRecipeSource(this.plugin) : null;
-                case "farmersdelight" -> this.sourceEnabled("farmersdelight")
-                        ? new FarmersDelightRecipeSource(this.plugin, source) : null;
-                case "kaleidoscope" -> this.sourceEnabled("kaleidoscope")
-                        ? new KaleidoscopeRecipeSource(source,
-                        dev.che1s.craftenginerecipe.i18n.IntegrationText.of(
-                                "kaleidoscope", this.plugin.lang())) : null;
-                case "customcrops" -> this.sourceEnabled("customcrops")
-                        ? new CustomCropsRecipeSource(source, this.plugin.data()::resourcePackTranslation,
-                        this.plugin.data()::itemDisplayName,
-                        () -> this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh"),
-                        dev.che1s.craftenginerecipe.i18n.IntegrationText.of("customcrops", this.plugin.lang())) : null;
-                default -> null;
-            };
-            if (adapter != null) this.adapters.put(source, new Adapter(adapter));
-        } catch (RuntimeException | LinkageError error) {
-            this.warn(source.getName(), error);
+    private void attachProviders() {
+        for (RecipeSourceProvider provider : this.plugin.extensions().providers()) {
+            String sourceId = provider.id();
+            if (this.adapters.containsKey(sourceId) || !this.sourceEnabled(sourceId)) continue;
+            Plugin source = this.plugin.extensions().requiredPlugin(provider);
+            if (source == null && !provider.requiredPluginName().isBlank()) continue;
+            try {
+                RecipeSource adapter = provider.create(this.plugin.extensions().context(sourceId, source));
+                if (adapter == null) {
+                    throw new IllegalStateException("provider returned no source");
+                }
+                if (!sourceId.equals(adapter.id())) {
+                    throw new IllegalStateException("provider id '" + sourceId
+                            + "' returned source id '" + adapter.id() + "'");
+                }
+                String declaredDirectory = provider.outputDirectory();
+                if (!declaredDirectory.equals(adapter.outputDirectory())) {
+                    this.registerAdapterDirectory(sourceId, adapter.outputDirectory());
+                }
+                this.adapters.put(sourceId, new Adapter(source, adapter));
+            } catch (RuntimeException | LinkageError error) {
+                this.warn(sourceId, error);
+            }
         }
     }
 
     private boolean sourceEnabled(String sourceId) {
-        if ("craftengine".equals(sourceId)) {
-            return this.plugin.getConfig().getBoolean("sources.craftengine", true);
+        return this.plugin.extensions().sourceEnabled(sourceId);
+    }
+
+    private void registerSourceDirectories() {
+        Map<String, String> discovered = sourceDirectoryIndex(this.plugin.extensions().providers());
+        LinkedHashMap<String, String> merged = new LinkedHashMap<>(this.sourceDirectories);
+        for (var entry : discovered.entrySet()) {
+            String previous = merged.putIfAbsent(entry.getKey(), entry.getValue());
+            if (previous != null && !previous.equals(entry.getValue())) {
+                throw new IllegalStateException("recipe output directory '" + entry.getKey()
+                        + "' is owned by both " + previous + " and " + entry.getValue());
+            }
         }
-        return this.plugin.integrations().enabled(sourceId);
+        Map<String, String> next = Map.copyOf(merged);
+        if (!next.equals(this.sourceDirectories)) {
+            this.sourceDirectories = next;
+            this.persistSourceDirectories(next);
+        }
+    }
+
+    private void registerAdapterDirectory(String sourceId, String outputDirectory) {
+        if (outputDirectory == null || outputDirectory.isBlank()
+                || outputDirectory.startsWith(".") || outputDirectory.contains("..")
+                || outputDirectory.contains("/") || outputDirectory.contains("\\")) {
+            throw new IllegalArgumentException("invalid source output directory: "
+                    + outputDirectory + " for " + sourceId);
+        }
+        String owner = this.sourceDirectories.get(outputDirectory);
+        if (owner != null && !owner.equals(sourceId)) {
+            throw new IllegalStateException("recipe output directory '" + outputDirectory
+                    + "' is owned by both " + owner + " and " + sourceId);
+        }
+        if (owner != null) return;
+        LinkedHashMap<String, String> merged = new LinkedHashMap<>(this.sourceDirectories);
+        merged.put(outputDirectory, sourceId);
+        this.sourceDirectories = Map.copyOf(merged);
+        LinkedHashSet<String> enabled = new LinkedHashSet<>(this.enabledSourceDirectories);
+        enabled.add(outputDirectory);
+        this.enabledSourceDirectories = Set.copyOf(enabled);
+        this.persistSourceDirectories(this.sourceDirectories);
+    }
+
+    static Map<String, String> sourceDirectoryIndex(
+            Collection<RecipeSourceProvider> providers) {
+        LinkedHashMap<String, String> directories = new LinkedHashMap<>();
+        for (RecipeSourceProvider provider : providers) {
+            String sourceId = provider.id();
+            String outputDirectory = provider.outputDirectory();
+            if (outputDirectory == null || outputDirectory.isBlank()
+                    || outputDirectory.startsWith(".") || outputDirectory.contains("..")
+                    || outputDirectory.contains("/") || outputDirectory.contains("\\")) {
+                throw new IllegalArgumentException("invalid source output directory: "
+                        + outputDirectory + " for " + sourceId);
+            }
+            String previous = directories.putIfAbsent(outputDirectory, sourceId);
+            if (previous != null && !previous.equals(sourceId)) {
+                throw new IllegalArgumentException("source output directory '" + outputDirectory
+                        + "' is declared by both " + previous + " and " + sourceId);
+            }
+        }
+        return Map.copyOf(directories);
+    }
+
+    private Map<String, String> readSourceDirectories() {
+        Path file = this.sourceDirectoryRegistry();
+        if (!Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) return Map.of();
+        try {
+            YamlConfiguration yaml = new YamlConfiguration();
+            yaml.load(file.toFile());
+            LinkedHashMap<String, String> directories = new LinkedHashMap<>();
+            var section = yaml.getConfigurationSection("directories");
+            if (section != null) {
+                for (String source : section.getKeys(false)) {
+                    String directory = section.getString(source, "").trim();
+                    if (directory.isBlank() || directory.startsWith(".")
+                            || directory.contains("..") || directory.contains("/")
+                            || directory.contains("\\")) continue;
+                    directories.put(directory, source);
+                }
+            }
+            return Map.copyOf(directories);
+        } catch (IOException | InvalidConfigurationException | RuntimeException error) {
+            this.plugin.getLogger().warning("Cannot read source directory registry " + file
+                    + ": " + error.getMessage());
+            return Map.of();
+        }
+    }
+
+    private void persistSourceDirectories(Map<String, String> directories) {
+        Path file = this.sourceDirectoryRegistry();
+        try {
+            Files.createDirectories(file.getParent());
+            YamlConfiguration yaml = new YamlConfiguration();
+            directories.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .forEach(entry -> yaml.set("directories." + entry.getValue(), entry.getKey()));
+            Path temporary = Files.createTempFile(file.getParent(), ".source-directories-", ".tmp");
+            try {
+                Files.writeString(temporary, yaml.saveToString(), StandardCharsets.UTF_8);
+                try {
+                    Files.move(temporary, file, StandardCopyOption.ATOMIC_MOVE,
+                            StandardCopyOption.REPLACE_EXISTING);
+                } catch (AtomicMoveNotSupportedException ignored) {
+                    Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } finally {
+                Files.deleteIfExists(temporary);
+            }
+        } catch (IOException error) {
+            this.warn("source-directories", error);
+        }
+    }
+
+    private Path sourceDirectoryRegistry() {
+        return this.plugin.getDataFolder().toPath()
+                .resolve("extensions-data").resolve("source-directories.yml");
+    }
+
+    private Set<String> managedSourceDirectories() {
+        return this.sourceDirectories.keySet();
+    }
+
+    private boolean sourceDirectoryEnabled(String directory) {
+        if (directory.startsWith("minecraft-") && !directory.equals("minecraft-cultivation")
+                && !directory.equals("minecraft-"
+                + dev.che1s.craftenginerecipe.integration.extension.ExtensionManager.minecraftVersion())) {
+            return false;
+        }
+        String source = this.sourceDirectories.get(directory);
+        return source != null && this.sourceEnabled(source);
     }
 
     private boolean exportMissing(String sourceId) {
         return this.plugin.integrations().exportMissing(sourceId);
-    }
-
-    private void warnMismatch(Plugin source, PluginFingerprints.Fingerprint expected) {
-        String actual = source.getDescription() == null ? "<unknown>" : source.getDescription().getMain();
-        String message = this.plugin.lang().text("logs.plugin-fingerprint-mismatch",
-                "plugin", source.getName(), "actual", actual, "expected", expected.mainClass());
-        String key = "identity:" + source.getName();
-        if (!message.equals(this.failures.put(key, message))) {
-            this.plugin.getLogger().warning(message);
-        }
     }
 
     private void warn(String source, Throwable error) {
@@ -649,16 +703,16 @@ public final class ExternalRecipeService implements Listener {
     public void onEnable(PluginEnableEvent event) {
         if (event.getPlugin() == this.plugin) return;
         this.plugin.tasks().global(() -> {
-            this.attach(event.getPlugin());
-            this.sourcesSettled = false;
-            this.sourceCheckTicks = 0;
+            this.attachProviders();
+            this.sourcesSettled.set(false);
+            this.sourceCheckTicks.set(0);
             this.exportMissingSources();
         });
     }
 
     @EventHandler
     public void onDisable(PluginDisableEvent event) {
-        this.adapters.remove(event.getPlugin());
+        this.adapters.entrySet().removeIf(entry -> entry.getValue().plugin() == event.getPlugin());
         if (this.plugin.recipeApi() != null) this.plugin.recipeApi().removeOwner(event.getPlugin());
     }
 
@@ -682,7 +736,7 @@ public final class ExternalRecipeService implements Listener {
         ++this.generation;
     }
 
-    private record Adapter(RecipeSource source) {
+    private record Adapter(Plugin plugin, RecipeSource source) {
     }
 
     public record SourceReport(int files, int recipes, int workstations) {}

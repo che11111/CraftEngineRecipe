@@ -1,0 +1,46 @@
+# Generated fr_FR translation from en_US.yml.
+accurate.title: Cuisine Kaléidoscope·Traitement précis
+accurate.weight_note: Un résultat candidat est choisi selon son poids relatif ; les poids ne sont pas des pourcentages.
+flex.title: Cuisine Kaléidoscope·Cuisine dynamique
+flex.ratio_note: Les quantités d'ingrédients représentent le rapport idéal ; les quantités réelles peuvent modifier la quantité et la qualité de la production.
+flex.output_note: La sortie de base est affichée ; les noms de qualité, les traditions et les effets des aliments sont déterminés par la cuisine réelle.
+flex.no_container: Recueillir à la main ; aucun conteneur requis.
+flex.container: Tenez un conteneur et cliquez avec le bouton droit sur le pot pour collecter la sortie.
+flex.liquid_item: 'Type de bouillon autorisé : {liquid}'
+flex.equivalent_foods: Les ingrédients équivalents sont autorisés selon les groupes d'ingrédients actuels de Kaleidoscope.
+flex.seasonings: Les assaisonnements sont autorisés ; ils ne participent pas au calcul de la qualité du rapport idéal.
+flex.quality_ratio: Un rapport plus proche du rapport idéal produit une qualité supérieure.
+flex.extra_penalty: Ajouter trop d’ingrédients non liés réduit la qualité.
+flex.any_liquid: N'importe quel bouillon est autorisé.
+flex.allowed_liquid: 'Liquide autorisé : {liquid}'
+flex.heat_oil: La chaleur et l'huile sont normalement nécessaires ; d'autres plugins peuvent modifier les conditions de cuisson.
+flex.result_note: 'Exemple : 1 portion ; la quantité réelle dépend des ingrédients'
+chopping.title: Cuisine Kaléidoscope·Planche à découper
+chopping.knife_note: Un couteau est nécessaire ; les outils disponibles dépendent de la configuration de la planche à découper et des balises Kaléidoscope.
+chopping.stage: 'Nombre de coupes : {stage}'
+chopping.single_extra: Un résultat principal est sélectionné selon son poids relatif ; les sous-produits sont roulés indépendamment.
+chopping.multi_random: Chaque sortie est lancée indépendamment ; si aucun ne réussit, on est garanti au poids. Les pourcentages indiqués excluent cette garantie.
+chopping.weighted: Un résultat est choisi en fonction de son poids relatif ; les poids ne sont pas des pourcentages.
+note.byproduct_prefix: 'Sous-produit · '
+note.independent: 'Rouleau indépendant : {percent}% ({weight} configuré)'
+note.relative_weight: 'Poids relatif : {weight}'
+teapot.title: Kaléidoscope Cuisine·Théière
+teapot.liquid: 'Liquide requis : {liquid} (l''icône explique l''état du liquide)'
+label.processing_time: Temps de traitement
+label.rotations: Meules
+label.stir_fry_count: Nombre de sautés
+label.cooking_time: Temps de cuisson
+label.brew_time: Temps d'infusion
+unit.tick: ' tiques'
+unit.round: ' tours'
+unit.times: ' fois'
+station.prefix: 'Cuisine Kaléidoscope·'
+processing.value: '{label} : {value}{unit}'
+processing.inherited: '{label} : hérite des valeurs par défaut de l''appliance (0 ne signifie pas instantané)'
+appliance.pot: Wok
+appliance.stockpot: Marmite
+appliance.steamer: Cuiseur vapeur
+appliance.shawarma: Shawarma Grill
+appliance.millstone: Meule
+appliance.chopping_board: Planche à découper
+appliance.teapot: Théière

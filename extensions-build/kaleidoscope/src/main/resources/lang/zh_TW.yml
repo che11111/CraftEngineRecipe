@@ -1,0 +1,46 @@
+# Generated zh_TW translation from zh_CN.yml.
+accurate.title: 森羅物語·精準加工
+accurate.weight_note: 候選成品以相對權重隨機選擇一個；權重不是百分比。
+flex.title: 森羅物語·動態烹飪
+flex.ratio_note: 原料數量表示理想配比；實際投料可改變成品份數及品質。
+flex.output_note: 展示基礎成品；品質名稱、Lore、食物屬性由實際烹飪決定。
+flex.no_container: 空手盛出，無需容器。
+flex.container: 手持盛裝容器右鍵鍋盛出。
+flex.liquid_item: 允許湯底之一：{liquid}
+flex.equivalent_foods: 允許等效食材替代，以森羅目前食材分組為準。
+flex.seasonings: 允許調味品；調味品不參與理想配比的品質計算。
+flex.quality_ratio: 投料越接近理想配比，品質越高。
+flex.extra_penalty: 多放雜料會拉低品質。
+flex.any_liquid: 不限湯底。
+flex.allowed_liquid: 允許湯底之一：{liquid}
+flex.heat_oil: 預設需要熱源與上油；其他外掛程式可動態修改烹飪條件。
+flex.result_note: 例：1 份，實際份數隨投料變化
+chopping.title: 森羅物語·砧板
+chopping.knife_note: 需要菜刀；可用工具以實際砧板配置和森羅標籤為準。
+chopping.stage: 切配刀數：{stage}
+chopping.single_extra: 主產物依相對權重選一個；副產物分別獨立判定。
+chopping.multi_random: 各產物獨立判定；全部未命中時按權重保底抽一個。所示百分比不是含保底的最終掉率。
+chopping.weighted: 以相對權重隨機選擇一個產物；權重不是百分比。
+note.byproduct_prefix: '副產物 · '
+note.independent: 獨立判定：{percent}%（配置值 {weight}）
+note.relative_weight: 相對權重：{weight}
+teapot.title: 森羅物語·茶壺
+teapot.liquid: 所需液體：{liquid}（圖示用於說明液體條件）
+label.processing_time: 加工時間
+label.rotations: 研磨圈數
+label.stir_fry_count: 翻炒次數
+label.cooking_time: 烹飪時間
+label.brew_time: 煮製時間
+unit.tick: ' tick'
+unit.round: ' 圈'
+unit.times: ' 次'
+station.prefix: 森羅物語·
+processing.value: '{label}：{value}{unit}'
+processing.inherited: '{label}：繼承廚具預設值（0 不表示立即完成）'
+appliance.pot: 炒鍋
+appliance.stockpot: 高湯鍋
+appliance.steamer: 蒸籠
+appliance.shawarma: 沙威瑪烤架
+appliance.millstone: 石磨
+appliance.chopping_board: 砧板
+appliance.teapot: 茶壺

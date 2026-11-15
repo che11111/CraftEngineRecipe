@@ -32,6 +32,23 @@ messages:
   button-permission-required: '<#E58B8B>按钮可见性设为 permission 时必须填写权限节点。</#E58B8B>'
   management-saved: '<#98C69A>管理修改已保存，菜单已立即刷新。</#98C69A>'
   management-save-failed: '<#E58B8B>没有找到目标条目，或配置保存失败。</#E58B8B>'
+  config-invalid: '<#E58B8B>配置值无效；数值超出允许范围或选项缺失，config.yml 未修改。</#E58B8B>'
+  config-save-started: '<#E4D397>config.yml 已保存，正在重建索引并应用新配置…</#E4D397>'
+  config-saved: '<#98C69A>config.yml 已保存并完成重载。</#98C69A>'
+  config-save-failed: '<#E58B8B>config.yml 已保存，但重载失败或请求被新重载替代；请检查控制台。</#E58B8B>'
+  menu-default-usage: '<#E4D397>用法：/cer menu default \<cer_menu_*></#E4D397>'
+  menu-default-set: '<#98C69A>默认主菜单样式已设置为 {menu}。</#98C69A>'
+  menu-unknown: '<#E58B8B>未知或不完整的菜单样式：{menu}</#E58B8B>'
+  menu-enable-usage: '<#E4D397>用法：/cer menu enable \<cer_menu_*|all></#E4D397>'
+  menu-enabled-updated: '<#98C69A>已更新启用的菜单样式。</#98C69A>'
+  menu-enable-failed: '<#E58B8B>无法启用该菜单样式。</#E58B8B>'
+  menu-disable-usage: '<#E4D397>用法：/cer menu disable \<cer_menu_*></#E4D397>'
+  menu-disabled: '<#98C69A>已停用菜单样式：{menu}</#98C69A>'
+  menu-disable-failed: '<#E58B8B>无法停用该样式；默认样式必须保持启用。</#E58B8B>'
+  menu-status-default: '<#B8C0CC>默认样式：{menu}</#B8C0CC>'
+  menu-status-enabled: '<#B8C0CC>已启用：{menus}</#B8C0CC>'
+  menu-status-available: '<#B8C0CC>全部可用：{menus}</#B8C0CC>'
+  menu-unavailable: '<#E58B8B>该菜单样式未启用或不可用：{menu}</#E58B8B>'
   management-applied: '<#98C69A>已将 {namespace} 应用到 categories.yml，可在列表中继续调整顺序。</#98C69A>'
   management-applied-entry: '<#98C69A>已将 {entry} 应用到 categories.yml，可继续调整顺序。</#98C69A>'
   management-unapplied: '<#98C69A>已将 {entry} 移动到 categories-unapplied.yml。</#98C69A>'
@@ -48,7 +65,7 @@ messages:
   integration-unknown-error: 未知错误，请查看控制台
   integration-config-detected: '<#D8B278>检测到待处理的适配配置：适配插件 {plugins} 项，分类预设 {presets} 项。</#D8B278>'
   integration-config-open: '<#79CFC9>[打开适配配置]</#79CFC9>'
-  integration-config-open-hover: '<#B8C0CC>打开统一的适配插件与分类预设配置页面</#B8C0CC>'
+  integration-config-open-hover: '<#B8C0CC>打开 /cer manage 管理页中的适配配置</#B8C0CC>'
   integration-config-empty: '<#8793A5>当前没有需要处理的适配插件或分类预设。</#8793A5>'
   integration-config-no-detected: '<#8793A5>当前没有检测到 CER 特别支持的插件或资源包。</#8793A5>'
   integration-config-saved: '<#98C69A>适配配置已保存。</#98C69A>'
@@ -59,7 +76,7 @@ messages:
   api-integration-ready: '<#98C69A>已接入 {recipes} 条配方，索引构建完成。</#98C69A>'
   api-integration-updated: '<#79CFC9>API 配方来源 {plugin}（{namespace}）已更新：{previous} → {current} 条配方，索引已刷新。</#79CFC9>'
   api-integration-unregistered: '<#E58B8B>API 配方来源 {plugin}（{namespace}）已注销，移除 {recipes} 条配方，索引已刷新。</#E58B8B>'
-  recipe-export-usage: '<#E4D397>用法：/cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
+  recipe-export-usage: '<#E4D397>用法：/cer export &lt;扩展来源ID|all&gt;</#E4D397>'
   recipe-export-started: '<#E4D397>正在读取来源插件并重新生成配方文件，请稍候。</#E4D397>'
   recipe-export-complete: '<#98C69A>配方导出完成：成功 {sources} 个来源，共 {files} 个文件、{recipes} 个配方。失败：{failures}</#98C69A>'
   recipe-export-failed: '<#E58B8B>没有成功导出任何配方来源：{failures}</#E58B8B>'
@@ -80,8 +97,26 @@ messages:
 command:
   description: 打开 CraftEngineRecipe 物品分类菜单
 ui:
+  default-categories:
+    vanilla-name: '<white>原版物品</white>'
+    vanilla-click: '<gray>点击查看所有原版物品</gray>'
+    vanilla-count: '<dark_gray>物品数: <count></dark_gray>'
+    divider-lore: '&#B8C0CC一个分隔玻璃板'
+    manage-name: '&#D8B278打开「管理页面」'
+    manage-lore-1: '&#B8C0CC在页面中会显示出当前服务器中CE的内容'
+    manage-lore-2: '&#B8C0CC管理员需要手动应用这些内容，并可以选择屏蔽，或者排序'
+    manage-lore-3: '&#B8C0CC通过/cer manage指令也可以进入'
+    manage-lore-4: '&#B8C0CC此按钮仅管理员可见'
+    manage-lore-5: '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
+    integrations-name: '&#D8B278打开「CER的适配插件页面」'
+    integrations-lore-1: '&#B8C0CC在页面中会显示当前服务器中有哪些CER特殊适配内容'
+    integrations-lore-2: '&#B8C0CC需要管理员手动开启，适配内容方可工作'
+    integrations-lore-3: '&#B8C0CC通过/cer integrations指令也可以进入'
+    integrations-lore-4: '&#B8C0CC此按钮仅管理员可见'
+    integrations-lore-5: '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
   browser:
     title: '<bold><#374151>物品分类</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
+    title-compact: '<bold><#374151>物品分类</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
   category-bar:
     icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
@@ -156,6 +191,16 @@ ui:
     main-page-label: <#79CFC9>默认主页面（未恢复上次位置时）</#79CFC9>
     main-page-namespaces: 按物品种类分类
     main-page-workstations: 按合成器分类
+    language-label: <#79CFC9>界面语言</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
     remember-label: <#79CFC9>关闭后恢复上次浏览位置</#79CFC9>
     on: 开启
     off: 关闭
@@ -180,6 +225,15 @@ ui:
     workstations-name: <#D8B278>workstations.yml</#D8B278>
     workstations-lore: <#B8C0CC>调整合成器与自定义按钮的显示顺序</#B8C0CC>
     workstations-summary: '<#8793A5>共 {count} 个合成器页条目</#8793A5>'
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>不支持的扩展</#D8B278>
+    integrations-lore: <#B8C0CC>配置插件与资源包的特别适配</#B8C0CC>
+    integrations-summary: '<#8793A5>检测到 {plugins} 个适配插件、{presets} 个资源包预设</#8793A5>'
+    integrations-left-click: '<#79CFC9>左键：查看当前可启用的适配项</#79CFC9>'
+    integrations-right-click: '<#E4D397>右键：查看当前服务器不支持的扩展</#E4D397>'
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>配置语言、数据来源、搜索、快捷键与流程行为</#B8C0CC>
+    config-summary: '<#8793A5>语言 {language}  ·  CER {version}</#8793A5>'
     workstations-shortcut: <#79CFC9>点击进入合成器配置</#79CFC9>
     hidden-name: <#D8B278>分类与物品</#D8B278>
     items-name: <#D8B278>隐藏分类物品</#D8B278>
@@ -221,6 +275,34 @@ ui:
     workstation-id: '<#8793A5>{id}</#8793A5>'
     workstation-use: <#79CFC9>左键：打开此合成器页面</#79CFC9>
     workstation-order: '<#E4D397>Shift+左键上移 / Shift+右键下移</#E4D397>'
+  config-editor:
+    general-title: '<bold><#D8B278>config.yml · 通用设置</#D8B278></bold>'
+    data-title: '<bold><#D8B278>config.yml · 数据与性能</#D8B278></bold>'
+    description: '<#B8C0CC>修改常用配置。保存后自动重建索引；详细注释仍可直接在 config.yml 中编辑。</#B8C0CC>'
+    save: <#98C69A>保存并重载</#98C69A>
+    save-tooltip: <#B8C0CC>写入 config.yml 并重建菜单与数据索引</#B8C0CC>
+    cancel: <#E58B8B>取消</#E58B8B>
+    cancel-tooltip: <#B8C0CC>放弃修改并返回管理页</#B8C0CC>
+    open-data: <#79CFC9>数据与性能</#79CFC9>
+    open-general: <#79CFC9>通用设置</#79CFC9>
+    open-page-tooltip: <#B8C0CC>切换到另一组配置，不保存当前 Dialog</#B8C0CC>
+    landing-page: <#79CFC9>默认主页</#79CFC9>
+    landing-namespaces: 按物品种类
+    landing-workstations: 按合成器
+    personalization: <#79CFC9>启用玩家个性化和浏览恢复</#79CFC9>
+    remember-page: <#79CFC9>保存并恢复上次浏览位置</#79CFC9>
+    hotkey: <#79CFC9>启用交换副手快捷键</#79CFC9>
+    hotkey-sneak: <#79CFC9>快捷键必须潜行</#79CFC9>
+    updates: <#79CFC9>检查 GitHub 正式版更新</#79CFC9>
+    source-craftengine: <#79CFC9>启用 CraftEngine 配方来源</#79CFC9>
+    source-minecraft: <#79CFC9>启用原版配方数据</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>启用原版栽培数据</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>启用 CraftEngine 栽培数据</#79CFC9>
+    auto-reload: <#79CFC9>自动监听 recipes/ 文件变化</#79CFC9>
+    poll-interval: <#79CFC9>文件检查间隔（10-200 tick）</#79CFC9>
+    rotate-interval: <#79CFC9>配方轮播间隔（5-200 tick）</#79CFC9>
+    search-max-length: <#79CFC9>搜索长度上限（1-64）</#79CFC9>
+    search-max-results: <#79CFC9>搜索结果上限（1-1000）</#79CFC9>
   unapplied-editor:
     title: '<bold><#D8B278>编辑分类命名空间</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
     description: '<#B8C0CC>修改 {file}；保存后菜单立即刷新，并在同目录保留上一版 .bak。</#B8C0CC>'
@@ -264,7 +346,22 @@ ui:
     title: <#D8B278>适配插件与分类预设</#D8B278>
     plugins-title: <#D8B278>适配配置 · 特殊支持的插件</#D8B278>
     resources-title: <#D8B278>适配配置 · 特别适配的资源包</#D8B278>
-    description: '<#B8C0CC>下方为CER检测到的特别支持的插件以及资源包列表，点击按钮以启用支持</#B8C0CC>'
+    description: '<#B8C0CC>内容区列出当前可启用的项目；已启用项目带附魔光效，左键或右键可切换状态</#B8C0CC>'
+    status: '<#B8C0CC>当前状态：{status}</#B8C0CC>'
+    left-click: '<#8793A5>左键：切换到下一状态</#8793A5>'
+    right-click: '<#8793A5>右键：切换到上一状态</#8793A5>'
+    page-count: '<#B8C0CC>另一页共有 {count} 项</#B8C0CC>'
+    previous-page: '<#D8B278>上一页</#D8B278>'
+    next-page: '<#D8B278>下一页</#D8B278>'
+    page-position: '<#B8C0CC>第 {current} / {pages} 页</#B8C0CC>'
+    preset-detected: '<#98C69A>资源包已检测到</#98C69A>'
+    preset-applied: '<#79CFC9>分类预设已应用</#79CFC9>'
+    preset-author-mismatch: '<#E58B8B>pack.yml 作者与预设声明不匹配</#E58B8B>'
+    unsupported-label: '<#E58B8B>{extension}</#E58B8B>'
+    unsupported-reason: '<#E58B8B>无法启用：{reason}</#E58B8B>'
+    unsupported-file: '<#8793A5>JAR：{file}</#8793A5>'
+    unsupported-version: '<#8793A5>扩展版本：{version}</#8793A5>'
+    unsupported-readonly: '<#B8C0CC>此条目仅用于诊断，当前服务器无法启用它</#B8C0CC>'
     source-label: '<#79CFC9>{plugin}</#79CFC9>'
     preset-label: '<#79CFC9>{namespace}</#79CFC9>'
     plugin-heading: '<#98C69A>检测到CER特殊支持的插件，点击按钮以启用：</#98C69A>'
@@ -285,6 +382,7 @@ ui:
   # 首行展示 8 种原版合成器；两个 cultivation 开关分别控制原版与 CE 栽培入口。
   workstations:
     title: '<bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
+    title-compact: '<bold><#374151>合成器</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
     categories:
       crafting: 原版·工作台
       smelting: 原版·熔炉
@@ -341,7 +439,7 @@ logs:
   plugin-fingerprint-mismatch: '检测到名为 {plugin} 的插件，但主类 {actual} 不匹配预期 {expected}；已忽略该配方来源。'
   integration-setup-waiting: '检测到待配置的 CER 适配插件：{plugins}。当前没有在线管理员，管理员上线后会显示可点击的启用询问。'
   category-preset-linked-applied: '已随已启用的适配插件自动应用分类预设：{namespaces}'
-  integration-config-waiting: '检测到待处理的适配插件 {plugins} 项、分类预设 {presets} 项；当前没有在线管理员，管理员上线后会显示 Dialog 入口。'
+  integration-config-waiting: '检测到待处理的适配插件 {plugins} 项、分类预设 {presets} 项；当前没有在线管理员，管理员上线后会显示管理页入口。'
   compatibility-fallback: '兼容性处理 {operation} 失败，继续使用原有回退；本次数据版本内相同位置仅记录一次，异常详情如下。'
   search-input-failed: '读取搜索输入失败，已返回菜单。'
   config-invalid-id: '配置中的 ID 格式无效：{path} = {value}；保留原有回退处理，请检查命名空间和路径。'
@@ -373,7 +471,8 @@ logs:
   usage-query-failed: 查询用途配方失败（{id}）：{error}
   layout-reserved: 'layout 字符冲突：按钮使用了保留字符 #，该按钮不会显示'
   layout-conflict: layout 字符冲突：按钮字符 {symbol} 已被分类槽或内容区占用，该按钮不会显示
-  language-unknown: 未知或无效语言 {locale}，回退到 zh_CN。
+  language-unknown: '不支持的语言 {locale}，将使用英语。'
+  language-detected: '服务端语言环境已识别为 {locale}。'
   language-save-failed: 释放语言文件失败，继续使用内置文案：{error}
   language-update-failed: '补齐语言文件 {file} 缺失文案失败，保留原文件：{error}'
   language-read-failed: 读取语言文件 {file} 失败，使用内置或回退文案：{error}

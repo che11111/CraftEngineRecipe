@@ -1,11 +1,11 @@
 #!/bin/sh
 # 将原版配方 JSON 转换为 CER 的 TrMenu 风格 YAML 格式。
-# 输出位置：src/main/resources/recipes/minecraft-<profile>/<workstation>.yml
+# 输出位置：extensions-build/minecraft/src/main/resources/recipes/minecraft-<profile>/
 set -eu
 
 project_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 library_dir=${VANILLA_LIB_DIR:-"$project_root/lib"}
-output_root="$project_root/src/main/resources/recipes"
+output_root="$project_root/extensions-build/minecraft/src/main/resources/recipes"
 staging_root=$(mktemp -d "${TMPDIR:-/tmp}/cer-vanilla-recipes.XXXXXX")
 trap 'rm -rf "$staging_root"' 0
 trap 'exit 1' HUP INT TERM
@@ -20,6 +20,8 @@ extract_version() {
     version_stage="$staging_root/$output_name"
     mkdir -p "$version_stage"
 
+    sh "$project_root/scripts/fetch-vanilla-client.sh" \
+        "${jar_name%.jar}" "$jar_path"
     if [ ! -f "$jar_path" ]; then
         printf 'Missing vanilla client JAR: %s\n' "$jar_path" >&2
         exit 1
@@ -38,13 +40,13 @@ jar_path, output_dir = sys.argv[1:3]
 output_dir = Path(output_dir)
 
 STATIONS = {
-    "crafting": ("minecraft:crafting", "minecraft:crafting_table", "原版·工作台", {"minecraft:crafting_shaped", "minecraft:crafting_shapeless", "minecraft:crafting_transmute", "minecraft:crafting_dye", "minecraft:crafting_special_bannerduplicate", "minecraft:crafting_special_shielddecoration", "minecraft:crafting_imbue", "minecraft:crafting_decorated_pot"}),
-    "smelting": ("minecraft:smelting", "minecraft:furnace", "原版·熔炉", {"minecraft:smelting"}),
-    "blasting": ("minecraft:blasting", "minecraft:blast_furnace", "原版·高炉", {"minecraft:blasting"}),
-    "smoking": ("minecraft:smoking", "minecraft:smoker", "原版·烟熏炉", {"minecraft:smoking"}),
-    "campfire_cooking": ("minecraft:campfire_cooking", "minecraft:campfire", "原版·营火", {"minecraft:campfire_cooking"}),
-    "stonecutting": ("minecraft:stonecutting", "minecraft:stonecutter", "原版·切石机", {"minecraft:stonecutting"}),
-    "smithing": ("minecraft:smithing", "minecraft:smithing_table", "原版·锻造台", {"minecraft:smithing_transform"}),
+    "crafting": ("minecraft:crafting", "minecraft:crafting_table", {"minecraft:crafting_shaped", "minecraft:crafting_shapeless", "minecraft:crafting_transmute", "minecraft:crafting_dye", "minecraft:crafting_special_bannerduplicate", "minecraft:crafting_special_shielddecoration", "minecraft:crafting_imbue", "minecraft:crafting_decorated_pot"}),
+    "smelting": ("minecraft:smelting", "minecraft:furnace", {"minecraft:smelting"}),
+    "blasting": ("minecraft:blasting", "minecraft:blast_furnace", {"minecraft:blasting"}),
+    "smoking": ("minecraft:smoking", "minecraft:smoker", {"minecraft:smoking"}),
+    "campfire_cooking": ("minecraft:campfire_cooking", "minecraft:campfire", {"minecraft:campfire_cooking"}),
+    "stonecutting": ("minecraft:stonecutting", "minecraft:stonecutter", {"minecraft:stonecutting"}),
+    "smithing": ("minecraft:smithing", "minecraft:smithing_table", {"minecraft:smithing_transform"}),
 }
 
 CRAFT_SLOTS = [10, 11, 12, 19, 20, 21, 28, 29, 30]
@@ -214,7 +216,7 @@ with zipfile.ZipFile(jar_path) as archive:
     for name in names:
         root = json.loads(archive.read(name))
         recipe_type = root.get("type", "")
-        station_key = next((key for key, value in STATIONS.items() if recipe_type in value[3]), None)
+        station_key = next((key for key, value in STATIONS.items() if recipe_type in value[2]), None)
         if station_key is None:
             continue
         parsed_result = parse_result(root)
@@ -229,14 +231,12 @@ with zipfile.ZipFile(jar_path) as archive:
     for station_key, recipes in grouped.items():
         if not recipes:
             continue
-        station_id, icon, title, _types = STATIONS[station_key]
+        station_id, icon, _types = STATIONS[station_key]
         document = {
-            "Title": title,
             "Layout": ["         " for _ in range(6)],
             "Options": {"Page": "campfire" if station_key == "campfire_cooking" else station_key},
             "Workstation": {
                 "id": station_id,
-                "name": title,
                 "icon": {"Material": icon},
             },
             "Recipes": recipes,
@@ -261,3 +261,8 @@ PY
 extract_version '26.1.2.jar' 'minecraft-26.1'
 extract_version '26.2.jar' 'minecraft-26.2'
 extract_version '26.3.jar' 'minecraft-26.3'
+extract_version '1.21.7.jar' 'minecraft-1.21.7'
+extract_version '1.21.8.jar' 'minecraft-1.21.8'
+extract_version '1.21.9.jar' 'minecraft-1.21.9'
+extract_version '1.21.10.jar' 'minecraft-1.21.10'
+extract_version '1.21.11.jar' 'minecraft-1.21.11'

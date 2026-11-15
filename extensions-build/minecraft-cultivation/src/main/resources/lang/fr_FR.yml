@@ -1,0 +1,29 @@
+# Generated fr_FR translation from en_US.yml.
+station: Vanille·Culture
+seed.lore: <#98C69A>Substrat de plantation :</#98C69A><white> voir l'icône substrat</white>
+note.special_substrate: Substrat ou liquide spécial
+note.craftengine_block: Selon la configuration du bloc CraftEngine
+note.placement: Planter selon les conditions de placement des blocs
+note.customcrops_farmland: Plantez en utilisant le substrat CustomCrops d'origine
+note.wheat: Blé mûr ; la récolte rapporte également des graines
+note.carrots: Carottes mûres
+note.potatoes: Pommes de terre mûres ; peut également renvoyer des pommes de terre vénéneuses
+note.beetroots: Betteraves mûres ; la récolte rapporte également des graines
+note.torchflower_crop: Torchflower mature; la récolte rapporte également des graines
+note.pitcher_crop: Plante de sarracénie mature ; la récolte donne également des gousses
+note.melon_stem: Le fruit apparaît à côté de la tige ; Silk Touch rend le bloc de melon
+note.pumpkin_stem: Le fruit apparaît à côté de la tige
+note.sugar_cane: Planter sur du sable ou de la terre à côté de l'eau
+note.cactus: Sable ou sable rouge
+note.sweet_berry_bush: Bloc d'herbe, saleté, podzol ou saleté grossière
+note.bamboo: Plantable sur des blocs d'herbe, de la terre ou du sable
+note.kelp: Sable sous-marin, terre, gravier et blocs de support similaires
+note.sea_pickle: Doit être planté sous l'eau
+note.vine: Se fixe sur le côté d'un bloc
+note.cave_vines: Plantez sous un bloc en utilisant des baies lumineuses
+note.twisting_vines: Planter sous un bloc
+note.weeping_vines: Planter sous un bloc
+note.cocoa: Planter sur le côté d'une bûche de jungle
+note.nether_wart: Planter sur le sable de l'âme
+note.chorus_flower: Plante sur pierre d'extrémité
+note.lily_pad: Placer à la surface de l'eau

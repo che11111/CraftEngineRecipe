@@ -1,0 +1,46 @@
+# Generated de_DE translation from en_US.yml.
+accurate.title: Kaleidoskop-Kochen·Präzise Verarbeitung
+accurate.weight_note: Eine Kandidatenausgabe wird nach relativer Gewichtung ausgewählt; Gewichte sind keine Prozentangaben.
+flex.title: Kaleidoskop-Kochen·Dynamisches Kochen
+flex.ratio_note: Die Zutatenmengen stellen das ideale Verhältnis dar; Tatsächliche Mengen können die Ausgabemenge und -qualität verändern.
+flex.output_note: Die Basisausgabe wird angezeigt; Qualitätsnamen, Überlieferungen und Lebensmitteleffekte werden durch das tatsächliche Kochen bestimmt.
+flex.no_container: Von Hand sammeln; kein Behälter erforderlich.
+flex.container: Halten Sie einen Behälter und klicken Sie mit der rechten Maustaste auf den Topf, um die Ausgabe einzusammeln.
+flex.liquid_item: 'Zulässiger Brühentyp: {liquid}'
+flex.equivalent_foods: Entsprechend den aktuellen Zutatengruppen von Kaleidoskop sind gleichwertige Zutaten zulässig.
+flex.seasonings: Gewürze sind erlaubt; Sie nehmen nicht an der Idealverhältnis-Qualitätsberechnung teil.
+flex.quality_ratio: Je näher man dem idealen Verhältnis kommt, desto höher ist die Qualität.
+flex.extra_penalty: Die Zugabe zu vieler nicht verwandter Zutaten verringert die Qualität.
+flex.any_liquid: Jede Brühe ist erlaubt.
+flex.allowed_liquid: 'Zulässige Flüssigkeit: {liquid}'
+flex.heat_oil: Normalerweise sind Hitze und Öl erforderlich; Andere Plugins können die Kochbedingungen ändern.
+flex.result_note: 'Beispiel: 1 Portion; Die tatsächliche Menge hängt von den Zutaten ab'
+chopping.title: Kaleidoskop-Kochen·Schneidebrett
+chopping.knife_note: Ein Messer ist erforderlich; Die verfügbaren Werkzeuge hängen von der Schneidebrettkonfiguration und den Kaleidoskop-Tags ab.
+chopping.stage: 'Anzahl der Schnitte: {stage}'
+chopping.single_extra: Ein Hauptausgang wird nach relativer Gewichtung ausgewählt; Nebenprodukte werden unabhängig voneinander gerollt.
+chopping.multi_random: Jede Ausgabe wird unabhängig gerollt. Wenn keiner gelingt, ist einer durch das Gewicht garantiert. Die angegebenen Prozentsätze schließen diese Garantie aus.
+chopping.weighted: Eine Ausgabe wird nach relativer Gewichtung ausgewählt; Gewichte sind keine Prozentangaben.
+note.byproduct_prefix: 'Nebenprodukt · '
+note.independent: 'Unabhängige Rolle: {percent}% (konfiguriert {weight})'
+note.relative_weight: 'Relatives Gewicht: {weight}'
+teapot.title: Kaleidoskop-Kochen·Teekanne
+teapot.liquid: 'Erforderliche Flüssigkeit: {liquid} (Symbol erklärt den Flüssigkeitszustand)'
+label.processing_time: Bearbeitungszeit
+label.rotations: Schleifen von Runden
+label.stir_fry_count: Anzahl der Pfannengerichte
+label.cooking_time: Kochzeit
+label.brew_time: Brühzeit
+unit.tick: ' Zecken'
+unit.round: ' Runden'
+unit.times: ' Zeiten'
+station.prefix: 'Kaleidoskop-Kochen·'
+processing.value: '{label}: {value}{unit}'
+processing.inherited: '{label}: übernimmt den Standardwert der Appliance (0 bedeutet nicht sofort)'
+appliance.pot: Wok
+appliance.stockpot: Suppentopf
+appliance.steamer: Dampfgarer
+appliance.shawarma: Shawarma-Grill
+appliance.millstone: Mühlstein
+appliance.chopping_board: Schneidebrett
+appliance.teapot: Teekanne

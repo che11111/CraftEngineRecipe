@@ -13,15 +13,10 @@ import dev.che1s.craftenginerecipe.preferences.PlayerPreferences;
 import dev.che1s.craftenginerecipe.recipe.access.RecipeAccessPolicy;
 import dev.che1s.craftenginerecipe.recipe.query.CraftableRecipeService;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
-import dev.che1s.craftenginerecipe.util.ButtonActions;
-import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
 import dev.che1s.craftenginerecipe.util.DisplayNames;
 import dev.che1s.craftenginerecipe.recipe.access.HeldRecipeScope;
 import dev.che1s.craftenginerecipe.util.ItemBridge;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.core.block.ImmutableBlockState;
@@ -38,8 +33,6 @@ import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Markers;
 import xyz.xenondevs.invui.gui.PagedGui;
-import xyz.xenondevs.invui.gui.SlotElement;
-import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.item.ItemWrapper;
@@ -75,6 +68,7 @@ public final class BrowserService {
     private final CraftEngineData data;
     private final RecipeIndex recipeIndex;
     private final RecipeGuiService recipeGui;
+    private final BrowserCategoryView categoryView;
     private final WorkstationBrowserService workstations;
     private final ManagementBrowserService management;
     private final BrowserActionItems actionItems;
@@ -105,6 +99,7 @@ public final class BrowserService {
         this.recipeIndex = recipeIndex;
         this.sessions = plugin.sessions();
         this.recipeGui = new RecipeGuiService(plugin, this.config, data, recipeIndex, this);
+        this.categoryView = new BrowserCategoryView(plugin, data, this);
         this.workstations = new WorkstationBrowserService(plugin, this,
                 this.configs.getOrDefault(MenuView.WORKSTATIONS, this.config), data, recipeIndex, this.recipeGui);
         this.management = new ManagementBrowserService(plugin, this);
@@ -116,8 +111,12 @@ public final class BrowserService {
                 new BrowserActionItems(plugin, this.config, this));
     }
 
-    private CerConfig ui(MenuView view) {
+    CerConfig ui(MenuView view) {
         return this.configs.getOrDefault(view, this.config);
+    }
+
+    CerConfig config() {
+        return this.config;
     }
 
     CerConfig managementUi() {
@@ -146,8 +145,12 @@ public final class BrowserService {
         return MenuView.NAMESPACES;
     }
 
-    private CerConfig currentUi(Player player) {
+    CerConfig currentUi(Player player) {
         return this.ui(this.currentView(player));
+    }
+
+    public CerConfig configFor(Player player) {
+        return this.currentUi(player);
     }
 
     public int viewerCount() { return this.viewers.size(); }
@@ -186,20 +189,21 @@ public final class BrowserService {
         GuiSession session = GuiSession.of(player);
         session.managerMode(false);
         session.leaveWorkstations();
-        for (BarEntry entry : this.barEntries(player)) {
-            if (entry instanceof VanillaItemsEntry && this.data.namespaces().canView(player, "minecraft")) {
+        for (BrowserCategoryView.BarEntry entry : this.categoryView.barEntries(player)) {
+            if (entry instanceof BrowserCategoryView.VanillaItemsEntry
+                    && this.data.namespaces().canView(player, "minecraft")) {
                 this.openVanillaItems(player);
                 return;
             }
-            if (entry instanceof CategoryEntry category
+            if (entry instanceof BrowserCategoryView.CategoryEntry category
                     && this.data.namespaces().canView(player, category.category().id().namespace())) {
                 break;
             }
         }
-        List<Category> tops = this.visibleCategories(player);
+        List<Category> tops = this.categoryView.visibleCategories(player);
         if (tops.isEmpty()) {
             if (this.data.categoriesById().isEmpty()) {
-                this.openItemList(player, null, this.plugin.lang().text("ui.common.all-items"), 0, null);
+                this.openItemList(player, null, this.plugin.lang(player).text("ui.common.all-items"), 0, null);
             } else {
                 this.openEmptyContent(player);
             }
@@ -281,7 +285,7 @@ public final class BrowserService {
         Gui gui = this.buildContentOnlyLayout(player, content, MenuView.CRAFTABLE, this.craftableBackItem(ui));
         this.openWindow(Window.builder().setViewer(player).setUpperGui(gui)
                 .setTitle(ui.titleWithName(ui.browserTitle(), ui.styledName(
-                        ui.categoryTitleNamePrefix(), this.plugin.lang().text("ui.craftable.name")))).build());
+                        ui.categoryTitleNamePrefix(), this.plugin.lang(player).text("ui.craftable.name")))).build());
     }
 
     public void openNamespaceManager(Player player) {
@@ -313,8 +317,8 @@ public final class BrowserService {
         boolean alreadyTracked = this.viewers.containsKey(player.getUniqueId());
         if (!this.claim(player)) {
             if (player.isOnline() && !this.data.isReady()) {
-                player.sendMessage(this.plugin.lang().message("messages.data-not-ready",
-                        "reason", this.data.notReadyReason()));
+                player.sendMessage(this.plugin.lang(player).message("messages.data-not-ready",
+                        "reason", this.plugin.lang(player).text("messages.not-ready-reason")));
                 Sounds.play(player, this.config.sounds().queryFailure());
             }
             return;
@@ -333,7 +337,7 @@ public final class BrowserService {
     private boolean openHeldRecipeClaimed(Player player) {
         ItemStack held = player.getInventory().getItemInMainHand();
         if (held.getType().isAir() || held.getAmount() <= 0) {
-            player.sendMessage(this.plugin.lang().message("messages.hand-empty"));
+            player.sendMessage(this.plugin.lang(player).message("messages.hand-empty"));
             return false;
         }
         Key id;
@@ -341,7 +345,7 @@ public final class BrowserService {
             id = this.inventoryItemKey(held);
         } catch (RuntimeException | LinkageError error) {
             this.plugin.getLogger().warning(this.plugin.lang().text("logs.hand-resolve-failed", "error", error.toString()));
-            player.sendMessage(this.plugin.lang().message("messages.hand-resolve-failed"));
+            player.sendMessage(this.plugin.lang(player).message("messages.hand-resolve-failed"));
             return false;
         }
         return this.openProducedRecipe(player, id, "messages.hand-item-unavailable", "messages.hand-no-recipe");
@@ -352,7 +356,7 @@ public final class BrowserService {
         try {
             Block target = TargetBlockQuery.trace(player);
             if (target == null) {
-                player.sendMessage(this.plugin.lang().message("messages.target-block-empty"));
+                player.sendMessage(this.plugin.lang(player).message("messages.target-block-empty"));
                 return false;
             }
             ImmutableBlockState customState = CraftEngineBlocks.getCustomBlockState(target);
@@ -360,14 +364,14 @@ public final class BrowserService {
             if (id == null) {
                 Material item = target.getBlockData().getPlacementMaterial();
                 if (item == null || item.isAir() || !item.isItem()) {
-                    player.sendMessage(this.plugin.lang().message("messages.target-block-empty"));
+                    player.sendMessage(this.plugin.lang(player).message("messages.target-block-empty"));
                     return false;
                 }
                 id = Key.of(item.getKey().toString());
             }
         } catch (RuntimeException | LinkageError error) {
             this.plugin.getLogger().warning(this.plugin.lang().text("logs.target-block-resolve-failed", "error", error.toString()));
-            player.sendMessage(this.plugin.lang().message("messages.target-block-resolve-failed"));
+            player.sendMessage(this.plugin.lang(player).message("messages.target-block-resolve-failed"));
             return false;
         }
         return this.openProducedRecipe(player, id, "messages.target-block-unavailable", "messages.target-block-no-recipe");
@@ -376,11 +380,11 @@ public final class BrowserService {
     private boolean openProducedRecipe(Player player, Key id, String unavailableMessage, String noRecipeMessage) {
         var visibility = this.visibility(player);
         if (!visibility.canQuery(id)) {
-            player.sendMessage(this.plugin.lang().message(unavailableMessage));
+            player.sendMessage(this.plugin.lang(player).message(unavailableMessage));
             return false;
         }
         if (!this.recipeGui.hasContent(id, false, visibility)) {
-            player.sendMessage(this.plugin.lang().message(noRecipeMessage, "id", id.toString()));
+            player.sendMessage(this.plugin.lang(player).message(noRecipeMessage, "id", id.toString()));
             return false;
         }
         GuiSession session = GuiSession.of(player);
@@ -394,7 +398,7 @@ public final class BrowserService {
         // 查询反馈音效会替代进入音效；正常窗口跟踪仍负责后续关闭处理。
         boolean opened = this.recipeGui.open(player, id, false, 0, visibility);
         if (!opened) {
-            player.sendMessage(this.plugin.lang().message(noRecipeMessage, "id", id.toString()));
+            player.sendMessage(this.plugin.lang(player).message(noRecipeMessage, "id", id.toString()));
         }
         return opened;
     }
@@ -555,7 +559,7 @@ public final class BrowserService {
             Gui gui = this.buildLayout(player, content, null, 0, 0, false, view);
             this.openWindow(Window.builder().setViewer(player)
                     .setTitle(ui.titleWithName(ui.browserTitle(), ui.styledName(
-                            ui.categoryTitleNamePrefix(), this.plugin.lang().text("ui.common.all-items"))))
+                            ui.categoryTitleNamePrefix(), this.plugin.lang(player).text("ui.common.all-items"))))
                     .setUpperGui(gui)
                     .build());
         }
@@ -571,11 +575,13 @@ public final class BrowserService {
             if (!this.claim(player)) return;
             Category category = this.data.category(categoryId).orElse(null);
             if (category == null || this.data.namespaces().isCategoryHidden(categoryId.toString())) {
-                player.sendMessage(this.plugin.lang().message("messages.category-not-found", "id", categoryId.toString()));
+                player.sendMessage(this.plugin.lang(player).message(
+                        "messages.category-not-found", "id", categoryId.toString()));
                 return;
             }
             if (!this.data.namespaces().canView(player, category.id().namespace())) {
-                player.sendMessage(this.accessDeniedComponent(player, category.id().namespace(), this.currentUi(player)));
+                player.sendMessage(this.categoryView.accessDeniedComponent(
+                        player, category.id().namespace(), this.currentUi(player)));
                 return;
             }
             List<ContentEntry> entries = this.collectEntries(category, player);
@@ -589,7 +595,7 @@ public final class BrowserService {
             Gui gui = this.buildLayout(player, contentItems, categoryId, categoryPage, contentPage, showBack, view);
             this.openWindow(Window.builder().setViewer(player)
                     .setTitle(ui.titleWithName(ui.browserTitle(),
-                            ui.styledName(ui.categoryTitleNamePrefix(), this.plainName(category, ui))))
+                            ui.styledName(ui.categoryTitleNamePrefix(), this.plainName(player, category, ui))))
                     .setUpperGui(gui)
                     .build());
         }
@@ -655,7 +661,7 @@ public final class BrowserService {
         }
     }
 
-    private void openVanillaItems(Player player) {
+    void openVanillaItems(Player player) {
         this.openVanillaItems(player, 0);
     }
 
@@ -663,14 +669,15 @@ public final class BrowserService {
         CategoryNamespaces.NamespaceEntry namespace = this.data.namespaces().findNamespace("minecraft");
         Set<Key> items = this.visibleVanillaItems(player, namespace);
         GuiSession.of(player).enter(null, 0, null, contentPage);
-        String configured = this.data.namespaces().iconNameOf("minecraft");
+        String configured = LocalizedConfigText.resolve(this.plugin.lang(player),
+                this.data.namespaces().iconNameOf("minecraft").resolve(this.plugin.lang(player)));
         String name = configured == null || configured.isBlank()
-                ? this.plugin.lang().text("ui.vanilla-items.name") : configured;
-        name = name.replace("<name>", this.plugin.lang().text("ui.vanilla-items.name"));
+                ? this.plugin.lang(player).text("ui.vanilla-items.name") : configured;
+        name = name.replace("<name>", this.plugin.lang(player).text("ui.vanilla-items.name"));
         this.openItemList(player, null, name, contentPage, null, items);
     }
 
-    private Set<Key> visibleVanillaItems(Player player, CategoryNamespaces.NamespaceEntry namespace) {
+    Set<Key> visibleVanillaItems(Player player, CategoryNamespaces.NamespaceEntry namespace) {
         BrowserVisibility visibility = this.visibility(player);
         return prepareVanillaItems(vanillaItemKeys(this.data.items().keySet()),
                 namespace != null && namespace.sortByNamespace(),
@@ -737,7 +744,7 @@ public final class BrowserService {
                 if (inventory) {
                     if (WindowManager.getInstance().getOpenWindow(player) != null) player.closeInventory();
                 } else {
-                    player.closeDialog();
+                    DialogCompatibility.closeDialog(player);
                 }
             }).whenComplete((ignored, error) -> {
                 this.viewers.remove(player.getUniqueId(), player);
@@ -760,7 +767,7 @@ public final class BrowserService {
                 if (inventory) {
                     if (WindowManager.getInstance().getOpenWindow(player) != null) player.closeInventory();
                 }
-                else player.closeDialog();
+                else DialogCompatibility.closeDialog(player);
             }
         }
         this.viewers.clear();
@@ -781,12 +788,15 @@ public final class BrowserService {
         PagedGui.Builder<Item> builder = this.contentBuilder(contentItems, structure,
                 showBack ? this.backItem(view) : null, view);
         builder.addIngredient(ui.categoryIconChar(), Item.EMPTY);
-        this.bind(builder, ui, ui.prevCategory(), this.categoryNavItem(false, perPage, activeCategory, view));
-        this.bind(builder, ui, ui.nextCategory(), this.categoryNavItem(true, perPage, activeCategory, view));
+        this.bind(builder, ui, ui.prevCategory(),
+                this.categoryView.categoryNavItem(false, perPage, activeCategory, view));
+        this.bind(builder, ui, ui.nextCategory(),
+                this.categoryView.categoryNavItem(true, perPage, activeCategory, view));
         int page = categoryPage;
         Key active = activeCategory;
         List<Integer> slots = catSlots;
-        builder.addModifier(gui -> this.fillCategoryBar(gui, player, active, page, slots, view));
+        builder.addModifier(gui ->
+                this.categoryView.fillCategoryBar(gui, player, active, page, slots, view));
         builder.addPageChangeHandler((previous, current) -> GuiSession.of(player).contentPage(current));
         PagedGui<Item> gui = builder.build();
         gui.setPage(Math.max(0, Math.min(contentPage, gui.getPageCount() - 1)));
@@ -891,7 +901,7 @@ public final class BrowserService {
     public Set<Key> visibleItemIds(Player player, BrowserVisibility visibility) {
         Set<Key> visible = new LinkedHashSet<>();
         if (this.data.categoriesById().isEmpty()) visible.addAll(this.data.items().keySet());
-        else visible.addAll(this.data.categoryGraph().visible(this.visibleCategories(player),
+        else visible.addAll(this.data.categoryGraph().visible(this.categoryView.visibleCategories(player),
                 category -> !this.data.namespaces().isCategoryHidden(category.id().toString())
                         && this.data.namespaces().canView(player, category.id().namespace()),
                 category -> this.data.namespaces().hiddenItems(category.id().toString())));
@@ -968,268 +978,33 @@ public final class BrowserService {
         return id;
     }
 
-    /**
-     * 全部待显示的顶层分类（含无权限时的占位分类），按 CraftEngine 自然顺序。
-     */
     List<Category> allTopCategories() {
-        List<Category> out = new ArrayList<>();
-        if (this.config.categoryFollowCe()) {
-            for (Category c : this.data.topCategories()) {
-                if (CraftEngineData.ALL_ITEMS_CATEGORY.equals(c.id())) continue;
-                if (this.data.namespaces().isCategoryHidden(c.id().toString())) continue;
-                out.add(c);
-            }
-        } else {
-            for (String id : this.config.categoryList()) {
-                Key key = Key.of(id);
-                if (CraftEngineData.ALL_ITEMS_CATEGORY.equals(key)) continue;
-                if (this.data.namespaces().isCategoryHidden(key.toString())) continue;
-                this.data.category(key).ifPresent(out::add);
-            }
-        }
-        return out;
-    }
-
-    /**
-     * 分类栏条目（分类 + 自定义按钮），按当前来源（categories.yml 或 categories-unapplied.yml）排列。
-     */
-    private List<BarEntry> barEntries(Player player) {
-        Map<String, List<Category>> byNamespace = new LinkedHashMap<>();
-        for (Category c : this.allTopCategories()) {
-            byNamespace.computeIfAbsent(c.id().namespace(), k -> new ArrayList<>()).add(c);
-        }
-        List<CategoryNamespaces.Entry> sourceEntries;
-        if (GuiSession.of(player).unapplied()) {
-            sourceEntries = new ArrayList<>(this.data.namespaces().unappliedEntries());
-        } else {
-            sourceEntries = this.data.namespaces().entries();
-        }
-        List<BarEntry> out = new ArrayList<>();
-        for (CategoryNamespaces.Entry entry : sourceEntries) {
-            if (entry instanceof CategoryNamespaces.NamespaceEntry ns) {
-                if (ns.hideInaccessible() && !this.data.namespaces().canView(player, ns.id())) continue;
-                // 未应用页面同时承担管理员编辑器入口，隐藏分类按钮的条目也必须可见。
-                if (!ns.categoryEntry() && !GuiSession.of(player).unapplied()) continue;
-                List<Category> cats = byNamespace.get(ns.id());
-                if ("minecraft".equals(ns.id()) && (cats == null || cats.isEmpty())) {
-                    out.add(new VanillaItemsEntry(ns));
-                } else if (cats != null) {
-                    for (Category c : cats) {
-                        out.add(new CategoryEntry(c));
-                    }
-                }
-            } else if (entry instanceof CategoryNamespaces.ButtonEntry button) {
-                if (button.hideInaccessible() && !this.data.namespaces().canViewButton(player, button)) continue;
-                out.add(new ButtonEntry(button));
-            }
-        }
-        return out;
-    }
-
-    /**
-     * 当前玩家有权查看的顶层分类（不含自定义按钮）。
-     */
-    private List<Category> visibleCategories(Player player) {
-        List<Category> out = new ArrayList<>();
-        for (BarEntry entry : this.barEntries(player)) {
-            if (entry instanceof CategoryEntry ce) {
-                if (this.data.namespaces().canView(player, ce.category().id().namespace())) {
-                    out.add(ce.category());
-                }
-            }
-        }
-        return out;
-    }
-
-    private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage, List<Integer> slots,
-                                 MenuView view) {
-        this.fillCategoryBar(gui, player, activeCategory, categoryPage, slots, this.barEntries(player), view);
-    }
-
-    private void fillCategoryBar(Gui gui, Player player, Key activeCategory, int categoryPage,
-                                 List<Integer> slots, List<BarEntry> entries, MenuView view) {
-        // 只渲染当前翻页窗口内的条目；无权限的分类显示占位图标而不是跳过。
-        CerConfig ui = this.ui(view);
-        int perPage = Math.max(1, slots.size());
-        int maxOffset = Math.max(0, entries.size() - perPage);
-        int offset = Math.max(0, Math.min(categoryPage, maxOffset));
-        GuiSession.of(player).categoryPage(offset);
-        for (int i = 0; i < slots.size(); i++) {
-            int slot = slots.get(i);
-            int idx = offset + i;
-            if (idx >= entries.size()) {
-                gui.setSlotElement(slot, null);
-                continue;
-            }
-            BarEntry entry = entries.get(idx);
-            if (entry instanceof CategoryEntry ce) {
-                Category cat = ce.category();
-                gui.setSlotElement(slot, new SlotElement.Item(this.categoryIcon(player, cat,
-                        cat.id().equals(activeCategory), ui)));
-            } else if (entry instanceof ButtonEntry be) {
-                if (!this.data.namespaces().canViewButton(player, be.button())) {
-                    gui.setSlotElement(slot, null);
-                    continue;
-                }
-                gui.setSlotElement(slot, new SlotElement.Item(this.buttonEntryItem(player, be.button())));
-            } else if (entry instanceof VanillaItemsEntry vanilla) {
-                if (this.data.namespaces().canView(player, "minecraft")) {
-                    gui.setSlotElement(slot, new SlotElement.Item(this.vanillaItemsIcon(player, vanilla.namespace(), ui)));
-                } else {
-                    gui.setSlotElement(slot, new SlotElement.Item(Item.simple(ItemBridge.button(
-                            Material.BARRIER, this.accessDeniedComponent(player, "minecraft", ui), List.of()))));
-                }
-            }
-        }
-    }
-
-    private Item vanillaItemsIcon(Player player, CategoryNamespaces.NamespaceEntry namespace, CerConfig ui) {
-        /**
-         * minecraft 命名空间没有 CE 分类时的回退入口：列出全部原版物品，
-         * 悬浮提示可携带 <name> 与物品数量占位符。
-         */
-        String raw = namespace.iconName();
-        String fallback = this.plugin.lang().text("ui.vanilla-items.name");
-        Component name = ui.mm((raw == null || raw.isBlank() ? fallback : raw).replace("<name>", fallback));
-        int count = this.visibleVanillaItems(player, namespace).size();
-        List<Component> lore = namespace.iconLore().stream()
-                .map(line -> ui.mm(line, "count", String.valueOf(count))).toList();
-        ItemStack stack = ItemBridge.button(Material.GRASS_BLOCK,
-                directoryName(name, ui, ui.categoryBarNamePrefix()), directoryLore(lore));
-        return Item.builder().setItemProvider(stack).addClickHandler(click -> this.handleClick(click.player(), () -> {
-            Sounds.play(click.player(), ui.sounds().click());
-            this.openVanillaItems(click.player());
-        })).build();
-    }
-
-    private Item categoryIcon(Player player, Category category, boolean active, CerConfig ui) {
-        if (!this.data.namespaces().canView(player, category.id().namespace())) {
-            return this.categoryPlaceholder(player, category, ui);
-        }
-        ItemStack icon;
-        try {
-            icon = ItemBridge.build(category.icon(), player);
-        } catch (RuntimeException | LinkageError t) {
-            CompatibilityWarnings.warn("Browser.categoryIcon", t);
-            icon = new ItemStack(ui.empty().material());
-        }
-        Component name = this.categoryName(category, ui);
-        List<Component> lore = new ArrayList<>();
-        int count = this.countMembers(category, player);
-        for (String line : this.iconLoreFor(category, ui)) {
-            lore.add(ui.mm(line, "count", String.valueOf(count)));
-        }
-        if (GuiSession.of(player).unapplied() && player.hasPermission("craftenginerecipe.admin")) {
-            lore.add(this.plugin.lang().component("ui.unapplied-editor.edit-lore"));
-        }
-        ItemStack decorated = new ItemBuilder(icon)
-                .setName(directoryName(name, ui, ui.categoryBarNamePrefix()))
-                .setLore(directoryLore(lore))
-                .setGlint(active ? Boolean.TRUE : null)
-                .build();
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
-            Player p = click.player();
-            boolean edit = GuiSession.of(p).unapplied()
-                    && (click.clickType() == ClickType.RIGHT || click.clickType() == ClickType.SHIFT_RIGHT);
-            if (edit && this.plugin.unappliedCategoryDialog() != null
-                    && this.plugin.unappliedCategoryDialog().open(p, category.id().namespace())) {
-                Sounds.play(p, this.config.sounds().click());
-                return;
-            }
-            Sounds.play(p, ui.sounds().click());
-            this.openCategory(p, category.id(), GuiSession.of(p).categoryPage());
-        })).build();
-    }
-
-    private Item subCategoryIcon(Player player, Category sub) {
-        CerConfig ui = this.currentUi(player);
-        ItemStack icon = ItemBridge.build(sub.icon(), player);
-        Component name = this.categoryName(sub, ui);
-        List<Component> lore = new ArrayList<>();
-        int count = this.countMembers(sub, player);
-        for (String line : this.subIconLoreFor(sub, ui)) {
-            lore.add(ui.mm(line, "count", String.valueOf(count)));
-        }
-        ItemStack decorated = ItemBridge.decorate(icon,
-                directoryName(name, ui, ui.categoryBarNamePrefix()), directoryLore(lore));
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () -> {
-            Player p = click.player();
-            Sounds.play(p, ui.sounds().click());
-            this.openCategory(p, sub.id(), GuiSession.of(p).categoryPage());
-        })).build();
+        return this.categoryView.allTopCategories();
     }
 
     Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button) {
         return this.buttonEntryItem(player, button, this.config.categoryBarNamePrefix());
     }
 
-    Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button, String namePrefix) {
-        // display.material 支持 source:CraftEngine: 前缀，用于引用 CE 自定义物品。
-        String material = button.display().material();
-        ItemStack icon;
-        if (material == null || material.isBlank()) {
-            icon = new ItemStack(Material.STONE);
-        } else {
-            String itemId = material.startsWith("source:CraftEngine:") ? material.substring("source:CraftEngine:".length()) : material;
-            icon = ItemBridge.build(Key.of(itemId), player, 1);
-        }
-        Component name = CerConfig.noItalic(LegacyComponentSerializer.legacyAmpersand().deserialize(button.display().name()));
-        List<Component> lore = new ArrayList<>();
-        for (String line : button.display().lore()) {
-            lore.add(CerConfig.noItalic(LegacyComponentSerializer.legacyAmpersand().deserialize(line)));
-        }
-        ItemStack decorated = ItemBridge.decorate(icon,
-                directoryName(name, this.config, namePrefix), directoryLore(lore));
-        return Item.builder().setItemProvider(decorated).addClickHandler(click -> this.handleClick(click.player(), () ->
-                ButtonActions.run(click.player(), button, click.clickType()))).build();
+    Item buttonEntryItem(Player player, CategoryNamespaces.ButtonEntry button, String prefix) {
+        return this.categoryView.buttonEntryItem(player, button, prefix);
     }
 
     /** 目录区名称统一应用配置的颜色前缀，避免不同来源自带颜色造成跳色。 */
     static Component directoryName(Component source, CerConfig config, String prefix) {
-        return config.styledName(prefix, source);
+        return BrowserCategoryView.directoryName(source, config, prefix);
     }
 
     /** 目录区 Lore 统一为正文灰，同时保留原有可见文本和行顺序。 */
     static List<Component> directoryLore(List<Component> source) {
-        return source.stream()
-                .map(line -> PlainTextComponentSerializer.plainText().serialize(line))
-                .filter(line -> !line.isBlank())
-                .map(line -> CerConfig.noItalic(Component.text(line, TextColor.color(0xB8C0CC))))
-                .toList();
-    }
-
-    private Component categoryName(Category category, CerConfig ui) {
-        String template = this.data.namespaces().iconNameOf(category.id().namespace());
-        if (template == null || template.isBlank()) {
-            return ui.mm(this.plainName(category, ui));
-        }
-        String name = DisplayNames.of(category, this.data.resourcePackTranslations());
-        if (name == null || name.isBlank()) {
-            name = category.id().value();
-        }
-        return ui.mm(DisplayNames.expandL10n(template).replace("<name>", name));
-    }
-
-    private Item categoryPlaceholder(Player player, Category category, CerConfig ui) {
-        // 无权限查看时显示屏障占位，保持分类栏不因权限变化而跳动。
-        ItemStack stack = ItemBridge.button(Material.BARRIER,
-                this.accessDeniedComponent(player, category.id().namespace(), ui), List.of());
-        return Item.simple(stack);
-    }
-
-    private Component accessDeniedComponent(Player player, String namespace, CerConfig ui) {
-        if (this.data.namespaces().visibilityOf(namespace) == CategoryNamespaces.Visibility.PERMISSION) {
-            String permission = this.data.namespaces().permissionOf(namespace);
-            return ui.mm(ui.noPermissionHint(), "permission", permission == null ? "" : permission);
-        }
-        return ui.mm(ui.adminOnlyHint());
+        return BrowserCategoryView.directoryLore(source);
     }
 
     private Item itemEntry(Player player, Key id, Category owner) {
         CerConfig ui = this.currentUi(player);
         ItemStack icon = ItemBridge.build(id, player);
         List<Component> lore = new ArrayList<>();
-        for (String line : this.itemLoreFor(owner, ui)) {
+        for (String line : this.itemLoreFor(player, owner, ui)) {
             lore.add(ui.mm(line));
         }
         ItemStack decorated = ItemBridge.appendLore(icon, lore);
@@ -1241,56 +1016,37 @@ public final class BrowserService {
         })).build();
     }
 
-    private List<String> itemLoreFor(Category owner, CerConfig ui) {
+    private List<String> itemLoreFor(Player player, Category owner, CerConfig ui) {
         if (owner != null) {
-            List<String> custom = this.data.namespaces().itemLoreOf(owner.id().namespace());
-            if (custom != null && !custom.isEmpty()) {
-                return custom;
+            var custom = this.data.namespaces().itemLoreOf(owner.id().namespace());
+            if (!custom.isBlank()) {
+                return LocalizedConfigText.resolve(
+                        this.plugin.lang(player), custom.resolveLines(this.plugin.lang(player)));
             }
         }
         return ui.itemLore();
     }
 
-    private List<String> iconLoreFor(Category category, CerConfig ui) {
-        List<String> custom = this.data.namespaces().iconLoreOf(category.id().namespace());
-        if (custom != null && !custom.isEmpty()) {
-            return custom;
+    List<String> iconLoreFor(Player player, Category category, CerConfig ui) {
+        var custom = this.data.namespaces().iconLoreOf(category.id().namespace());
+        if (!custom.isBlank()) {
+            return LocalizedConfigText.resolve(
+                    this.plugin.lang(player), custom.resolveLines(this.plugin.lang(player)));
         }
         return ui.categoryIconLore();
     }
 
-    private List<String> subIconLoreFor(Category category, CerConfig ui) {
-        List<String> custom = this.data.namespaces().subIconLoreOf(category.id().namespace());
-        if (custom != null && !custom.isEmpty()) {
-            return custom;
+    List<String> subIconLoreFor(Player player, Category category, CerConfig ui) {
+        var custom = this.data.namespaces().subIconLoreOf(category.id().namespace());
+        if (!custom.isBlank()) {
+            return LocalizedConfigText.resolve(
+                    this.plugin.lang(player), custom.resolveLines(this.plugin.lang(player)));
         }
         return ui.subIconLore();
     }
 
     private List<Component> buttonLore(CerConfig ui, CerConfig.ButtonDef def) {
         return def.lore().stream().map(ui::mm).toList();
-    }
-
-    private Item categoryNavItem(boolean next, int perPage, Key activeCategory, MenuView view) {
-        CerConfig ui = this.ui(view);
-        CerConfig.ButtonDef def = next ? ui.nextCategory() : ui.prevCategory();
-        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), ui.mm(def.name()), this.buttonLore(ui, def));
-        return BoundItem.pagedBuilder().setItemProvider(stack).addClickHandler((item, gui, click) -> this.handleClick(click.player(), () -> {
-            Player p = click.player();
-            GuiSession session = GuiSession.of(p);
-            int curOffset = session.categoryPage();
-            List<BarEntry> entries = this.barEntries(p);
-            int maxOffset = Math.max(0, entries.size() - perPage);
-            int target = next ? curOffset + 1 : curOffset - 1;
-            List<Integer> slots = slotsOf(this.normalizeLayout(ui), ui.categoryIconChar());
-            if (slots.isEmpty() || target < 0 || target > maxOffset) {
-                Sounds.play(p, ui.sounds().queryFailure());
-                return;
-            }
-            session.categoryPage(target);
-            this.fillCategoryBar(gui, p, activeCategory, target, slots, entries, view);
-            Sounds.play(p, ui.sounds().changeCategory());
-        })).build();
     }
 
     /** 配方窗口返回打开它的合成器列表或 CraftEngine 分类。 */
@@ -1329,11 +1085,11 @@ public final class BrowserService {
     }
 
     private boolean isVanillaHome(Player player) {
-        for (BarEntry entry : this.barEntries(player)) {
-            if (entry instanceof VanillaItemsEntry) {
+        for (BrowserCategoryView.BarEntry entry : this.categoryView.barEntries(player)) {
+            if (entry instanceof BrowserCategoryView.VanillaItemsEntry) {
                 return this.data.namespaces().canView(player, "minecraft");
             }
-            if (entry instanceof CategoryEntry category
+            if (entry instanceof BrowserCategoryView.CategoryEntry category
                     && this.data.namespaces().canView(player, category.category().id().namespace())) {
                 return false;
             }
@@ -1404,7 +1160,7 @@ public final class BrowserService {
     }
 
     private boolean isTopLevel(Key categoryId) {
-        for (Category c : this.allTopCategories()) {
+        for (Category c : this.categoryView.allTopCategories()) {
             if (c.id().equals(categoryId)) {
                 return true;
             }
@@ -1416,7 +1172,7 @@ public final class BrowserService {
         return this.data.parentOf(categoryId);
     }
 
-    private int countMembers(Category category, Player player) {
+    int countMembers(Category category, Player player) {
         BrowserVisibility visibility = this.visibility(player);
         return (int) this.data.categoryGraph().members(category.id()).stream()
                 .filter(member -> member.category()
@@ -1424,24 +1180,12 @@ public final class BrowserService {
                 .count();
     }
 
-    private String plainName(Category category, CerConfig ui) {
-        String n = DisplayNames.of(category, this.data.resourcePackTranslations());
+    String plainName(Player player, Category category, CerConfig ui) {
+        String n = DisplayNames.of(category, this.data.resourcePackTranslations(player));
         if (n != null && !n.isBlank()) {
             return n;
         }
         return ui.categoryIconName().replace("<name>", category.id().value());
-    }
-
-    private sealed interface BarEntry permits CategoryEntry, ButtonEntry, VanillaItemsEntry {
-    }
-
-    private record CategoryEntry(Category category) implements BarEntry {
-    }
-
-    private record ButtonEntry(CategoryNamespaces.ButtonEntry button) implements BarEntry {
-    }
-
-    private record VanillaItemsEntry(CategoryNamespaces.NamespaceEntry namespace) implements BarEntry {
     }
 
     private sealed interface ContentEntry permits ItemKeyEntry, SubCategoryEntry, MissingCategoryEntry {
@@ -1459,8 +1203,11 @@ public final class BrowserService {
         @Override
         public Item toItem(BrowserService service, Player player, Category owner) {
             return service.data.namespaces().canView(player, this.category.id().namespace())
-                    ? service.subCategoryIcon(player, this.category)
-                    : service.categoryPlaceholder(player, this.category, service.currentUi(player));
+                    ? service.categoryView.subCategoryIcon(player, this.category)
+                    : Item.simple(ItemBridge.button(Material.BARRIER,
+                    service.categoryView.accessDeniedComponent(
+                            player, this.category.id().namespace(), service.currentUi(player)),
+                    List.of()));
         }
     }
 

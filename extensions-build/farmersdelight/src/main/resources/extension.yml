@@ -1,0 +1,54 @@
+schema: 1
+id: farmersdelight
+names:
+  en_US: Farmer's Delight
+  zh_CN: 农夫乐事
+  zh_TW: 農夫樂事
+  ja_JP: Farmer's Delight
+  ko_KR: Farmer's Delight
+  de_DE: Farmer's Delight
+  fr_FR: Farmer's Delight
+  es_ES: Farmer's Delight
+  ru_RU: Farmer's Delight
+descriptions:
+  en_US: Imports Farmer's Delight cooking, cutting board, skillet and addon recipes.
+  zh_CN: 导入农夫乐事的烹饪、砧板、煎锅和附属配方。
+  zh_TW: 匯入農夫樂事的烹飪、砧板、煎鍋與附屬配方。
+  ja_JP: Farmer's Delight の調理鍋、まな板、スキレット、アドオンレシピをインポートします。
+  ko_KR: Farmer's Delight의 조리, 도마, 프라이팬 및 애드온 레시피를 가져옵니다.
+  de_DE: Importiert Kochtopf-, Schneidebrett-, Pfannen- und Addon-Rezepte von Farmer's Delight.
+  fr_FR: Importe les recettes de marmite, planche à découper, poêle et modules complémentaires de Farmer's Delight.
+  es_ES: Importa recetas de olla, tabla de cortar, sartén y complementos de Farmer's Delight.
+  ru_RU: Импортирует рецепты котла, разделочной доски, сковороды и дополнений Farmer's Delight.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: farmersdelight
+resource-packs:
+  - cer_fd_gui
+dependencies:
+  plugins:
+    - name: FarmersDelight
+      main-classes:
+        - com.huidu.farmersdelight.FarmersDelightPlugin
+      version: ">=1.0.3"
+      primary: true
+integration-defaults:
+  mode: ask
+  cultivation: true
+  export-missing: true
+  reexport-on-reload: true
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - farmersdelight:cooking_pot
+    - minecraft:cauldron

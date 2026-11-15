@@ -6,7 +6,7 @@
 
     <groupId>dev.che1s</groupId>
     <artifactId>craftenginerecipe</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0-alpha.1</version>
     <packaging>jar</packaging>
     <name>CraftEngineRecipe</name>
     <description>基于 CraftEngine 物品的高级配方浏览器（常驻分类栏 + 搜索）</description>
@@ -22,6 +22,7 @@
         <paper.version>26.2.build.132-stable</paper.version>
         <craftengine.version>26.8.1</craftengine.version>
         <invui.version>2.3.2</invui.version>
+        <invui.artifact>invui</invui.artifact>
         <pinyin4j.version>2.5.1</pinyin4j.version>
         <sqlite.version>3.49.1.0</sqlite.version>
         <vanilla.recipe.directory>minecraft-${mc.label}</vanilla.recipe.directory>
@@ -69,7 +70,7 @@
 
         <dependency>
             <groupId>xyz.xenondevs.invui</groupId>
-            <artifactId>invui</artifactId>
+            <artifactId>${invui.artifact}</artifactId>
             <version>${invui.version}</version>
             <exclusions>
                 <exclusion>
@@ -105,6 +106,16 @@
 
     <profiles>
         <profile>
+            <id>mc-1.21.7-1.21.11</id>
+            <properties>
+                <java.version>21</java.version>
+                <mc.label>1.21.7-1.21.11</mc.label>
+                <mc.api.version>1.21.7</mc.api.version>
+                <paper.version>1.21.7-R0.1-20250716.201120-28</paper.version>
+                <invui.version>2.0.0</invui.version>
+            </properties>
+        </profile>
+        <profile>
             <id>mc-26.1</id>
             <properties>
                 <mc.label>26.1</mc.label>
@@ -135,14 +146,6 @@
 
     <build>
         <finalName>CraftEngineRecipe-${project.version}-mc${mc.label}</finalName>
-        <!-- Maintained regression tests; src/test remains ignored for local experiments. -->
-        <testSourceDirectory>tests/java</testSourceDirectory>
-        <testResources>
-            <testResource>
-                <directory>tests/resources</directory>
-            </testResource>
-        </testResources>
-
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -156,25 +159,7 @@
                 <filtering>false</filtering>
                 <excludes>
                     <exclude>plugin.yml</exclude>
-                    <exclude>recipes/minecraft-*/**</exclude>
-                    <exclude>recipes/cultivation/minecraft-*/**</exclude>
-                    <exclude>vanilla-lang/minecraft-*/**</exclude>
                 </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources/recipes/${vanilla.recipe.directory}</directory>
-                <targetPath>recipes/${vanilla.recipe.directory}</targetPath>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources/recipes/cultivation/${vanilla.recipe.directory}</directory>
-                <targetPath>recipes/cultivation/${vanilla.recipe.directory}</targetPath>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources/vanilla-lang/${vanilla.recipe.directory}</directory>
-                <targetPath>vanilla-lang/${vanilla.recipe.directory}</targetPath>
-                <filtering>false</filtering>
             </resource>
         </resources>
 

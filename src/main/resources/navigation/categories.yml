@@ -2,7 +2,8 @@
 # 命名空间：id + visibility(admin/player/permission) + permission
 # Namespace: id + visibility(admin/player/permission) + permission
 # 可选：icon-name / item-lore / icon-lore / sub-icon-lore
-# Optional: icon-name / item-lore / icon-lore / sub-icon-lore
+# 文案字段可直接写字符串，也可写 zh_CN / en_US 分支，或使用 lang:<key> 引用语言文件
+# Text fields accept a string, per-locale zh_CN / en_US branches, or lang:<key> references
 # 自定义按钮：display + actions，可与命名空间条目混排；按钮不使用 id 字段
 # Custom buttons: display + actions; mix freely with namespace entries. Buttons do not use id.
 # 未配置的命名空间写入 categories-unapplied.yml；管理员用 /cer manage 在游戏内检查、编辑和应用
@@ -16,10 +17,16 @@ entries:
   permission: ''
   sort-by-namespace: true
   hide-items-without-recipes: true
-  icon-name: '<white>原版物品</white>'
+  icon-name:
+    zh_CN: '<white>原版物品</white>'
+    en_US: '<white>Vanilla Items</white>'
   icon-lore:
-    - '<gray>点击查看所有原版物品</gray>'
-    - '<dark_gray>物品数: <count></dark_gray>'
+    zh_CN:
+      - '<gray>点击查看所有原版物品</gray>'
+      - '<dark_gray>物品数: <count></dark_gray>'
+    en_US:
+      - '<gray>Click to view all vanilla items</gray>'
+      - '<dark_gray>Items: <count></dark_gray>'
 - id: default
   visibility: player
   permission: ''
@@ -32,19 +39,32 @@ entries:
     material: minecraft:gray_stained_glass_pane
     name: ''
     lore:
-    - '&#B8C0CC一个分隔玻璃板'
+      zh_CN:
+        - '&#B8C0CC一个分隔玻璃板'
+      en_US:
+        - '&#B8C0CCA separator pane'
   actions:
     all: []
 - display:
     material: minecraft:compass
-    name: '&#D8B278打开「管理页面」'
+    name:
+      zh_CN: '&#D8B278打开「管理页面」'
+      en_US: '&#D8B278Open Management'
     lore:
-      - '&#B8C0CC在页面中会显示出当前服务器中CE的内容'
-      - '&#B8C0CC管理员需要手动应用这些内容，并可以选择屏蔽，或者排序'
-      - ''
-      - '&#B8C0CC通过/cer manage指令也可以进入'
-      - '&#B8C0CC此按钮仅管理员可见'
-      - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
+      zh_CN:
+        - '&#B8C0CC在页面中会显示出当前服务器中CE的内容'
+        - '&#B8C0CC管理员需要手动应用这些内容，并可以选择屏蔽，或者排序'
+        - ''
+        - '&#B8C0CC通过/cer manage指令也可以进入'
+        - '&#B8C0CC此按钮仅管理员可见'
+        - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
+      en_US:
+        - '&#B8C0CCThis page shows the CraftEngine content available on this server'
+        - '&#B8C0CCAdministrators can apply content, hide it, or change its order'
+        - ''
+        - '&#B8C0CCYou can also open it with /cer manage'
+        - '&#B8C0CCThis button is visible to administrators only'
+        - '&#B8C0CCFeel free to hide or remove this button'
   visibility: admin
   permission: ''
   hide-inaccessible: true
@@ -56,14 +76,24 @@ entries:
       - 'command: cer manage'
 - display:
     material: minecraft:compass
-    name: '&#D8B278打开「CER的适配插件页面」'
+    name:
+      zh_CN: '&#D8B278打开「CER的适配插件页面」'
+      en_US: '&#B8C278Open CER Integrations'
     lore:
-      - '&#B8C0CC在页面中会显示当前服务器中有哪些CER特殊适配内容'
-      - '&#B8C0CC需要管理员手动开启，适配内容方可工作'
-      - ''
-      - '&#B8C0CC通过/cer integrations指令也可以进入'
-      - '&#B8C0CC此按钮仅管理员可见'
-      - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
+      zh_CN:
+        - '&#B8C0CC在页面中会显示当前服务器中有哪些CER特殊适配内容'
+        - '&#B8C0CC需要管理员手动开启，适配内容方可工作'
+        - ''
+        - '&#B8C0CC通过/cer integrations指令也可以进入'
+        - '&#B8C0CC此按钮仅管理员可见'
+        - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
+      en_US:
+        - '&#B8C0CCThis page shows the special CraftEngine integrations detected on the server'
+        - '&#B8C0CCAn administrator must enable an integration before it becomes active'
+        - ''
+        - '&#B8C0CCYou can also open it with /cer integrations'
+        - '&#B8C0CCThis button is visible to administrators only'
+        - '&#B8C0CCFeel free to hide or remove this button'
   visibility: admin
   permission: ''
   hide-inaccessible: true
@@ -77,6 +107,9 @@ entries:
     material: minecraft:gray_stained_glass_pane
     name: ''
     lore:
-    - '&#B8C0CC一个分隔玻璃板'
+      zh_CN:
+        - '&#B8C0CC一个分隔玻璃板'
+      en_US:
+        - '&#B8C0CCA separator pane'
   actions:
     all: []

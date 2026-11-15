@@ -1,5 +1,8 @@
 package dev.che1s.craftenginerecipe.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import net.momirealms.craftengine.core.item.ItemDefinition;
 import net.momirealms.craftengine.core.item.processor.CustomNameProcessor;
 import net.momirealms.craftengine.core.item.processor.ItemNameProcessor;
@@ -10,15 +13,22 @@ import net.momirealms.craftengine.core.util.AdventureHelper;
 import net.momirealms.craftengine.libraries.adventure.text.Component;
 import net.momirealms.craftengine.libraries.adventure.text.TextComponent;
 import net.momirealms.craftengine.libraries.adventure.text.TranslatableComponent;
+import org.bukkit.entity.Player;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 public final class DisplayNames {
 
     private static final Pattern TAG = Pattern.compile("<[^>]*>");
     private static final Pattern LOCALIZED = Pattern.compile("<(?:l10n|lang):([^>]+)>");
+    private static final Pattern PLUGIN_LOCALIZED =
+            Pattern.compile("<cer-lang:([^>:]+):([^>:]+)(?::([^>]+))?>");
 
     private DisplayNames() {
     }
@@ -31,6 +41,11 @@ public final class DisplayNames {
         if (definition == null) {
             return null;
         }
+        String key = translationKeyOf(definition);
+        String translated = key == null ? null : translations.get(key);
+        if (notBlank(translated)) {
+            return translated;
+        }
         String custom = findProcessor(definition, true, translations);
         if (notBlank(custom)) {
             return custom;
@@ -39,7 +54,6 @@ public final class DisplayNames {
         if (notBlank(itemName)) {
             return itemName;
         }
-        String key = translationKeyOf(definition);
         return key == null ? null : translations.get(key);
     }
 
@@ -131,16 +145,29 @@ public final class DisplayNames {
     }
 
     public static String resolveText(String raw, Map<String, String> translations) {
+        return resolveText(raw, translations, null);
+    }
+
+    public static String resolveText(String raw, Map<String, String> translations, Player player) {
         if (raw == null) return null;
+        raw = expandPluginTranslations(raw, player);
         String translated = translatePlainKey(raw.trim(), translations);
-        return translated == null ? raw : translated;
+        if (translated != null) return translated;
+        return looksLikeTranslationKey(raw) ? humanizeTranslationKey(raw) : raw;
     }
 
     public static String expandTranslations(String raw, Map<String, String> translations) {
+        return expandTranslations(raw, translations, null);
+    }
+
+    public static String expandTranslations(String raw, Map<String, String> translations, Player player) {
         if (raw == null) return null;
+        raw = expandPluginTranslations(raw, player);
         String plain = translatePlainKey(raw.trim(), translations);
         if (plain != null) return plain;
-        if (raw.indexOf("<l10n:") < 0 && raw.indexOf("<lang:") < 0) return raw;
+        if (raw.indexOf("<l10n:") < 0 && raw.indexOf("<lang:") < 0) {
+            return looksLikeTranslationKey(raw) ? humanizeTranslationKey(raw) : raw;
+        }
         Matcher m = LOCALIZED.matcher(raw);
         StringBuilder sb = new StringBuilder(raw.length());
         int last = 0;
@@ -148,7 +175,7 @@ public final class DisplayNames {
             sb.append(raw, last, m.start());
             String key = m.group(1);
             String text = translation(key, translations);
-            sb.append(text == null ? key : text);
+            sb.append(text == null ? humanizeTranslationKey(key) : text);
             last = m.end();
         }
         sb.append(raw.substring(last));
@@ -156,9 +183,101 @@ public final class DisplayNames {
     }
 
     private static String translatePlainKey(String raw, Map<String, String> translations) {
-        if (raw == null || raw.isEmpty() || raw.indexOf(' ') >= 0 || raw.indexOf('<') >= 0) return null;
-        if (!raw.matches("[A-Za-z0-9_.-]+")) return null;
+        if (!looksLikeTranslationKey(raw)) return null;
         return translation(raw, translations);
+    }
+
+    public static boolean looksLikeTranslationKey(String raw) {
+        return raw != null && !raw.isEmpty() && raw.indexOf(' ') < 0 && raw.indexOf('<') < 0
+                && raw.matches("[A-Za-z0-9_.-]+") && raw.indexOf('.') >= 0;
+    }
+
+    private static String expandPluginTranslations(String raw, Player player) {
+        return expandPluginTranslations(raw, player, 0);
+    }
+
+    private static String expandPluginTranslations(String raw, Player player, int depth) {
+        if (raw == null || raw.indexOf("<cer-lang:") < 0) return raw;
+        if (depth > 8) return raw;
+        CraftEngineRecipePlugin plugin = CraftEngineRecipePlugin.get();
+        if (plugin == null || plugin.lang() == null) return raw;
+        Matcher matcher = PLUGIN_LOCALIZED.matcher(raw);
+        StringBuilder result = new StringBuilder(raw.length());
+        int last = 0;
+        while (matcher.find()) {
+            result.append(raw, last, matcher.start());
+            String source = matcher.group(1);
+            String key = matcher.group(2);
+            Object[] arguments = deferredArguments(matcher.group(3));
+            String value;
+            try {
+                value = player == null ? plugin.lang().integrationText(source, key, arguments)
+                        : plugin.lang(player).integrationText(source, key, arguments);
+            } catch (RuntimeException | LinkageError error) {
+                CompatibilityWarnings.warn("DisplayNames.pluginLocalizedText", error);
+                value = null;
+            }
+            result.append(value == null || value.isBlank() || value.equals(key)
+                    ? humanizeTranslationKey(key) : value);
+            last = matcher.end();
+        }
+        result.append(raw.substring(last));
+        String expanded = result.toString();
+        return expanded.indexOf("<cer-lang:") < 0
+                ? expanded : expandPluginTranslations(expanded, player, depth + 1);
+    }
+
+    private static Object[] deferredArguments(String payload) {
+        if (payload == null || payload.isBlank()) return new Object[0];
+        try {
+            JsonObject values = JsonParser.parseString(new String(
+                    Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8)).getAsJsonObject();
+            List<Object> arguments = new ArrayList<>(values.size() * 2);
+            values.entrySet().forEach(entry -> {
+                arguments.add(entry.getKey());
+                arguments.add(entry.getValue().getAsString());
+            });
+            return arguments.toArray();
+        } catch (RuntimeException ignored) {
+            return new Object[0];
+        }
+    }
+
+    public static String humanizeTranslationKey(String key) {
+        if (key == null || key.isBlank()) return "";
+        String[] parts = key.split("\\.");
+        String value = parts.length == 0 ? key : parts[parts.length - 1];
+        if (value.equalsIgnoreCase("category_title") && parts.length > 1) {
+            value = parts[parts.length - 2];
+        }
+        return humanize(value);
+    }
+
+    public static String humanizeItemId(String id) {
+        if (id == null || id.isBlank()) return "";
+        String value = id;
+        int namespace = value.indexOf(':');
+        if (namespace >= 0 && namespace + 1 < value.length()) value = value.substring(namespace + 1);
+        int slash = value.lastIndexOf('/');
+        if (slash >= 0 && slash + 1 < value.length()) value = value.substring(slash + 1);
+        return humanize(value);
+    }
+
+    private static String humanize(String value) {
+        String normalized = value.replace('_', ' ').replace('-', ' ').trim();
+        StringBuilder result = new StringBuilder(normalized.length());
+        boolean upper = true;
+        for (int index = 0; index < normalized.length(); index++) {
+            char character = normalized.charAt(index);
+            if (Character.isWhitespace(character)) {
+                result.append(character);
+                upper = true;
+            } else {
+                result.append(upper ? Character.toUpperCase(character) : character);
+                upper = false;
+            }
+        }
+        return result.toString();
     }
 
     private static String translation(String key, Map<String, String> translations) {
@@ -194,7 +313,7 @@ public final class DisplayNames {
                 } catch (RuntimeException | LinkageError error) {
                     CompatibilityWarnings.warn("DisplayNames.translatableComponent", error);
                 }
-                sb.append(notBlank(rendered) ? rendered : translatable.key());
+                sb.append(notBlank(rendered) ? rendered : humanizeTranslationKey(translatable.key()));
             }
         }
         for (Component child : component.children()) {

@@ -62,34 +62,34 @@ name-prefixes:
   # CER 页面目录区按钮名称，默认白色。
   # Names in the CER category directory, white by default.
   category-bar: '<white>'
-  # 选择物品种类后，标题中的分类名称，默认黑色加粗。
-  # Category name inside the page title after selecting a category, bold black by default.
-  category-title: '<black><bold>'
+  # 选择物品种类后，标题中的分类名称颜色；标题字重由语言文件控制。
+  # Color for category names in page titles; title weight is controlled by language files.
+  category-title: '<black>'
   # 合成器页面目录区按钮名称，默认白色。
   # Names in the workstation directory, white by default.
   workstation-bar: '<white>'
-  # 选择合成器后，标题中的合成器名称，默认黑色加粗。
-  # Workstation name inside the page title after selecting it, bold black by default.
-  workstation-title: '<black><bold>'
-  # 各合成器配方详情页的标题名称，默认黑色加粗。
-  # Recipe-detail page titles for every workstation, bold black by default.
-  recipe-title: '<black><bold>'
+  # 选择合成器后，标题中的合成器名称颜色；字重由扩展 presentation.styles 控制。
+  # Color for workstation titles; weight is controlled by extension presentation.styles.
+  workstation-title: '<black>'
+  # 各合成器配方详情页的标题名称颜色；字重由扩展 presentation.styles 控制。
+  # Color for recipe-detail titles; weight is controlled by extension presentation.styles.
+  recipe-title: '<black>'
 
 # CraftEngineRecipe - Recipe browser for CraftEngine
 # 启动或 /cer reload 时自动补齐缺失配置与默认值，保留已有配置值。
 # Startup or /cer reload adds missing settings and defaults while preserving existing values.
 
-# 全服使用的语言；内置 zh_CN（简体中文）与 en_US（英语）。
-# Server-wide language; bundled options: zh_CN (Simplified Chinese), en_US (English).
-language: zh_CN
+# 支持 en_US、zh_CN、zh_TW、ja_JP、ko_KR、de_DE、fr_FR、es_ES、ru_RU；未知语言回退英文。
+# Players may override their own language from Personalization.
+# The default locale follows the server Locale; unsupported languages fall back to en_US.
 
 # ---------- 主菜单材质包 / Main menu pack ----------
 menu-packs:
   # 玩家执行 /cer 和快捷键时使用的默认样式。
   # Default style used by /cer and the hotkey.
   default: cer_menu_cute
-  # 同时安装到 CraftEngine 的样式；默认启用可爱版、粗版、原版材质版和地图版。
-  # Menu packs installed into CraftEngine together; cute, rough, vanilla and map are enabled by default.
+  # 同时安装到 CraftEngine 的样式；默认启用可爱版、粗版、原版材质版、地图版和木板版。
+  # Menu packs installed into CraftEngine together; cute, rough, vanilla, map and wood are enabled by default.
   # 可填写一个或多个 cer_menu_*；管理员也可用 /cer menu enable all 启用全部。
   # List one or more cer_menu_* packs, or use /cer menu enable all as an administrator.
   enabled:
@@ -97,6 +97,7 @@ menu-packs:
     - cer_menu_rough
     - cer_menu_vanilla
     - cer_menu_map
+    - cer_menu_wood
   # 切换后自动执行的 CraftEngine 重载命令；留空则只重载 CER 配置。
   # CraftEngine command dispatched after changing enabled packs; empty reloads only CER.
   reload-command: ce reload all
@@ -113,6 +114,7 @@ personalization:
     - cer_menu_rough
     - cer_menu_vanilla
     - cer_menu_map
+    - cer_menu_wood
   # 玩家尚未保存选择时使用的样式。
   # Menu style used until the player saves a choice.
   default-menu-pack: cer_menu_cute
@@ -164,8 +166,15 @@ search:
   # 与顶部 language（插件界面语言）无关；生成资源包后执行 /cer reload 刷新搜索索引。
   # Independent of the UI language above; run /cer reload after generating the pack to refresh search indexes.
   languages:
-    - zh_cn
     - en_us
+    - zh_cn
+    - zh_tw
+    - ja_jp
+    - ko_kr
+    - de_de
+    - fr_fr
+    - es_es
+    - ru_ru
 
 # ---------- 快捷键 / Hotkey ----------
 hotkey:

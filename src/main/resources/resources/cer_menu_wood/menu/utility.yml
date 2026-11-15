@@ -1,0 +1,104 @@
+id: cer_menu_wood
+display-name: '<#9A6A38>CER 木板风格界面'
+pages:
+  - management
+  - unapplied
+  - craftable
+
+browser:
+  title-offset: -18
+  title-shift: -153
+  title: "<#FFFFFF><shift:<offset>><image:cer_wood:main><shift:<shift>><title>"
+  workstations-title: "<#FFFFFF><shift:<offset>><image:cer_wood:main><shift:<shift>><title>"
+  search-title: "<#FFFFFF><shift:<offset>><image:cer_wood:main><shift:<shift>><title>"
+  disabled-item-model: minecraft:air
+  reserved:
+    material: minecraft:black_stained_glass_pane
+    item-model: minecraft:air
+  layout:
+    - '<#BBBBBB#'
+    - 'A#BBBBBB#'
+    - 'A#BBBBBB#'
+    - 'A#BBBBBB#'
+    - 'A#BBBBBB#'
+    - '>LER##SHT'
+
+behavior:
+  workstations-toggle: true
+  disable-back-button: false
+
+category-bar:
+  source: ce
+  list: []
+  icon-char: A
+  icon-name: '<gray><name>'
+  icon-lore: []
+  sub-icon-lore: []
+  prev-category:
+    char: '<'
+    item-model: minecraft:air
+    material: minecraft:spectral_arrow
+    name: '<gray>上一目录'
+  next-category:
+    char: '>'
+    item-model: minecraft:air
+    material: minecraft:spectral_arrow
+    name: '<gray>下一目录'
+  admin-only-hint: '<red>仅管理员可查看'
+  no-permission-hint: '<red>无权限查看'
+
+content:
+  area-char: B
+  prev-page:
+    char: L
+    item-model: minecraft:air
+    material: minecraft:arrow
+    name: '<gray>上一页'
+  next-page:
+    char: R
+    item-model: minecraft:air
+    material: minecraft:arrow
+    name: '<gray>下一页'
+  back:
+    char: E
+    item-model: minecraft:air
+    material: minecraft:barrier
+    name: '<gray>上一级'
+  search:
+    char: S
+    item-model: minecraft:air
+    material: minecraft:compass
+    name: '<gray>搜索'
+  hand:
+    char: H
+    item-model: minecraft:air
+    material: minecraft:spyglass
+    name: '<gray>查询'
+  info:
+    char: ''
+    item-model: ''
+    material: minecraft:book
+  workstations:
+    char: T
+    item-model: minecraft:air
+    material: minecraft:crafting_table
+    name: '<gray>切换工作台'
+  glasses:
+    char: ''
+    item-model: ''
+    material: minecraft:spyglass
+  empty:
+    material: minecraft:barrier
+    item-model: minecraft:air
+  item-lore: []
+
+sounds:
+  change-category: 'UI_BUTTON_CLICK-1-2'
+  change-page: minecraft:item.book.page_turn
+  click: minecraft:ui.button.click
+  back: minecraft:item.book.page_turn
+  search: minecraft:ui.toast.in
+  query-success: 'UI_BUTTON_CLICK-1-2'
+  query-failure: 'BLOCK_NOTE_BLOCK_BASS-1-1'
+  open-menu: 'BLOCK_IRON_DOOR_OPEN-1-2'
+  close-menu: 'BLOCK_IRON_DOOR_CLOSE-1-2'

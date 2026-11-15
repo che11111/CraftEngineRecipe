@@ -2,6 +2,7 @@ package dev.che1s.craftenginerecipe.command;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.gui.GuiSession;
+import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -45,12 +46,12 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("craftenginerecipe.admin")) {
-                sender.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                sender.sendMessage(this.lang(sender).message("messages.no-permission"));
                 return true;
             }
-            sender.sendMessage(this.plugin.lang().message("messages.reload-start"));
+            sender.sendMessage(this.lang(sender).message("messages.reload-start"));
             this.plugin.reloadSelf(ok -> {
-                Runnable reply = () -> sender.sendMessage(this.plugin.lang().message(
+                Runnable reply = () -> sender.sendMessage(this.lang(sender).message(
                         ok ? "messages.reload-success" : "messages.reload-failed"));
                 if (sender instanceof Player player) this.plugin.tasks().player(player, reply);
                 else reply.run();
@@ -59,72 +60,75 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("menu")) {
             if (!sender.hasPermission("craftenginerecipe.admin")) {
-                sender.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                sender.sendMessage(this.lang(sender).message("messages.no-permission"));
                 return true;
             }
             if (args.length >= 2 && (args[1].equalsIgnoreCase("use") || args[1].equalsIgnoreCase("default"))) {
                 if (args.length < 3) {
-                    sender.sendMessage("用法: /cer menu default <cer_menu_*>");
+                    sender.sendMessage(this.lang(sender).message("messages.menu-default-usage"));
                     return true;
                 }
                 if (this.plugin.menuPacks().setDefault(args[2])) {
-                    sender.sendMessage("已设置默认主菜单样式: " + args[2]);
+                    sender.sendMessage(this.lang(sender).message(
+                            "messages.menu-default-set", "menu", args[2]));
                 } else {
-                    sender.sendMessage("未知或不完整的菜单样式: " + args[2]);
+                    sender.sendMessage(this.lang(sender).message(
+                            "messages.menu-unknown", "menu", args[2]));
                 }
                 return true;
             }
             if (args.length >= 2 && args[1].equalsIgnoreCase("enable")) {
                 if (args.length < 3) {
-                    sender.sendMessage("用法: /cer menu enable <cer_menu_*|all>");
+                    sender.sendMessage(this.lang(sender).message("messages.menu-enable-usage"));
                     return true;
                 }
                 boolean changed = args[2].equalsIgnoreCase("all")
                         ? this.plugin.menuPacks().enableAll()
                         : this.plugin.menuPacks().enable(args[2]);
-                sender.sendMessage(changed ? "已更新启用的菜单样式。" : "无法启用该菜单样式。");
+                sender.sendMessage(this.lang(sender).message(changed
+                        ? "messages.menu-enabled-updated" : "messages.menu-enable-failed"));
                 return true;
             }
             if (args.length >= 2 && args[1].equalsIgnoreCase("disable")) {
                 if (args.length < 3) {
-                    sender.sendMessage("用法: /cer menu disable <cer_menu_*>");
+                    sender.sendMessage(this.lang(sender).message("messages.menu-disable-usage"));
                     return true;
                 }
                 sender.sendMessage(this.plugin.menuPacks().disable(args[2])
-                        ? "已停用菜单样式: " + args[2]
-                        : "无法停用该样式；默认样式必须保持启用。");
+                        ? this.lang(sender).message("messages.menu-disabled", "menu", args[2])
+                        : this.lang(sender).message("messages.menu-disable-failed"));
                 return true;
             }
-            sender.sendMessage("默认样式: " + this.plugin.menuPacks().defaultPack());
-            sender.sendMessage("已启用: " + String.join(", ", this.plugin.menuPacks().enabled()));
-            sender.sendMessage("全部可用: " + String.join(", ", this.plugin.menuPacks().available()));
+            sender.sendMessage(this.lang(sender).message(
+                    "messages.menu-status-default", "menu", this.plugin.menuPacks().defaultPack()));
+            sender.sendMessage(this.lang(sender).message(
+                    "messages.menu-status-enabled", "menus", String.join(", ", this.plugin.menuPacks().enabled())));
+            sender.sendMessage(this.lang(sender).message(
+                    "messages.menu-status-available", "menus", String.join(", ", this.plugin.menuPacks().available())));
             return true;
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("export")) {
             if (!sender.hasPermission("craftenginerecipe.admin")) {
-                sender.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                sender.sendMessage(this.lang(sender).message("messages.no-permission"));
                 return true;
             }
             if (args.length < 2) {
-                sender.sendMessage(this.plugin.lang().message("messages.recipe-export-usage"));
+                sender.sendMessage(this.lang(sender).message("messages.recipe-export-usage"));
                 return true;
             }
             List<String> requested;
             if (args[1].equalsIgnoreCase("all")) {
-                requested = List.of("craftengine", "farmersdelight", "kaleidoscope", "customcrops");
-            } else if (args[1].equalsIgnoreCase("craftengine")
-                    || args[1].equalsIgnoreCase("farmersdelight")
-                    || args[1].equalsIgnoreCase("kaleidoscope")
-                    || args[1].equalsIgnoreCase("customcrops")) {
+                requested = this.plugin.extensions().ids();
+            } else if (this.plugin.extensions().ids().contains(args[1].toLowerCase(Locale.ROOT))) {
                 requested = List.of(args[1].toLowerCase(Locale.ROOT));
             } else {
-                sender.sendMessage(this.plugin.lang().message("messages.recipe-export-usage"));
+                sender.sendMessage(this.lang(sender).message("messages.recipe-export-usage"));
                 return true;
             }
-            sender.sendMessage(this.plugin.lang().message("messages.recipe-export-started"));
+            sender.sendMessage(this.lang(sender).message("messages.recipe-export-started"));
             this.plugin.externalRecipes().reexport(requested, report -> {
                 String failures = report.failures().isEmpty() ? "-" : report.failures().toString();
-                sender.sendMessage(this.plugin.lang().message(
+                sender.sendMessage(this.lang(sender).message(
                         report.sources() == 0 ? "messages.recipe-export-failed" : "messages.recipe-export-complete",
                         "sources", String.valueOf(report.sources()),
                         "files", String.valueOf(report.files()),
@@ -135,31 +139,32 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("integrations")) {
             if (!sender.hasPermission("craftenginerecipe.admin")) {
-                sender.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                sender.sendMessage(this.lang(sender).message("messages.no-permission"));
                 return true;
             }
             if (sender instanceof Player player) {
-                this.plugin.integrationConfigDialog().open(player);
+                this.plugin.browser(player).openNamespaceManager(player);
             } else {
                 this.plugin.integrationPrompts().openPrompt();
             }
             return true;
         }
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.plugin.lang().message("messages.player-only"));
+            sender.sendMessage(this.lang(sender).message("messages.player-only"));
             return true;
         }
         Player player = (Player) sender;
         if (args.length >= 2 && args[0].equalsIgnoreCase("open")) {
             if (!this.plugin.data().isReady()) {
-                player.sendMessage(this.plugin.lang().message("messages.data-not-ready",
-                        "reason", this.plugin.data().notReadyReason()));
+                player.sendMessage(this.lang(sender).message("messages.data-not-ready",
+                        "reason", this.lang(sender).text("messages.not-ready-reason")));
                 return true;
             }
             String id = normalizeMenuPack(args[1]);
-            var selected = this.plugin.browser(id);
+            var selected = this.plugin.browser(id, this.plugin.lang(player).locale());
             if (!this.plugin.menuPacks().enabled().contains(id) || selected == null) {
-                player.sendMessage("该菜单样式未启用或不可用: " + args[1]);
+                player.sendMessage(this.lang(sender).message(
+                        "messages.menu-unavailable", "menu", args[1]));
                 return true;
             }
             for (var browser : this.plugin.browsers().values()) {
@@ -181,12 +186,13 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (!this.plugin.data().isReady()) {
-            player.sendMessage(this.plugin.lang().message("messages.data-not-ready", "reason", this.plugin.data().notReadyReason()));
+            player.sendMessage(this.lang(sender).message("messages.data-not-ready",
+                    "reason", this.lang(sender).text("messages.not-ready-reason")));
             return true;
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("manage")) {
             if (!player.hasPermission("craftenginerecipe.admin")) {
-                player.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                player.sendMessage(this.lang(sender).message("messages.no-permission"));
                 return true;
             }
             this.plugin.browser(player).openNamespaceManager(player);
@@ -202,14 +208,14 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("unapplied")) {
             if (!player.hasPermission("craftenginerecipe.admin")) {
-                player.sendMessage(this.plugin.lang().message("messages.no-permission"));
+                player.sendMessage(this.lang(sender).message("messages.no-permission"));
                 return true;
             }
             this.plugin.browser(player).openUnapplied(player);
             return true;
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("search")) {
-            this.plugin.searchDialog().open(player);
+            this.plugin.dialogs().search().open(player);
             return true;
         }
         this.plugin.browser(player).openApplied(player);
@@ -271,7 +277,8 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("craftenginerecipe.admin") && args.length >= 2
                 && args[0].equalsIgnoreCase("export")) {
             String prefix = args[args.length - 1].toLowerCase(Locale.ROOT);
-            return List.of("craftengine", "farmersdelight", "kaleidoscope", "customcrops", "all").stream()
+            return java.util.stream.Stream.concat(this.plugin.extensions().ids().stream(),
+                            java.util.stream.Stream.of("all"))
                     .filter(option -> option.startsWith(prefix)).toList();
         }
         if (args.length >= 2 && args[0].equalsIgnoreCase("open")) {
@@ -291,5 +298,10 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
     private static String normalizeMenuPack(String requested) {
         String id = requested == null ? "" : requested.trim().toLowerCase(Locale.ROOT);
         return id.startsWith("cer_menu_") ? id : "cer_menu_" + id;
+    }
+
+    private LanguageManager.Localized lang(CommandSender sender) {
+        if (sender instanceof Player player) return this.plugin.lang(player);
+        return this.plugin.lang().view(this.plugin.lang().locale());
     }
 }

@@ -1,0 +1,90 @@
+# Generated de_DE translation from en_US.yml.
+separator: ', '
+title.station: CustomCrops·{pot}
+title.recipe: CustomCrops·{suffix}
+title.suffix.default: Topf
+title.suffix.aquatic_crops: Hydroponischer Topf
+title.suffix.nether: Nethertopf
+title.suffix.end: Endtopf
+pot.default: Topf
+pot.aquatic_crops: Hydroponischer Topf
+pot.nether: Nethertopf
+pot.end: Endtopf
+season.spring: Frühling
+season.summer: Sommer
+season.autumn: Herbst
+season.winter: Winter
+environment.normal: Überwelt
+environment.world: Überwelt
+environment.the_nether: Nether
+environment.nether: Nether
+environment.the_end: Ende
+environment.end: Ende
+fertilizer.quality: Qualität
+fertilizer.speed_grow: Wachstumsgeschwindigkeit
+fertilizer.yield_increase: Ertragssteigerung
+fertilizer.variation: Variation
+fertilizer.soil_retain: Bodenretention
+vanilla.minecraft.water_bucket: Wassereimer
+vanilla.minecraft.lava_bucket: Lava-Eimer
+vanilla.minecraft.dragon_breath: Drachenatem
+vanilla.minecraft.glass_bottle: Glasflasche
+vanilla.minecraft.bucket: Eimer
+vanilla.minecraft.potion: Trank
+vanilla.minecraft.stick: Stock
+vanilla.minecraft.dark_oak_log: Dunkler Eichenstamm
+note.mature: Ausgereiftes Produkt
+note.quality: ' · Qualität: {qualities}'
+note.byproduct: ' · Nebenprodukt'
+note.amount_exact: ' · Betrag {amount}'
+note.amount_range: ' · Betrag {min}-{max}'
+lore.plant_block: '<#B8C0CC>Pflanzblock: </#B8C0CC><white>{pot}</white>'
+lore.season: '<#98C69A>Passende Jahreszeiten: </#98C69A><white>{seasons}</white>'
+lore.season_none: '<#98C69A>Saisonbeschränkung: </#98C69A><white>Kein saisonaler Bedarf</white>'
+lore.environment: '<#98C69A>Geeignete Umgebung: </#98C69A><white>{environments}</white>'
+lore.greenhouse: '<#D8B278>Ungeeignete Jahreszeit: </#D8B278><white>Platzieren Sie {item} über der Ernte, um saisonale Effekte zu vermeiden.</white>'
+lore.mature_stage: '<#B8C0CC>Reifestadium: </#B8C0CC><white>{points} Punkte</white>'
+lore.water_storage: '<#B8C0CC>Wasserspeicher: </#B8C0CC><white>{points} Punkte</white>'
+lore.water_disabled: '<#B8C0CC>Bewässerung: </#B8C0CC><white>Dieser Topf verwendet nicht das Plugin-Wasserspeichersystem</white>'
+lore.water_consumption: '<#B8C0CC>Natürlicher Verbrauch: </#B8C0CC><white>Verbrauch 1 Wasserpunkt bei jeder {updates} Topfaktualisierung</white>'
+lore.water_interval: '<#B8C0CC>Bewässerungsintervall: </#B8C0CC><white>{prefix} {duration} pro 1 Punkt Wasser</white>'
+lore.water_full: '<#B8C0CC>Vollwasserdauer: </#B8C0CC><white>{prefix} {duration}</white>'
+lore.water_random: '<#B8C0CC>Bewässerungsintervall: </#B8C0CC><white>Bestimmt durch zufällige Ticks; keine feste Dauer</white>'
+lore.rain: '<#98C69A>Rrain: </#98C69A><white>Stoppt den Verbrauch und füllt sich bei Regen automatisch auf</white>'
+lore.nearby_water: '<#98C69A>Wasser in der Nähe: </#98C69A><white>Stoppt den Verbrauch und füllt innerhalb von 4 Blöcken Wasser auf</white>'
+lore.settings_note: <#8793A5>Der eigentliche Zyklus folgt den zugehörigen Einstellungen</#8793A5>
+lore.can_capacity: '<#B8C0CC>Gießkannenkapazität: </#B8C0CC><white>{amount} Punkte</white>'
+lore.can_refill: '<#B8C0CC>Wasser pro Nachfüllung: </#B8C0CC><white>{amount} Punkte</white>'
+lore.compatible_pot: '<#B8C0CC>Kompatibler Pot: </#B8C0CC><white>{pot}</white>'
+lore.can_refill_source: <#8793A5>Rechtsklick auf eine Wasserquelle, um die Gießkanne aufzufüllen</#8793A5>
+lore.fill_usage: '<#B8C0CC>Verwendung: </#B8C0CC><white>{item} gedrückt halten und mit der rechten Maustaste auf {pot} klicken; Bei jeder Verwendung werden {amount} Punkte</white> hinzugefügt'
+lore.return_item: '<#B8C0CC>Zurückgegebener Artikel: </#B8C0CC><white>{amount}{item}</white>'
+lore.return_item_count: '{amount} × '
+lore.fertilizer_optional: '<#D8B278>Optionaler Dünger/Hormon: </#D8B278><white>{type}</white>'
+lore.fertilizer_duration: '<#B8C0CC>Dauer: </#B8C0CC><white>{times} Zuschnittaktualisierungen</white>'
+lore.fertilizer_before: '<#D8B278>Zeitpunkt: </#D8B278><white>Muss vor dem Pflanzen angewendet werden</white>'
+lore.fertilizer_limit: '<#B8C0CC>Limit: </#B8C0CC><white>Bis zu {amount} pro Pot</white>'
+lore.sprinkler_auto: '<#98C69A>Automatische Bewässerung: </#98C69A><white>Füllt kompatible Töpfe im Sortiment</white> nach'
+lore.sprinkler_range: '<#B8C0CC>Range: </#B8C0CC><white>{range} Blöcke</white>'
+lore.sprinkler_refill: '<#B8C0CC>Wasser pro Vorgang: </#B8C0CC><white>{amount} Punkte</white>'
+lore.sprinkler_storage: '<#B8C0CC>Wasserspeicher: </#B8C0CC><white>{storage}</white>'
+lore.sprinkler_infinite: Unendlich
+lore.sprinkler_cycle: '<#8793A5>Zyklus: alle {updates} Sprinkler-Updates</#8793A5>'
+lore.points: '{points} Punkte'
+lore.greenhouse_protect: '<#98C69A>Jahreszeitenschutz: </#98C69A><white>Verhindert Erntesterben außerhalb geeigneter Jahreszeiten</white>'
+lore.greenhouse_place: '<#B8C0CC>Platzierung: </#B8C0CC><white>Aber dem Zuschnitt oder innerhalb seiner effektiven Fläche</white>'
+lore.scarecrow_protect: '<#98C69A>Krähenschutz: </#98C69A><white>Verhindert nahegelegene Pflanzen vor Krähenschäden</white>'
+lore.scarecrow_place: '<#B8C0CC>Platzierung: </#B8C0CC><white>In der Nähe des Pots</white>'
+lore.scope: '<#B8C0CC>Eeffektiver Bereich: </#B8C0CC><white>{scope}</white>'
+lore.whole_chunk: Ganzes Stück
+lore.blocks: '{range}-Blöcke'
+lore.harvest_amount: '<#B8C0CC>Erntemenge: </#B8C0CC><white>{amount}</white>'
+lore.quality_candidates: '<#B8C0CC>Mögliche Qualitäten: </#B8C0CC><white>{qualities}</white>'
+lore.quality_chance: '<#B8C0CC>Qualitätschance: </#B8C0CC><white>Beeinflusst durch CustomCrops-Qualitätsverhältnisse und Dünger</white>'
+amount.range: '{min}-{max}'
+duration.default: ungefähr
+duration.scheduled: Zumindest geplant
+time.seconds: '{value} Sekunden'
+time.minutes: '{value} Minuten'
+time.hours: '{value} Stunden'
+time.hours_minutes: '{hours} Stunden {minutes} Minuten'

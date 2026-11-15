@@ -1,0 +1,90 @@
+# Generated zh_TW translation from zh_CN.yml.
+separator: 、
+title.station: 星露谷·{pot}
+title.recipe: 星露谷·{suffix}
+title.suffix.default: 種植盆
+title.suffix.aquatic_crops: 水生盆栽
+title.suffix.nether: 下界種植盆
+title.suffix.end: 末地種植盆
+pot.default: 種植盆
+pot.aquatic_crops: 水生盆栽
+pot.nether: 下界種植盆
+pot.end: 末地種植盆
+season.spring: 春
+season.summer: 夏
+season.autumn: 秋
+season.winter: 冬
+environment.normal: 主世界
+environment.world: 主世界
+environment.the_nether: 下界
+environment.nether: 下界
+environment.the_end: 末地
+environment.end: 末地
+fertilizer.quality: 品質
+fertilizer.speed_grow: 生長加速
+fertilizer.yield_increase: 增產
+fertilizer.variation: 變異
+fertilizer.soil_retain: 保溼
+vanilla.minecraft.water_bucket: 水桶
+vanilla.minecraft.lava_bucket: 熔岩桶
+vanilla.minecraft.dragon_breath: 龍息
+vanilla.minecraft.glass_bottle: 玻璃瓶
+vanilla.minecraft.bucket: 空桶
+vanilla.minecraft.potion: 藥水
+vanilla.minecraft.stick: 木棍
+vanilla.minecraft.dark_oak_log: 深色橡木原木
+note.mature: 成熟產物
+note.quality: ' · 品質：{qualities}'
+note.byproduct: ' · 副產物'
+note.amount_exact: ' · 數量 {amount}'
+note.amount_range: ' · 數量 {min}～{max}'
+lore.plant_block: <#B8C0CC>種植方塊：</#B8C0CC><white>{pot}</white>
+lore.season: <#98C69A>適宜季節：</#98C69A><white>{seasons}</white>
+lore.season_none: <#98C69A>季節限制：</#98C69A><white>無特殊季節要求</white>
+lore.environment: <#98C69A>適宜環境：</#98C69A><white>{environments}</white>
+lore.greenhouse: <#D8B278>非適宜季節：</#D8B278><white>在作物頂部放置{item}，可避免季節對作物的影響。</white>
+lore.mature_stage: <#B8C0CC>成熟階段：</#B8C0CC><white>{points} 點</white>
+lore.water_storage: <#B8C0CC>種植盆儲水量：</#B8C0CC><white>{points} 點</white>
+lore.water_disabled: <#B8C0CC>澆水：</#B8C0CC><white>此種植盆不啟用外掛儲水機制</white>
+lore.water_consumption: <#B8C0CC>自然消耗：</#B8C0CC><white>每 {updates} 次種植盆更新消耗 1 點水</white>
+lore.water_interval: <#B8C0CC>澆水間隔：</#B8C0CC><white>{prefix} {duration}消耗 1 點水</white>
+lore.water_full: <#B8C0CC>滿水持續時間：</#B8C0CC><white>{prefix} {duration}</white>
+lore.water_random: <#B8C0CC>澆水間隔：</#B8C0CC><white>由隨機 tick 決定，無固定秒數</white>
+lore.rain: <#98C69A>降雨：</#98C69A><white>下雨時停止消耗並自動補水</white>
+lore.nearby_water: <#98C69A>近水：</#98C69A><white>附近 4 格內有水時停止消耗並自動補水</white>
+lore.settings_note: <#8793A5>實際週期以相關設定為準</#8793A5>
+lore.can_capacity: <#B8C0CC>水壺容量：</#B8C0CC><white>{amount} 點水</white>
+lore.can_refill: <#B8C0CC>每次補水：</#B8C0CC><white>{amount} 點</white>
+lore.compatible_pot: <#B8C0CC>相容種植盆：</#B8C0CC><white>{pot}</white>
+lore.can_refill_source: <#8793A5>右鍵水源可為水壺補水</#8793A5>
+lore.fill_usage: <#B8C0CC>使用方式：</#B8C0CC><white>手持{item}右鍵{pot}，每次補充 {amount} 點</white>
+lore.return_item: <#B8C0CC>返還物品：</#B8C0CC><white>{amount}{item}</white>
+lore.return_item_count: '{amount} 個 '
+lore.fertilizer_optional: <#D8B278>可選肥料 / 激素：</#D8B278><white>{type}</white>
+lore.fertilizer_duration: <#B8C0CC>有效期：</#B8C0CC><white>{times} 次作物更新</white>
+lore.fertilizer_before: <#D8B278>使用時機：</#D8B278><white>需要在播種前使用</white>
+lore.fertilizer_limit: <#B8C0CC>使用上限：</#B8C0CC><white>每盆最多 {amount} 個</white>
+lore.sprinkler_auto: <#98C69A>自動灌溉：</#98C69A><white>為範圍內相容種植盆補水</white>
+lore.sprinkler_range: <#B8C0CC>工作範圍：</#B8C0CC><white>{range} 格</white>
+lore.sprinkler_refill: <#B8C0CC>每次補水：</#B8C0CC><white>{amount} 點</white>
+lore.sprinkler_storage: <#B8C0CC>儲水量：</#B8C0CC><white>{storage}</white>
+lore.sprinkler_infinite: 無限
+lore.sprinkler_cycle: <#8793A5>工作週期：每 {updates} 次灌溉器更新</#8793A5>
+lore.points: '{points} 點'
+lore.greenhouse_protect: <#98C69A>季節保護：</#98C69A><white>防止非適宜季節導致作物枯萎</white>
+lore.greenhouse_place: <#B8C0CC>放置位置：</#B8C0CC><white>作物頂部或有效範圍內</white>
+lore.scarecrow_protect: <#98C69A>烏鴉防護：</#98C69A><white>防止附近作物受到烏鴉破壞</white>
+lore.scarecrow_place: <#B8C0CC>放置位置：</#B8C0CC><white>種植盆附近</white>
+lore.scope: <#B8C0CC>生效範圍：</#B8C0CC><white>{scope}</white>
+lore.whole_chunk: 整個區塊
+lore.blocks: '{range} 格'
+lore.harvest_amount: <#B8C0CC>收穫數量：</#B8C0CC><white>{amount}</white>
+lore.quality_candidates: <#B8C0CC>品質候選：</#B8C0CC><white>{qualities}</white>
+lore.quality_chance: <#B8C0CC>品質機率：</#B8C0CC><white>受 CustomCrops 品質比例和肥料影響</white>
+amount.range: '{min}～{max}'
+duration.default: 預設約
+duration.scheduled: 按計劃更新至少
+time.seconds: '{value} 秒'
+time.minutes: '{value} 分鐘'
+time.hours: '{value} 小時'
+time.hours_minutes: '{hours} 小時 {minutes} 分鐘'

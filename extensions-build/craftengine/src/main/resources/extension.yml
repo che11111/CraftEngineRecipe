@@ -1,0 +1,52 @@
+schema: 1
+id: craftengine
+names:
+  en_US: CraftEngine Recipes
+  zh_CN: CraftEngine 配方
+  zh_TW: CraftEngine 配方
+  ja_JP: CraftEngine レシピ
+  ko_KR: CraftEngine 레시피
+  de_DE: CraftEngine-Rezepte
+  fr_FR: Recettes CraftEngine
+  es_ES: Recetas de CraftEngine
+  ru_RU: Рецепты CraftEngine
+descriptions:
+  en_US: Exports regular recipes registered by CraftEngine.
+  zh_CN: 导出 CraftEngine 注册的普通配方。
+  zh_TW: 匯出 CraftEngine 註冊的普通配方。
+  ja_JP: CraftEngine に登録された通常レシピを出力します。
+  ko_KR: CraftEngine에 등록된 일반 레시피를 내보냅니다.
+  de_DE: Exportiert die in CraftEngine registrierten normalen Rezepte.
+  fr_FR: Exporte les recettes normales enregistrées par CraftEngine.
+  es_ES: Exporta las recetas normales registradas por CraftEngine.
+  ru_RU: Экспортирует обычные рецепты, зарегистрированные в CraftEngine.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: craftengine
+dependencies:
+  plugins:
+    - name: CraftEngine
+      main-classes:
+        - net.momirealms.craftengine.bukkit.plugin.PaperCraftEnginePlugin
+        - net.momirealms.craftengine.bukkit.plugin.BukkitCraftEnginePlugin
+      version: ">=26.9.2"
+      primary: true
+integration-defaults:
+  mode: enabled
+  cultivation: false
+  export-missing: true
+  reexport-on-reload: false
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - minecraft:command_block

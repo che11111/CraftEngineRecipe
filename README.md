@@ -6,13 +6,13 @@
 
 <p align="center">An item and recipe browser for CraftEngine, supporting category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
 
-> Version 1.1.0 may currently be unstable.
+> Version 1.2.0-alpha.1 may currently be unstable. Prefer a version published in Releases.
 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-26.1.2%20%2F%2026.2%20%2F%2026.3-3fb950" alt="Minecraft 26.1.2 / 26.2 / 26.3">
-  <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/"><img src="https://img.shields.io/badge/CraftEngine-26.8.1_API+-5865F2" alt="CraftEngine 26.8.1 compile-time API; see the Wiki for requirements"></a>
-  <img src="https://img.shields.io/badge/Java-25-orange" alt="Java 25">
+  <img src="https://img.shields.io/badge/Minecraft-1.21.7--1.21.11%20%2F%2026.1--26.3-3fb950" alt="Minecraft 1.21.7-1.21.11 / 26.1-26.3">
+  <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/"><img src="https://img.shields.io/badge/CraftEngine-API_26.8.1%20%2F%20Extensions_26.9.2+-5865F2" alt="CraftEngine 26.8.1 compile-time API; bundled source extensions require 26.9.2+"></a>
+  <img src="https://img.shields.io/badge/Java-21%20%2F%2025-orange" alt="Java 21 / 25">
   <img src="https://img.shields.io/badge/Paper-supported-blue" alt="Paper supported">
   <a href="https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/requirements/#folia-support"><img src="https://img.shields.io/badge/Folia-experimental-blueviolet" alt="Experimental Folia support; see the Wiki for details"></a>
 </p>
@@ -40,38 +40,36 @@
 
 ## Menu Interface Styles
 
-CER includes four main menu texture styles. Players can switch between any styles enabled by the server.
+CER includes five main menu texture styles. Players can switch between any styles enabled by the server.
 
 <table>
   <thead>
     <tr>
-      <th width="25%" align="center">CER Cute Style Interface (default)</th>
-      <th width="25%" align="center">CER Rough Style Interface</th>
-      <th width="25%" align="center">CER Vanilla Style Interface</th>
-      <th width="25%" align="center">CER Map Style Interface</th>
+      <td width="20%" align="center">
+        <img src="img/menu-styles/menu-style-cute.png" alt="CER Cute Style Interface" width="100%">
+        <br><small>CER Cute Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/menu-styles/menu-style-rough.png" alt="CER Rough Style Interface" width="100%">
+        <br><small>CER Rough Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/menu-styles/menu-style-vanilla.png" alt="CER Vanilla Style Interface" width="100%">
+        <br><small>CER Vanilla Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/menu-styles/menu-style-map.png" alt="CER Map Style Interface" width="100%">
+        <br><small>CER Map Style Interface</small>
+      </td>
+      <td width="20%" align="center">
+        <img src="img/menu-styles/menu-style-wood.png" alt="CER Wood Style Interface" width="100%">
+        <br><small>CER Wood Style Interface</small>
+      </td>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <td width="25%" align="center">
-        <img src="img/menu-styles/menu-style-cute.png" alt="CER Cute Style Interface" width="100%">
-        <br><small>Default main menu style</small>
-      </td>
-      <td width="25%" align="center">
-        <img src="img/menu-styles/menu-style-rough.png" alt="CER Rough Style Interface" width="100%">
-        <br><small>Rough main menu style</small>
-      </td>
-      <td width="25%" align="center">
-        <img src="img/menu-styles/menu-style-vanilla.png" alt="CER Vanilla Style Interface" width="100%">
-        <br><small>Vanilla-style main menu</small>
-      </td>
-      <td width="25%" align="center">
-        <img src="img/menu-styles/menu-style-map.png" alt="CER Map Style Interface" width="100%">
-        <br><small>Map-style main menu</small>
-      </td>
-    </tr>
-  </tbody>
 </table>
+
+The `CER Cute Style Interface` is the default page.
 
 ## Special Integration Textures
 
@@ -115,7 +113,9 @@ Only a selection is shown here. For more CER interface textures, visit the [Scre
 - **Fast search**: search by item ID, name, translation key, Chinese pinyin, or pinyin initials.
 - **In-game management**: use `/cer manage` to edit categories, visibility permissions, hiding rules, ordering, workstation order, and custom buttons, including moving entries between applied and unapplied configurations.
 - **Unified recipe index**: vanilla, CraftEngine, and supported integration recipes can be exported under `recipes/` and browsed together, with automatic reload after file edits; other plugins can also publish through the CER Recipe API.
-- **Integration management**: enable or disable CER's special integrations for other plugins and resource packs through `/cer integrations`.
+- **Optional recipe extensions**: Farmer's Delight, Kaleidoscope Cookery, CustomCrops, and private source adapters ship as separate JARs under `plugins/CraftEngineRecipe/extensions/`, so they can be updated without rebuilding the core plugin. Enable them through `/cer integrations`.
+- **Config management**: open `config.yml` from `/cer manage` to edit data sources, search limits, hotkeys, and reload behavior in game.
+- **Automatic and per-player localization**: CER ships English, Simplified Chinese, Traditional Chinese, Japanese, Korean, German, French, Spanish, and Russian. The server language is detected automatically, and players can choose any of the nine languages in Personalization.
 - **Personalization and resume**: players can choose a menu style, landing page, and reopen behavior; preferences and browsing sessions share `player-preferences.db`.
 
 ## Specially Integrated Plugins or Content
@@ -127,68 +127,14 @@ Only a selection is shown here. For more CER interface textures, visit the [Scre
 | <a href="https://github.com/Nicoppara/KaleidoscopeCookery_Plugin"><img src="img/compatible-plugin-logos/kaleidoscope-cookery.png" alt="Kaleidoscope Cookery" width="64"></a> | [Kaleidoscope Cookery](https://github.com/Nicoppara/KaleidoscopeCookery_Plugin) | Imports recipes for the pot, chopping board, millstone, shawarma grill, stockpot, steamer, teapot, and other appliances. Each appliance page uses its corresponding dedicated `cer_kc_gui` texture. |
 | <a href="https://github.com/Xiao-MoMi/Custom-Crops"><img src="img/compatible-plugin-logos/customcrops.png" alt="CustomCrops" width="64"></a> | [CustomCrops](https://github.com/Xiao-MoMi/Custom-Crops) | Builds crop pages for CustomCrops pots, including seeds, products, seasons, water, fertilizer, sprinklers, greenhouses, and scarecrows. Pot pages use the dedicated `cer_ccrops_gui` texture. |
 | <a href="https://github.com/che11111/WoodworkingSaw"><img src="img/compatible-plugin-logos/woodworkingsaw.png" alt="WoodworkingSaw" width="64"></a> | [WoodworkingSaw](https://github.com/che11111/WoodworkingSaw) | Publishes `transformations.yml` transformation rules directly to recipe pages through the CER Recipe API. CER provides the shared `cer_api_gui` UI textures for API recipes. |
-| <a href="https://github.com/THExuri/Ultramarine-CraftEngine"><img src="img/compatible-plugin-logos/ultramarine.png" alt="Ultramarine" width="64"></a> | [Ultramarine](https://github.com/THExuri/Ultramarine-CraftEngine) | Provides a namespace preset for Ultramarine content and hides items that neither have a result recipe nor participate in any crafting recipe. |
 
 > CER provides dedicated recipe UI texture sets for the skillet, Kaleidoscope Cookery appliances, CustomCrops pot pages, and API recipes.
 
 ## Requirements
 
-Java **25**, **Paper / Folia** for Minecraft **26.1.2 / 26.2 / 26.3**, and a compatible **CraftEngine** release.
+Use Java **21** on Paper **1.21.7 / 1.21.8 / 1.21.9 / 1.21.10 / 1.21.11**, and Java **25** on Paper or Folia **26.1.2 / 26.2 / 26.3**. A compatible **CraftEngine** release is required.
 
-
-## Quick Start
-
-1. Install compatible versions of CraftEngine and CraftEngineRecipe, then wait for startup to finish.
-
-2. As an administrator, run `/cer integrations` to enable CER's special integrations for other plugins or resource packs (for example, Farmer's Delight, Kaleidoscope Cookery, and others; see the compatibility list in this README).
-
-3. As an administrator, run `/cer manage` to adjust categories, ordering, and hiding rules in game. (CER uses a whitelist model: recipes become visible only after an administrator configures them on this page.)
-
-4. Players can run `/cer` or press `Shift+F` to open item categories. They can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
-
-## Configuration Layout
-
-```text
-plugins/CraftEngineRecipe/
-├── config.yml                         # Main settings: language, sources, notices, browser defaults
-├── integrations.yml                   # CER special integrations, export policies, category presets
-├── player-preferences.db              # SQLite preferences and browsing sessions
-├── navigation/                        # Active menu configuration
-│   ├── categories.yml                 # Applied categories, permissions, hiding rules, buttons
-│   ├── categories-unapplied.yml       # Detected categories and buttons not yet applied
-│   └── workstations.yml               # Workstation order and page-specific custom buttons
-├── example/                           # Example templates; not loaded as live configuration
-│   ├── navigation/
-│   │   └── categories-example.yml     # Syntax example for categories.yml
-│   └── recipes/
-│       └── recipes-example.yml        # Custom recipe file format example
-├── lang/                              # Language files
-│   └── integrations/
-│       ├── common/{zh_CN,en_US}.yml             # Shared separators, yes/no text, and units
-│       ├── craftengine/{zh_CN,en_US}.yml        # CraftEngine workstation names
-│       ├── farmersdelight/{zh_CN,en_US}.yml     # Farmer's Delight titles, conditions, recipe notes
-│       ├── kaleidoscope/{zh_CN,en_US}.yml       # Kaleidoscope appliance, processing, and quality text
-│       ├── customcrops/{zh_CN,en_US}.yml        # CustomCrops pots, seasons, environments, fertilizer text
-│       ├── cultivation/{zh_CN,en_US}.yml        # Cultivation stations, seeds, substrates, planting notes
-│       └── minecraft/{zh_CN,en_US}.yml          # Vanilla workstation display names
-├── recipes/                           # Custom and exported recipes loaded by CER
-└── resources/                         # Local menu resources installed into CraftEngine packs
-```
-
-Each `cer_menu_*` menu pack uses complete layout files under `menu/` to declare the pages it handles. File names are arbitrary; CER reads only each file's `pages` declaration and performs no inheritance or merging:
-
-```text
-cer_menu_cute/
-├── pack.yml                           # CraftEngine resource-pack metadata
-├── menu/
-│   ├── browse.yml                     # Item-category and workstation browser layouts
-│   └── utility.yml                    # Management, unapplied, and craftable-page layouts
-├── configuration/gui.yml              # Title-image font height, ascent, and texture reference
-└── resourcepack/
-    └── assets/cer_cute/textures/font/gui/cer_main.png  # Menu title texture
-```
-
-Exported titles, lore, and descriptions follow `language` in `config.yml`. Item names from third-party content remain controlled by the CraftEngine resource pack and the client language.
+The core uses the CraftEngine **26.8.1** compile API. The bundled `craftengine` and `craftengine-cultivation` source extensions require CraftEngine **26.9.2 or newer**. Core-only browsing and manually managed recipes can continue on the compatible 26.8.1 API; upgrade to 26.9.2+ when using the bundled CE source exporters.
 
 ## Common Commands
 
@@ -208,7 +154,7 @@ Exported titles, lore, and descriptions follow `language` in `config.yml`. Item 
 
 | Command | Purpose |
 | --- | --- |
-| `/cer integrations` | Open CER's integration list and choose whether to enable each integration |
+| `/cer integrations` | Open the integration list inside CER's management page and choose whether to enable each integration |
 | `/cer manage` | Open the Configuration Center to edit categories, hiding rules, ordering, and workstation configuration in game |
 | `/cer unapplied` | Browse recipes using category entries from `categories-unapplied.yml` |
 | `/cer reload` | Reload configuration and indexes manually; recipe-file edits reload automatically |
@@ -216,7 +162,7 @@ Exported titles, lore, and descriptions follow `language` in `config.yml`. Item 
 | `/cer menu enable <pack\|all>` | Enable one style or every `cer_menu_*` |
 | `/cer menu disable <pack>` | Disable a non-default style |
 | `/cer menu default <pack>` | Set the default style used by `/cer` and Shift+F |
-| `/cer export <craftengine\|farmersdelight\|kaleidoscope\|customcrops\|all>` | Re-read the selected source and replace its data under `recipes/` |
+| `/cer export <source-id\|all>` | Re-read a specific extension source and replace its data under `recipes/`; for example, `minecraft_cultivation` or `all` |
 | `/cer debug recipes` | Save all recipes currently registered on the server to a local JSON diagnostic file |
 | `/cer debug performance` | Show plugin operation timings, menu session/click counts, and server TPS/MSPT |
 | `/cer debug performance reset` | Reset the plugin timing window before reproducing a problem |
@@ -225,7 +171,104 @@ Debug commands can also be run from the console. The administrator permission is
 
 ## Configuration Guide
 
-[Categories](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Commands](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/commands/) · [Search](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/search/) · [Menu Styles](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menus/) · [Plugin Integrations](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/integrations/) · [Recipe API](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/api/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
+[Categories](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/categories/) · [Commands](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/commands/) · [Search](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/search/) · [Menu Styles](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/menus/) · [Plugin Integrations](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/integrations/) · [Extension Development](docs/extensions.md) · [Recipe API](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/api/) · [Troubleshooting](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/troubleshooting/) · [Updating](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/updating/) · [Changelog](https://che11111.github.io/CraftEngineRecipe-wiki/docs/guide/changelog/)
+
+
+## Building
+
+Run:
+
+```bash
+./build.sh
+```
+
+The script builds all four Minecraft targets and the independent extensions:
+
+```text
+dist/CraftEngineRecipe-<version>-mc<target>.jar
+dist/extensions/cer-ext-*.jar
+```
+
+For a single target, select one Maven profile: `mc-1.21.7-1.21.11`, `mc-26.1`, `mc-26.2`, or `mc-26.3`.
+
+## Extension Installation
+
+- **Base source extensions**: `cer-ext-craftengine.jar`, `cer-ext-craftengine-cultivation.jar`, `cer-ext-minecraft.jar`, and `cer-ext-minecraft-cultivation.jar`. Install all four for the complete CraftEngine, vanilla, and cultivation source indexes.
+- **Third-party source extensions**: `cer-ext-farmersdelight.jar`, `cer-ext-kaleidoscope.jar`, and `cer-ext-customcrops.jar`. Enable these only when the corresponding source plugins are installed.
+- **Private source template**: `cer-ext-private-alchemy.jar` is a development template and does not produce real recipes until its API and capture logic are replaced.
+
+
+## Quick Start
+
+1. Install compatible versions of CraftEngine and CraftEngineRecipe. Place the core JAR under `plugins/` and the required extensions under `plugins/CraftEngineRecipe/extensions/` using their stable file names, then fully stop and start the server. Do not use `/reload` or plugin-manager hot reloading.
+
+2. As an administrator, run `/cer integrations` to enable CER's special integrations for other plugins or resource packs (for example, Farmer's Delight, Kaleidoscope Cookery, and others; see the compatibility list in this README).
+
+3. As an administrator, run `/cer manage` to adjust categories, ordering, and hiding rules in game. (CER uses a whitelist model: recipes become visible only after an administrator configures them on this page.)
+
+4. Players can run `/cer` or press `Shift+F` to open item categories. They can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
+
+## Configuration Layout
+
+```text
+plugins/CraftEngineRecipe/
+├── extensions/                        # Base and optional source extensions, versioned independently from the core JAR
+│   ├── cer-ext-craftengine.jar
+│   ├── cer-ext-craftengine-cultivation.jar
+│   ├── cer-ext-minecraft.jar
+│   ├── cer-ext-minecraft-cultivation.jar
+│   ├── cer-ext-farmersdelight.jar
+│   ├── cer-ext-kaleidoscope.jar
+│   ├── cer-ext-customcrops.jar
+│   └── cer-ext-private-alchemy.jar
+├── extensions-data/                   # Extension data, source-directory ownership, and version markers
+├── config.yml                         # Main settings: menus, search, hotkeys, updates, browser defaults
+├── resources/cer_menu_*/lang/         # Per-menu-pack text overrides for all nine languages
+├── integrations.yml                   # CER special integrations, export policies, category presets
+├── player-preferences.db              # SQLite preferences and browsing sessions
+├── navigation/                        # Active menu configuration
+│   ├── categories.yml                 # Applied categories, permissions, hiding rules, buttons
+│   ├── categories-unapplied.yml       # Detected categories and buttons not yet applied
+│   └── workstations.yml               # Workstation order and page-specific custom buttons
+├── example/                           # Example templates; not loaded as live configuration
+│   ├── navigation/
+│   │   └── categories-example.yml     # Syntax example for categories.yml
+│   └── recipes/
+│       └── recipes-example.yml        # Custom recipe file format example
+├── lang/                              # Language files
+│   └── integrations/
+│       ├── craftengine/{<locale>}.yml           # CraftEngine workstation names
+│       ├── farmersdelight/{<locale>}.yml        # Farmer's Delight titles, conditions, recipe notes
+│       ├── kaleidoscope/{<locale>}.yml          # Kaleidoscope appliance, processing, and quality text
+│       ├── customcrops/{<locale>}.yml           # CustomCrops pots, seasons, environments, fertilizer text
+│       ├── cultivation/{<locale>}.yml           # Cultivation stations, seeds, substrates, planting notes
+│       ├── minecraft/{<locale>}.yml             # Vanilla workstation display names
+│       └── private_alchemy/{<locale>}.yml       # Private source template text
+├── recipes/                           # Custom and exported recipes loaded by CER
+└── resources/                         # Local core and extension resources merged into CraftEngine packs
+```
+
+Each managed resource directory contains `.cer-resource-state.yml`, recording its owner JAR version and file hashes. Normal restarts preserve local edits; upgrades only replace files that still match the previous bundled version and remove obsolete files only when they were not edited. The resulting `CraftEngine/resources/CraftEngineRecipe/subpacks/` contains both core menu packs and extension-declared UI packs.
+
+Language files declared through an extension's `language-source` are released under `lang/integrations/<language-source>/<locale>.yml`; extensions sharing a language source share that on-disk text. Runtime always reads the on-disk copy. Upgrades only add missing keys without overwriting edits made by players or server owners. Extension-generated titles, notes, conditions, and parameterized text are resolved using the opening player's language.
+
+Each `cer_menu_*` menu pack uses complete layout files under `menu/` to declare the pages it handles. File names are arbitrary; CER reads only each file's `pages` declaration and performs no inheritance or merging:
+
+```text
+cer_menu_cute/
+├── pack.yml                           # CraftEngine resource-pack metadata
+├── menu/
+│   ├── browse.yml                     # Item-category and workstation browser layouts
+│   └── utility.yml                    # Management, unapplied, and craftable-page layouts
+├── configuration/gui.yml              # Title-image font height, ascent, and texture reference
+└── resourcepack/
+    └── assets/cer_cute/textures/font/gui/cer_main.png  # Menu title texture
+```
+
+The supported locale IDs are `en_US`, `zh_CN`, `zh_TW`, `ja_JP`, `ko_KR`, `de_DE`, `fr_FR`, `es_ES`, and `ru_RU`. The plugin UI, dialogs, status messages, menu labels, vanilla item names, and resource-pack-backed names follow each player's selected language. CraftEngine item names are resolved from the item definition's translation key in the corresponding CraftEngine locale data. Bundled vanilla recipe files are language-neutral: stable workstation IDs are localized at runtime, and official client translations for all nine locales are bundled.
+
+Item names fall back in this order: player locale, English, then a readable name derived from the item ID. Raw `item.*` and `block.*` translation keys are never shown as item names. The vanilla recipe and vanilla cultivation extensions each ship nine locales; exact-version vanilla names are read from `cer-ext-minecraft.jar` so another Minecraft version's data cannot leak into the UI.
+
 
 
 ## Usage Statistics
@@ -253,7 +296,7 @@ If this project helps you, you can support development through Ko-fi or Afdian. 
 
 Thank you to HuiDu_OwO for drawing the GUI textures used by the `cer_menu_cute` layout for this project without charge.
 
-Thank you to SnowCutieOwO for drawing the GUI textures used by the `cer_menu_map` layout for this project.
+Thank you to SnowCutieOwO for drawing the GUI textures used by the `cer_menu_map` and `cer_menu_wood` layouts for this project.
 
 Thank you to nsoer for providing CEGUI-1.0.0.jar and for authorizing the use of portions of the `cer_menu_rough` texture assets.
 

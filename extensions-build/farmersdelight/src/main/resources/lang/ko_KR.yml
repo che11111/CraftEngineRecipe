@@ -1,0 +1,29 @@
+# Generated ko_KR translation from en_US.yml.
+title.cooking_pot: 농부의 기쁨·요리 냄비
+title.cooking_pot_group: 농부의 기쁨·요리 냄비·{group}
+title.cutting_board: 농부의 기쁨·도마
+title.special: 농부의 기쁨·특별 조리법
+title.skillet: 농부의 기쁨·프라이팬
+title.unknown_addon: 농부의 기쁨·추가 조리법
+title.addon_prefix: '농부의 기쁨·'
+addon.keg: 발효통
+addon.grill: 그릴
+addon.skewer: 꼬치 분지
+skillet.note: '캠프파이어 요리 가능: 예; 조리 시간: {ticks} 틱; 경험: {experience}'
+flame.name: <gold>레시피 정보
+flame.time: '<gray>Time: {ticks} 틱'
+flame.experience: '<gray>경험: {experience}'
+pot.cooking_time: '조리 시간: {seconds} 초'
+pot.experience: '경험: {experience}'
+pot.group: '특수 냄비: {group}'
+item.required_tool: 필수 도구
+item.required_tool_lore: 도구 요구 사항은 확장할 수 없습니다. /fd 레시피 검사
+item.unresolved: 해결되지 않은 성분
+note.candidate_result: 후보자 결과
+note.description_display: 설명 표시
+note.description_entry: 설명 항목; 실행 가능한 제작 레시피가 아닙니다.
+note.auto_cycle: <gray>자동으로 순환</gray>
+addon.type: '애드온 레시피 유형: {type}'
+addon.conditions: 추가 조건 및 플레이어별 메모에 대한 /fd 레시피를 검사하세요.
+note.probability_unknown: 알 수 없는 기회
+note.independent_chance: '독립 확률: {percent}%'

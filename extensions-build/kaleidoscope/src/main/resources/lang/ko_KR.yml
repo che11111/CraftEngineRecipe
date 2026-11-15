@@ -1,0 +1,46 @@
+# Generated ko_KR translation from en_US.yml.
+accurate.title: 만화경 요리·정밀 가공
+accurate.weight_note: 하나의 후보 출력은 상대적 가중치에 따라 선택됩니다. 가중치는 백분율이 아닙니다.
+flex.title: 만화경 요리·다이나믹 요리
+flex.ratio_note: 성분의 양은 이상적인 비율을 나타냅니다. 실제 금액은 출력 수량과 품질을 변경할 수 있습니다.
+flex.output_note: 기본 출력이 표시됩니다. 품질 이름, 지식, 음식 효과는 실제 요리에 따라 결정됩니다.
+flex.no_container: 손으로 모으십시오. 컨테이너가 필요하지 않습니다.
+flex.container: 용기를 잡고 냄비를 마우스 오른쪽 버튼으로 클릭하여 결과물을 수집합니다.
+flex.liquid_item: '허용되는 국물 유형: {liquid}'
+flex.equivalent_foods: 만화경의 현재 성분 그룹에 따라 동등한 성분이 허용됩니다.
+flex.seasonings: 조미료는 허용됩니다. 그들은 이상 비율 품질 계산에 참여하지 않습니다.
+flex.quality_ratio: 이상적인 비율에 가까울수록 품질이 높아집니다.
+flex.extra_penalty: 관련 없는 재료를 너무 많이 첨가하면 품질이 저하됩니다.
+flex.any_liquid: 어떤 국물이라도 허용됩니다.
+flex.allowed_liquid: '허용되는 액체: {liquid}'
+flex.heat_oil: 일반적으로 열과 오일이 필요합니다. 다른 플러그인은 요리 조건을 수정할 수 있습니다.
+flex.result_note: '예: 1인분; 실제 수량은 재료에 따라 다릅니다.'
+chopping.title: 만화경 요리·도마
+chopping.knife_note: 칼이 필요합니다. 사용 가능한 도구는 도마 구성 및 만화경 태그에 따라 다릅니다.
+chopping.stage: '절단 횟수: {stage}'
+chopping.single_extra: 하나의 주요 출력은 상대적 가중치에 따라 선택됩니다. 부산물은 독립적으로 압연됩니다.
+chopping.multi_random: 각 출력은 독립적으로 롤링됩니다. 성공하지 못하면 무게로 보장됩니다. 표시된 백분율에는 해당 보장이 제외됩니다.
+chopping.weighted: 하나의 출력은 상대적 가중치에 따라 선택됩니다. 가중치는 백분율이 아닙니다.
+note.byproduct_prefix: '부산물 · '
+note.independent: '독립 롤: {percent}%({weight} 구성)'
+note.relative_weight: '상대 가중치: {weight}'
+teapot.title: 만화경 요리·찻주전자
+teapot.liquid: '필요한 액체: {liquid}(액체 상태를 설명하는 아이콘)'
+label.processing_time: 처리 시간
+label.rotations: 그라인딩 라운드
+label.stir_fry_count: 볶음횟수
+label.cooking_time: 조리 시간
+label.brew_time: 양조 시간
+unit.tick: ' 진드기'
+unit.round: ' 라운드'
+unit.times: ' 배'
+station.prefix: '만화경 요리·'
+processing.value: '{label}: {value}{unit}'
+processing.inherited: '{label}: 어플라이언스 기본값을 상속합니다(0은 즉시를 의미하지 않음).'
+appliance.pot: 웍
+appliance.stockpot: 스톡팟
+appliance.steamer: 증기선
+appliance.shawarma: 샤와마 그릴
+appliance.millstone: 맷돌
+appliance.chopping_board: 도마
+appliance.teapot: 찻주전자

@@ -217,22 +217,23 @@ public final class CerRecipeApiService implements CerRecipeApi {
             if (!player.hasPermission("craftenginerecipe.admin")) continue;
             plugin.tasks().player(player, () -> {
                 if (!player.isOnline()) return;
+                var language = plugin.lang(player);
                 switch (notice.kind()) {
                     case REGISTERED -> {
-                        player.sendMessage(plugin.lang().message(
+                        player.sendMessage(language.message(
                                 "messages.api-integration-detected", "plugin", notice.plugin()));
-                        player.sendMessage(plugin.lang().component(
+                        player.sendMessage(language.component(
                                 "messages.api-integration-namespace", "namespace", notice.namespace()));
-                        player.sendMessage(plugin.lang().component(
+                        player.sendMessage(language.component(
                                 "messages.api-integration-ready", "recipes", String.valueOf(notice.current())));
                     }
-                    case UPDATED -> player.sendMessage(plugin.lang().message(
+                    case UPDATED -> player.sendMessage(language.message(
                             "messages.api-integration-updated",
                             "plugin", notice.plugin(),
                             "namespace", notice.namespace(),
                             "previous", String.valueOf(notice.previous()),
                             "current", String.valueOf(notice.current())));
-                    case UNREGISTERED -> player.sendMessage(plugin.lang().message(
+                    case UNREGISTERED -> player.sendMessage(language.message(
                             "messages.api-integration-unregistered",
                             "plugin", notice.plugin(),
                             "namespace", notice.namespace(),

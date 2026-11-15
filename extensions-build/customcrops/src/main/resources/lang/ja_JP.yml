@@ -1,0 +1,90 @@
+# Generated ja_JP translation from en_US.yml.
+separator: ', '
+title.station: カスタム作物·{pot}
+title.recipe: CustomCrops·{suffix}
+title.suffix.default: 植木鉢
+title.suffix.aquatic_crops: 水耕栽培ポット
+title.suffix.nether: ネザーポット
+title.suffix.end: エンドポット
+pot.default: ハシシュ乱用
+pot.aquatic_crops: 水耕栽培ポット
+pot.nether: ネザーポット
+pot.end: ポットを終了
+season.spring: スプリング
+season.summer: 夏季
+season.autumn: 秋
+season.winter: 冬
+environment.normal: オーバーワールド
+environment.world: オーバーワールド
+environment.the_nether: 以下 [いか]
+environment.nether: 以下 [いか]
+environment.the_end: 終了
+environment.end: 終了
+fertilizer.quality: 品質
+fertilizer.speed_grow: 成長速度
+fertilizer.yield_increase: 収量の増加
+fertilizer.variation: 差
+fertilizer.soil_retain: 土壌保持
+vanilla.minecraft.water_bucket: バケツ
+vanilla.minecraft.lava_bucket: 溶岩バケツ
+vanilla.minecraft.dragon_breath: ドラゴンブレス
+vanilla.minecraft.glass_bottle: ガラス瓶
+vanilla.minecraft.bucket: バケツ
+vanilla.minecraft.potion: ポーション
+vanilla.minecraft.stick: スティックを
+vanilla.minecraft.dark_oak_log: ダークオークの丸太
+note.mature: 成熟した製品
+note.quality: ' · 品質：{qualities}'
+note.byproduct: ' 副産物'
+note.amount_exact: ' · 金額 {amount}'
+note.amount_range: ' · 金額 {min}～{max}'
+lore.plant_block: <#B8C0CC>植栽ブロック：</#B8C0CC><white>{pot}</white>
+lore.season: <#98C69A>適した季節：</#98C69A><white>{seasons}</white>
+lore.season_none: <#98C69A>シーズン制限：</#98C69A><white>シーズンの要件なし</white>
+lore.environment: <#98C69A>適切な環境：</#98C69A><white>{environments}</white>
+lore.greenhouse: <#D8B278>不適切な季節：</#D8B278><white>季節的な影響を避けるため、{item}を作物の上に配置してください。</white>
+lore.mature_stage: <#B8C0CC>成熟段階：</#B8C0CC><white>{points}ポイント</white>
+lore.water_storage: <#B8C0CC>貯水：</#B8C0CC><white>{points}ポイント</white>
+lore.water_disabled: <#B8C0CC>水やり：</#B8C0CC><white>このポットはプラグインの貯水システムを使用していません</white>
+lore.water_consumption: <#B8C0CC>自然消費：</#B8C0CC><white>ポット更新ごとに{updates}の水ポイントを1消費します</white>
+lore.water_interval: <#B8C0CC>散水間隔：</#B8C0CC><white>{prefix} {duration}／水1ポイントあたり</white>
+lore.water_full: <#B8C0CC>全水量モードの持続時間：</#B8C0CC><white>{prefix} {duration}</white>
+lore.water_random: <#B8C0CC>散水間隔：</#B8C0CC><white>ランダムなティック数で決定。固定の期間なし</white>
+lore.rain: <#98C69A>雨：</#98C69A><white>消費を停止し、雨の降っている間は自動的に補充されます</white>
+lore.nearby_water: <#98C69A>近くの水：</#98C69A><white>4ブロック以内の水を消費して補充します</white>
+lore.settings_note: <#8793A5>実際のサイクルは関連する設定に従います</#8793A5>
+lore.can_capacity: <#B8C0CC>ジョーロの容量：</#B8C0CC><white>{amount}ポイント</white>
+lore.can_refill: <#B8C0CC>1回の補充あたりの水：</#B8C0CC><white>{amount}ポイント</white>
+lore.compatible_pot: <#B8C0CC>対応ポット：</#B8C0CC><white>{pot}</white>
+lore.can_refill_source: <#8793A5>水源を右クリックしてジョーロを補充します</#8793A5>
+lore.fill_usage: <#B8C0CC>用途：</#B8C0CC><white>{item}を押しながら右クリックします。{pot}使用するたびに{amount}ポイントが加算されます。</white>
+lore.return_item: <#B8C0CC>返品商品：</#B8C0CC><white>{amount}{item}</white>
+lore.return_item_count: '{amount} × '
+lore.fertilizer_optional: <#D8B278>オプションの肥料/ホルモン：</#D8B278><white>{type}</white>
+lore.fertilizer_duration: <#B8C0CC>期間：</#B8C0CC><white>{times}作物の最新情報</white>
+lore.fertilizer_before: <#D8B278>タイミング：</#D8B278><white>植え付け前に施用する必要があります</white>
+lore.fertilizer_limit: <#B8C0CC>制限：</#B8C0CC><white>ポットあたり最大{amount}</white>
+lore.sprinkler_auto: <#98C69A>自動散水：</#98C69A><white>範囲内の対応ポットに補充</white>
+lore.sprinkler_range: <#B8C0CC>範囲：</#B8C0CC><white>{range}ブロック</white>
+lore.sprinkler_refill: <#B8C0CC>1回の操作あたりの水：</#B8C0CC><white>{amount}ポイント</white>
+lore.sprinkler_storage: <#B8C0CC>貯水：</#B8C0CC><white>{storage}</white>
+lore.sprinkler_infinite: 無限
+lore.sprinkler_cycle: <#8793A5>サイクル：すべての{updates}スプリンクラーが更新されます</#8793A5>
+lore.points: '{points}ポイント'
+lore.greenhouse_protect: <#98C69A>季節保護： </#98C69A><white>適切な季節以外での作物の枯死を防ぎます</white>
+lore.greenhouse_place: <#B8C0CC>配置：</#B8C0CC><white>クロップの上またはその有効範囲内</white>
+lore.scarecrow_protect: <#98C69A>カラス対策： </#98C69A><white>近くの作物をカラスによる被害から守ります</white>
+lore.scarecrow_place: <#B8C0CC>配置：</#B8C0CC><white>ポットの近く</white>
+lore.scope: <#B8C0CC>E有効範囲：</#B8C0CC><white>{scope}</white>
+lore.whole_chunk: チャンク全体
+lore.blocks: '{range}ブロック'
+lore.harvest_amount: <#B8C0CC>ハーベスト量：</#B8C0CC><white>{amount}</white>
+lore.quality_candidates: <#B8C0CC>考えられる資質：</#B8C0CC><white>{qualities}</white>
+lore.quality_chance: <#B8C0CC>品質の変動：</#B8C0CC><white>CustomCropsの品質比率と肥料の影響を受ける</white>
+amount.range: '{min}-{max}'
+duration.default: 概要
+duration.scheduled: 少なくとも  にスケジュール済み
+time.seconds: '{value}秒'
+time.minutes: '{value}分'
+time.hours: '{value}時間'
+time.hours_minutes: '{hours}時間{minutes}分'

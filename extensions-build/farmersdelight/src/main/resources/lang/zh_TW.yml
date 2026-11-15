@@ -1,0 +1,29 @@
+# Generated zh_TW translation from zh_CN.yml.
+title.cooking_pot: 農夫樂事·烹飪鍋
+title.cooking_pot_group: 農夫樂事·烹飪鍋·{group}
+title.cutting_board: 農夫樂事·砧板
+title.special: 農夫樂事·特殊配方
+title.skillet: 農夫樂事·煎鍋
+title.unknown_addon: 農夫樂事·附加配方
+title.addon_prefix: 農夫樂事·
+addon.keg: 發酵桶
+addon.grill: 烤肉架
+addon.skewer: 配料盆
+skillet.note: 營火可烹飪：是；烹飪時間：{ticks} tick；經驗：{experience}
+flame.name: <gold>配方訊息
+flame.time: <gray>時間：{ticks} 刻
+flame.experience: <gray>經驗：{experience}
+pot.cooking_time: 烹調時間：{seconds} 秒
+pot.experience: 經驗：{experience}
+pot.group: 專用烹飪鍋：{group}
+item.required_tool: 所需工具
+item.required_tool_lore: 工具要求無法展開，請查看 /fd recipe
+item.unresolved: 未解析的原料
+note.candidate_result: 候選產物
+note.description_display: 說明展示
+note.description_entry: 說明條目；不代表可執行的合成配方
+note.auto_cycle: <gray>自動循環顯示</gray>
+addon.type: 附屬配方類型：{type}
+addon.conditions: 額外條件及玩家專屬說明請查看 /fd recipe
+note.probability_unknown: 機率未知
+note.independent_chance: 獨立機率：{percent}%

@@ -48,6 +48,7 @@ public final class CerConfig {
     );
 
     private final CraftEngineRecipePlugin plugin;
+    private final LanguageManager.Localized language;
     private final String requestedMenuPack;
     private final MenuView view;
     private String menuPackId;
@@ -102,10 +103,10 @@ public final class CerConfig {
     private String adminOnlyHint;
     private String noPermissionHint;
     private String categoryBarNamePrefix = "<white>";
-    private String categoryTitleNamePrefix = "<black><bold>";
+    private String categoryTitleNamePrefix = "<black>";
     private String workstationBarNamePrefix = "<white>";
-    private String workstationTitleNamePrefix = "<black><bold>";
-    private String recipeTitleNamePrefix = "<black><bold>";
+    private String workstationTitleNamePrefix = "<black>";
+    private String recipeTitleNamePrefix = "<black>";
 
     public CerConfig(CraftEngineRecipePlugin plugin) {
         this(plugin, null);
@@ -116,7 +117,13 @@ public final class CerConfig {
     }
 
     public CerConfig(CraftEngineRecipePlugin plugin, String menuPack, MenuView view) {
+        this(plugin, menuPack, view, plugin == null ? null : plugin.lang().view(plugin.lang().locale()));
+    }
+
+    public CerConfig(CraftEngineRecipePlugin plugin, String menuPack, MenuView view,
+                     LanguageManager.Localized language) {
         this.plugin = plugin;
+        this.language = language;
         this.requestedMenuPack = menuPack;
         this.view = view == null ? MenuView.NAMESPACES : view;
     }
@@ -142,15 +149,19 @@ public final class CerConfig {
                 ? this.plugin.menuPacks().defaultPack() : this.requestedMenuPack;
         this.menuDisplayName = this.menuPackId;
         FileConfiguration ui = this.loadMenuConfig(this.menuPackId);
-        this.menuDisplayName = ui.getString("display-name", this.menuPackId);
-        LanguageManager lang = this.plugin.lang();
-        if (reloadSharedSettings) lang.load(c.getString("language", "zh_CN"));
+        LanguageManager.Localized lang = this.language;
+        FileConfiguration menuLanguage = this.loadMenuLanguage(this.menuPackId, lang.locale());
+        this.menuDisplayName = menuLanguage.getString(
+                "display-name", ui.getString("display-name", this.menuPackId));
 
         this.browserTitleOffset = ui.getInt("browser.title-offset", -8);
         this.browserTitleShift = ui.getInt("browser.title-shift", -168);
-        this.browserTitle = this.menuTitle(ui.getString("browser.title"), lang.text("ui.browser.title"));
-        this.workstationTitle = this.menuTitle(ui.getString("browser.workstations-title"),
-                lang.text("ui.workstations.title"));
+        this.browserTitle = this.menuTitle(
+                titleTemplate(ui, "browser.title-compact", "browser.title"),
+                lang.textOr("ui.browser.title-compact", lang.text("ui.browser.title")));
+        this.workstationTitle = this.menuTitle(
+                titleTemplate(ui, "browser.workstations-title-compact", "browser.workstations-title"),
+                lang.textOr("ui.workstations.title-compact", lang.text("ui.workstations.title")));
         this.loadLayout(ui);
         this.reservedMaterial = parseMaterial(ui.getString("browser.reserved.material", "air"));
         this.reservedItemModel = ui.getString("browser.reserved.item-model", "");
@@ -159,27 +170,31 @@ public final class CerConfig {
         String source = ui.getString("category-bar.source", "ce");
         this.categoryFollowCe = !"custom".equalsIgnoreCase(source == null ? "" : source.trim());
         this.categoryList = List.copyOf(ui.getStringList("category-bar.list"));
-        this.categoryIconName = lang.uiText(ui, "category-bar.icon-name");
-        this.categoryIconLore = lang.uiList(ui, "category-bar.icon-lore");
-        this.subIconLore = lang.uiList(ui, "category-bar.sub-icon-lore");
-        this.prevCategory = ButtonDef.of(ui, lang, "category-bar.prev-category", Material.ARROW);
-        this.nextCategory = ButtonDef.of(ui, lang, "category-bar.next-category", Material.ARROW);
-        this.adminOnlyHint = lang.uiText(ui, "category-bar.admin-only-hint");
-        this.noPermissionHint = lang.uiText(ui, "category-bar.no-permission-hint");
+        this.categoryIconName = lang.uiText(menuLanguage, "category-bar.icon-name");
+        this.categoryIconLore = lang.uiList(menuLanguage, "category-bar.icon-lore");
+        this.subIconLore = lang.uiList(menuLanguage, "category-bar.sub-icon-lore");
+        this.prevCategory = ButtonDef.of(ui, menuLanguage, lang, "category-bar.prev-category", Material.ARROW);
+        this.nextCategory = ButtonDef.of(ui, menuLanguage, lang, "category-bar.next-category", Material.ARROW);
+        this.adminOnlyHint = lang.uiText(menuLanguage, "category-bar.admin-only-hint");
+        this.noPermissionHint = lang.uiText(menuLanguage, "category-bar.no-permission-hint");
 
-        this.prevPage = ButtonDef.of(ui, lang, "content.prev-page", Material.SPECTRAL_ARROW);
-        this.nextPage = ButtonDef.of(ui, lang, "content.next-page", Material.SPECTRAL_ARROW);
-        this.back = ButtonDef.of(ui, lang, "content.back", Material.BARRIER);
-        this.search = ButtonDef.of(ui, lang, "content.search", Material.COMPASS);
-        this.hand = ButtonDef.of(ui, lang, "content.hand", Material.PAPER, "cer:palm_blue_cuff", 'H');
-        this.query = ButtonDef.of(ui, lang, "content.query", Material.PAPER, "cer:palm_blue_cuff", '\u0000');
-        this.close = ButtonDef.of(ui, lang, "content.close", Material.BARRIER);
-        this.info = ButtonDef.of(ui, lang, "content.info", Material.PAPER, "cer:info_icon", 'I');
-        this.workstations = ButtonDef.of(ui, lang, "content.workstations", Material.CRAFTING_TABLE,
+        this.prevPage = ButtonDef.of(ui, menuLanguage, lang, "content.prev-page", Material.SPECTRAL_ARROW);
+        this.nextPage = ButtonDef.of(ui, menuLanguage, lang, "content.next-page", Material.SPECTRAL_ARROW);
+        this.back = ButtonDef.of(ui, menuLanguage, lang, "content.back", Material.BARRIER);
+        this.search = ButtonDef.of(ui, menuLanguage, lang, "content.search", Material.COMPASS);
+        this.hand = ButtonDef.of(ui, menuLanguage, lang, "content.hand", Material.PAPER,
+                "cer:palm_blue_cuff", 'H');
+        this.query = ButtonDef.of(ui, menuLanguage, lang, "content.query", Material.PAPER,
+                "cer:palm_blue_cuff", '\u0000');
+        this.close = ButtonDef.of(ui, menuLanguage, lang, "content.close", Material.BARRIER);
+        this.info = ButtonDef.of(ui, menuLanguage, lang, "content.info", Material.PAPER,
+                "cer:info_icon", 'I');
+        this.workstations = ButtonDef.of(ui, menuLanguage, lang, "content.workstations", Material.CRAFTING_TABLE,
                 "cer:crafting_table", 'T');
-        this.glasses = ButtonDef.of(ui, lang, "content.glasses", Material.PAPER, "cer:glasses", 'G');
-        this.itemLore = lang.uiList(ui, "content.item-lore");
-        this.empty = ButtonDef.of(ui, lang, "content.empty", Material.BARRIER);
+        this.glasses = ButtonDef.of(ui, menuLanguage, lang, "content.glasses", Material.PAPER,
+                "cer:glasses", 'G');
+        this.itemLore = lang.uiList(menuLanguage, "content.item-lore");
+        this.empty = ButtonDef.of(ui, menuLanguage, lang, "content.empty", Material.BARRIER);
 
         this.recipeRotateInterval = clamp(c.getInt("recipe.rotate-interval", 30), 5, 200);
         this.recipeTitle = lang.uiText(c, "recipe.title");
@@ -194,10 +209,10 @@ public final class CerConfig {
         this.recipeTitles.put("BREWING", lang.uiText(c, "recipe.title-brewing"));
         this.recipeTitles.put("NONE", lang.uiText(c, "recipe.title-none"));
         this.categoryBarNamePrefix = c.getString("name-prefixes.category-bar", "<white>");
-        this.categoryTitleNamePrefix = c.getString("name-prefixes.category-title", "<black><bold>");
+        this.categoryTitleNamePrefix = c.getString("name-prefixes.category-title", "<black>");
         this.workstationBarNamePrefix = c.getString("name-prefixes.workstation-bar", "<white>");
-        this.workstationTitleNamePrefix = c.getString("name-prefixes.workstation-title", "<black><bold>");
-        this.recipeTitleNamePrefix = c.getString("name-prefixes.recipe-title", "<black><bold>");
+        this.workstationTitleNamePrefix = c.getString("name-prefixes.workstation-title", "<black>");
+        this.recipeTitleNamePrefix = c.getString("name-prefixes.recipe-title", "<black>");
 
         this.searchDialogTitle = lang.uiText(c, "search.dialog-title");
         this.searchDialogLabel = lang.uiText(c, "search.dialog-label");
@@ -275,6 +290,32 @@ public final class CerConfig {
         return menu;
     }
 
+    /** Menu-pack text lives beside the menu layout and only overrides shared UI defaults when present. */
+    private FileConfiguration loadMenuLanguage(String packId, String locale) {
+        Path file = this.plugin.getDataFolder().toPath().resolve("resources")
+                .resolve(packId).resolve("lang").resolve(locale + ".yml");
+        String resource = "resources/" + packId + "/lang/" + locale + ".yml";
+        YamlConfiguration language = new YamlConfiguration();
+        try {
+            try (InputStream bundled = this.plugin.getResource(resource)) {
+                if (bundled != null) YamlDefaultsUpdater.update(file, bundled);
+            }
+            if (Files.isRegularFile(file)) {
+                language.load(file.toFile());
+            } else {
+                try (InputStream input = this.plugin.getResource(resource)) {
+                    if (input != null) {
+                        language.load(new InputStreamReader(input, StandardCharsets.UTF_8));
+                    }
+                }
+            }
+        } catch (IOException | InvalidConfigurationException | RuntimeException error) {
+            this.plugin.getLogger().warning("Cannot load menu language " + packId + " "
+                    + locale + ": " + error.getMessage());
+        }
+        return language;
+    }
+
     private void diagnose(FileConfiguration config) {
         for (int i = 0; i < this.categoryList.size(); i++) {
             String id = this.categoryList.get(i);
@@ -331,6 +372,15 @@ public final class CerConfig {
         return resolveMenuTitle(template, content, this.browserTitleOffset, this.browserTitleShift);
     }
 
+    /**
+     * Menu packs own the image/shift template. A compact language title only replaces the
+     * {@code <title>} content and must never replace the menu pack's full title template.
+     */
+    static String titleTemplate(FileConfiguration menu, String compactPath, String fullPath) {
+        String compact = menu.getString(compactPath);
+        return compact == null || compact.isBlank() ? menu.getString(fullPath) : compact;
+    }
+
     static String resolveMenuTitle(String template, String content, int offset, int shift) {
         if (template == null || template.isBlank()) return content;
         String rendered = template
@@ -375,10 +425,18 @@ public final class CerConfig {
         return this.styledName(prefix, this.mm(name));
     }
 
+    public Component styledName(String prefix, String name, Boolean bold) {
+        return this.styledName(prefix, this.mm(name), bold);
+    }
+
     /** 将名称解析为纯文本后应用统一前缀，同时保留前缀中的 MiniMessage 样式。 */
     public Component styledName(String prefix, Component name) {
+        return this.styledName(prefix, name, null);
+    }
+
+    public Component styledName(String prefix, Component name, Boolean bold) {
         String plain = name == null ? "" : PlainTextComponentSerializer.plainText().serialize(name);
-        Component style = this.mm(prefix == null ? "" : prefix);
+        Component style = this.mm(this.effectiveTitlePrefix(prefix, bold));
         return noItalic(style.append(Component.text(plain)));
     }
 
@@ -386,10 +444,27 @@ public final class CerConfig {
      * 只给标题中精确匹配的名称文字应用样式，保留 UI 字体图片及白色占位字符。
      */
     public Component applyNameStyle(String prefix, Component source, String name) {
+        return this.applyNameStyle(prefix, source, name, null);
+    }
+
+    public Component applyNameStyle(String prefix, Component source, String name, Boolean bold) {
         if (source == null) return Component.empty();
         if (name == null || name.isBlank()) return source;
-        Style style = this.mm(prefix == null ? "" : prefix).style();
+        Style style = this.mm(this.effectiveTitlePrefix(prefix, bold)).style();
         return applyNameStyle(source, style, name.trim());
+    }
+
+    private String effectiveTitlePrefix(String prefix, Boolean bold) {
+        if (bold == null) return prefix == null ? "" : prefix;
+        String color = this.withoutBold(prefix);
+        return bold ? color + "<bold>" : color + "<!bold>";
+    }
+
+    private String withoutBold(String miniMessage) {
+        if (miniMessage == null || miniMessage.isBlank()) return "";
+        return miniMessage
+                .replaceAll("(?i)</?bold>", "")
+                .replaceAll("(?i)</?b>", "");
     }
 
     private static Component applyNameStyle(Component source, Style prefix, String name) {
@@ -648,17 +723,43 @@ public final class CerConfig {
 
     public record ButtonDef(Material material, String itemModel, char symbol, String name, List<String> lore) {
 
-        static ButtonDef of(FileConfiguration c, LanguageManager lang, String path, Material defMaterial) {
-            return of(c, lang, path, defMaterial, "", firstChar(c.getString(path + ".char"), '\u0000'));
+        static ButtonDef of(FileConfiguration c, LanguageManager lang,
+                            String path, Material defMaterial) {
+            return of(c, c, lang.view(lang.locale()), path, defMaterial);
         }
 
-        static ButtonDef of(FileConfiguration c, LanguageManager lang, String path, Material defMaterial,
+        static ButtonDef of(FileConfiguration c, LanguageManager.Localized lang,
+                            String path, Material defMaterial) {
+            return of(c, c, lang, path, defMaterial, "",
+                    firstChar(c.getString(path + ".char"), '\u0000'));
+        }
+
+        static ButtonDef of(FileConfiguration layout, FileConfiguration text,
+                            LanguageManager.Localized lang, String path, Material defMaterial) {
+            return of(layout, text, lang, path, defMaterial, "",
+                    firstChar(layout.getString(path + ".char"), '\u0000'));
+        }
+
+        static ButtonDef of(FileConfiguration c, LanguageManager lang, String path,
+                            Material defMaterial, String defItemModel, char defSymbol) {
+            return of(c, c, lang.view(lang.locale()), path, defMaterial, defItemModel, defSymbol);
+        }
+
+        static ButtonDef of(FileConfiguration c, LanguageManager.Localized lang,
+                            String path, Material defMaterial,
                             String defItemModel, char defSymbol) {
-            Material m = parseMaterial(c.getString(path + ".material", defMaterial.getKey().toString()));
-            String itemModel = c.getString(path + ".item-model", defItemModel);
-            char symbol = firstChar(c.getString(path + ".char", String.valueOf(defSymbol)), '\u0000');
-            String name = lang.uiText(c, path + ".name");
-            List<String> lore = lang.uiList(c, path + ".lore");
+            return of(c, c, lang, path, defMaterial, defItemModel, defSymbol);
+        }
+
+        static ButtonDef of(FileConfiguration layout, FileConfiguration text,
+                            LanguageManager.Localized lang, String path, Material defMaterial,
+                            String defItemModel, char defSymbol) {
+            Material m = parseMaterial(layout.getString(path + ".material",
+                    defMaterial.getKey().toString()));
+            String itemModel = layout.getString(path + ".item-model", defItemModel);
+            char symbol = firstChar(layout.getString(path + ".char", String.valueOf(defSymbol)), '\u0000');
+            String name = lang.uiText(text, path + ".name");
+            List<String> lore = lang.uiList(text, path + ".lore");
             return new ButtonDef(m, itemModel, symbol, name, lore);
         }
     }

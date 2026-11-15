@@ -1,0 +1,4 @@
+schema: 1
+presets:
+  - id: kaleidoscopecookery
+    visibility: player

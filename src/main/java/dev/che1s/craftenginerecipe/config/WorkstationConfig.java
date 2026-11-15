@@ -16,6 +16,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -67,7 +69,7 @@ public final class WorkstationConfig {
                         continue;
                     }
                     String id = text(map.get("id"));
-                    if (!id.isBlank()) parsed.add(new StationEntry(id));
+                    if (!id.isBlank()) parsed.add(new StationEntry(id, text(map.get("cer-managed-by"))));
                 }
             } else {
                 // 兼容最初版本的 order: 列表。
@@ -90,15 +92,102 @@ public final class WorkstationConfig {
 
     /** 将已发现但尚未写入配置的合成器追加到末尾。 */
     public synchronized int sync(Collection<String> discovered) {
+        return this.sync(discovered, List.of(), ignored -> "");
+    }
+
+    /**
+     * Applies extension navigation, assigns ownership, and removes entries owned by unavailable
+     * JARs. Existing local entries stay in place; only missing entries are appended.
+     */
+    public synchronized Reconciliation reconcile(
+            Collection<String> discovered,
+            Collection<dev.che1s.craftenginerecipe.integration.extension.ExtensionManager.ManagedWorkstationPreset> presets,
+            Set<String> activeJarNames,
+            Function<String, String> ownerResolver) {
+        Set<String> active = activeJarNames == null ? Set.of() : Set.copyOf(activeJarNames);
+        int removed = 0;
+        List<Entry> next = new ArrayList<>(this.entries.size());
+        Set<String> removedStations = new LinkedHashSet<>();
+        for (Entry entry : this.entries) {
+            if (entry instanceof StationEntry station && !station.managedBy().isBlank()
+                    && !active.contains(station.managedBy())) {
+                removed++;
+                removedStations.add(station.id());
+                continue;
+            }
+            next.add(entry);
+        }
+
+        LinkedHashMap<String, Integer> stationIndexes = new LinkedHashMap<>();
+        for (int index = 0; index < next.size(); index++) {
+            if (next.get(index) instanceof StationEntry station) {
+                stationIndexes.putIfAbsent(station.id(), index);
+            }
+        }
+
+        int added = 0;
+        for (var preset : presets) {
+            String id = preset.stationId();
+            String owner = ownerResolver == null ? "" : ownerResolver.apply(id);
+            Integer existing = stationIndexes.get(id);
+            if (existing == null) {
+                stationIndexes.put(id, next.size());
+                next.add(new StationEntry(id, owner));
+                added++;
+                continue;
+            }
+            if (owner.isBlank()) continue;
+            StationEntry station = (StationEntry) next.get(existing);
+            if (station.managedBy().isBlank()) next.set(existing, new StationEntry(id, owner));
+        }
+        for (String id : discovered) {
+            if (id == null || id.isBlank()) continue;
+            String normalized = id.trim();
+            String owner = ownerResolver == null ? "" : ownerResolver.apply(normalized);
+            if (removedStations.contains(normalized)
+                    || !owner.isBlank() && !active.contains(owner)) continue;
+            Integer existing = stationIndexes.get(normalized);
+            if (existing == null) {
+                stationIndexes.put(normalized, next.size());
+                next.add(new StationEntry(normalized, owner));
+                added++;
+                continue;
+            }
+            if (owner.isBlank()) continue;
+            StationEntry station = (StationEntry) next.get(existing);
+            if (station.managedBy().isBlank()) {
+                next.set(existing, new StationEntry(normalized, owner));
+            }
+        }
+
+        boolean changed = added > 0 || removed > 0 || !next.equals(this.entries);
+        if (changed) {
+            this.entries = List.copyOf(next);
+            this.save();
+        }
+        return new Reconciliation(added, removed);
+    }
+
+    private synchronized int sync(
+            Collection<String> discovered,
+            Collection<dev.che1s.craftenginerecipe.integration.extension.ExtensionManager.ManagedWorkstationPreset> presets,
+            Function<String, String> ownerResolver) {
         LinkedHashSet<String> stations = new LinkedHashSet<>();
         for (Entry entry : this.entries) {
             if (entry instanceof StationEntry station) stations.add(station.id());
         }
         List<Entry> next = new ArrayList<>(this.entries);
         int added = 0;
+        for (var preset : presets) {
+            if (preset.stationId() == null || preset.stationId().isBlank()
+                    || !stations.add(preset.stationId())) continue;
+            next.add(new StationEntry(preset.stationId(), ownerResolver.apply(preset.stationId())));
+            added++;
+        }
         for (String id : discovered) {
             if (id == null || id.isBlank() || !stations.add(id.trim())) continue;
-            next.add(new StationEntry(id.trim()));
+            String normalized = id.trim();
+            next.add(new StationEntry(normalized, ownerResolver.apply(normalized)));
             added++;
         }
         if (added > 0) {
@@ -161,6 +250,9 @@ public final class WorkstationConfig {
             if (entry instanceof StationEntry station) {
                 Map<String, Object> map = new LinkedHashMap<>();
                 map.put("id", station.id());
+                if (!station.managedBy().isBlank()) {
+                    map.put("cer-managed-by", station.managedBy());
+                }
                 list.add(map);
             } else if (entry instanceof ButtonEntry button) {
                 list.add(CategoryNamespaces.buttonMap(button.button()));
@@ -196,10 +288,20 @@ public final class WorkstationConfig {
     public sealed interface Entry permits StationEntry, ButtonEntry {
     }
 
-    public record StationEntry(String id) implements Entry {
+    public record StationEntry(String id, String managedBy) implements Entry {
+        public StationEntry {
+            managedBy = managedBy == null ? "" : managedBy.trim();
+        }
+
+        public StationEntry(String id) {
+            this(id, "");
+        }
     }
 
     public record ButtonEntry(CategoryNamespaces.ButtonEntry button) implements Entry {
+    }
+
+    public record Reconciliation(int added, int removed) {
     }
 
     /** 保留上一版 workstations.yml，并通过同目录临时文件原子替换。 */

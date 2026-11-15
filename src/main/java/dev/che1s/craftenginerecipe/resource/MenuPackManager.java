@@ -11,14 +11,22 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /** 发现并安装 config.yml 中启用的菜单包。 */
 public final class MenuPackManager {
     private static final String DEFAULT_PACK = ResourcePackInstaller.MENU_CUTE_DIRECTORY;
     private final CraftEngineRecipePlugin plugin;
+    private final Supplier<Collection<String>> extensionPacks;
 
     public MenuPackManager(CraftEngineRecipePlugin plugin) {
+        this(plugin, List::of);
+    }
+
+    public MenuPackManager(CraftEngineRecipePlugin plugin,
+                           Supplier<Collection<String>> extensionPacks) {
         this.plugin = plugin;
+        this.extensionPacks = extensionPacks == null ? List::of : extensionPacks;
     }
 
     public List<String> available() {
@@ -76,21 +84,46 @@ public final class MenuPackManager {
 
     /** 使用 FD、KC 及全部已启用菜单包重建受管子包集合。 */
     public void installEnabled() throws IOException {
-        LinkedHashSet<String> selected = new LinkedHashSet<>();
-        selected.addAll(ResourcePackInstaller.REQUIRED_GUI_PACKS);
-        selected.addAll(enabled());
+        LinkedHashSet<String> selected = new LinkedHashSet<>(selectedPacks(
+                ResourcePackInstaller.REQUIRED_GUI_PACKS, enabled(), this.extensionPacks.get()));
         for (String id : enabled()) {
             Path local = localRoot().resolve(id);
-            ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id);
+            ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id,
+                    plugin.getName(), plugin.getDescription().getVersion());
         }
         for (String id : ResourcePackInstaller.REQUIRED_GUI_PACKS) {
             Path local = localRoot().resolve(id);
-            ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id);
+            ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id,
+                    plugin.getName(), plugin.getDescription().getVersion());
         }
         for (String id : enabled()) {
             ResourcePackInstaller.removeLegacyMenuLayouts(localRoot().resolve(id));
         }
-        ResourcePackInstaller.installBundle(localRoot(), targetResourcesRoot(), selected);
+        for (String id : selected) {
+            Path local = localRoot().resolve(id);
+            if (!Files.isRegularFile(local.resolve("pack.yml"))) {
+                throw new IOException("Missing managed resource pack: " + id);
+            }
+        }
+        ResourcePackInstaller.installBundle(localRoot(), targetResourcesRoot(), selected,
+                plugin.getDescription().getVersion());
+    }
+
+    static List<String> selectedPacks(Collection<String> required, Collection<String> menus,
+                                      Collection<String> extensionPacks) {
+        LinkedHashSet<String> selected = new LinkedHashSet<>();
+        addManagedPacks(selected, required);
+        addManagedPacks(selected, menus);
+        addManagedPacks(selected, extensionPacks);
+        return List.copyOf(selected);
+    }
+
+    private static void addManagedPacks(Set<String> target, Collection<String> packs) {
+        if (packs == null) return;
+        for (String pack : packs) {
+            if (pack == null || !pack.matches("[a-z0-9_-]+")) continue;
+            target.add(pack);
+        }
     }
 
     public boolean setDefault(String requested) {

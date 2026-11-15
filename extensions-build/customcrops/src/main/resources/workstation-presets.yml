@@ -1,0 +1,20 @@
+schema: 1
+navigation:
+  - id: "customcrops:pot/default"
+  - id: "customcrops:pot/aquatic_crops"
+  - id: "customcrops:pot/nether"
+  - id: "customcrops:pot/end"
+presentation:
+  station-prefixes:
+    - "customcrops:"
+  styles:
+    default:
+      remove-spaces: false
+      bold: false
+    en_US:
+      remove-spaces: true
+      bold: false
+    zh_CN:
+      bold: true
+    zh_TW:
+      bold: true

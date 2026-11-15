@@ -1,0 +1,90 @@
+# Generated ko_KR translation from en_US.yml.
+separator: ', '
+title.station: CustomCrops·{pot}
+title.recipe: CustomCrops·{suffix}
+title.suffix.default: 화분
+title.suffix.aquatic_crops: 수경 재배 화분
+title.suffix.nether: 네더 화분
+title.suffix.end: 엔드 화분
+pot.default: 냄비
+pot.aquatic_crops: 수경재배 화분
+pot.nether: 황천 냄비
+pot.end: 엔드팟
+season.spring: 봄
+season.summer: 여름
+season.autumn: 가을
+season.winter: 겨울
+environment.normal: 오버월드
+environment.world: 오버월드
+environment.the_nether: 네더
+environment.nether: 네더
+environment.the_end: 종료
+environment.end: 종료
+fertilizer.quality: 품질
+fertilizer.speed_grow: 성장 속도
+fertilizer.yield_increase: 수확량 증가
+fertilizer.variation: 변형
+fertilizer.soil_retain: 토양 보유
+vanilla.minecraft.water_bucket: 물통
+vanilla.minecraft.lava_bucket: 용암 양동이
+vanilla.minecraft.dragon_breath: 용의 숨결
+vanilla.minecraft.glass_bottle: 유리병
+vanilla.minecraft.bucket: 버킷
+vanilla.minecraft.potion: 물약
+vanilla.minecraft.stick: 스틱
+vanilla.minecraft.dark_oak_log: 다크 오크 로그
+note.mature: 성숙한 제품
+note.quality: ' · 품질: {qualities}'
+note.byproduct: ' · 부산물'
+note.amount_exact: ' · 금액 {amount}'
+note.amount_range: ' · 금액 {min}-{max}'
+lore.plant_block: '<#B8C0CC>플랜트 블록: </#B8C0CC><white>{pot}</white>'
+lore.season: '<#98C69A>적절한 계절: </#98C69A><white>{seasons}</white>'
+lore.season_none: '<#98C69A>계절 제한: </#98C69A><white>계절 요구 사항 없음</white>'
+lore.environment: '<#98C69A>적합 환경: </#98C69A><white>{environments}</white>'
+lore.greenhouse: '<#D8B278>부적합한 계절: </#D8B278><white>계절의 영향을 피하기 위해 작물 위에 {item}를 놓습니다.</white>'
+lore.mature_stage: '<#B8C0CC>성숙 단계: </#B8C0CC><white>{points} 포인트</white>'
+lore.water_storage: '<#B8C0CC>물 저장고: </#B8C0CC><white>{points} 포인트</white>'
+lore.water_disabled: '<#B8C0CC>물주기: </#B8C0CC><white>이 화분은 플러그인 물 저장 시스템을 사용하지 않습니다.</white>'
+lore.water_consumption: '<#B8C0CC>자연 소비량: </#B8C0CC><white> {updates} 포트 업데이트마다 워터 포인트 1 소모</white>'
+lore.water_interval: '<#B8C0CC>관수 간격: </#B8C0CC><white>{prefix} {duration} 물 1점당</white>'
+lore.water_full: '<#B8C0CC>만수 기간: </#B8C0CC><white>{prefix} {duration}</white>'
+lore.water_random: '<#B8C0CC>관수 간격: </#B8C0CC><white>임의의 진드기로 결정됩니다. 고정 기간 없음</white>'
+lore.rain: '<#98C69A>Rain: </#98C69A><white>소비를 중지하고 비가 오면 자동으로 재충전됩니다.</white>'
+lore.nearby_water: '<#98C69A>근처 물: </#98C69A><white>소비를 중지하고 물 4블록 내에서 리필합니다.</white>'
+lore.settings_note: <#8793A5>실제 주기는 관련 설정을 따릅니다.</#8793A5>
+lore.can_capacity: '<#B8C0CC>물뿌리개 용량: </#B8C0CC><white>{amount} 포인트</white>'
+lore.can_refill: '<#B8C0CC>리필 당 물: </#B8C0CC><white>{amount} 포인트</white>'
+lore.compatible_pot: '<#B8C0CC>호환 포트: </#B8C0CC><white>{pot}</white>'
+lore.can_refill_source: <#8793A5>물뿌리개를 다시 채우려면 물 공급원을 마우스 오른쪽 버튼으로 클릭하세요.</#8793A5>
+lore.fill_usage: '<#B8C0CC>Usage: </#B8C0CC><white>{item}를 유지하고 {pot}를 마우스 오른쪽 버튼으로 클릭합니다. 사용할 때마다 {amount} 포인트</white>가 추가됩니다.'
+lore.return_item: '<#B8C0CC>반품된 항목: </#B8C0CC><white>{amount}{item}</white>'
+lore.return_item_count: '{amount} × '
+lore.fertilizer_optional: '<#D8B278>선택적 비료/호르몬: </#D8B278><white>{type}</white>'
+lore.fertilizer_duration: '<#B8C0CC>기간: </#B8C0CC><white>{times} 자르기 업데이트</white>'
+lore.fertilizer_before: '<#D8B278>타이밍: </#D8B278><white>심기 전에 적용해야 함</white>'
+lore.fertilizer_limit: '<#B8C0CC>한도: </#B8C0CC><white>팟당 최대 {amount}</white>'
+lore.sprinkler_auto: '<#98C69A>자동 관개: </#98C69A><white>범위 내에서 호환되는 화분을 리필합니다.</white>'
+lore.sprinkler_range: '<#B8C0CC>범위: </#B8C0CC><white>{range} 블록</white>'
+lore.sprinkler_refill: '<#B8C0CC>작업당 물: </#B8C0CC><white>{amount} 포인트</white>'
+lore.sprinkler_storage: '<#B8C0CC>물 저장고: </#B8C0CC><white>{storage}</white>'
+lore.sprinkler_infinite: 무한
+lore.sprinkler_cycle: '<#8793A5>Cycle: 모든 {updates} 스프링클러 업데이트</#8793A5>'
+lore.points: '{points} 포인트'
+lore.greenhouse_protect: '<#98C69A>계절 보호: </#98C69A><white>적절한 계절이 아닐 때 작물이 죽는 것을 방지합니다.</white>'
+lore.greenhouse_place: '<#B8C0CC>배치: </#B8C0CC><white>작물 위 또는 유효 영역 내</white>'
+lore.scarecrow_protect: '<#98C69A>까마귀 보호: </#98C69A><white>까마귀 피해로부터 인근 농작물을 방지합니다.</white>'
+lore.scarecrow_place: '<#B8C0CC>배치: </#B8C0CC><white>팟 근처</white>'
+lore.scope: '<#B8C0CC>E유효 범위: </#B8C0CC><white>{scope}</white>'
+lore.whole_chunk: 전체 덩어리
+lore.blocks: '{range} 블록'
+lore.harvest_amount: '<#B8C0CC>수확량: </#B8C0CC><white>{amount}</white>'
+lore.quality_candidates: '<#B8C0CC>가능한 품질: </#B8C0CC><white>{qualities}</white>'
+lore.quality_chance: '<#B8C0CC>품질 확률: </#B8C0CC><white>CustomCrops 품질 비율 및 비료의 영향을 받음</white>'
+amount.range: '{min}-{max}'
+duration.default: 약
+duration.scheduled: 최소한 예정
+time.seconds: '{value} 초'
+time.minutes: '{value}분'
+time.hours: '{value}시간'
+time.hours_minutes: '{hours}시간 {minutes}분'

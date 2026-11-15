@@ -2,7 +2,7 @@ package dev.che1s.craftenginerecipe.integration;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.config.IntegrationSettings;
-import dev.che1s.craftenginerecipe.integration.common.PluginFingerprints;
+import dev.che1s.craftenginerecipe.api.extension.RecipeSourceProvider;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * 通过聊天中的一个入口按钮，引导管理员打开适配插件与分类预设的统一 Dialog。
+ * 通过聊天中的一个入口按钮，引导管理员打开管理页中的适配插件与分类预设。
  */
 public final class IntegrationPromptService implements Listener {
     private static final String ADMIN_PERMISSION = "craftenginerecipe.admin";
@@ -68,9 +68,7 @@ public final class IntegrationPromptService implements Listener {
     @EventHandler
     public void onPluginEnable(PluginEnableEvent event) {
         if (event.getPlugin() == this.plugin) return;
-        PluginFingerprints.identify(event.getPlugin())
-                .filter(fingerprint -> IntegrationSettings.PROMPTABLE_SOURCES.contains(fingerprint.sourceId()))
-                .ifPresent(ignored -> this.requestPrompt());
+        this.requestPrompt();
     }
 
     public Map<String, String> pendingSources() {
@@ -86,17 +84,17 @@ public final class IntegrationPromptService implements Listener {
 
     public Map<String, String> configuredSources() {
         LinkedHashMap<String, String> sources = new LinkedHashMap<>();
-        for (String source : IntegrationSettings.PROMPTABLE_SOURCES) {
-            sources.put(source, displayName(source));
+        for (String source : this.plugin.extensions().ids()) {
+            if (this.plugin.extensions().isPromptable(source)) {
+                sources.put(source, this.displayName(source));
+            }
         }
         return Collections.unmodifiableMap(sources);
     }
 
     public boolean isInstalled(String sourceId) {
-        for (var installed : Bukkit.getPluginManager().getPlugins()) {
-            if (installed.isEnabled() && PluginFingerprints.matches(installed, sourceId)) return true;
-        }
-        return false;
+        RecipeSourceProvider provider = this.plugin.extensions().provider(sourceId);
+        return provider != null && this.plugin.extensions().isInstalled(provider);
     }
 
     public boolean hasPendingChoices() {
@@ -137,7 +135,7 @@ public final class IntegrationPromptService implements Listener {
     }
 
     private void sendEntry(Player player, int pluginCount, int presetCount) {
-        player.sendMessage(this.plugin.lang().message("messages.integration-config-detected",
+        player.sendMessage(this.plugin.lang(player).message("messages.integration-config-detected",
                 "plugins", String.valueOf(pluginCount),
                 "presets", String.valueOf(presetCount)));
         UUID playerId = player.getUniqueId();
@@ -145,64 +143,66 @@ public final class IntegrationPromptService implements Listener {
             Player clicker = audience instanceof Player clicked ? clicked
                     : Bukkit.getPlayer(playerId);
             if (clicker != null && clicker.isOnline()) {
-                this.plugin.integrationConfigDialog().open(clicker);
+                this.plugin.browser(clicker).openNamespaceManager(clicker);
             }
         };
-        Component button = this.plugin.lang().component("messages.integration-config-open")
+        Component button = this.plugin.lang(player).component("messages.integration-config-open")
                 .clickEvent(ClickEvent.callback(callback,
                         ClickCallback.Options.builder().uses(1)
                                 .lifetime(Duration.ofMinutes(10L)).build()))
-                .hoverEvent(HoverEvent.showText(this.plugin.lang().component(
+                .hoverEvent(HoverEvent.showText(this.plugin.lang(player).component(
                         "messages.integration-config-open-hover")));
         player.sendMessage(button);
     }
 
-    /** 保存统一 Dialog 中的适配插件选择，并执行必要的导出和索引刷新。 */
-    public void applyDialogChoices(Player player, Map<String, IntegrationSettings.Mode> choices) {
+    /** 保存管理页中的适配插件选择，并执行必要的导出和索引刷新。 */
+    public void applyChoices(Player player, Map<String, IntegrationSettings.Mode> choices) {
         if (!this.plugin.data().isReady() || choices == null) return;
-        SourceTransition transition = planTransitions(choices, this.plugin.integrations()::mode);
+        SourceTransition transition = planTransitions(choices, this.plugin.extensions()::effectiveMode,
+                java.util.Set.copyOf(this.plugin.extensions().ids()));
         if (transition.accepted().isEmpty()) {
-            player.sendMessage(this.plugin.lang().message("messages.integration-config-saved"));
+            player.sendMessage(this.plugin.lang(player).message("messages.integration-config-saved"));
             return;
         }
-        if (!this.plugin.integrations().setModes(transition.accepted())) {
-            player.sendMessage(this.plugin.lang().message("messages.integration-config-save-failed"));
+        if (!this.plugin.integrations().setModes(transition.accepted(),
+                this.plugin.extensions().ids())) {
+            player.sendMessage(this.plugin.lang(player).message("messages.integration-config-save-failed"));
             return;
         }
         if (!transition.newlyDisabled().isEmpty()) {
             this.plugin.externalRecipes().reloadIndex();
-            player.sendMessage(this.plugin.lang().message("messages.integration-choice-disabled",
+            player.sendMessage(this.plugin.lang(player).message("messages.integration-choice-disabled",
                     "plugins", names(transition.newlyDisabled())));
         }
         if (!transition.newlyAsk().isEmpty()) {
             this.plugin.externalRecipes().reloadIndex();
-            player.sendMessage(this.plugin.lang().message(
+            player.sendMessage(this.plugin.lang(player).message(
                     "messages.integration-choice-ask", "plugins", names(transition.newlyAsk())));
         }
         if (!transition.newlyEnabled().isEmpty()) {
             List<String> applied = this.plugin.categoryPrompts()
                     .applyLinkedPresets(transition.newlyEnabled());
             if (!applied.isEmpty()) {
-                player.sendMessage(this.plugin.lang().message("messages.category-preset-linked-applied",
+                player.sendMessage(this.plugin.lang(player).message("messages.category-preset-linked-applied",
                         "presets", String.join(", ", applied)));
             }
             List<String> exportable = transition.newlyEnabled().stream()
                     .filter(this::isInstalled)
                     .toList();
             if (!exportable.isEmpty()) this.enableAndExport(player, exportable);
-            else player.sendMessage(this.plugin.lang().message("messages.integration-config-saved"));
+            else player.sendMessage(this.plugin.lang(player).message("messages.integration-config-saved"));
         } else {
-            player.sendMessage(this.plugin.lang().message("messages.integration-config-saved"));
+            player.sendMessage(this.plugin.lang(player).message("messages.integration-config-saved"));
         }
         this.notified.clear();
         this.lastPendingSignature = "";
     }
 
     private void enableAndExport(Player player, List<String> sources) {
-        List<String> names = sources.stream().map(IntegrationPromptService::displayName).toList();
+        List<String> names = sources.stream().map(this::displayName).toList();
         this.plugin.tasks().player(player, () -> {
             if (player.isOnline()) {
-                player.sendMessage(this.plugin.lang().message("messages.integration-export-started",
+                player.sendMessage(this.plugin.lang(player).message("messages.integration-export-started",
                         "plugins", String.join(", ", names)));
             }
         });
@@ -210,10 +210,10 @@ public final class IntegrationPromptService implements Listener {
             this.plugin.tasks().player(player, () -> {
                 if (!player.isOnline()) return;
                 for (String source : sources) {
-                    String name = displayName(source);
+                    String name = this.displayName(source);
                     var sourceReport = report.bySource().get(source);
                     if (sourceReport != null) {
-                        player.sendMessage(this.plugin.lang().component(
+                        player.sendMessage(this.plugin.lang(player).component(
                                 "messages.integration-index-ready",
                                 "plugin", name,
                                 "recipes", String.valueOf(sourceReport.recipes()),
@@ -223,8 +223,8 @@ public final class IntegrationPromptService implements Listener {
                                 .filter(entry -> entry.getKey().equals(source)
                                         || entry.getKey().startsWith(source + "-"))
                                 .map(Map.Entry::getValue).findFirst()
-                                .orElse(this.plugin.lang().text("messages.integration-unknown-error"));
-                        player.sendMessage(this.plugin.lang().component(
+                                .orElse(this.plugin.lang(player).text("messages.integration-unknown-error"));
+                        player.sendMessage(this.plugin.lang(player).component(
                                 "messages.integration-index-failed", "plugin", name, "error", error));
                     }
                 }
@@ -232,26 +232,24 @@ public final class IntegrationPromptService implements Listener {
         });
     }
 
-    static String displayName(String sourceId) {
-        return PluginFingerprints.all().stream()
-                .filter(fingerprint -> fingerprint.sourceId().equals(sourceId))
-                .map(PluginFingerprints.Fingerprint::displayName)
-                .findFirst().orElse(sourceId);
+    String displayName(String sourceId) {
+        return this.plugin.extensions().displayName(sourceId);
     }
 
-    private static String names(Collection<String> sources) {
-        return String.join(", ", sources.stream().map(IntegrationPromptService::displayName).toList());
+    private String names(Collection<String> sources) {
+        return String.join(", ", sources.stream().map(this::displayName).toList());
     }
 
     static SourceTransition planTransitions(
             Map<String, IntegrationSettings.Mode> choices,
-            Function<String, IntegrationSettings.Mode> currentMode) {
+            Function<String, IntegrationSettings.Mode> currentMode,
+            Set<String> knownSources) {
         Map<String, IntegrationSettings.Mode> accepted = new LinkedHashMap<>();
         List<String> newlyEnabled = new ArrayList<>();
         List<String> newlyDisabled = new ArrayList<>();
         List<String> newlyAsk = new ArrayList<>();
         choices.forEach((source, mode) -> {
-            if (!IntegrationSettings.PROMPTABLE_SOURCES.contains(source) || mode == null) return;
+            if (!knownSources.contains(source) || mode == null) return;
             accepted.put(source, mode);
             IntegrationSettings.Mode previous = currentMode.apply(source);
             if (previous == mode) return;

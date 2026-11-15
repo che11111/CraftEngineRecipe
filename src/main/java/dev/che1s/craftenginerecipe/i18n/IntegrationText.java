@@ -1,5 +1,10 @@
 package dev.che1s.craftenginerecipe.i18n;
 
+import com.google.gson.JsonObject;
+import dev.che1s.craftenginerecipe.api.extension.SourceText;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -12,12 +17,18 @@ import java.util.regex.Pattern;
  * <p>模板使用具名占位符，例如 {@code "数量：{amount}"}；调用参数按
  * {@code "amount", value} 成对传入。这样语言文件调整语序时无需改 Java 参数顺序。</p>
  */
-public final class IntegrationText {
+public final class IntegrationText implements SourceText {
     private static final Pattern ARGUMENT = Pattern.compile("\\{([a-zA-Z0-9_-]+)}");
-    private static final IntegrationText EMPTY = new IntegrationText(key -> null);
+    private static final IntegrationText EMPTY = new IntegrationText("", key -> null);
+    private final String source;
     private final Function<String, String> lookup;
 
     public IntegrationText(Function<String, String> lookup) {
+        this("", lookup);
+    }
+
+    public IntegrationText(String source, Function<String, String> lookup) {
+        this.source = source == null ? "" : source;
         this.lookup = lookup == null ? key -> null : lookup;
     }
 
@@ -26,12 +37,42 @@ public final class IntegrationText {
     }
 
     public static IntegrationText of(String source, LanguageManager language) {
-        return new IntegrationText(key -> language.integrationText(source, key));
+        return new IntegrationText(source, key -> language.integrationText(source, key));
     }
 
+    public static IntegrationText of(String source, LanguageManager.Localized language) {
+        return new IntegrationText(source, key -> language.integrationText(source, key));
+    }
+
+    @Override
     public String text(String key, String fallback, Object... arguments) {
         String value = this.lookup.apply(key);
         return format(value == null || value.isBlank() || value.equals(key) ? fallback : value, arguments);
+    }
+
+    @Override
+    public boolean has(String key) {
+        String value = this.lookup.apply(key);
+        return value != null && !value.isBlank() && !value.equals(key);
+    }
+
+    @Override
+    public String deferred(String key, String fallback, Object... arguments) {
+        if (this.source.isBlank() || !has(key)) return text(key, fallback, arguments);
+        String payload = deferredArguments(arguments);
+        return "<cer-lang:" + this.source + ":" + key
+                + (payload.isBlank() ? "" : ":" + payload) + ">";
+    }
+
+    private static String deferredArguments(Object... arguments) {
+        if (arguments == null || arguments.length < 2) return "";
+        JsonObject values = new JsonObject();
+        for (int index = 0; index + 1 < arguments.length; index += 2) {
+            values.addProperty(String.valueOf(arguments[index]),
+                    arguments[index + 1] == null ? "" : String.valueOf(arguments[index + 1]));
+        }
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(
+                values.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     static String format(String template, Object... arguments) {

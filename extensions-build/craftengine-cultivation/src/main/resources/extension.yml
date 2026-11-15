@@ -1,0 +1,52 @@
+schema: 1
+id: craftengine_cultivation
+names:
+  en_US: CraftEngine Cultivation
+  zh_CN: CraftEngine 耕地
+  zh_TW: CraftEngine 耕地
+  ja_JP: CraftEngine 栽培
+  ko_KR: CraftEngine 경작
+  de_DE: CraftEngine-Anbau
+  fr_FR: Culture CraftEngine
+  es_ES: Cultivo de CraftEngine
+  ru_RU: Выращивание CraftEngine
+descriptions:
+  en_US: Exports cultivation and planting data from CraftEngine namespaces.
+  zh_CN: 导出 CraftEngine 命名空间中的耕地与种植数据。
+  zh_TW: 匯出 CraftEngine 命名空間中的耕地與種植資料。
+  ja_JP: CraftEngine 名前空間の耕作・植え付けデータを出力します。
+  ko_KR: CraftEngine 네임스페이스의 경작 및 재배 데이터를 내보냅니다.
+  de_DE: Exportiert Anbau- und Pflanzdaten aus CraftEngine-Namespaces.
+  fr_FR: Exporte les données de culture et de plantation des espaces de noms CraftEngine.
+  es_ES: Exporta los datos de cultivo y plantación de los espacios de nombres de CraftEngine.
+  ru_RU: Экспортирует данные выращивания и посадки из пространств имён CraftEngine.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: cultivation
+dependencies:
+  plugins:
+    - name: CraftEngine
+      main-classes:
+        - net.momirealms.craftengine.bukkit.plugin.PaperCraftEnginePlugin
+        - net.momirealms.craftengine.bukkit.plugin.BukkitCraftEnginePlugin
+      version: ">=26.9.2"
+      primary: true
+integration-defaults:
+  mode: enabled
+  cultivation: false
+  export-missing: true
+  reexport-on-reload: false
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - minecraft:nether_wart

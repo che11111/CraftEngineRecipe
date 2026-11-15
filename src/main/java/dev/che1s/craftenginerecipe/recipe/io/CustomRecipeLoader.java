@@ -33,51 +33,62 @@ import java.util.function.Predicate;
 
 /** 读取仅用于展示的配方。加载失败时不会返回部分有效的替代数据。 */
 public final class CustomRecipeLoader {
-    private static final List<Integer> KALEIDOSCOPE_INGREDIENT_SLOTS =
-            List.of(5, 6, 7, 8, 14, 15, 16, 17, 23, 24, 25, 26);
-    private static final List<Integer> KALEIDOSCOPE_RESULT_SLOTS =
-            List.of(41, 42, 43, 44, 50, 51, 52, 53);
-    private static final Set<String> LAYOUT_KEYS = Set.of("template", "type", "rows", "title", "workstation-slot",
-            "information-slot", "previous-slot", "back-slot", "next-slot");
-    private static final Set<String> ITEM_KEYS = Set.of("provider", "id", "name", "lore");
-    private static final Set<String> INGREDIENT_KEYS = Set.of("provider", "id", "name", "lore", "item", "choices", "amount", "slot", "role");
-    private static final Set<String> RESULT_KEYS = Set.of("provider", "id", "name", "lore", "item", "amount", "slot", "note");
     private static final Set<String> OPTIONAL_SOURCE_DIRECTORIES =
             Set.of("farmersdelight", "kaleidoscope", "customcrops");
     private final Path directory;
     private final BooleanSupplier minecraftEnabled;
     private final BooleanSupplier craftEngineEnabled;
     private final Predicate<String> integrationEnabled;
+    private final Set<String> managedSourceDirectories;
 
     public CustomRecipeLoader(JavaPlugin plugin) {
         this(plugin.getDataFolder().toPath(),
                 () -> plugin.getConfig().getBoolean("sources.minecraft", true),
                 () -> plugin.getConfig().getBoolean("sources.craftengine", true),
                 source -> plugin instanceof dev.che1s.craftenginerecipe.CraftEngineRecipePlugin cer
-                        && cer.integrations().enabled(source));
+                        && cer.integrations().enabled(source),
+                OPTIONAL_SOURCE_DIRECTORIES);
+    }
+
+    /** Creates a loader for an extension-owned data snapshot. */
+    public static CustomRecipeLoader allSources(Path dataFolder) {
+        return new CustomRecipeLoader(dataFolder, () -> true, () -> true);
     }
 
     CustomRecipeLoader(Path dataFolder) {
-        this(dataFolder, () -> true, () -> true, ignored -> true);
+        this(dataFolder, () -> true, () -> true, ignored -> true, OPTIONAL_SOURCE_DIRECTORIES);
     }
 
     CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled) {
-        this(dataFolder, minecraftEnabled, craftEngineEnabled, ignored -> true);
+        this(dataFolder, minecraftEnabled, craftEngineEnabled, ignored -> true,
+                OPTIONAL_SOURCE_DIRECTORIES);
     }
 
     CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled,
                        Predicate<String> integrationEnabled) {
+        this(dataFolder, minecraftEnabled, craftEngineEnabled, integrationEnabled,
+                OPTIONAL_SOURCE_DIRECTORIES);
+    }
+
+    CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled,
+                       Predicate<String> integrationEnabled, Set<String> managedSourceDirectories) {
         this.directory = dataFolder.resolve("recipes");
         this.minecraftEnabled = minecraftEnabled;
         this.craftEngineEnabled = craftEngineEnabled;
         this.integrationEnabled = integrationEnabled;
+        this.managedSourceDirectories = Set.copyOf(managedSourceDirectories);
     }
 
     /** 使用启动/重载时刻的配置快照，避免异步文件扫描继续读取 Bukkit 配置。 */
     public CustomRecipeLoader(Path dataFolder, boolean minecraftEnabled, boolean craftEngineEnabled,
                               Set<String> enabledOptionalSources) {
         this(dataFolder, () -> minecraftEnabled, () -> craftEngineEnabled,
-                source -> enabledOptionalSources.contains(source));
+                source -> enabledOptionalSources.contains(source), OPTIONAL_SOURCE_DIRECTORIES);
+    }
+
+    public CustomRecipeLoader(Path dataFolder, Set<String> managedSourceDirectories,
+                              Predicate<String> sourceEnabled) {
+        this(dataFolder, () -> true, () -> true, sourceEnabled, managedSourceDirectories);
     }
 
     /**
@@ -144,7 +155,7 @@ public final class CustomRecipeLoader {
             Map<String, Object> templates = source.map(root.getOrDefault("layouts", Map.of()), "layouts");
             for (var entry : templates.entrySet()) {
                 Map<String, Object> template = source.map(entry.getValue(), "layouts." + entry.getKey());
-                source.keys(template, "layouts." + entry.getKey(), LAYOUT_KEYS);
+                source.keys(template, "layouts." + entry.getKey(), RecipeDocumentSchema.LAYOUT_KEYS);
                 // 模板只对当前文件有效，且模板之间不能相互继承。
                 if (template.containsKey("template")) throw source.error("layouts." + entry.getKey() + ".template", "templates cannot inherit templates");
                 source.layout(template, null, "layouts." + entry.getKey());
@@ -186,7 +197,8 @@ public final class CustomRecipeLoader {
                 && relative.getName(0).toString().equals("craftengine")) return false;
         if (relative.getNameCount() > 1) {
             String source = relative.getName(0).toString().toLowerCase(Locale.ROOT);
-            if (OPTIONAL_SOURCE_DIRECTORIES.contains(source) && !this.integrationEnabled.test(source)) return false;
+            if (this.managedSourceDirectories.contains(source)
+                    && !this.integrationEnabled.test(source)) return false;
         }
         for (Path part : relative) {
             String segment = part.toString().toLowerCase(Locale.ROOT);

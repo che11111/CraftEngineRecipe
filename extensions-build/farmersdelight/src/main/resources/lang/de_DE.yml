@@ -1,0 +1,29 @@
+# Generated de_DE translation from en_US.yml.
+title.cooking_pot: Farmer'sDelight·Kochtopf
+title.cooking_pot_group: Farmer'sDelight·Kochtopf·{group}
+title.cutting_board: Farmer'sDelight·Schneidebrett
+title.special: Farmer'sDelight·Spezielle Rezepte
+title.skillet: Farmer'sDelight·Pfanne
+title.unknown_addon: Farmer'sDelight·Zusätzliche Rezepte
+title.addon_prefix: 'Bauernfreude·'
+addon.keg: Gärfass
+addon.grill: Grillen
+addon.skewer: Spießbecken
+skillet.note: 'Am Lagerfeuer kochbar: ja; Garzeit: {ticks} tickt; Erfahrung: {experience}'
+flame.name: <gold>Rezeptinformationen
+flame.time: '<gray>Zeit: {ticks} tickt'
+flame.experience: '<gray>Erfahrung: {experience}'
+pot.cooking_time: 'Garzeit: {seconds} Sekunden'
+pot.experience: 'Erfahrung: {experience}'
+pot.group: 'Spezieller Kochtopf: {group}'
+item.required_tool: Erforderliches Werkzeug
+item.required_tool_lore: Werkzeuganforderungen können nicht erweitert werden; Überprüfen Sie das /fd-Rezept
+item.unresolved: Ungelöste Zutat
+note.candidate_result: Kandidatenergebnis
+note.description_display: Beschreibungsanzeige
+note.description_entry: Beschreibungseintrag; kein ausführbares Handwerksrezept
+note.auto_cycle: <gray>Zyklus automatisch</gray>
+addon.type: 'Add-on-Rezepttyp: {type}'
+addon.conditions: Überprüfen Sie das /fd-Rezept auf zusätzliche Bedingungen und spielerspezifische Hinweise
+note.probability_unknown: Unbekannter Zufall
+note.independent_chance: 'Unabhängige Chance: {percent}%'

@@ -1,66 +1,77 @@
-# CraftEngineRecipe 语言文件 / Language file
-# 文案支持 MiniMessage；{参数} 是消息占位符，<name>/<count> 等是菜单模板占位符。
-# Text supports MiniMessage; {arguments} are message placeholders, while <name>/<count> are UI template placeholders.
-# 启动或重载时补齐内置语言文件缺失的条目，保留已有文案；其他缺失文案回退英文。
-# Startup or reload adds missing bundled-language entries, preserves existing text, and falls back to English for other missing entries.
-# 默认文案使用柔和的十六进制配色；配方标题统一使用石墨黑粗体，其他标题保留颜色并加粗，背景图片保持纯白。
-# Default text uses a soft hex palette; recipe titles use bold charcoal, other titles retain their colors and become bold, and background images stay pure white.
+# Generated en_US translation.
 prefix: '<#79CFC9>[<bold>CER</bold>]</#79CFC9> '
 messages:
   debug-usage: '<#E4D397>Usage: /cer debug recipes | /cer debug performance [reset]</#E4D397>'
-  debug-export-start: '<#E4D397>Capturing all recipes in small batches; the snapshot will be saved asynchronously in the plugin debug folder.</#E4D397>'
-  debug-export-busy: '<#E4D397>A recipe export is already running. Please wait.</#E4D397>'
-  debug-export-cooldown: '<#E4D397>Please wait {seconds} seconds before exporting again.</#E4D397>'
+  debug-export-start: <#E4D397>Capturing all recipes in small batches; the snapshot will be saved asynchronously in the plugin debug folder.</#E4D397>
+  debug-export-busy: <#E4D397>A recipe export is already running. Please wait.</#E4D397>
+  debug-export-cooldown: <#E4D397>Please wait {seconds} seconds before exporting again.</#E4D397>
   debug-export-success: '<#98C69A>Recipes saved: {path} (Bukkit {bukkit}, CraftEngine {native}, CER providers {external}; entry errors {errors}).</#98C69A>'
   debug-export-failed: '<#E58B8B>Recipe export failed: {error}. Check the console; retry after recipe reloads have completed.</#E58B8B>'
-  debug-performance-header: '<#79CFC9>Performance statistics ({seconds} seconds since startup or last reset)</#79CFC9>'
-  debug-performance-reset: '<#98C69A>Plugin operation timers and counters reset. Caches and server performance statistics are unchanged.</#98C69A>'
+  debug-performance-header: <#79CFC9>Performance statistics ({seconds} seconds since startup or last reset)</#79CFC9>
+  debug-performance-reset: <#98C69A>Plugin operation timers and counters reset. Caches and server performance statistics are unchanged.</#98C69A>
   debug-performance-server: '<#B8C0CC>Server TPS (1/5/15 min): {tps}, average MSPT: {mspt}, Folia: {folia}</#B8C0CC>'
-  debug-performance-data: '<#B8C0CC>Index ready={ready} generation={generation}; CE items {items}, categories {categories}, recipes {native}; provider recipes {external}, items {externalItems}</#B8C0CC>'
+  debug-performance-data: <#B8C0CC>Index ready={ready} generation={generation}; CE items {items}, categories {categories}, recipes {native}; provider recipes {external}, items {externalItems}</#B8C0CC>
   debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
   debug-performance-operation: '<#B8C0CC>{name}: {count} calls, total {total} ms, average {average} ms, max {max} ms</#B8C0CC>'
-  debug-performance-empty: '<#8793A5>No operation timings yet. Use the menus and run this command again.</#8793A5>'
-  debug-performance-note: '<#8793A5>Timings may be nested and cannot be added into a server CPU percentage. Reset, reproduce the slowdown, then inspect; use spark for call stacks. Global TPS/MSPT may be unavailable on Folia.</#8793A5>'
+  debug-performance-empty: <#8793A5>No operation timings yet. Use the menus and run this command again.</#8793A5>
+  debug-performance-note: <#8793A5>Timings may be nested and cannot be added into a server CPU percentage. Reset, reproduce the slowdown, then inspect; use spark for call stacks. Global TPS/MSPT may be unavailable on Folia.</#8793A5>
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
   personalization-saved: '<#98C69A>Preferences saved: menu style {menu}, default main page {main}, restore position: {remember}.</#98C69A>'
-  unapplied-updated: '<#98C69A>Updated namespace {namespace} in {file}.</#98C69A>'
-  unapplied-update-failed: '<#E58B8B>Namespace {namespace} was not found; {file} was not changed.</#E58B8B>'
-  unapplied-permission-required: '<#E58B8B>A permission node is required when visibility is set to permission.</#E58B8B>'
-  button-updated: '<#98C69A>Updated the custom button in {file}.</#98C69A>'
-  button-update-failed: '<#E58B8B>The custom button no longer exists or {file} could not be saved.</#E58B8B>'
-  button-permission-required: '<#E58B8B>A permission node is required when button visibility is permission-based.</#E58B8B>'
-  management-saved: '<#98C69A>Management change saved and the menu was refreshed.</#98C69A>'
-  management-save-failed: '<#E58B8B>The target entry was not found or the configuration could not be saved.</#E58B8B>'
-  management-applied: '<#98C69A>{namespace} was applied to categories.yml. You can continue adjusting its order in the list.</#98C69A>'
-  management-applied-entry: '<#98C69A>{entry} was applied to categories.yml. You can continue adjusting its order.</#98C69A>'
-  management-unapplied: '<#98C69A>{entry} was moved to categories-unapplied.yml.</#98C69A>'
-  management-moved: '<#98C69A>Display order updated.</#98C69A>'
-  management-edge: '<#8793A5>This entry is already at the edge of the list.</#8793A5>'
-  management-applied-readonly: '<#E4D397>This namespace is already in categories.yml; edit the active configuration directly.</#E4D397>'
-  management-no-category-page: '<#8793A5>Namespace {namespace} has no browsable namespace category page.</#8793A5>'
-  index-build-started: '<#E4D397>Detected {plugins}; building the recipe index...</#E4D397>'
-  integration-choice-disabled: '<#E58B8B>Disabled {plugins}. Existing recipe files are kept, but they will no longer be exported or indexed.</#E58B8B>'
-  integration-choice-ask: '<#E4D397>Changed {plugins} to ask mode. Existing recipe files are kept, but they will not be indexed until enabled.</#E4D397>'
-  integration-export-started: '<#E4D397>Enabled recipe and cultivation support for {plugins}; exporting recipes and building the index...</#E4D397>'
+  unapplied-updated: <#98C69A>Updated namespace {namespace} in {file}.</#98C69A>
+  unapplied-update-failed: <#E58B8B>Namespace {namespace} was not found; {file} was not changed.</#E58B8B>
+  unapplied-permission-required: <#E58B8B>A permission node is required when visibility is set to permission.</#E58B8B>
+  button-updated: <#98C69A>Updated the custom button in {file}.</#98C69A>
+  button-update-failed: <#E58B8B>The custom button no longer exists or {file} could not be saved.</#E58B8B>
+  button-permission-required: <#E58B8B>A permission node is required when button visibility is permission-based.</#E58B8B>
+  management-saved: <#98C69A>Management change saved and the menu was refreshed.</#98C69A>
+  management-save-failed: <#E58B8B>The target entry was not found or the configuration could not be saved.</#E58B8B>
+  config-invalid: <#E58B8B>Invalid configuration value; a number is out of range or an option is missing. config.yml was not changed.</#E58B8B>
+  config-save-started: <#E4D397>config.yml saved; rebuilding indexes and applying the new settings...</#E4D397>
+  config-saved: <#98C69A>config.yml saved and reloaded successfully.</#98C69A>
+  config-save-failed: <#E58B8B>config.yml was saved, but the reload failed or was replaced by a newer request. Check the console.</#E58B8B>
+  menu-default-usage: '<#E4D397>Usage: /cer menu default \<cer_menu_*></#E4D397>'
+  menu-default-set: <#98C69A>Default main menu style set to {menu}.</#98C69A>
+  menu-unknown: '<#E58B8B>Unknown or incomplete menu style: {menu}</#E58B8B>'
+  menu-enable-usage: '<#E4D397>Usage: /cer menu enable \<cer_menu_*|all></#E4D397>'
+  menu-enabled-updated: <#98C69A>Enabled menu styles updated.</#98C69A>
+  menu-enable-failed: <#E58B8B>Could not enable that menu style.</#E58B8B>
+  menu-disable-usage: '<#E4D397>Usage: /cer menu disable \<cer_menu_*></#E4D397>'
+  menu-disabled: '<#98C69A>Disabled menu style: {menu}</#98C69A>'
+  menu-disable-failed: <#E58B8B>Could not disable that style; the default style must stay enabled.</#E58B8B>
+  menu-status-default: '<#B8C0CC>Default style: {menu}</#B8C0CC>'
+  menu-status-enabled: '<#B8C0CC>Enabled: {menus}</#B8C0CC>'
+  menu-status-available: '<#B8C0CC>Available: {menus}</#B8C0CC>'
+  menu-unavailable: '<#E58B8B>That menu style is not enabled or unavailable: {menu}</#E58B8B>'
+  management-applied: <#98C69A>{namespace} was applied to categories.yml. You can continue adjusting its order in the list.</#98C69A>
+  management-applied-entry: <#98C69A>{entry} was applied to categories.yml. You can continue adjusting its order.</#98C69A>
+  management-unapplied: <#98C69A>{entry} was moved to categories-unapplied.yml.</#98C69A>
+  management-moved: <#98C69A>Display order updated.</#98C69A>
+  management-edge: <#8793A5>This entry is already at the edge of the list.</#8793A5>
+  management-applied-readonly: <#E4D397>This namespace is already in categories.yml; edit the active configuration directly.</#E4D397>
+  management-no-category-page: <#8793A5>Namespace {namespace} has no browsable namespace category page.</#8793A5>
+  index-build-started: <#E4D397>Detected {plugins}; building the recipe index...</#E4D397>
+  integration-choice-disabled: <#E58B8B>Disabled {plugins}. Existing recipe files are kept, but they will no longer be exported or indexed.</#E58B8B>
+  integration-choice-ask: <#E4D397>Changed {plugins} to ask mode. Existing recipe files are kept, but they will not be indexed until enabled.</#E4D397>
+  integration-export-started: <#E4D397>Enabled recipe and cultivation support for {plugins}; exporting recipes and building the index...</#E4D397>
   integration-index-ready: '<#98C69A>{plugin} index ready: {recipes} recipes and {workstations} workstations.</#98C69A>'
   integration-index-failed: '<#E58B8B>{plugin} index build failed: {error}</#E58B8B>'
   integration-unknown-error: Unknown error; check the console.
   integration-config-detected: '<#D8B278>Pending integration configuration: {plugins} integrations and {presets} category presets.</#D8B278>'
-  integration-config-open: '<#79CFC9>[Open integration configuration]</#79CFC9>'
-  integration-config-open-hover: '<#B8C0CC>Open the unified integration and category-preset dialog</#B8C0CC>'
-  integration-config-empty: '<#8793A5>There are no integrations or category presets awaiting configuration.</#8793A5>'
-  integration-config-no-detected: '<#8793A5>No specially supported plugins or adapted resource packs were detected.</#8793A5>'
-  integration-config-saved: '<#98C69A>Integration configuration saved.</#98C69A>'
-  integration-config-save-failed: '<#E58B8B>Could not save the integration configuration; check the console.</#E58B8B>'
+  integration-config-open: <#79CFC9>[Open integration configuration]</#79CFC9>
+  integration-config-open-hover: <#B8C0CC>Open integration settings in the /cer manage page</#B8C0CC>
+  integration-config-empty: <#8793A5>There are no integrations or category presets awaiting configuration.</#8793A5>
+  integration-config-no-detected: <#8793A5>No specially supported plugins or adapted resource packs were detected.</#8793A5>
+  integration-config-saved: <#98C69A>Integration configuration saved.</#98C69A>
+  integration-config-save-failed: <#E58B8B>Could not save the integration configuration; check the console.</#E58B8B>
   category-preset-linked-applied: '<#98C69A>Applied linked category presets while enabling integrations: {presets}.</#98C69A>'
-  api-integration-detected: '<#D8B278>Detected a recipe source connected through the CER API:</#D8B278> <white>{plugin}</white>'
-  api-integration-namespace: '<#B8C0CC>Namespace:</#B8C0CC> <white>{namespace}</white>'
-  api-integration-ready: '<#98C69A>Added {recipes} recipes; the index is ready.</#98C69A>'
+  api-integration-detected: <#D8B278>Detected a recipe source connected through the CER API:</#D8B278> <white>{plugin}</white>
+  api-integration-namespace: <#B8C0CC>Namespace:</#B8C0CC> <white>{namespace}</white>
+  api-integration-ready: <#98C69A>Added {recipes} recipes; the index is ready.</#98C69A>
   api-integration-updated: '<#79CFC9>API recipe source {plugin} ({namespace}) updated: {previous} -> {current} recipes; the index has been refreshed.</#79CFC9>'
-  api-integration-unregistered: '<#E58B8B>API recipe source {plugin} ({namespace}) unregistered; {recipes} recipes were removed and the index has been refreshed.</#E58B8B>'
-  recipe-export-usage: '<#E4D397>Usage: /cer export craftengine|farmersdelight|kaleidoscope|customcrops|all</#E4D397>'
-  recipe-export-started: '<#E4D397>Reading source plugins and regenerating recipe files, please wait.</#E4D397>'
+  api-integration-unregistered: <#E58B8B>API recipe source {plugin} ({namespace}) unregistered; {recipes} recipes were removed and the index has been refreshed.</#E58B8B>
+  recipe-export-usage: '<#E4D397>Usage: /cer export &lt;extension source ID|all&gt;</#E4D397>'
+  recipe-export-started: <#E4D397>Reading source plugins and regenerating recipe files, please wait.</#E4D397>
   recipe-export-complete: '<#98C69A>Recipe export complete: {sources} sources, {files} files and {recipes} recipes. Failures: {failures}</#98C69A>'
   recipe-export-failed: '<#E58B8B>No recipe source was exported successfully: {failures}</#E58B8B>'
   reload-start: <#E4D397>Reloading. You will be notified when the indexes are ready.</#E4D397>
@@ -80,8 +91,26 @@ messages:
 command:
   description: Open the CraftEngineRecipe item category menu
 ui:
+  default-categories:
+    vanilla-name: <white>Vanilla Items</white>
+    vanilla-click: <gray>Click to view all vanilla items</gray>
+    vanilla-count: '<dark_gray>Items: <count></dark_gray>'
+    divider-lore: '&#B8C0CCA separator pane'
+    manage-name: '&#D8B278Open Management'
+    manage-lore-1: '&#B8C0CCThis page shows the CraftEngine content available on this server'
+    manage-lore-2: '&#B8C0CCAdministrators can apply content, hide it, or change its order'
+    manage-lore-3: '&#B8C0CCYou can also open it with /cer manage'
+    manage-lore-4: '&#B8C0CCThis button is visible to administrators only'
+    manage-lore-5: '&#B8C0CCFeel free to hide or remove this button'
+    integrations-name: '&#B8C278Open CER Integrations'
+    integrations-lore-1: '&#B8C0CCThis page shows the special CraftEngine integrations detected on the server'
+    integrations-lore-2: '&#B8C0CCAn administrator must enable an integration before it becomes active'
+    integrations-lore-3: '&#B8C0CCYou can also open it with /cer integrations'
+    integrations-lore-4: '&#B8C0CCThis button is visible to administrators only'
+    integrations-lore-5: '&#B8C0CCFeel free to hide or remove this button'
   browser:
-    title: '<bold><#374151>Item Categories</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
+    title: <#374151>Item Categories</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>Items</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
   category-bar:
     icon-name: <#EEF2F6><name></#EEF2F6>
     icon-lore:
@@ -117,8 +146,8 @@ ui:
     query:
       name: <#79CFC9>Recipe lookup</#79CFC9>
       lore:
-      - <#B8C0CC>Left-click: recipes for the main-hand item</#B8C0CC>
-      - <#B8C0CC>Right-click: recipes for the targeted block</#B8C0CC>
+      - '<#B8C0CC>Left-click: recipes for the main-hand item</#B8C0CC>'
+      - '<#B8C0CC>Right-click: recipes for the targeted block</#B8C0CC>'
     close:
       name: <#E58B8B>Close menu</#E58B8B>
       lore:
@@ -134,6 +163,7 @@ ui:
       - <#B8C0CC>Left-click an item to see how to craft it</#B8C0CC>
       - <#B8C0CC>Right-click an item to view recipes that use it</#B8C0CC>
       - <#B8C0CC>Click an empty area on the crafting table screen to go back</#B8C0CC>
+      - <#B8C0CC>Right-click an empty area outside the page to return to the main page</#B8C0CC>
       - <#B8C0CC></#B8C0CC>
       - <#8793A5>Multiple recipes rotate automatically</#8793A5>
     workstations:
@@ -142,8 +172,6 @@ ui:
       - <#B8C0CC>Click to browse crafting, smelting and more</#B8C0CC>
       - <#8793A5>Only recipe outputs you can view are shown</#8793A5>
       personalization-lore: '<#79CFC9>Right-click: personalization settings</#79CFC9>'
-    # 留空表示不在物品 lore 后追加任何提示。
-    # Empty means no extra item lore is appended.
     item-lore: []
     empty:
       name: <#E58B8B>Nothing here</#E58B8B>
@@ -154,19 +182,29 @@ ui:
     main-page-label: <#79CFC9>Default main page (when no previous position is restored)</#79CFC9>
     main-page-namespaces: Browse by item type
     main-page-workstations: Browse by workstation
+    language-label: <#79CFC9>Interface language</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
     remember-label: <#79CFC9>Restore the last position after closing</#79CFC9>
-    on: Enabled
-    off: Disabled
+    true: Enabled
+    false: Disabled
     save: <#98C69A>Save preferences</#98C69A>
     save-tooltip: <#B8C0CC>Save these personalization settings</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
     cancel-tooltip: <#B8C0CC>Discard changes and return to the menu</#B8C0CC>
   craftable:
     name: <#79CFC9>Craftable Items</#79CFC9>
-    title: '<bold><#374151>Craftable Items</#374151> <#465D70>»</#465D70> <#293341>Current Inventory</#293341></bold>'
+    title: <bold><#374151>Craftable Items</#374151> <#465D70>»</#465D70> <#293341>Current Inventory</#293341></bold>
   management:
     name: <#D8B278>Management</#D8B278>
-    title: '<bold><#374151>Management</#374151></bold>'
+    title: <bold><#374151>Management</#374151></bold>
     return-name: <#79CFC9>Return to item categories</#79CFC9>
     return-lore: <#B8C0CC>Click to return to the item category page</#B8C0CC>
     categories-name: <#D8B278>categories.yml</#D8B278>
@@ -174,12 +212,21 @@ ui:
     categories-summary: '<#8793A5>{entries} entries: {namespaces} namespaces and {buttons} buttons</#8793A5>'
     unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
     unapplied-nav-lore: <#B8C0CC>Review, edit and apply entries not yet present in the active menu</#B8C0CC>
-    unapplied-summary: '<#8793A5>{count} entries awaiting review</#8793A5>'
+    unapplied-summary: <#8793A5>{count} entries awaiting review</#8793A5>
     workstations-name: <#D8B278>workstations.yml</#D8B278>
     workstations-lore: <#B8C0CC>Adjust workstation and custom button display order</#B8C0CC>
-    workstations-summary: '<#8793A5>{count} workstation-page entries</#8793A5>'
+    workstations-summary: <#8793A5>{count} workstation-page entries</#8793A5>
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>Unsupported Extensions</#D8B278>
+    integrations-lore: <#B8C0CC>Configure special support for plugins and resource packs</#B8C0CC>
+    integrations-summary: <#8793A5>{plugins} supported plugins and {presets} resource-pack presets detected</#8793A5>
+    integrations-left-click: '<#79CFC9>Left click: available integration settings</#79CFC9>'
+    integrations-right-click: '<#E4D397>Right click: extensions unsupported by this server</#E4D397>'
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>Configure language, data sources, search, hotkeys and workflow behavior</#B8C0CC>
+    config-summary: <#8793A5>Language {language}  ·  CER {version}</#8793A5>
     workstations-shortcut: <#79CFC9>Click to manage workstations</#79CFC9>
-    hidden-name: '<#D8B278>Categories & Items</#D8B278>'
+    hidden-name: <#D8B278>Categories & Items</#D8B278>
     items-name: <#D8B278>Hidden Category Items</#D8B278>
     entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
     applied-lore: '<#98C69A>Applied: present in categories.yml</#98C69A>'
@@ -196,7 +243,7 @@ ui:
     namespace-order: '<#E4D397>Shift+Left: move up / Shift+Right: move down</#E4D397>'
     namespace-apply: '<#98C69A>Middle-click: apply this namespace to categories.yml</#98C69A>'
     namespace-unapply: '<#E58B8B>Q key: move to categories-unapplied.yml</#E58B8B>'
-    no-category-button-lore: '<#8793A5>This entry does not show a namespace category button</#8793A5>'
+    no-category-button-lore: <#8793A5>This entry does not show a namespace category button</#8793A5>
     category-bar-lore: <#B8C0CC>View applied and unapplied namespaces</#B8C0CC>
     button-name: Custom button
     button-type: '<#8793A5>Type: custom button</#8793A5>'
@@ -206,22 +253,50 @@ ui:
     button-unapply: '<#E58B8B>Q key: move to categories-unapplied.yml</#E58B8B>'
     category-hidden: <#E58B8B>Category entry is hidden (including its browsing paths)</#E58B8B>
     category-visible: <#98C69A>Category entry is visible</#98C69A>
-    category-count: '<#8793A5>{items} direct items and {children} subcategories</#8793A5>'
+    category-count: <#8793A5>{items} direct items and {children} subcategories</#8793A5>
     category-open-items: '<#79CFC9>Left-click: manage direct items in this category</#79CFC9>'
     category-toggle: '<#79CFC9>Right-click: hide / show the category entry and its paths</#79CFC9>'
     items-all-hidden: <#E58B8B>All direct items in this category are hidden</#E58B8B>
     items-toggle-all: '<#79CFC9>Shift+Left or Shift+Right: hide / show all direct items</#79CFC9>'
     item-hidden: <#E58B8B>Currently hidden</#E58B8B>
     item-visible: <#98C69A>Currently visible</#98C69A>
-    item-recipe-count: '<#B8C0CC>{recipes} recipes, used in {usages} recipes</#B8C0CC>'
-    item-id: '<#8793A5>{id}</#8793A5>'
+    item-recipe-count: <#B8C0CC>{recipes} recipes, used in {usages} recipes</#B8C0CC>
+    item-id: <#8793A5>{id}</#8793A5>
     item-toggle: <#79CFC9>Click to toggle visibility</#79CFC9>
-    workstation-id: '<#8793A5>{id}</#8793A5>'
+    workstation-id: <#8793A5>{id}</#8793A5>
     workstation-use: '<#79CFC9>Left-click: open this workstation page</#79CFC9>'
     workstation-order: '<#E4D397>Shift+Left: move up / Shift+Right: move down</#E4D397>'
+  config-editor:
+    general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
+    data-title: <bold><#D8B278>config.yml · Data & Performance</#D8B278></bold>
+    description: <#B8C0CC>Edit commonly changed settings. Saving rebuilds the indexes; detailed comments remain editable in config.yml.</#B8C0CC>
+    save: <#98C69A>Save and reload</#98C69A>
+    save-tooltip: <#B8C0CC>Write config.yml and rebuild the menu and data indexes</#B8C0CC>
+    cancel: <#E58B8B>Cancel</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Discard these changes and return to management</#B8C0CC>
+    open-data: <#79CFC9>Data & Performance</#79CFC9>
+    open-general: <#79CFC9>General Settings</#79CFC9>
+    open-page-tooltip: <#B8C0CC>Switch to the other settings page without saving this dialog</#B8C0CC>
+    landing-page: <#79CFC9>Default landing page</#79CFC9>
+    landing-namespaces: Item categories
+    landing-workstations: Workstations
+    personalization: <#79CFC9>Enable player personalization and browsing resume</#79CFC9>
+    remember-page: <#79CFC9>Remember and restore the previous browsing position</#79CFC9>
+    hotkey: <#79CFC9>Enable the swap-hands hotkey</#79CFC9>
+    hotkey-sneak: <#79CFC9>Require sneaking for the hotkey</#79CFC9>
+    updates: <#79CFC9>Check GitHub for stable updates</#79CFC9>
+    source-craftengine: <#79CFC9>Enable the CraftEngine recipe source</#79CFC9>
+    source-minecraft: <#79CFC9>Enable vanilla recipe data</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>Enable vanilla cultivation data</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>Enable CraftEngine cultivation data</#79CFC9>
+    auto-reload: <#79CFC9>Watch recipes/ for file changes</#79CFC9>
+    poll-interval: <#79CFC9>File check interval (10-200 ticks)</#79CFC9>
+    rotate-interval: <#79CFC9>Recipe rotation interval (5-200 ticks)</#79CFC9>
+    search-max-length: <#79CFC9>Search input limit (1-64)</#79CFC9>
+    search-max-results: <#79CFC9>Search result limit (1-1000)</#79CFC9>
   unapplied-editor:
-    title: '<bold><#D8B278>Edit Category Namespace</#D8B278> <dark_gray>{namespace}</dark_gray></bold>'
-    description: '<#B8C0CC>Changes {file}; the menu refreshes immediately and the previous version is kept as a .bak file.</#B8C0CC>'
+    title: <bold><#D8B278>Edit Category Namespace</#D8B278> <dark_gray>{namespace}</dark_gray></bold>
+    description: <#B8C0CC>Changes {file}; the menu refreshes immediately and the previous version is kept as a .bak file.</#B8C0CC>
     edit-lore: '<#79CFC9>Right-click: edit this namespace</#79CFC9>'
     visibility: <#79CFC9>Visibility</#79CFC9>
     visibility-admin: Administrators only
@@ -243,7 +318,7 @@ ui:
     cancel-tooltip: <#B8C0CC>Discard changes and return to the configuration center</#B8C0CC>
   button-editor:
     title: <bold><#D8B278>Edit Custom Button</#D8B278></bold>
-    description: '<#B8C0CC>Changes {file}. Write each action as "click type | action"; the click type defaults to all.</#B8C0CC>'
+    description: <#B8C0CC>Changes {file}. Write each action as "click type | action"; the click type defaults to all.</#B8C0CC>
     material: <#79CFC9>Material or item ID \<material>
     name: <#79CFC9>Button name \<name>
     lore: <#79CFC9>Button lore \<lore> (one line per row)
@@ -262,15 +337,30 @@ ui:
     title: <#D8B278>Integrations and Category Presets</#D8B278>
     plugins-title: <#D8B278>Integration Settings · Specially Supported Plugins</#D8B278>
     resources-title: <#D8B278>Integration Settings · Specially Adapted Resource Packs</#D8B278>
-    description: '<#B8C0CC>The list below contains CER-detected specially supported plugins and adapted resource packs. Click a button to enable support.</#B8C0CC>'
-    source-label: '<#79CFC9>{plugin}</#79CFC9>'
-    preset-label: '<#79CFC9>{namespace}</#79CFC9>'
-    plugin-heading: '<#98C69A>CER detected these specially supported plugins; click a button to enable:</#98C69A>'
-    resource-heading: '<#98C69A>CER detected these specially adapted resource packs; click a button to enable:</#98C69A>'
-    item-enable-tooltip: '<#B8C0CC>Click to enable support for this item</#B8C0CC>'
-    item-disable-tooltip: '<#B8C0CC>Click to disable support for this item</#B8C0CC>'
-    open-resources: '<#79CFC9>View resource packs ▶</#79CFC9>'
-    open-plugins: '<#E4D397>◀ Back to plugins</#E4D397>'
+    description: <#B8C0CC>The content area lists integrations available on this server. Enabled entries have an enchantment glint; left-click or right-click an entry to change its state.</#B8C0CC>
+    status: '<#B8C0CC>Current state: {status}</#B8C0CC>'
+    left-click: '<#8793A5>Left click: next state</#8793A5>'
+    right-click: '<#8793A5>Right click: previous state</#8793A5>'
+    page-count: <#B8C0CC>{count} entries on the other page</#B8C0CC>
+    previous-page: <#D8B278>Previous page</#D8B278>
+    next-page: <#D8B278>Next page</#D8B278>
+    page-position: <#B8C0CC>Page {current} / {pages}</#B8C0CC>
+    preset-detected: <#98C69A>Resource pack detected</#98C69A>
+    preset-applied: <#79CFC9>Category preset applied</#79CFC9>
+    preset-author-mismatch: <#E58B8B>pack.yml author does not match the preset declaration</#E58B8B>
+    unsupported-label: <#E58B8B>{extension}</#E58B8B>
+    unsupported-reason: '<#E58B8B>Unavailable: {reason}</#E58B8B>'
+    unsupported-file: '<#8793A5>JAR: {file}</#8793A5>'
+    unsupported-version: '<#8793A5>Extension version: {version}</#8793A5>'
+    unsupported-readonly: <#B8C0CC>This diagnostic entry cannot be enabled on the current server</#B8C0CC>
+    source-label: <#79CFC9>{plugin}</#79CFC9>
+    preset-label: <#79CFC9>{namespace}</#79CFC9>
+    plugin-heading: <#98C69A>CER detected these specially supported plugins; click a button to enable:</#98C69A>
+    resource-heading: <#98C69A>CER detected these specially adapted resource packs; click a button to enable:</#98C69A>
+    item-enable-tooltip: <#B8C0CC>Click to enable support for this item</#B8C0CC>
+    item-disable-tooltip: <#B8C0CC>Click to disable support for this item</#B8C0CC>
+    open-resources: <#79CFC9>View resource packs ▶</#79CFC9>
+    open-plugins: <#E4D397>◀ Back to plugins</#E4D397>
     option-ask: <#E4D397>Ask</#E4D397>
     option-enabled: <#98C69A>Enable</#98C69A>
     option-disabled: <#E58B8B>Disable</#E58B8B>
@@ -280,18 +370,18 @@ ui:
     save-tooltip: <#B8C0CC>Save choices and perform the requested actions</#B8C0CC>
     cancel: <#8793A5>Later</#8793A5>
     cancel-tooltip: <#B8C0CC>Close without changing the configuration</#B8C0CC>
-  # The cultivation data is controlled by the separate vanilla and CraftEngine cultivation source flags.
   workstations:
-    title: '<bold><#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341></bold>'
+    title: <#374151>Workstations</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>Stations</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
     categories:
-      crafting: Vanilla · Crafting Table
-      smelting: Vanilla · Furnace
-      blasting: Vanilla · Blast Furnace
-      smoking: Vanilla · Smoker
-      campfire_cooking: Vanilla · Campfire
-      stonecutting: Vanilla · Stonecutter
-      smithing: Vanilla · Smithing Table
-      brewing: Vanilla · Brewing Stand
+      crafting: Vanilla·Crafting Table
+      smelting: Vanilla·Furnace
+      blasting: Vanilla·Blast Furnace
+      smoking: Vanilla·Smoker
+      campfire_cooking: Vanilla·Campfire
+      stonecutting: Vanilla·Stonecutter
+      smithing: Vanilla·Smithing Table
+      brewing: Vanilla·Brewing Stand
       cultivation: Cultivation
     category-lore:
     - <#B8C0CC>Click to view recipe outputs for this workstation</#B8C0CC>
@@ -299,21 +389,21 @@ ui:
     back-lore:
     - <#B8C0CC>Click to return to the item category menu</#B8C0CC>
   recipe:
-    title: <#292D35><bold>Recipe » <name></bold></#292D35>
-    title-crafting: <#292D35><bold>Vanilla · Crafting Table</bold></#292D35>
-    title-smelting: <#292D35><bold>Vanilla · Furnace</bold></#292D35>
-    title-blasting: <#292D35><bold>Vanilla · Blast Furnace</bold></#292D35>
-    title-smoking: <#292D35><bold>Vanilla · Smoker</bold></#292D35>
-    title-campfire: <#292D35><bold>Vanilla · Campfire</bold></#292D35>
-    title-stonecutting: <#292D35><bold>Vanilla · Stonecutter</bold></#292D35>
-    title-smithing: <#292D35><bold>Vanilla · Smithing Table</bold></#292D35>
-    title-brewing: <#292D35><bold>Vanilla · Brewing Stand</bold></#292D35>
-    title-none: <#292D35><bold>No Recipe</bold></#292D35>
+    title: <#292D35>Recipe » <name></#292D35>
+    title-crafting: <#292D35>Vanilla·Crafting Table</#292D35>
+    title-smelting: <#292D35>Vanilla·Furnace</#292D35>
+    title-blasting: <#292D35>Vanilla·Blast Furnace</#292D35>
+    title-smoking: <#292D35>Vanilla·Smoker</#292D35>
+    title-campfire: <#292D35>Vanilla·Campfire</#292D35>
+    title-stonecutting: <#292D35>Vanilla·Stonecutter</#292D35>
+    title-smithing: <#292D35>Vanilla·Smithing Table</#292D35>
+    title-brewing: <#292D35>Vanilla·Brewing Stand</#292D35>
+    title-none: <#292D35>No Recipe</#292D35>
   search:
     dialog-title: <bold><#D8B278>Search Items</#D8B278></bold>
     dialog-label: Enter a keyword
-    dialog-hint: Search by item ID, display name 
-    result-title: '<bold><#374151>Search Results</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>'
+    dialog-hint: Search by item ID, display name
+    result-title: <bold><#374151>Search Results</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>
     confirm: <#98C69A>Search</#98C69A>
     confirm-tooltip: <#B8C0CC>Find items by keyword</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
@@ -331,19 +421,19 @@ ui:
 logs:
   debug-export-failed: Failed to export the recipe diagnostic file
   recipe-source-ready: 'Recipe source {source} updated: {count} display recipes; files: {files}'
-  recipe-source-exported: 'Exported {count} {source} recipes into {files} workstation files; recipes/ is now the only runtime source.'
+  recipe-source-exported: Exported {count} {source} recipes into {files} workstation files; recipes/ is now the only runtime source.
   recipe-files-reloaded: 'Changed recipe files: {files}; automatically reloaded {count} display recipes.'
   session-save-failed: 'Failed to save the player menu position: {error}'
   session-load-failed: 'Failed to restore the player menu position; opening the default view: {error}'
   recipe-source-failed: 'Recipe source {source} could not update; retaining its last valid data: {error}'
-  plugin-fingerprint-mismatch: 'Plugin {plugin} was found, but main class {actual} does not match the expected {expected}; the recipe source was ignored.'
+  plugin-fingerprint-mismatch: Plugin {plugin} was found, but main class {actual} does not match the expected {expected}; the recipe source was ignored.
   integration-setup-waiting: 'Detected CER integrations awaiting configuration: {plugins}. No administrator is online; the clickable setup prompt will appear when one joins.'
   category-preset-linked-applied: 'Applied category presets linked to enabled integrations: {namespaces}'
-  integration-config-waiting: 'Detected {plugins} pending integrations and {presets} category presets. No administrator is online; the dialog entry will appear when one joins.'
+  integration-config-waiting: Detected {plugins} pending integrations and {presets} category presets. No administrator is online; the management-page entry will appear when one joins.
   update-available: 'New version {latest} is available (current {current}): {url}'
   update-check-failed: 'Could not check GitHub for updates; will retry on the next startup or reload without affecting the plugin: {error}'
-  compatibility-fallback: 'Compatibility operation {operation} failed; keeping the existing fallback. Each call site is logged once per data generation; exception details follow.'
-  search-input-failed: 'Failed to read search input; returning to the menu.'
+  compatibility-fallback: Compatibility operation {operation} failed; keeping the existing fallback. Each call site is logged once per data generation; exception details follow.
+  search-input-failed: Failed to read search input; returning to the menu.
   config-invalid-id: 'Invalid configured ID: {path} = {value}; keeping the existing fallback behavior. Check the namespace and path.'
   config-invalid-material: 'Unknown configured material: {path} = {value}; keeping the existing fallback behavior.'
   config-missing-category: 'Configured CraftEngine category does not exist: {path} = {value}; keeping the configuration. Check the spelling and whether its pack is loaded.'
@@ -358,8 +448,8 @@ logs:
   enabled: CraftEngineRecipe enabled; initializing the data cache...
   disabled: CraftEngineRecipe disabled.
   pack-install-failed: 'Failed to prepare the bundled resource pack: {error}'
-  pack-copy-ready: 'Local resource copy ready at {path} ({count} files restored; existing files preserved)'
-  pack-first-installed: 'Resources installed for the first time at {path} ({count} files added); future restarts or reloads will leave CraftEngine resources untouched.'
+  pack-copy-ready: Local resource copy ready at {path} ({count} files restored; existing files preserved)
+  pack-first-installed: Resources installed for the first time at {path} ({count} files added); future restarts or reloads will leave CraftEngine resources untouched.
   data-ready: 'CraftEngineRecipe data ready: {items} items, {categories} top-level categories, {elapsed} ms total (including time between batches)'
   data-build-failed: Failed to build CraftEngineRecipe data
   metrics-ready: bStats initialized.
@@ -371,7 +461,8 @@ logs:
   usage-query-failed: 'Failed to query ingredient uses ({id}): {error}'
   layout-reserved: 'Layout conflict: a button uses the reserved # character and will not be displayed'
   layout-conflict: 'Layout conflict: button character {symbol} is used by category/content slots and will not be displayed'
-  language-unknown: Unknown or invalid language {locale}; falling back to zh_CN.
+  language-unknown: Unsupported language {locale}; using English.
+  language-detected: 'Detected server locale: {locale}.'
   language-save-failed: 'Failed to extract language files; using bundled translations: {error}'
   language-update-failed: 'Failed to add missing translations to {file}; keeping the original file: {error}'
   language-read-failed: 'Failed to read language file {file}; using bundled or fallback translations: {error}'

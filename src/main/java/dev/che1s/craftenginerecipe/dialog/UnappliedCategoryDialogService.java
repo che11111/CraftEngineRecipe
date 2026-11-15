@@ -43,45 +43,48 @@ public final class UnappliedCategoryDialogService {
         CategoryNamespaces.NamespaceEntry entry = this.plugin.data().namespaces().findNamespace(namespace);
         if (entry == null) return false;
         boolean applied = this.plugin.data().namespaces().isApplied(namespace);
+        var language = this.plugin.lang(player);
         String source = applied ? "categories.yml" : "categories-unapplied.yml";
         long generation = this.plugin.data().generation();
         List<SingleOptionDialogInput.OptionEntry> visibility = List.of(
-                option("admin", "visibility.admin", entry.visibility()),
-                option("player", "visibility.player", entry.visibility()),
-                option("permission", "visibility.permission", entry.visibility()));
+                option(player, "admin", "visibility.admin", entry.visibility()),
+                option(player, "player", "visibility.player", entry.visibility()),
+                option(player, "permission", "visibility.permission", entry.visibility()));
         Dialog dialog = Dialog.create(factory -> factory.empty()
-                .base(DialogBase.builder(this.plugin.lang().component("ui.unapplied-editor.title",
+                .base(DialogBase.builder(language.component("ui.unapplied-editor.title",
                                 "namespace", namespace))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
-                                this.plugin.lang().component("ui.unapplied-editor.description", "file", source))))
+                                language.component("ui.unapplied-editor.description", "file", source))))
                         .inputs(List.of(
                                 DialogInput.singleOption(VISIBILITY,
-                                                this.plugin.lang().component("ui.unapplied-editor.visibility"),
+                                                language.component("ui.unapplied-editor.visibility"),
                                                 visibility)
                                         .width(300).labelVisible(true).build(),
                                 DialogInput.text(PERMISSION,
-                                                this.plugin.lang().component("ui.unapplied-editor.permission"))
+                                                language.component("ui.unapplied-editor.permission"))
                                         .width(300).labelVisible(true).initial(safe(entry.permission()))
                                         .maxLength(128).build(),
                                 DialogInput.text(ICON_NAME,
-                                                this.plugin.lang().component("ui.unapplied-editor.icon-name"))
-                                        .width(300).labelVisible(true).initial(safe(entry.iconName()))
+                                                language.component("ui.unapplied-editor.icon-name"))
+                                        .width(300).labelVisible(true)
+                                        .initial(safe(entry.iconName().resolve(language)))
                                         .maxLength(128).build(),
-                                multiline(ITEM_LORE, this.plugin.lang().component("ui.unapplied-editor.item-lore"),
-                                        entry.itemLore()),
-                                multiline(ICON_LORE, this.plugin.lang().component("ui.unapplied-editor.icon-lore"),
-                                        entry.iconLore()),
+                                multiline(ITEM_LORE, language.component("ui.unapplied-editor.item-lore"),
+                                        entry.itemLore().resolveLines(language)),
+                                multiline(ICON_LORE, language.component("ui.unapplied-editor.icon-lore"),
+                                        entry.iconLore().resolveLines(language)),
                                 multiline(SUB_ICON_LORE,
-                                        this.plugin.lang().component("ui.unapplied-editor.sub-icon-lore"),
-                                        entry.subIconLore()),
-                                bool(CATEGORY_ENTRY, "category-entry", entry.categoryEntry()),
-                                bool(SORT_NAMESPACE, "sort-by-namespace", entry.sortByNamespace()),
-                                bool(HIDE_WITHOUT_RECIPES, "hide-items-without-recipes", entry.hideItemsWithoutRecipes()),
-                                bool(WORKSTATION_HIDDEN, "hidden-rules-affect-workstations",
+                                        language.component("ui.unapplied-editor.sub-icon-lore"),
+                                        entry.subIconLore().resolveLines(language)),
+                                bool(player, CATEGORY_ENTRY, "category-entry", entry.categoryEntry()),
+                                bool(player, SORT_NAMESPACE, "sort-by-namespace", entry.sortByNamespace()),
+                                bool(player, HIDE_WITHOUT_RECIPES, "hide-items-without-recipes",
+                                        entry.hideItemsWithoutRecipes()),
+                                bool(player, WORKSTATION_HIDDEN, "hidden-rules-affect-workstations",
                                         entry.hiddenRulesAffectWorkstations()),
-                                bool(HIDE_INACCESSIBLE, "hide-inaccessible", entry.hideInaccessible())))
+                                bool(player, HIDE_INACCESSIBLE, "hide-inaccessible", entry.hideInaccessible())))
                         .build())
                 .type(DialogType.confirmation(saveButton(player, namespace, applied, generation),
                         cancelButton(player, generation))));
@@ -92,8 +95,8 @@ public final class UnappliedCategoryDialogService {
 
     private ActionButton saveButton(Player player, String namespace, boolean applied, long generation) {
         return ActionButton.create(
-                this.plugin.lang().component("ui.unapplied-editor.save"),
-                this.plugin.lang().component("ui.unapplied-editor.save-tooltip"),
+                this.plugin.lang(player).component("ui.unapplied-editor.save"),
+                this.plugin.lang(player).component("ui.unapplied-editor.save-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) -> this.save(player, namespace, applied, view, generation),
                         ClickCallback.Options.builder().uses(1)
@@ -102,8 +105,8 @@ public final class UnappliedCategoryDialogService {
 
     private ActionButton cancelButton(Player player, long generation) {
         return ActionButton.create(
-                this.plugin.lang().component("ui.unapplied-editor.cancel"),
-                this.plugin.lang().component("ui.unapplied-editor.cancel-tooltip"),
+                this.plugin.lang(player).component("ui.unapplied-editor.cancel"),
+                this.plugin.lang(player).component("ui.unapplied-editor.cancel-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) -> this.schedule(player, generation,
                                 () -> this.plugin.browser(player).reopenManagement(player)),
@@ -126,7 +129,7 @@ public final class UnappliedCategoryDialogService {
         if (visibility == null || categoryEntry == null || sort == null
                 || hideWithoutRecipes == null || workstationHidden == null || hideInaccessible == null) return;
         if (visibility == CategoryNamespaces.Visibility.PERMISSION && permission.isBlank()) {
-            player.sendMessage(this.plugin.lang().message("messages.unapplied-permission-required"));
+            player.sendMessage(this.plugin.lang(player).message("messages.unapplied-permission-required"));
             this.plugin.tasks().playerLater(player, () -> this.open(player, namespace), 1);
             return;
         }
@@ -138,18 +141,18 @@ public final class UnappliedCategoryDialogService {
                     subIconLore, sort, hideWithoutRecipes, current.hiddenItems(), current.hiddenCategories(),
                     workstationHidden, hideInaccessible);
             boolean updated = this.plugin.data().namespaces().updateNamespace(namespace, updatedEntry);
-            player.sendMessage(this.plugin.lang().message(
+            player.sendMessage(this.plugin.lang(player).message(
                     updated ? "messages.unapplied-updated" : "messages.unapplied-update-failed",
                     "namespace", namespace, "file", applied ? "categories.yml" : "categories-unapplied.yml"));
             if (updated) this.plugin.browser(player).reopenManagement(player);
         });
     }
 
-    private DialogInput bool(String key, String labelPath, boolean initial) {
-        return DialogInput.bool(key, this.plugin.lang().component("ui.unapplied-editor." + labelPath))
+    private DialogInput bool(Player player, String key, String labelPath, boolean initial) {
+        return DialogInput.bool(key, this.plugin.lang(player).component("ui.unapplied-editor." + labelPath))
                 .initial(initial)
-                .onTrue(this.booleanText(true))
-                .onFalse(this.booleanText(false))
+                .onTrue(this.booleanText(player, true))
+                .onFalse(this.booleanText(player, false))
                 .build();
     }
 
@@ -164,10 +167,11 @@ public final class UnappliedCategoryDialogService {
                 .build();
     }
 
-    private SingleOptionDialogInput.OptionEntry option(String id, String labelPath,
+    private SingleOptionDialogInput.OptionEntry option(Player player, String id, String labelPath,
                                                        CategoryNamespaces.Visibility current) {
         return SingleOptionDialogInput.OptionEntry.create(id,
-                this.plugin.lang().componentOr(optionKey(labelPath), this.visibilityFallback(id)),
+                this.plugin.lang(player).componentOr(
+                        optionKey(labelPath), this.visibilityFallback(player, id)),
                 current.name().equalsIgnoreCase(id));
     }
 
@@ -175,8 +179,8 @@ public final class UnappliedCategoryDialogService {
         return "ui.unapplied-editor." + labelPath.replace('.', '-');
     }
 
-    private String visibilityFallback(String id) {
-        boolean chinese = this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
+    private String visibilityFallback(Player player, String id) {
+        boolean chinese = this.plugin.lang(player).locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
         return switch (id) {
             case "admin" -> chinese ? "仅管理员" : "Administrators only";
             case "permission" -> chinese ? "按权限" : "Permission-based";
@@ -184,9 +188,9 @@ public final class UnappliedCategoryDialogService {
         };
     }
 
-    private String booleanText(boolean value) {
-        boolean chinese = this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
-        return this.plugin.lang().textOr(
+    private String booleanText(Player player, boolean value) {
+        boolean chinese = this.plugin.lang(player).locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
+        return this.plugin.lang(player).textOr(
                 value ? "ui.personalization.on" : "ui.personalization.off",
                 value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }

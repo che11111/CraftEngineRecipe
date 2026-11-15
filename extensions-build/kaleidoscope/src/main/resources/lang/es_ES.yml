@@ -1,0 +1,46 @@
+# Generated es_ES translation from en_US.yml.
+accurate.title: Cocina caleidoscópica·Procesamiento preciso
+accurate.weight_note: Un resultado candidato se elige por peso relativo; Los pesos no son porcentajes.
+flex.title: Cocina Caleidoscopio·Cocina Dinámica
+flex.ratio_note: Las cantidades de ingredientes representan la proporción ideal; Las cantidades reales pueden cambiar la cantidad y calidad de la producción.
+flex.output_note: Se muestra la salida base; Los nombres de calidad, la tradición y los efectos de los alimentos están determinados por la cocina real.
+flex.no_container: Recoger a mano; no se requiere contenedor.
+flex.container: Sostenga un contenedor y haga clic derecho en el bote para recolectar la salida.
+flex.liquid_item: 'Tipo de caldo permitido: {liquid}'
+flex.equivalent_foods: Se permiten ingredientes equivalentes según los grupos de ingredientes actuales de Kaleidoscope.
+flex.seasonings: Se permiten condimentos; no participan en el cálculo de la calidad de la relación ideal.
+flex.quality_ratio: Una relación más cercana a la ideal produce una mayor calidad.
+flex.extra_penalty: Agregar demasiados ingredientes no relacionados reduce la calidad.
+flex.any_liquid: Se permite cualquier caldo.
+flex.allowed_liquid: 'Líquido permitido: {liquid}'
+flex.heat_oil: Normalmente se requiere calor y aceite; Otros complementos pueden modificar las condiciones de cocción.
+flex.result_note: 'Ejemplo: 1 porción; La cantidad real depende de los ingredientes.'
+chopping.title: Cocina Caleidoscopio·Tabla de cortar
+chopping.knife_note: Se requiere un cuchillo; Las herramientas disponibles dependen de la configuración de la tabla de cortar y de las etiquetas del caleidoscopio.
+chopping.stage: 'Recuento de cortes: {stage}'
+chopping.single_extra: Un producto principal se selecciona por peso relativo; Los subproductos se laminan de forma independiente.
+chopping.multi_random: Cada salida se lanza de forma independiente; si ninguno lo logra, uno está garantizado por peso. Los porcentajes mostrados excluyen esa garantía.
+chopping.weighted: Una salida se elige por peso relativo; Los pesos no son porcentajes.
+note.byproduct_prefix: 'Subproducto · '
+note.independent: 'Rollo independiente: {percent}% (configurado {weight})'
+note.relative_weight: 'Peso relativo: {weight}'
+teapot.title: Cocina Caleidoscopio·Tetera
+teapot.liquid: 'Líquido requerido: {liquid} (el ícono explica la condición del líquido)'
+label.processing_time: tiempo de procesamiento
+label.rotations: Rondas de molienda
+label.stir_fry_count: Recuento de salteados
+label.cooking_time: tiempo de cocción
+label.brew_time: tiempo de preparación
+unit.tick: ' garrapatas'
+unit.round: ' rondas'
+unit.times: ' veces'
+station.prefix: 'Cocina Caleidoscopio·'
+processing.value: '{label}: {value}{unit}'
+processing.inherited: '{label}: hereda el valor predeterminado del dispositivo (0 no significa instantáneo)'
+appliance.pot: wok
+appliance.stockpot: Olla
+appliance.steamer: vaporera
+appliance.shawarma: Parrilla Shawarma
+appliance.millstone: piedra de molino
+appliance.chopping_board: Tabla de cortar
+appliance.teapot: Tetera

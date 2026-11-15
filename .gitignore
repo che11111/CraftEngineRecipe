@@ -1,0 +1,42 @@
+# Maven 构建产物（含测试编译结果与报告）
+# Maven build outputs, including test classes/reports
+target/
+dist/
+dependency-reduced-pom.xml
+
+# 本地 Minecraft 原版 JAR，仅用于构建期提取/分析
+# Local vanilla Minecraft JARs used only for build-time extraction/analysis
+lib/
+
+# 仅供本地使用的参考内容 / Local-only reference material
+其他
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+docs/*
+!docs/extensions.md
+
+# Eclipse / VS Code
+.classpath
+.project
+.settings/
+.factorypath
+.vscode/
+
+# 系统与编辑器临时文件
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# 日志与 JVM 崩溃文件
+*.log
+hs_err_pid*
+replay_pid*

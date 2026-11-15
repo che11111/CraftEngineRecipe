@@ -5,6 +5,7 @@ import dev.che1s.craftenginerecipe.api.RecipeItem;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.momirealms.craftengine.bukkit.api.BukkitAdaptor;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.item.BukkitItem;
@@ -58,9 +59,45 @@ public final class ItemBridge {
         } else {
             stack = stack.clone();
         }
+        stack = localizeNativeName(id, stack, player);
         if (count <= 1) return stack;
         stack.setAmount(Math.min(count, stack.getMaxStackSize()));
         return stack;
+    }
+
+    private static ItemStack localizeNativeName(Key id, ItemStack stack, Player player) {
+        if (id == null || stack == null || player == null) return stack;
+        var plugin = CraftEngineRecipePlugin.get();
+        if (plugin == null || plugin.data() == null) return stack;
+        String name = plugin.data().itemDisplayName(player, id.toString());
+        if ((name == null || name.isBlank()) && "minecraft".equals(id.namespace())) {
+            name = plugin.data().vanillaItemName(player, id.toString());
+        }
+        if (name == null || name.isBlank()) {
+            Material material = stack.getType();
+            String path = id.value();
+            Map<String, String> translations = plugin.data().resourcePackTranslations(player);
+            name = translations.get("item.minecraft." + path);
+            if (name == null || name.isBlank()) {
+                name = translations.get("block.minecraft." + path);
+            }
+            if ((name == null || name.isBlank()) && material.isItem()) {
+                name = translations.get(material.getTranslationKey());
+            }
+        }
+        if (name == null || name.isBlank()) {
+            name = DisplayNames.humanizeItemId(id.toString());
+        }
+        if (name == null || name.isBlank()) return stack;
+        ItemStack copy = stack.clone();
+        ItemMeta meta = copy.getItemMeta();
+        if (meta != null) {
+            var browser = plugin.browser(player);
+            var config = browser == null ? plugin.config() : browser.configFor(player);
+            meta.displayName(config.mm(name));
+            copy.setItemMeta(meta);
+        }
+        return copy;
     }
 
     public static ItemStack build(Key id, Player player) {
@@ -86,13 +123,33 @@ public final class ItemBridge {
         ItemMeta meta = stack.getItemMeta();
         if (meta != null && plugin != null) {
             Map<String, String> translations = plugin.data() == null
-                    ? Map.of() : plugin.data().resourcePackTranslations();
+                    ? Map.of() : plugin.data().resourcePackTranslations(player);
+            Component existingName = meta.displayName();
+            String existingPlain = existingName == null ? null
+                    : PlainTextComponentSerializer.plainText().serialize(existingName);
+            if ((item.name() == null || item.name().isBlank())
+                    && DisplayNames.looksLikeTranslationKey(existingPlain)) {
+                String fallback = translations.get(existingPlain);
+                if (fallback == null || fallback.isBlank()) {
+                    fallback = DisplayNames.humanizeTranslationKey(existingPlain);
+                }
+                meta.displayName(plugin.config().mm(fallback));
+            }
             if (item.name() != null) {
-                meta.displayName(plugin.config().mm(DisplayNames.expandTranslations(item.name(), translations)));
+                String localized = plugin.data() == null ? null
+                        : plugin.data().itemDisplayName(player, item.id());
+                if ((localized == null || localized.isBlank()) && "minecraft".equals(item.provider())
+                        && plugin.data() != null) {
+                    localized = plugin.data().vanillaItemName(player, item.id());
+                }
+                String displayName = localized == null || localized.isBlank()
+                        ? DisplayNames.expandTranslations(item.name(), translations, player) : localized;
+                meta.displayName(plugin.config().mm(displayName));
             }
             if (item.lore() != null) {
                 meta.lore(item.lore().stream()
-                        .map(line -> plugin.config().mm(DisplayNames.expandTranslations(line, translations)))
+                        .map(line -> plugin.config().mm(
+                                DisplayNames.expandTranslations(line, translations, player)))
                         .toList());
             }
             stack.setItemMeta(meta);

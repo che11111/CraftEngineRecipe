@@ -47,43 +47,46 @@ public final class ButtonEditorDialogService {
     public boolean open(Player player, Source source, int index) {
         CategoryNamespaces.ButtonEntry button = this.button(source, index);
         if (button == null) return false;
+        var language = this.plugin.lang(player);
         long generation = this.plugin.data().generation();
         List<SingleOptionDialogInput.OptionEntry> visibility = List.of(
-                option("player", "visibility.player", button.visibility()),
-                option("permission", "visibility.permission", button.visibility()),
-                option("admin", "visibility.admin", button.visibility()));
+                option(player, "player", "visibility.player", button.visibility()),
+                option(player, "permission", "visibility.permission", button.visibility()),
+                option(player, "admin", "visibility.admin", button.visibility()));
         Dialog dialog = Dialog.create(factory -> factory.empty()
-                .base(DialogBase.builder(this.plugin.lang().component("ui.button-editor.title"))
+                .base(DialogBase.builder(language.component("ui.button-editor.title"))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
-                                this.plugin.lang().component("ui.button-editor.description",
+                                language.component("ui.button-editor.description",
                                         "file", this.fileName(source)))))
                         .inputs(List.of(
                                 DialogInput.text(MATERIAL,
-                                                this.plugin.lang().component("ui.button-editor.material"))
+                                                language.component("ui.button-editor.material"))
                                         .width(300).labelVisible(true)
                                         .initial(button.display().material()).maxLength(256).build(),
-                                DialogInput.text(NAME, this.plugin.lang().component("ui.button-editor.name"))
+                                DialogInput.text(NAME, language.component("ui.button-editor.name"))
                                         .width(300).labelVisible(true)
-                                        .initial(button.display().name()).maxLength(512).build(),
-                                multiline(LORE, this.plugin.lang().component("ui.button-editor.lore"),
-                                        String.join("\n", button.display().lore()), 1024),
+                                        .initial(button.display().name().resolve(language))
+                                        .maxLength(512).build(),
+                                multiline(LORE, language.component("ui.button-editor.lore"),
+                                        String.join("\n", button.display().lore().resolveLines(language)),
+                                        1024),
                                 DialogInput.singleOption(VISIBILITY,
-                                                this.plugin.lang().component("ui.button-editor.visibility"),
+                                                language.component("ui.button-editor.visibility"),
                                                 visibility)
                                         .width(300).labelVisible(true).build(),
                                 DialogInput.text(PERMISSION,
-                                                this.plugin.lang().component("ui.button-editor.permission"))
+                                                language.component("ui.button-editor.permission"))
                                         .width(300).labelVisible(true)
                                         .initial(button.permission()).maxLength(128).build(),
                                 DialogInput.bool(HIDE_INACCESSIBLE,
-                                                this.plugin.lang().component("ui.button-editor.hide-inaccessible"))
+                                                language.component("ui.button-editor.hide-inaccessible"))
                                         .initial(button.hideInaccessible())
-                                        .onTrue(this.booleanText(true))
-                                        .onFalse(this.booleanText(false))
+                                        .onTrue(this.booleanText(player, true))
+                                        .onFalse(this.booleanText(player, false))
                                         .build(),
-                                multiline(ACTIONS, this.plugin.lang().component("ui.button-editor.actions"),
+                                multiline(ACTIONS, language.component("ui.button-editor.actions"),
                                         actionLines(button.actions()), 8192)))
                         .build())
                 .type(DialogType.confirmation(
@@ -113,9 +116,10 @@ public final class ButtonEditorDialogService {
     }
 
     private ActionButton saveButton(Player player, Source source, int index, long generation) {
+        var language = this.plugin.lang(player);
         return ActionButton.create(
-                this.plugin.lang().component("ui.button-editor.save"),
-                this.plugin.lang().component("ui.button-editor.save-tooltip"),
+                language.component("ui.button-editor.save"),
+                language.component("ui.button-editor.save-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) ->
                                 this.save(player, source, index, view, generation),
@@ -124,9 +128,10 @@ public final class ButtonEditorDialogService {
     }
 
     private ActionButton cancelButton(Player player, long generation) {
+        var language = this.plugin.lang(player);
         return ActionButton.create(
-                this.plugin.lang().component("ui.button-editor.cancel"),
-                this.plugin.lang().component("ui.button-editor.cancel-tooltip"),
+                language.component("ui.button-editor.cancel"),
+                language.component("ui.button-editor.cancel-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) ->
                                 this.schedule(player, generation, () ->
@@ -141,7 +146,7 @@ public final class ButtonEditorDialogService {
         if (visibility == null || hideInaccessible == null) return;
         String permission = safe(view.getText(PERMISSION)).trim();
         if (visibility == CategoryNamespaces.Visibility.PERMISSION && permission.isBlank()) {
-            player.sendMessage(this.plugin.lang().message("messages.button-permission-required"));
+            player.sendMessage(this.plugin.lang(player).message("messages.button-permission-required"));
             this.plugin.tasks().playerLater(player, () ->
                     this.open(player, source, index), 1);
             return;
@@ -157,7 +162,7 @@ public final class ButtonEditorDialogService {
                         this.plugin.data().namespaces().updateUnappliedButton(index, updated);
                 case WORKSTATIONS -> this.plugin.workstationConfig().updateButton(index, updated);
             };
-            player.sendMessage(this.plugin.lang().message(
+            player.sendMessage(this.plugin.lang(player).message(
                     saved ? "messages.button-updated" : "messages.button-update-failed",
                     "file", this.fileName(source)));
             if (saved) this.plugin.browser(player).reopenManagement(player);
@@ -183,10 +188,11 @@ public final class ButtonEditorDialogService {
                 .build();
     }
 
-    private SingleOptionDialogInput.OptionEntry option(String id, String labelPath,
+    private SingleOptionDialogInput.OptionEntry option(Player player, String id, String labelPath,
                                                        CategoryNamespaces.Visibility current) {
         return SingleOptionDialogInput.OptionEntry.create(id,
-                this.plugin.lang().componentOr(optionKey(labelPath), this.visibilityFallback(id)),
+                this.plugin.lang(player).componentOr(
+                        optionKey(labelPath), this.visibilityFallback(player, id)),
                 current.name().equalsIgnoreCase(id));
     }
 
@@ -194,8 +200,8 @@ public final class ButtonEditorDialogService {
         return "ui.button-editor." + labelPath.replace('.', '-');
     }
 
-    private String visibilityFallback(String id) {
-        boolean chinese = this.plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh");
+    private String visibilityFallback(Player player, String id) {
+        boolean chinese = this.plugin.lang(player).locale().toLowerCase(Locale.ROOT).startsWith("zh");
         return switch (id) {
             case "admin" -> chinese ? "仅管理员" : "Administrators only";
             case "permission" -> chinese ? "按权限" : "Permission-based";
@@ -203,9 +209,9 @@ public final class ButtonEditorDialogService {
         };
     }
 
-    private String booleanText(boolean value) {
-        boolean chinese = this.plugin.lang().locale().toLowerCase(Locale.ROOT).startsWith("zh");
-        return this.plugin.lang().textOr(
+    private String booleanText(Player player, boolean value) {
+        boolean chinese = this.plugin.lang(player).locale().toLowerCase(Locale.ROOT).startsWith("zh");
+        return this.plugin.lang(player).textOr(
                 value ? "ui.personalization.on" : "ui.personalization.off",
                 value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }

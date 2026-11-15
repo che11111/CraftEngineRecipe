@@ -6,11 +6,13 @@ import dev.che1s.craftenginerecipe.api.RecipeIngredient;
 import dev.che1s.craftenginerecipe.api.RecipeItem;
 import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.config.CerConfig;
-import dev.che1s.craftenginerecipe.integration.kaleidoscope.KaleidoscopeRecipeSource;
+import dev.che1s.craftenginerecipe.integration.extension.ExtensionManager;
 import dev.che1s.craftenginerecipe.recipe.ExternalRecipeSnapshot;
 import dev.che1s.craftenginerecipe.recipe.RecipeEntry;
 import dev.che1s.craftenginerecipe.recipe.access.RecipeAccessPolicy;
 import dev.che1s.craftenginerecipe.recipe.presentation.RecipePresentation;
+import dev.che1s.craftenginerecipe.recipe.presentation.StationNames;
+import dev.che1s.craftenginerecipe.recipe.presentation.KaleidoscopePresentation;
 import dev.che1s.craftenginerecipe.util.ItemBridge;
 import dev.che1s.craftenginerecipe.util.DisplayNames;
 import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
@@ -70,7 +72,7 @@ final class ChestRecipeRenderer {
         Gui gui = Gui.builder().setStructure(structure).addIngredient('#', Item.EMPTY).build();
         View view = new View(player, entry, recipeIndex, recipeCount, usageItem, navigate, clickable, gui,
                 plan(recipe), this.plugin.recipeIndex().generation());
-        Component title = this.title(recipe);
+        Component title = this.title(recipe, player);
         Window window = Window.builder().setViewer(player).setUpperGui(gui).setTitle(title)
                 .addOutsideClickHandler(click -> {
                     click.setCancelled(true);
@@ -142,17 +144,81 @@ final class ChestRecipeRenderer {
         if (this.views.get(view.player.getUniqueId()) != view || view.token != token) view.cancelTask();
     }
 
-    private Component title(DisplayRecipe recipe) {
-        String raw = recipe.layout().title();
-        String fixedTitle = RecipePresentation.farmerFixedTitle(recipe.workstation().id());
+    private Component title(DisplayRecipe recipe, Player player) {
+        String raw = localized(recipe.layout().title(), player);
+        var presentation = this.titlePresentation(recipe, player);
+        String fixedTitle = this.localizedFixedTitle(recipe, player, presentation);
+        if (fixedTitle == null) {
+            raw = RecipePresentation.emphasizedFarmerTitle(recipe.workstation().id(), raw);
+        }
+        if (raw != null && raw.startsWith(RecipeLayout.JSON_TITLE_PREFIX)) {
+            try {
+                String json = localized(raw.substring(RecipeLayout.JSON_TITLE_PREFIX.length()), player);
+                Component parsed = GsonComponentSerializer.gson().deserialize(json);
+                Component content = fixedTitle == null ? parsed : boldText(parsed, fixedTitle);
+                return this.config.applyNameStyle(this.config.recipeTitleNamePrefix(), content,
+                        this.titleName(recipe, fixedTitle, presentation), presentation.bold());
+            } catch (RuntimeException | LinkageError error) {
+                CompatibilityWarnings.warn("ChestRecipeRenderer.title", error);
+            }
+        }
+        if (raw != null && raw.contains("<image:") && fixedTitle != null) {
+            String localizedRaw = localizeImageTitle(
+                    raw, recipe.workstation().name(), recipe.workstation().id(), fixedTitle);
+            return this.config.applyNameStyle(this.config.recipeTitleNamePrefix(),
+                    this.config.mm(localizedRaw), fixedTitle, presentation.bold());
+        }
+        String background = RecipePresentation.backgroundImage(recipe.id(), recipe.workstation().id());
+        if (background != null && fixedTitle != null) {
+            return this.config.applyNameStyle(this.config.recipeTitleNamePrefix(),
+                    this.config.mm(RecipePresentation.title(background, fixedTitle)),
+                    fixedTitle, presentation.bold());
+        }
+        if (fixedTitle != null) {
+            return this.config.styledName(this.config.recipeTitleNamePrefix(), fixedTitle, presentation.bold());
+        }
+        return this.titleLegacy(recipe, player, raw, presentation);
+    }
+
+    static String localizeImageTitle(String workstationId, String raw, String localizedTitle) {
+        return localizeImageTitle(raw, null, workstationId, localizedTitle);
+    }
+
+    private static String localizeImageTitle(String raw, String sourceTitle,
+                                             String workstationId, String localizedTitle) {
+        if (raw == null || localizedTitle == null) return raw;
+        if (sourceTitle != null && !sourceTitle.isBlank() && raw.contains(sourceTitle)) {
+            return raw.replace(sourceTitle, localizedTitle);
+        }
+        String fixedSource = RecipePresentation.farmerFixedTitle(workstationId);
+        return fixedSource == null ? raw : raw.replace(fixedSource, localizedTitle);
+    }
+
+    private ExtensionManager.WorkstationTitleStyle titlePresentation(DisplayRecipe recipe, Player player) {
+        return this.plugin.extensions().workstationTitleStyle(
+                recipe.workstation().id(), this.plugin.lang(player).locale());
+    }
+
+    private String localizedFixedTitle(DisplayRecipe recipe, Player player,
+                                       ExtensionManager.WorkstationTitleStyle presentation) {
+        String id = recipe.workstation().id();
+        if (id == null) return null;
+        var language = this.plugin.lang(player);
+        return presentation.apply(StationNames.resolve(id, language, null));
+    }
+
+    private Component titleLegacy(DisplayRecipe recipe, Player player, String raw,
+                                  ExtensionManager.WorkstationTitleStyle presentation) {
+        String fixedTitle = presentation.apply(
+                RecipePresentation.farmerFixedTitle(recipe.workstation().id()));
         raw = RecipePresentation.emphasizedFarmerTitle(recipe.workstation().id(), raw);
         if (raw != null && raw.startsWith(RecipeLayout.JSON_TITLE_PREFIX)) {
             try {
-                Component parsed = GsonComponentSerializer.gson()
-                        .deserialize(raw.substring(RecipeLayout.JSON_TITLE_PREFIX.length()));
+                String json = localized(raw.substring(RecipeLayout.JSON_TITLE_PREFIX.length()), player);
+                Component parsed = GsonComponentSerializer.gson().deserialize(json);
                 Component content = fixedTitle == null ? parsed : boldText(parsed, fixedTitle);
                 return this.config.applyNameStyle(this.config.recipeTitleNamePrefix(), content,
-                        this.titleName(recipe, fixedTitle));
+                        this.titleName(recipe, fixedTitle, presentation), presentation.bold());
             } catch (RuntimeException | LinkageError error) {
                 CompatibilityWarnings.warn("ChestRecipeRenderer.title", error);
                 raw = null;
@@ -163,27 +229,30 @@ final class ChestRecipeRenderer {
             String label = raw != null && !raw.isBlank()
                     ? PlainTextComponentSerializer.plainText().serialize(this.config.mm(raw))
                     : this.plain(recipe.workstation().name());
-            return this.config.mm(RecipePresentation.title(background, label,
-                    this.config.recipeTitleNamePrefix()));
+            label = presentation.apply(label);
+            return this.config.applyNameStyle(this.config.recipeTitleNamePrefix(),
+                    this.config.mm(RecipePresentation.title(background, label)),
+                    label, presentation.bold());
         }
         if (raw != null && !raw.isBlank()) {
             Component parsed = this.config.mm(raw);
             return raw.contains("<image:")
                     ? this.config.applyNameStyle(this.config.recipeTitleNamePrefix(), parsed,
-                    this.titleName(recipe, fixedTitle))
-                    : this.config.styledName(this.config.recipeTitleNamePrefix(), parsed);
+                    this.titleName(recipe, fixedTitle, presentation), presentation.bold())
+                    : this.config.styledName(this.config.recipeTitleNamePrefix(), parsed, presentation.bold());
         }
         if (fixedTitle != null) {
-            return this.config.styledName(this.config.recipeTitleNamePrefix(), fixedTitle);
+            return this.config.styledName(this.config.recipeTitleNamePrefix(), fixedTitle, presentation.bold());
         }
         return this.config.styledName(this.config.recipeTitleNamePrefix(),
-                this.plain(recipe.workstation().name()));
+                this.plain(recipe.workstation().name()), presentation.bold());
     }
 
-    private String titleName(DisplayRecipe recipe, String fixedTitle) {
+    private String titleName(DisplayRecipe recipe, String fixedTitle,
+                             ExtensionManager.WorkstationTitleStyle presentation) {
         if (fixedTitle != null && !fixedTitle.isBlank()) return fixedTitle;
         String name = this.plain(recipe.workstation().name());
-        return name == null || name.isBlank() ? null : name;
+        return name == null || name.isBlank() ? null : presentation.apply(name);
     }
 
     static String emphasizeFarmersDelightTitle(String workstationId, String title) {
@@ -241,13 +310,13 @@ final class ChestRecipeRenderer {
         if (layout.workstationSlot() >= 0) {
             ItemStack workstation = ItemBridge.build(recipe.workstation().icon(), view.player, 1);
             if (recipe.workstation().name() != null && !recipe.workstation().name().isBlank()) {
-                workstation = ItemBridge.decorate(workstation, this.config.mm(DisplayNames.expandTranslations(
-                        recipe.workstation().name(), this.plugin.data().resourcePackTranslations())), null);
+                workstation = ItemBridge.decorate(workstation, this.config.mm(localized(
+                        recipe.workstation().name(), view.player)), null);
             }
             this.put(view.gui, layout.workstationSlot(), Item.simple(workstation));
         }
         List<Component> information = recipe.description().stream()
-                .map(this.config::mm)
+                .map(line -> this.config.mm(localized(line, view.player)))
                 .map(ChestRecipeRenderer::prepareLoreLine)
                 .filter(line -> !hiddenSourceLore(line))
                 .toList();
@@ -278,7 +347,7 @@ final class ChestRecipeRenderer {
             definition = result.item();
             amount = result.amount();
             if ((!sourceLoreOnly || kaleidoscope) && result.note() != null && !result.note().isBlank()) {
-                lore.add(this.config.mm(result.note()));
+                lore.add(this.config.mm(localized(result.note(), view.player)));
             }
             if (!sourceLoreOnly && result.viewerLore() != null) {
                 try {
@@ -290,18 +359,20 @@ final class ChestRecipeRenderer {
             }
             // FD 原生详情页将说明放在产物物品上，不显示 CER 的信息按钮。
             if (!sourceLoreOnly && nativeUi && !recipe.description().isEmpty()) {
-                for (String line : recipe.description()) lore.add(this.config.mm(line));
+                for (String line : recipe.description()) {
+                    lore.add(this.config.mm(localized(line, view.player)));
+                }
             }
         } else {
             RecipeIngredient ingredient = recipe.ingredients().get(placement.index());
-            if (KaleidoscopeRecipeSource.isInformationIngredient(recipe.id(), ingredient)) {
+            if (KaleidoscopePresentation.isInformationIngredient(recipe.id(), ingredient)) {
                 List<Component> notes = recipe.description().stream()
-                        .map(this.config::mm)
+                        .map(line -> this.config.mm(localized(line, view.player)))
                         .map(ChestRecipeRenderer::prepareLoreLine)
                         .filter(line -> !hiddenSourceLore(line))
                         .toList();
                 this.put(view.gui, placement.slot(), Item.simple(ItemBridge.icon(
-                        KaleidoscopeRecipeSource.INFORMATION_ITEM_MODEL, Material.PAPER,
+                        KaleidoscopePresentation.INFORMATION_ITEM_MODEL, Material.PAPER,
                         Component.empty(), notes)));
                 return;
             }
@@ -314,7 +385,8 @@ final class ChestRecipeRenderer {
             definition = choices.get(choice);
             amount = ingredient.amount();
             if (kaleidoscope) {
-                for (String line : this.kaleidoscopeItemNotes(recipe, ingredient, definition)) {
+                for (String line : this.kaleidoscopeItemNotes(
+                        view.player, recipe, ingredient, definition)) {
                     lore.add(this.config.mm(line));
                 }
             }
@@ -324,7 +396,7 @@ final class ChestRecipeRenderer {
         icon = hideUnwantedSourceLore(icon);
         if (!kaleidoscope && !sourceLoreOnly && !nativeUi && recipe.layout().informationSlot() < 0) {
             for (String line : recipe.description()) {
-                Component component = this.config.mm(line);
+                Component component = this.config.mm(localized(line, view.player));
                 if (!hiddenSourceLore(component)) lore.add(component);
             }
         }
@@ -334,10 +406,11 @@ final class ChestRecipeRenderer {
                 ? view.clickable.apply(key, decorated) : Item.simple(decorated));
     }
 
-    private List<String> kaleidoscopeItemNotes(DisplayRecipe recipe, RecipeIngredient ingredient, RecipeItem item) {
-        String key = KaleidoscopeRecipeSource.itemNoteKey(recipe.id(), ingredient.role());
+    private List<String> kaleidoscopeItemNotes(Player player, DisplayRecipe recipe,
+                                                RecipeIngredient ingredient, RecipeItem item) {
+        String key = KaleidoscopePresentation.itemNoteKey(recipe.id(), ingredient.role());
         if (key == null) return List.of();
-        return List.of(this.plugin.lang().integrationText("kaleidoscope", key,
+        return List.of(this.plugin.lang(player).integrationText("kaleidoscope", key,
                 "container", item.id(), "liquid", item.id()));
     }
 
@@ -427,6 +500,12 @@ final class ChestRecipeRenderer {
 
     private String plain(String value) {
         return value == null ? "" : PlainTextComponentSerializer.plainText().serialize(this.config.mm(value));
+    }
+
+    private String localized(String value, Player player) {
+        if (value == null || value.isBlank()) return value;
+        return DisplayNames.expandTranslations(value,
+                this.plugin.data().resourcePackTranslations(player), player);
     }
 
     private void put(Gui gui, int slot, Item item) {

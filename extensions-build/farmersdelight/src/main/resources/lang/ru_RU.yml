@@ -1,0 +1,29 @@
+# Generated ru_RU translation from en_US.yml.
+title.cooking_pot: Фермерское наслаждение·Кастрюля
+title.cooking_pot_group: Фермерское наслаждение·Кастрюля·{group}
+title.cutting_board: Фермерское наслаждение·Разделочная доска
+title.special: Фермерское наслаждение·Особые рецепты
+title.skillet: Фермерское наслаждение·Сковорода
+title.unknown_addon: Фермерское наслаждение·Дополнительные рецепты
+title.addon_prefix: 'Фермерское наслаждение·'
+addon.keg: Бочка для ферментации
+addon.grill: Гриль
+addon.skewer: Шашлычный бассейн
+skillet.note: 'Возможность приготовления пищи на костре: да; время приготовления: галочки {ticks}; опыт: {experience}'
+flame.name: <gold>Информация о рецепте
+flame.time: '<gray>Время: {ticks} тикает'
+flame.experience: '<gray>Опыт: {experience}'
+pot.cooking_time: 'Время приготовления: {seconds} секунд.'
+pot.experience: 'Опыт: {experience}'
+pot.group: 'Специальная кастрюля: {group}.'
+item.required_tool: Требуемый инструмент
+item.required_tool_lore: Требования к инструменту не могут быть расширены; проверить рецепт /fd
+item.unresolved: Неразрешенный ингредиент
+note.candidate_result: Результат кандидата
+note.description_display: Отображение описания
+note.description_entry: Описание записи; не исполняемый рецепт крафта
+note.auto_cycle: <gray>Запускается автоматически</gray>
+addon.type: 'Тип рецепта аддона: {type}'
+addon.conditions: Проверьте /fd рецепт на наличие дополнительных условий и примечаний для конкретного игрока.
+note.probability_unknown: Неизвестный шанс
+note.independent_chance: 'Независимый шанс: {percent}%'

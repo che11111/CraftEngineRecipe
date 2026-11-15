@@ -1,0 +1,482 @@
+# Generated ja_JP translation.
+prefix: '<#79CFC9>[<bold></bold>]</#79CFC9> '
+messages:
+  debug-usage: '<#E4D397>Usage: /cer デバッグ レシピ | /cer デバッグ パフォーマンス [リセット]</#E4D397>'
+  debug-export-start: <#E4D397>すべてのレシピを小さなバッチでキャプチャします。スナップショットはプラグイン デバッグ フォルダーに非同期的に保存されます。</#E4D397>
+  debug-export-busy: <#E4D397>A レシピのエクスポートはすでに実行中です。お待ちください。</#E4D397>
+  debug-export-cooldown: <#E4D397>再度エクスポートする前に、{seconds} 秒待ってください。</#E4D397>
+  debug-export-success: '<#98C69A>保存されたレシピ: {path} (Bukkit {bukkit}、CraftEngine {native}、CER プロバイダー {external}; エントリ エラー {errors}).</#98C69A>'
+  debug-export-failed: '<#E58B8B>レシピのエクスポートに失敗しました: {error}。コンソールを確認してください。レシピのリロードが完了してから再試行してください。</#E58B8B>'
+  debug-performance-header: <#79CFC9>パフォーマンス統計 (起動または最後のリセットからの {seconds} 秒)</#79CFC9>
+  debug-performance-reset: <#98C69A>Plugin 操作のタイマーとカウンターがリセットされました。キャッシュとサーバーのパフォーマンス統計は変更されません。</#98C69A>
+  debug-performance-server: '<#B8C0CC>サーバー TPS (1/5/15 分): {tps}、平均 MSPT: {mspt}、フォリア: {folia}</#B8C0CC>'
+  debug-performance-data: <#B8C0CC>インデックス準備完了={ready}生成={generation}; CE アイテム {items}、カテゴリ {categories}、レシピ {native};プロバイダーレシピ {external}、アイテム {externalItems}</#B8C0CC>
+  debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
+  debug-performance-operation: '<#B8C0CC>{name}: {count} コール、合計 {total} ミリ秒、平均 {average} ミリ秒、最大 {max} ms</#B8C0CC>'
+  debug-performance-empty: <#8793A5>まだ操作タイミングがありません。メニューを使用して、このコマンドを再度実行します。</#8793A5>
+  debug-performance-note: <#8793A5>Timings はネストされる可能性があり、サーバーの CPU パーセンテージに追加することはできません。リセットし、速度低下を再現してから検査します。呼び出しスタックには Spark を使用します。グローバル TPS/MSPT は Folia.</#8793A5> では利用できない可能性があります
+  no-permission: <#E58B8B>これを行う権限がありません。</#E58B8B>
+  player-only: <#E58B8B>このコマンドはプレイヤーのみが使用できます。</#E58B8B>
+  personalization-saved: '<#98C69A>保存された設定: メニュー スタイル {menu}、デフォルトのメイン ページ {main}、復元位置: {remember}.</#98C69A>'
+  unapplied-updated: <#98C69A>{file}.</#98C69A> のネームスペース {namespace} を更新しました
+  unapplied-update-failed: <#E58B8B>名前空間 {namespace} が見つかりませんでした。 {file} は変更されませんでした。</#E58B8B>
+  unapplied-permission-required: 可視性が許可に設定されている場合、<#E58B8B>A 許可ノードが必要です。</#E58B8B>
+  button-updated: <#98C69A>{file}.</#98C69A> のカスタム ボタンを更新しました
+  button-update-failed: <#E58B8B>カスタム ボタンが存在しないか、{file} を保存できませんでした。</#E58B8B>
+  button-permission-required: ボタンの表示設定が権限ベースの場合、<#E58B8B>A 権限ノードが必要です。</#E58B8B>
+  management-saved: <#98C69A>管理の変更が保存され、メニューが更新されました。</#98C69A>
+  management-save-failed: <#E58B8B>ターゲット エントリが見つからないか、構成を保存できませんでした。</#E58B8B>
+  config-invalid: <#E58B8B>無効な構成値です。数値が範囲外であるか、オプションがありません。 config.yml は変更されませんでした。</#E58B8B>
+  config-save-started: <#E4D397>config.yml が保存されました。インデックスを再構築し、新しい設定を適用しています...</#E4D397>
+  config-saved: <#98C69A>config.yml が正常に保存され、再ロードされました。</#98C69A>
+  config-save-failed: <#E58B8B>config.yml は保存されましたが、リロードが失敗したか、新しいリクエストに置き換えられました。コンソールを確認してください。</#E58B8B>
+  menu-default-usage: '<#E4D397>Usage: /cer メニューのデフォルト \<cer_menu_*></#E4D397>'
+  menu-default-set: <#98C69A>デフォルトのメイン メニュー スタイルは {menu}.</#98C69A> に設定されています
+  menu-unknown: '<#E58B8B>不明または不完全なメニュー スタイル: {menu}</#E58B8B>'
+  menu-enable-usage: '<#E4D397>Usage: /cer メニューを有効にする \<cer_menu_*|all></#E4D397>'
+  menu-enabled-updated: <#98C69A>有効なメニュー スタイルが更新されました。</#98C69A>
+  menu-enable-failed: <#E58B8B>そのメニュー スタイルを有効にできませんでした。</#E58B8B>
+  menu-disable-usage: '<#E4D397>Usage: /cer メニューを無効にする \<cer_menu_*></#E4D397>'
+  menu-disabled: '<#98C69A>無効なメニュー スタイル: {menu}</#98C69A>'
+  menu-disable-failed: <#E58B8B>そのスタイルを無効にできませんでした。デフォルトのスタイルは有効のままにする必要があります。</#E58B8B>
+  menu-status-default: '<#B8C0CC>デフォルトのスタイル: {menu}</#B8C0CC>'
+  menu-status-enabled: '<#B8C0CC>有効: {menus}</#B8C0CC>'
+  menu-status-available: '<#B8C0CC>利用可能: {menus}</#B8C0CC>'
+  menu-unavailable: '<#E58B8B>そのメニュー スタイルは有効ではないか、使用できません: {menu}</#E58B8B>'
+  management-applied: <#98C69A>{namespace} が category.yml に適用されました。リスト内での順序の調整を続けることができます。</#98C69A>
+  management-applied-entry: <#98C69A>{entry} が category.yml に適用されました。順序の調整を続けることができます。</#98C69A>
+  management-unapplied: <#98C69A>{entry} は、categories-unapplied.yml.</#98C69A> に移動されました
+  management-moved: <#98C69A>表示順序が更新されました。</#98C69A>
+  management-edge: <#8793A5>このエントリはすでにリストの端にあります。</#8793A5>
+  management-applied-readonly: <#E4D397>この名前空間はすでに category.yml にあります。アクティブな構成を直接編集します。</#E4D397>
+  management-no-category-page: <#8793A5>名前空間 {namespace} には、参照可能な名前空間カテゴリ ページがありません。</#8793A5>
+  index-build-started: <#E4D397> {plugins} が検出されました。レシピインデックスを構築中...</#E4D397>
+  integration-choice-disabled: <#E58B8B>{plugins}を無効にしました。既存のレシピ ファイルは保持されますが、エクスポートまたはインデックス付けされなくなります。</#E58B8B>
+  integration-choice-ask: <#E4D397>{plugins} を質問モードに変更しました。既存のレシピ ファイルは保持されますが、有効になるまでインデックスは作成されません。</#E4D397>
+  integration-export-started: <#E4D397>{plugins} のレシピと栽培サポートを有効にしました。レシピのエクスポートとインデックスの構築...</#E4D397>
+  integration-index-ready: '<#98C69A>{plugin} インデックスの準備ができました: {recipes} レシピと {workstations} ワークステーション。</#98C69A>'
+  integration-index-failed: '<#E58B8B>{plugin} インデックスの構築に失敗しました: {error}</#E58B8B>'
+  integration-unknown-error: 不明なエラー。コンソールを確認してください。
+  integration-config-detected: '<#D8B278>保留中の統合構成: {plugins} 統合および {presets} カテゴリ プリセット。</#D8B278>'
+  integration-config-open: <#79CFC9>[オープン統合構成]</#79CFC9>
+  integration-config-open-hover: <#B8C0CC>/cer 管理ページで統合設定を開く</#B8C0CC>
+  integration-config-empty: <#8793A5>構成を待っている統合またはカテゴリ プリセットはありません。</#8793A5>
+  integration-config-no-detected: <#8793A5>特別にサポートされているプラグインまたは適応されたリソース パックは検出されませんでした。</#8793A5>
+  integration-config-saved: <#98C69A>統合構成が保存されました。</#98C69A>
+  integration-config-save-failed: <#E58B8B>統合構成を保存できませんでした。コンソールを確認してください。</#E58B8B>
+  category-preset-linked-applied: '<#98C69A>統合を有効にする際にリンクされたカテゴリのプリセットを適用しました: {presets}.</#98C69A>'
+  api-integration-detected: <#D8B278>CER API を介して接続されたレシピ ソースを検出しました:</#D8B278> <white>{plugin}</white>
+  api-integration-namespace: <#B8C0CC>名前空間:</#B8C0CC> <white>{namespace}</white>
+  api-integration-ready: <#98C69A>{recipes} レシピを追加しました。インデックスの準備ができました。</#98C69A>
+  api-integration-updated: '<#79CFC9>API レシピ ソース {plugin} ({namespace}) 更新: {previous} -> {current} レシピ。インデックスが更新されました。</#79CFC9>'
+  api-integration-unregistered: <#E58B8B>API レシピ ソース {plugin} ({namespace}) が登録されていません。 {recipes} レシピが削除され、インデックスが更新されました。</#E58B8B>
+  recipe-export-usage: '<#E4D397>Usage: /cer エクスポート &lt;拡張ソース ID|all></#E4D397>'
+  recipe-export-started: <#E4D397>ソース プラグインを読み取り、レシピ ファイルを再生成しています。お待ちください。</#E4D397>
+  recipe-export-complete: '<#98C69A>レシピのエクスポートが完了しました: {sources} ソース、{files} ファイル、および {recipes} レシピ。失敗: {failures}</#98C69A>'
+  recipe-export-failed: '<#E58B8B>レシピ ソースは正常にエクスポートされませんでした: {failures}</#E58B8B>'
+  reload-start: <#E4D397>リロード中。インデックスの準備ができたら通知されます。</#E4D397>
+  reload-success: <#98C69A>構成、言語、データのインデックスが再ロードされました。</#98C69A>
+  reload-failed: <#E58B8B>Rebuild が失敗したか、このリクエストは新しいリロードに置き換えられました。コンソールを確認してください。</#E58B8B>
+  data-not-ready: '<#E4D397>データの準備ができていません: {reason}</#E4D397>'
+  not-ready-reason: データが初期化中、再構築中、または最後の再構築が失敗しました。お待ちください;必要に応じて、/cer reload を実行し、コンソールを確認します。
+  category-not-found: '<#E58B8B>カテゴリが見つかりません: {id}</#E58B8B>'
+  hand-empty: <#E4D397>アイテムをメイン手に持って、作り方を調べてください。</#E4D397>
+  hand-item-unavailable: <#E58B8B>メインハンドアイテムは適用されたメニューでは使用できないか、権限または非表示ルールによって制限されています。</#E58B8B>
+  hand-no-recipe: <#E4D397>{id} を生成するレシピが見つかりませんでした。</#E4D397>
+  hand-resolve-failed: <#E58B8B>メインハンドアイテムを識別できませんでした。コンソールを確認してください。</#E58B8B>
+  target-block-empty: <#E4D397>クラフトレシピを表示したいブロックを見てください。</#E4D397>
+  target-block-unavailable: <#E58B8B>ターゲット ブロックのレシピが見つかりません</#E58B8B>
+  target-block-no-recipe: <#E4D397>{id} を生成するレシピが見つかりませんでした。</#E4D397>
+  target-block-resolve-failed: <#E58B8B>ターゲット ブロックを識別できませんでした。コンソールを確認してください。</#E58B8B>
+command:
+  description: CraftEngineRecipe アイテム カテゴリ メニューを開く
+ui:
+  default-categories:
+    vanilla-name: <white>バニラアイテム</white>
+    vanilla-click: <gray>クリックしてすべてのバニラ アイテムを表示</gray>
+    vanilla-count: '<dark_gray>アイテム: <count></dark_gray>'
+    divider-lore: '&#B8C0CCA 区切りペイン'
+    manage-name: '&#D8B278オープン管理'
+    manage-lore-1: '&#B8C0CCこのページには、このサーバーで利用可能な CraftEngine コンテンツが表示されます'
+    manage-lore-2: '&#B8C0CC管理者はコンテンツを適用、非表示、または順序を変更できます'
+    manage-lore-3: '&#B8C0CC/cer manage で開くこともできます'
+    manage-lore-4: '&#B8C0CCこのボタンは管理者のみに表示されます'
+    manage-lore-5: '&#B8C0CCこのボタンを非表示にしたり削除したりすることはできません'
+    integrations-name: '&#B8C278Open CER 統合'
+    integrations-lore-1: '&#B8C0CCこのページには、サーバー上で検出された特別な CraftEngine 統合が表示されます'
+    integrations-lore-2: '&#B8C0CC管理者は統合をアクティブにする前に有効にする必要があります'
+    integrations-lore-3: '&#B8C0CC/cer 統合を使用して開くこともできます'
+    integrations-lore-4: '&#B8C0CCこのボタンは管理者のみに表示されます'
+    integrations-lore-5: '&#B8C0CCこのボタンを非表示にしたり削除したりすることはできません'
+  browser:
+    title: <#374151>アイテムカテゴリ</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>アイテム</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+  category-bar:
+    icon-name: <#EEF2F6><name></#EEF2F6>
+    icon-lore:
+    - <#B8C0CC>クリックしてこのカテゴリを表示</#B8C0CC>
+    - '<#8793A5>アイテム: <count></#8793A5>'
+    sub-icon-lore:
+    - <#B8C0CC>クリックしてこのサブカテゴリを開きます</#B8C0CC>
+    - '<#8793A5>アイテム: <count></#8793A5>'
+    admin-only-hint: <#8793A5>このカテゴリは管理者のみに表示されます</#8793A5>
+    no-permission-hint: <#8793A5>このカテゴリを表示するには、<permission> が必要です</#8793A5>
+    prev-category:
+      name: <#E4D397>◀ 前のカテゴリ</#E4D397>
+    next-category:
+      name: <#E4D397>次のカテゴリ ▶</#E4D397>
+  content:
+    prev-page:
+      name: <#79CFC9>◀ 前のページ</#79CFC9>
+    next-page:
+      name: <#79CFC9>次のページ ▶</#79CFC9>
+    back:
+      name: <#E58B8B>親に戻る</#E58B8B>
+    search:
+      name: <#D8B278>アイテムを検索</#D8B278>
+      lore:
+      - <#B8C0CC>クリックしてキーワードで検索</#B8C0CC>
+      craftable-lore: '<#79CFC9>右クリック: インベントリ内の作成可能なアイテム</#79CFC9>'
+      exit-craftable-lore: '<#79CFC9>右クリック: 製作可能アイテムリストを終了</#79CFC9>'
+    hand:
+      name: <#79CFC9>メインハンドレシピ</#79CFC9>
+      lore:
+      - <#B8C0CC>クリックしてメインアイテムの作成方法を確認</#B8C0CC>
+      - <#8793A5>/cer handと同じ</#8793A5>
+    query:
+      name: <#79CFC9>レシピ検索</#79CFC9>
+      lore:
+      - '<#B8C0CC>Left-click: メインハンドアイテムのレシピ</#B8C0CC>'
+      - '<#B8C0CC>Right-click: 対象ブロックのレシピ</#B8C0CC>'
+    close:
+      name: <#E58B8B>メニューを閉じる</#E58B8B>
+      lore:
+      - <#B8C0CC>クリックしてアイテム カテゴリ メニューを閉じます (ESC と同じ)</#B8C0CC>
+    glasses:
+      name: <#79CFC9>ターゲット ブロックのレシピ</#79CFC9>
+      lore:
+      - <#B8C0CC>クリックすると、見ているブロックの作成方法が表示されます</#B8C0CC>
+      - <#8793A5>レシピを表示したいブロックに十字線を向けます</#8793A5>
+    info:
+      name: <#79CFC9>使い方のヒント</#79CFC9>
+      lore:
+      - <#B8C0CC>アイテムを左クリックすると、作成方法が表示されます</#B8C0CC>
+      - <#B8C0CC>アイテムを右クリックすると、それを使用するレシピが表示されます</#B8C0CC>
+      - <#B8C0CC>元に戻るには、作業台画面の空いている領域をクリックしてください</#B8C0CC>
+      - <#B8C0CC>ページ外の空き領域を右クリックするとメインページに戻ります</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>複数のレシピが自動的にローテーション</#8793A5>
+    workstations:
+      name: <#D8B278>ワークステーション別に閲覧</#D8B278>
+      lore:
+      - <#B8C0CC>クリックしてクラフト、製錬などを参照</#B8C0CC>
+      - <#8793A5>表示できるレシピ出力のみが表示されます</#8793A5>
+      personalization-lore: '<#79CFC9>右クリック: 個人設定設定</#79CFC9>'
+    item-lore: []
+    empty:
+      name: <#E58B8B>ここには何もありません</#E58B8B>
+  personalization:
+    title: <bold><#D8B278>カスタマイズ</#D8B278></bold>
+    description: <#B8C0CC>メニュー スタイルとデフォルトのメイン ページを選択し、再度開くと最後の位置を復元するかどうかを選択します。</#B8C0CC>
+    menu-pack-label: <#79CFC9>メインメニューのスタイル</#79CFC9>
+    main-page-label: <#79CFC9>デフォルトのメイン ページ (前の位置が復元されない場合)</#79CFC9>
+    main-page-namespaces: 項目タイプ別に参照する
+    main-page-workstations: ワークステーションごとに参照する
+    language-label: <#79CFC9>インターフェース言語</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
+    remember-label: <#79CFC9>クローズ後に最後のポジションを復元</#79CFC9>
+    true: 有効
+    false: 障害者
+    save: <#98C69A>設定を保存</#98C69A>
+    save-tooltip: <#B8C0CC>これらの個人設定を保存します</#B8C0CC>
+    cancel: <#E58B8B>キャンセル</#E58B8B>
+    cancel-tooltip: <#B8C0CC>変更を破棄してメニューに戻る</#B8C0CC>
+  craftable:
+    name: <#79CFC9>クラフト可能なアイテム</#79CFC9>
+    title: <bold><#374151>クラフト可能アイテム</#374151> <#465D70>»</#465D70> <#293341>現在の在庫</#293341></bold>
+  management:
+    name: <#D8B278>管理</#D8B278>
+    title: <bold><#374151>管理</#374151></bold>
+    return-name: <#79CFC9>アイテムカテゴリに戻る</#79CFC9>
+    return-lore: <#B8C0CC>クリックするとアイテムカテゴリーページに戻ります</#B8C0CC>
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>適用された名前空間とカスタム ボタンを管理する</#B8C0CC>
+    categories-summary: '<#8793A5>{entries} エントリ: {namespaces} ネームスペースおよび {buttons} ボタン</#8793A5>'
+    unapplied-name: <#D8B278>カテゴリ-未適用.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>アクティブなメニューにまだ存在しないエントリを確認、編集、適用する</#B8C0CC>
+    unapplied-summary: <#8793A5>{count} エントリがレビュー待ちです</#8793A5>
+    workstations-name: <#D8B278>workstations.yml</#D8B278>
+    workstations-lore: <#B8C0CC>ワークステーションとカスタム ボタンの表示順序を調整</#B8C0CC>
+    workstations-summary: <#8793A5>{count} ワークステーション ページ エントリ</#8793A5>
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>サポートされていない拡張機能</#D8B278>
+    integrations-lore: <#B8C0CC>プラグインとリソース パックの特別サポートを構成する</#B8C0CC>
+    integrations-summary: <#8793A5>{plugins} サポートされているプラグインと {presets} リソース パック プリセットが検出されました</#8793A5>
+    integrations-left-click: '<#79CFC9>左クリック: 利用可能な統合設定</#79CFC9>'
+    integrations-right-click: '<#E4D397>右クリック: このサーバーではサポートされていない拡張機能</#E4D397>'
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>言語、データ ソース、検索、ホットキー、ワークフロー動作を構成する</#B8C0CC>
+    config-summary: <#8793A5>言語 {language} · CER {version}</#8793A5>
+    workstations-shortcut: <#79CFC9>クリックしてワークステーションを管理</#79CFC9>
+    hidden-name: <#D8B278>カテゴリとアイテム</#D8B278>
+    items-name: <#D8B278>隠しカテゴリアイテム</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: '<#98C69A>適用済み: カテゴリ内に存在します。yml</#98C69A>'
+    unapplied-lore: '<#B8C0CC>適用されません: category-unapplied.yml</#B8C0CC> にのみ存在します'
+    visibility-admin: 管理者のみ
+    visibility-player: すべてのプレイヤー
+    visibility-permission: 許可ベース
+    visibility-value: '<#8793A5>可視性: {visibility} 許可: {permission}</#8793A5>'
+    category-state: '<#8793A5>カテゴリ エントリ: {entry} 並べ替え: {sort} 非表示ルール: {hide}</#8793A5>'
+    namespace-browse: '<#79CFC9>左クリック: 管理メニュー内のこの名前空間を参照</#79CFC9>'
+    namespace-edit: '<#79CFC9>右クリック: 名前、権限、伝承、並べ替えを編集</#79CFC9>'
+    namespace-hide: '<#79CFC9>中クリック: カテゴリとアイテムの可視性を管理</#79CFC9>'
+    namespace-hide-unapplied: '<#79CFC9>Shift+Left: カテゴリとアイテムの可視性を管理</#79CFC9>'
+    namespace-order: '<#E4D397>Shift+左: 上に移動 / Shift+右: 下に移動</#E4D397>'
+    namespace-apply: '<#98C69A>中クリック: この名前空間をカテゴリに適用します。yml</#98C69A>'
+    namespace-unapply: '<#E58B8B>Q キー: カテゴリに移動-unapplied.yml</#E58B8B>'
+    no-category-button-lore: <#8793A5>このエントリには名前空間カテゴリ ボタンが表示されません</#8793A5>
+    category-bar-lore: <#B8C0CC>適用された名前空間と未適用の名前空間の表示</#B8C0CC>
+    button-name: カスタムボタン
+    button-type: '<#8793A5>タイプ: カスタムボタン</#8793A5>'
+    button-use: '<#79CFC9>左クリック: このボタンを実行</#79CFC9>'
+    button-edit: '<#79CFC9>右クリック: アイコン、テキスト、権限、アクションを編集</#79CFC9>'
+    button-apply: '<#98C69A>中クリック: このボタンをカテゴリに適用します。yml</#98C69A>'
+    button-unapply: '<#E58B8B>Q キー: カテゴリに移動-unapplied.yml</#E58B8B>'
+    category-hidden: <#E58B8B>Category エントリが非表示になります (参照パスを含む)</#E58B8B>
+    category-visible: <#98C69A>カテゴリエントリが表示されます</#98C69A>
+    category-count: <#8793A5>{items} 直接アイテムと {children} サブカテゴリ</#8793A5>
+    category-open-items: '<#79CFC9>左クリック: このカテゴリの直接アイテムを管理</#79CFC9>'
+    category-toggle: '<#79CFC9>右クリック: カテゴリ エントリとそのパスを非表示/表示</#79CFC9>'
+    items-all-hidden: <#E58B8B>このカテゴリのすべての直接アイテムは非表示です</#E58B8B>
+    items-toggle-all: '<#79CFC9>Shift+Left または Shift+Right: すべての直接アイテムを非表示 / 表示</#79CFC9>'
+    item-hidden: <#E58B8B>現在非表示</#E58B8B>
+    item-visible: <#98C69A>現在表示されています</#98C69A>
+    item-recipe-count: <#B8C0CC>{recipes} レシピ、{usages} レシピで使用されます</#B8C0CC>
+    item-id: <#8793A5>{id}</#8793A5>
+    item-toggle: <#79CFC9>クリックして表示を切り替えます</#79CFC9>
+    workstation-id: <#8793A5>{id}</#8793A5>
+    workstation-use: '<#79CFC9>左クリック: このワークステーション ページを開きます</#79CFC9>'
+    workstation-order: '<#E4D397>Shift+左: 上に移動 / Shift+右: 下に移動</#E4D397>'
+  config-editor:
+    general-title: <bold><#D8B278>config.yml · 全般</#D8B278></bold>
+    data-title: <bold><#D8B278>config.yml · データとパフォーマンス</#D8B278></bold>
+    description: <#B8C0CC>一般的に変更される設定を編集します。保存するとインデックスが再構築されます。詳細なコメントは config.yml.</#B8C0CC> で引き続き編集可能です
+    save: <#98C69A>保存して再ロード</#98C69A>
+    save-tooltip: <#B8C0CC>config.yml を書き込み、メニューとデータ インデックスを再構築する</#B8C0CC>
+    cancel: <#E58B8B>キャンセル</#E58B8B>
+    cancel-tooltip: <#B8C0CC>これらの変更を破棄して管理に戻ります</#B8C0CC>
+    open-data: <#79CFC9>データとパフォーマンス</#79CFC9>
+    open-general: <#79CFC9>一般設定</#79CFC9>
+    open-page-tooltip: <#B8C0CC>このダイアログを保存せずに他の設定ページに切り替えます</#B8C0CC>
+    landing-page: <#79CFC9>デフォルトのランディング ページ</#79CFC9>
+    landing-namespaces: アイテムカテゴリ
+    landing-workstations: ワークステーション
+    personalization: <#79CFC9>プレーヤーの個人設定と閲覧の再開を有効にする</#79CFC9>
+    remember-page: <#79CFC9>以前の閲覧位置を記憶して復元</#79CFC9>
+    hotkey: <#79CFC9>交換ハンド ホットキーを有効にする</#79CFC9>
+    hotkey-sneak: <#79CFC9>ホットキーのスニークが必要</#79CFC9>
+    updates: <#79CFC9>安定したアップデートについては GitHub を確認してください</#79CFC9>
+    source-craftengine: <#79CFC9>CraftEngine レシピ ソースを有効にする</#79CFC9>
+    source-minecraft: <#79CFC9>バニラレシピデータを有効にする</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>バニラ栽培データを有効化</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>CraftEngine 栽培データを有効化</#79CFC9>
+    auto-reload: <#79CFC9>レシピを監視/ファイル変更用</#79CFC9>
+    poll-interval: <#79CFC9>ファイルチェック間隔(10-200ティック)</#79CFC9>
+    rotate-interval: <#79CFC9>レシピのローテーション間隔 (5 ～ 200 ティック)</#79CFC9>
+    search-max-length: <#79CFC9>検索入力制限 (1-64)</#79CFC9>
+    search-max-results: <#79CFC9>検索結果制限(1-1000)</#79CFC9>
+  unapplied-editor:
+    title: <bold><#D8B278>カテゴリの名前空間編集</#D8B278> <dark_gray>{namespace}</dark_gray></bold>
+    description: <#B8C0CC>{file}を変更します。メニューはすぐに更新され、前のバージョンは .bak ファイルとして保持されます。</#B8C0CC>
+    edit-lore: '<#79CFC9>右クリック: このネームスペースを編集</#79CFC9>'
+    visibility: <#79CFC9>可視性</#79CFC9>
+    visibility-admin: 管理者のみ
+    visibility-player: すべてのプレイヤー
+    visibility-permission: 許可ベース
+    permission: <#79CFC9>権限ノード \<permission>
+    icon-name: <#79CFC9>カテゴリ名テンプレート \<name>
+    item-lore: <#79CFC9>アイテムの伝承 \<lore> (1 行につき 1 行)
+    icon-lore: <#79CFC9>最上位カテゴリの伝承 \<lore> (1 行に 1 行)
+    sub-icon-lore: <#79CFC9>サブカテゴリの伝承 \<lore> (1 行に 1 行)
+    category-entry: <#79CFC9>名前空間カテゴリのエントリを表示</#79CFC9>
+    sort-by-namespace: <#79CFC9>名前空間とパスで並べ替える</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>レシピもクラフトも使用しないアイテムを非表示</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>ワークステーションに非表示ルールを適用する</#79CFC9>
+    hide-inaccessible: <#79CFC9>アクセスできない場合はスロットを非表示にして再利用する</#79CFC9>
+    save: <#98C69A>変更を保存</#98C69A>
+    save-tooltip: <#B8C0CC>現在のカテゴリ構成に保存</#B8C0CC>
+    cancel: <#E58B8B>キャンセル</#E58B8B>
+    cancel-tooltip: <#B8C0CC>変更を破棄して構成センターに戻ります</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>カスタム ボタンの編集</#D8B278></bold>
+    description: <#B8C0CC>{file}を変更します。各アクションを「クリック タイプ | アクション」として記述します。クリック タイプのデフォルトは all.</#B8C0CC>
+    material: <#79CFC9>素材またはアイテムID \<material>
+    name: <#79CFC9>ボタン名 \<name>
+    lore: <#79CFC9>ボタンの説明 \<lore> (1 行に 1 行)
+    visibility: <#79CFC9>ボタンの可視性 \<visibility>
+    visibility-admin: 管理者のみ
+    visibility-player: すべてのプレイヤー
+    visibility-permission: 許可ベース
+    permission: <#79CFC9>権限ノード \<permission>
+    hide-inaccessible: <#79CFC9>アクセスできない場合はスロットを非表示にして再利用 \<hide-inaccessible>
+    actions: '<#79CFC9>ボタン アクション \<actions> (1 行: クリック タイプ | アクション)'
+    save: <#98C69A>保存ボタン</#98C69A>
+    save-tooltip: <#B8C0CC>現在の構成に書き込みます</#B8C0CC>
+    cancel: <#E58B8B>キャンセル</#E58B8B>
+    cancel-tooltip: <#B8C0CC>変更を破棄して構成センターに戻ります</#B8C0CC>
+  integration-config:
+    title: <#D8B278>統合とカテゴリ プリセット</#D8B278>
+    plugins-title: <#D8B278>統合設定・特別にサポートされるプラグイン</#D8B278>
+    resources-title: <#D8B278>統合設定 · 特別に適応されたリソース パック</#D8B278>
+    description: <#B8C0CC>コンテンツ領域には、このサーバーで利用可能な統合がリストされます。有効なエントリにはエンチャントの輝きがあります。エントリを左クリックまたは右クリックして、その状態を変更します。</#B8C0CC>
+    status: '<#B8C0CC>現在の状態: {status}</#B8C0CC>'
+    left-click: '<#8793A5>左クリック: 次の状態</#8793A5>'
+    right-click: '<#8793A5>右クリック: 前の状態</#8793A5>'
+    page-count: 別のページの <#B8C0CC>{count} エントリ</#B8C0CC>
+    previous-page: <#D8B278>前のページ</#D8B278>
+    next-page: <#D8B278>次のページ</#D8B278>
+    page-position: <#B8C0CC>ページ {current} / {pages}</#B8C0CC>
+    preset-detected: <#98C69A>リソース パックが検出されました</#98C69A>
+    preset-applied: <#79CFC9>適用されたカテゴリープリセット</#79CFC9>
+    preset-author-mismatch: <#E58B8B>pack.yml 作成者がプリセット宣言と一致しません</#E58B8B>
+    unsupported-label: <#E58B8B>{extension}</#E58B8B>
+    unsupported-reason: '<#E58B8B>U利用可能: {reason}</#E58B8B>'
+    unsupported-file: '<#8793A5>JAR: {file}</#8793A5>'
+    unsupported-version: '<#8793A5>拡張バージョン: {version}</#8793A5>'
+    unsupported-readonly: <#B8C0CC>この診断エントリは現在のサーバーでは有効にできません</#B8C0CC>
+    source-label: <#79CFC9>{plugin}</#79CFC9>
+    preset-label: <#79CFC9>{namespace}</#79CFC9>
+    plugin-heading: <#98C69A>CER は、これらの特別にサポートされているプラグインを検出しました。ボタンをクリックして有効にします:</#98C69A>
+    resource-heading: <#98C69A>CER は、これらの特別に適応されたリソース パックを検出しました。ボタンをクリックして有効にします:</#98C69A>
+    item-enable-tooltip: <#B8C0CC>このアイテムのサポートを有効にするにはクリックしてください</#B8C0CC>
+    item-disable-tooltip: <#B8C0CC>このアイテムのサポートを無効にするにはクリックしてください</#B8C0CC>
+    open-resources: <#79CFC9>リソースパックを見る ▶</#79CFC9>
+    open-plugins: <#E4D397>◀ プラグインに戻る</#E4D397>
+    option-ask: <#E4D397>質問</#E4D397>
+    option-enabled: <#98C69A>有効</#98C69A>
+    option-disabled: <#E58B8B>無効化</#E58B8B>
+    enable-all: <#98C69A>検出されたものをすべて有効にする</#98C69A>
+    enable-all-tooltip: <#B8C0CC>現在検出されているすべてのサーバー プラグインと CE リソース パック プリセットを有効化</#B8C0CC>
+    save: <#98C69A>保存</#98C69A>
+    save-tooltip: <#B8C0CC>選択肢を保存し、要求されたアクションを実行します</#B8C0CC>
+    cancel: <#8793A5>後</#8793A5>
+    cancel-tooltip: <#B8C0CC>設定を変更せずに閉じる</#B8C0CC>
+  workstations:
+    title: <#374151>ワークステーション</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>ステーション</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+    categories:
+      crafting: バニラ・作業台
+      smelting: バニラ・かまど
+      blasting: バニラ・高炉
+      smoking: バニラ・スモーカー
+      campfire_cooking: バニラ・キャンプファイヤー
+      stonecutting: バニラ・ストーンカッター
+      smithing: バニラ・鍛冶台
+      brewing: バニラ・醸造スタンド
+      cultivation: 栽培
+    category-lore:
+    - <#B8C0CC>クリックすると、このワークステーションのレシピ出力が表示されます</#B8C0CC>
+    back-name: <#E58B8B>カテゴリーに戻る</#E58B8B>
+    back-lore:
+    - <#B8C0CC>クリックしてアイテム カテゴリ メニューに戻ります</#B8C0CC>
+  recipe:
+    title: <#292D35>レシピ » <name></#292D35>
+    title-crafting: <#292D35>バニラ・作業台</#292D35>
+    title-smelting: <#292D35>バニラ・かまど</#292D35>
+    title-blasting: <#292D35>バニラ・溶鉱炉</#292D35>
+    title-smoking: <#292D35>バニラ・スモーカー</#292D35>
+    title-campfire: <#292D35>バニラ・キャンプファイヤー</#292D35>
+    title-stonecutting: <#292D35>バニラ・ストーンカッター</#292D35>
+    title-smithing: <#292D35>バニラ・鍛冶台</#292D35>
+    title-brewing: <#292D35>バニラ・醸造スタンド</#292D35>
+    title-none: <#292D35>レシピなし</#292D35>
+  search:
+    dialog-title: <bold><#D8B278>アイテムを検索</#D8B278></bold>
+    dialog-label: キーワードを入力してください
+    dialog-hint: アイテムID、表示名で検索
+    result-title: <bold><#374151>検索結果</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>
+    confirm: <#98C69A>検索</#98C69A>
+    confirm-tooltip: <#B8C0CC>キーワードでアイテムを探す</#B8C0CC>
+    cancel: <#E58B8B>キャンセル</#E58B8B>
+    cancel-tooltip: <#B8C0CC>検索ダイアログを閉じる</#B8C0CC>
+  common:
+    all-items: すべてのアイテム
+    unknown: 指定なし
+    first-page: <#8793A5>すでに最初のページにあります</#8793A5>
+    last-page: <#8793A5>すでに最後のページです</#8793A5>
+    no-recipe: <#B8C0CC>このアイテムにはレシピがありません</#B8C0CC>
+    no-usage: <#B8C0CC>このアイテムには用途がありません</#B8C0CC>
+    dynamic-result: <#B8C0CC>結果は実際の入力項目によって異なります</#B8C0CC>
+  vanilla-items:
+    name: バニラアイテム
+logs:
+  debug-export-failed: レシピ診断ファイルのエクスポートに失敗しました
+  recipe-source-ready: 'レシピソース {source} 更新: {count} レシピを表示します。ファイル: {files}'
+  recipe-source-exported: '{count} {source} レシピを {files} ワークステーション ファイルにエクスポートしました。 Recipes/ が唯一のランタイム ソースになりました。'
+  recipe-files-reloaded: '変更されたレシピ ファイル: {files};自動的にリロードされた {count} 表示レシピ。'
+  session-save-failed: 'プレーヤーのメニュー位置を保存できませんでした: {error}'
+  session-load-failed: 'プレーヤーのメニュー位置を復元できませんでした。デフォルトのビューを開く: {error}'
+  recipe-source-failed: 'レシピ ソース {source} を更新できませんでした。最後の有効なデータを保持: {error}'
+  plugin-fingerprint-mismatch: プラグイン {plugin} が見つかりましたが、メインクラス {actual} が予期された {expected} と一致しません。レシピのソースは無視されました。
+  integration-setup-waiting: '構成を待機している検出された CER 統合: {plugins}。管理者がオンラインになっていません。参加すると、クリック可能なセットアップ プロンプトが表示されます。'
+  category-preset-linked-applied: '有効な統合にリンクされた適用されたカテゴリ プリセット: {namespaces}'
+  integration-config-waiting: '{plugins} 保留中の統合と {presets} カテゴリ プリセットが検出されました。管理者がオンラインになっていません。参加すると管理ページのエントリが表示されます。'
+  update-available: '新しいバージョン {latest} が利用可能です (現在の {current}): {url}'
+  update-check-failed: 'GitHub の更新をチェックできませんでした。プラグインに影響を与えることなく、次回の起動またはリロード時に再試行します: {error}'
+  compatibility-fallback: 互換性操作 {operation} が失敗しました。既存のフォールバックを維持します。各呼び出しサイトはデータ生成ごとに 1 回ログに記録されます。例外の詳細は次のとおりです。
+  search-input-failed: 検索入力の読み取りに失敗しました。メニューに戻ります。
+  config-invalid-id: '無効な構成 ID: {path} = {value};既存のフォールバック動作を維持します。名前空間とパスを確認してください。'
+  config-invalid-material: '不明な構成マテリアル: {path} = {value};既存のフォールバック動作を維持します。'
+  config-missing-category: '構成された CraftEngine カテゴリが存在しません: {path} = {value};構成を維持します。スペルを確認し、そのパックがロードされているかどうかを確認してください。'
+  config-update-failed: '欠落している config.yml デフォルトを追加できませんでした。元のファイルを保持します: {error}'
+  search-pack-ready: 'ロードされたリソース パック翻訳: {count} キー、{files} 言語ファイル、パス {path}'
+  search-pack-failed: 'リソース パック翻訳の読み取りに失敗しました: {path} ({error});既存の名前と ID 検索を使用します。パックを生成した後、/cer reload を実行します。'
+  search-pack-skipped: '無効なリソース パック言語ファイルをスキップしました: {error}'
+  hand-resolve-failed: 'メインハンドアイテムの識別に失敗しました: {error}'
+  target-block-resolve-failed: 'ターゲット ブロックの識別に失敗しました: {error}'
+  player-task-failed: プレーヤーメニュータスクの実行に失敗しました
+  folia-op-unsupported: '一時的な OP アクションは、Folia で実行せずにアクション チェーンを停止します。明示的な console: コマンドを使用するか、プレーヤー コマンドの権限を付与します。'
+  enabled: CraftEngineRecipe が有効になっています。データキャッシュを初期化しています...
+  disabled: CraftEngineRecipe が無効になりました。
+  pack-install-failed: 'バンドルされたリソース パックの準備に失敗しました: {error}'
+  pack-copy-ready: ローカル リソース コピーが {path} で準備完了 ({count} ファイルが復元され、既存のファイルが保存されます)
+  pack-first-installed: リソースは {path} に初めてインストールされました ({count} ファイルが追加されました)。今後の再起動またはリロードでは、CraftEngine リソースはそのまま残ります。
+  data-ready: 'CraftEngineRecipe データの準備完了: {items} アイテム、{categories} トップレベル カテゴリ、合計 {elapsed} ミリ秒 (バッチ間の時間を含む)'
+  data-build-failed: CraftEngineRecipe データの構築に失敗しました
+  metrics-ready: bStats が初期化されました。
+  metrics-failed: 'bStats の初期化に失敗しました。レシピの参照は影響を受けません: {error}'
+  category-read-failed: 'カテゴリ構成の読み取りに失敗しました: {file}'
+  category-save-failed: 'カテゴリ名前空間構成の保存に失敗しました: {error}'
+  unapplied-save-failed: '未適用のエントリ構成の保存に失敗しました: {error}'
+  result-query-failed: '出力レシピのクエリに失敗しました ({id}): {error}'
+  usage-query-failed: '成分の使用のクエリに失敗しました ({id}): {error}'
+  layout-reserved: 'レイアウトの競合: ボタンは予約文字 # を使用しているため、表示されません'
+  layout-conflict: 'レイアウトの競合: ボタン文字 {symbol} はカテゴリ/コンテンツ スロットで使用されているため、表示されません'
+  language-unknown: サポートされていない言語 {locale};英語を使って。
+  language-detected: '検出されたサーバー ロケール: {locale}。'
+  language-save-failed: '言語ファイルの抽出に失敗しました。バンドルされた翻訳を使用: {error}'
+  language-update-failed: '不足している翻訳を {file} に追加できませんでした。元のファイルを保持します: {error}'
+  language-read-failed: '言語ファイル {file} の読み取りに失敗しました。バンドルまたはフォールバック変換の使用: {error}'
+headers:
+  unapplied: 'CraftEngineRecipe 未应用条目 / 未適用のエントリ
+
+    この文例はカテゴリに未登録です.yml 的命名空间と自定义按钮
+
+    category.yml に存在しない名前空間とカスタム ボタンをリストします。
+
+    必要な項目を category.yml のエントリにまとめ、可用性を調整した後 /cer reload
+
+    必要なエントリをnavigation/categories.ymlにコピーし、可視性を調整してから、/cer reloadを実行します。
+
+    使用済みの条項は再ダウンロード後に削除され、他の条項は原属性を保持します
+
+    適用されたエントリはリロード時に削除されます。他のエントリはそのプロパティを保持します'

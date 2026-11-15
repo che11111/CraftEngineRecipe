@@ -1,0 +1,29 @@
+# Generated ja_JP translation from en_US.yml.
+title.cooking_pot: ファーマーズディライト・クッキングポット
+title.cooking_pot_group: Farmer's Delight·クッキングポット·{group}
+title.cutting_board: ファーマーズディライト・まな板
+title.special: ファーマーズ デライト·特別レシピ
+title.skillet: ファーマーズディライト・スキレット
+title.unknown_addon: Farmer's Delight·追加レシピ
+title.addon_prefix: '農家の喜び·'
+addon.keg: 発酵樽
+addon.grill: グリル
+addon.skewer: スキュワーベイスン
+skillet.note: 'キャンプファイヤー調理可能: はい。調理時間: {ticks} ティック。経験: {experience}'
+flame.name: <gold>レシピ情報
+flame.time: '<gray>時間: {ticks} ティック'
+flame.experience: '<gray>経験: {experience}'
+pot.cooking_time: '調理時間: {seconds} 秒'
+pot.experience: '経験: {experience}'
+pot.group: 専用調理鍋：{group}
+item.required_tool: 必要なツール
+item.required_tool_lore: ツール要件を拡張することはできません。 /fd レシピを検査する
+item.unresolved: 未解決の成分
+note.candidate_result: 候補結果
+note.description_display: 説明表示
+note.description_entry: 説明エントリ。実行可能なクラフトレシピではありません
+note.auto_cycle: <gray>自動的に循環</gray>
+addon.type: 'アドオンレシピタイプ: {type}'
+addon.conditions: /fd レシピを調べて、追加の条件とプレイヤー固有のメモを確認します。
+note.probability_unknown: 未知のチャンス
+note.independent_chance: '独立したチャンス: {percent}%'

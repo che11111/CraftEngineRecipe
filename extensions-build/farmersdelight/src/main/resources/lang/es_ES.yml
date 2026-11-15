@@ -1,0 +1,29 @@
+# Generated es_ES translation from en_US.yml.
+title.cooking_pot: Delicia del granjero·Olla de cocina
+title.cooking_pot_group: Delicia del granjero·Olla de cocina·{group}
+title.cutting_board: Delicia del granjero·Tabla de cortar
+title.special: Delicia del granjero·Recetas especiales
+title.skillet: Delicia del granjero·Sartén
+title.unknown_addon: Delicia del granjero·Recetas adicionales
+title.addon_prefix: 'Delicia del granjero·'
+addon.keg: Barril de fermentación
+addon.grill: parrilla
+addon.skewer: Cuenca de brocheta
+skillet.note: 'Se puede cocinar en fogatas: sí; tiempo de cocción: {ticks} garrapatas; experiencia: {experience}'
+flame.name: <gold>Información de receta
+flame.time: '<gray>Hora: {ticks} marca'
+flame.experience: '<gray>Experiencia: {experience}'
+pot.cooking_time: 'Tiempo de cocción: {seconds} segundos'
+pot.experience: 'Experiencia: {experience}'
+pot.group: 'Olla especial: {group}'
+item.required_tool: Herramienta requerida
+item.required_tool_lore: Los requisitos de herramientas no se pueden ampliar; inspeccionar /fd receta
+item.unresolved: Ingrediente no resuelto
+note.candidate_result: Resultado candidato
+note.description_display: Pantalla de descripción
+note.description_entry: Entrada de descripción; no es una receta de elaboración ejecutable
+note.auto_cycle: <gray>Cicla automáticamente</gray>
+addon.type: 'Tipo de receta complementaria: {type}'
+addon.conditions: Inspeccione la receta /fd para condiciones adicionales y notas específicas del jugador.
+note.probability_unknown: Oportunidad desconocida
+note.independent_chance: 'Probabilidad independiente: {percent}%'

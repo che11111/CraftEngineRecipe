@@ -18,10 +18,12 @@ import dev.che1s.craftenginerecipe.dialog.PersonalizationDialogService;
 import dev.che1s.craftenginerecipe.dialog.SearchDialogService;
 import dev.che1s.craftenginerecipe.dialog.UnappliedCategoryDialogService;
 import dev.che1s.craftenginerecipe.dialog.ButtonEditorDialogService;
-import dev.che1s.craftenginerecipe.dialog.IntegrationConfigDialogService;
+import dev.che1s.craftenginerecipe.dialog.ConfigEditorDialogService;
+import dev.che1s.craftenginerecipe.dialog.PluginDialogs;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSessionStore;
 import dev.che1s.craftenginerecipe.integration.IntegrationPromptService;
+import dev.che1s.craftenginerecipe.integration.extension.ExtensionManager;
 import dev.che1s.craftenginerecipe.listener.HotkeyListener;
 import dev.che1s.craftenginerecipe.gui.GuiSession;
 import dev.che1s.craftenginerecipe.metrics.MetricsService;
@@ -30,6 +32,7 @@ import dev.che1s.craftenginerecipe.scheduler.TaskDispatcher;
 import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import dev.che1s.craftenginerecipe.resource.ResourcePackInstaller;
 import dev.che1s.craftenginerecipe.resource.MenuPackManager;
+import dev.che1s.craftenginerecipe.resource.BundledResourceService;
 import dev.che1s.craftenginerecipe.update.UpdateChecker;
 import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -66,21 +69,19 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private WorkstationConfig workstationConfig;
     private IntegrationSettings integrationSettings;
     private IntegrationPromptService integrationPrompts;
+    private ExtensionManager extensions;
     private CategoryApplyPromptService categoryPrompts;
     private ExternalRecipeService externalRecipes;
     private CerRecipeApiService recipeApi;
     private MenuPackManager menuPacks;
+    private BundledResourceService bundledResources;
     private BrowserService browserService;
     private GuiSessionStore sessions;
     private PlayerPreferences playerPreferences;
-    private PersonalizationDialogService personalizationDialog;
-    private UnappliedCategoryDialogService unappliedCategoryDialog;
-    private ButtonEditorDialogService buttonEditorDialog;
-    private IntegrationConfigDialogService integrationConfigDialog;
+    private PluginDialogs dialogs;
     private final Map<String, CerConfig> menuConfigs = new LinkedHashMap<>();
     private final Map<String, Map<MenuView, CerConfig>> menuViewConfigs = new LinkedHashMap<>();
     private final Map<String, BrowserService> menuBrowsers = new LinkedHashMap<>();
-    private SearchDialogService dialogService;
     private MetricsService metrics;
     private UpdateChecker updates;
 
@@ -92,10 +93,19 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     public void onLoad() {
         this.language = new LanguageManager(this.getDataFolder().toPath(), this::getResource, this.getLogger());
         this.saveDefaultConfig();
-        this.menuPacks = new MenuPackManager(this);
-        var settings = this.getConfig();
-        this.language.load(settings.getString("language", "zh_CN"));
-        this.installResourcePacks();
+        this.extensions = new ExtensionManager(this);
+        this.menuPacks = new MenuPackManager(this, () -> this.extensions == null
+                ? List.of() : this.extensions.resourcePackIds());
+        this.bundledResources = new BundledResourceService(
+                this, this.jarPath(), this.menuPacks, this.language);
+        this.extensions.load();
+        this.language.setExtensionLanguageResources(this.extensions::languageResource);
+        this.language.setIntegrationSources(this.extensions.languageSources());
+        this.language.loadAuto();
+        this.getLogger().info(this.language.text(
+                "logs.language-detected", "locale", this.language.locale()));
+        this.bundledResources.installExtensionPacks(this.extensions);
+        this.bundledResources.install();
     }
 
     @Override
@@ -120,11 +130,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.recipeIndex = new RecipeIndex(this);
         this.createBrowsers();
         this.data.attachListener();
-        this.dialogService = new SearchDialogService(this);
-        this.personalizationDialog = new PersonalizationDialogService(this);
-        this.unappliedCategoryDialog = new UnappliedCategoryDialogService(this);
-        this.buttonEditorDialog = new ButtonEditorDialogService(this);
-        this.integrationConfigDialog = new IntegrationConfigDialogService(this);
+        this.dialogs = new PluginDialogs(
+                new SearchDialogService(this),
+                new PersonalizationDialogService(this),
+                new UnappliedCategoryDialogService(this),
+                new ButtonEditorDialogService(this),
+                new ConfigEditorDialogService(this));
         this.externalRecipes.start();
         this.integrationPrompts.start();
         this.categoryPrompts.start();
@@ -154,51 +165,6 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.getLogger().info(this.language.text("logs.enabled"));
     }
 
-    private void installResourcePacks() {
-        Path localRoot = this.getDataFolder().toPath().resolve(ResourcePackInstaller.RESOURCES_DIRECTORY);
-        try {
-            for (String pack : ResourcePackInstaller.REQUIRED_GUI_PACKS) {
-                populateBundled(localRoot, pack);
-            }
-            for (String menuPack : ResourcePackInstaller.bundledMenuPacks(this.jarPath())) {
-                populateBundled(localRoot, menuPack);
-            }
-            this.menuPacks.installEnabled();
-        } catch (IOException e) {
-            this.getLogger().severe(this.language.text("logs.pack-install-failed", "error", e.getMessage()));
-        }
-    }
-
-    private void replenishResourcePacks() {
-        Path localRoot = this.getDataFolder().toPath().resolve(ResourcePackInstaller.RESOURCES_DIRECTORY);
-        List<String> packs = new ArrayList<>(ResourcePackInstaller.REQUIRED_GUI_PACKS);
-        try {
-            packs.addAll(ResourcePackInstaller.bundledMenuPacks(this.jarPath()));
-        } catch (IOException error) {
-            this.getLogger().warning("Cannot list bundled menu packs: " + error.getMessage());
-        }
-        for (String pack : packs) {
-            Path local = localRoot.resolve(pack);
-            try {
-                this.logResourceCopy(local,
-                        ResourcePackInstaller.replenishBundled(this.getFile().toPath(), local, pack));
-            } catch (IOException e) {
-                this.getLogger().severe(this.language.text("logs.pack-install-failed", "error", e.getMessage()));
-            }
-        }
-    }
-
-    private void populateBundled(Path localRoot, String pack) throws IOException {
-        Path local = localRoot.resolve(pack);
-        int count = ResourcePackInstaller.replenishBundled(this.getFile().toPath(), local, pack);
-        this.logResourceCopy(local, count);
-    }
-
-    private void logResourceCopy(java.nio.file.Path local, int count) {
-        this.getLogger().info(this.language.text("logs.pack-copy-ready", "path", local.toString(),
-                "count", String.valueOf(count)));
-    }
-
     private void saveExampleFiles() {
         Path navigation = this.getDataFolder().toPath().resolve("navigation");
         Path examples = this.getDataFolder().toPath().resolve("example");
@@ -214,8 +180,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         if (!categories.exists() && !legacyCategories.exists()) {
             this.saveResource("navigation/categories.yml", false);
         }
-        this.saveResource("example/navigation/categories-example.yml", false);
-        this.saveResource("example/recipes/recipes-example.yml", false);
+        if (Files.notExists(examples.resolve("navigation/categories-example.yml"))) {
+            this.saveResource("example/navigation/categories-example.yml", false);
+        }
+        if (Files.notExists(examples.resolve("recipes/recipes-example.yml"))) {
+            this.saveResource("example/recipes/recipes-example.yml", false);
+        }
         File workstations = navigation.resolve("workstations.yml").toFile();
         File legacyWorkstations = new File(this.getDataFolder(), "workstations.yml");
         if (!workstations.exists() && !legacyWorkstations.exists()) {
@@ -229,6 +199,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         if (this.recipeApi != null) Bukkit.getServicesManager().unregister(CerRecipeApi.class, this.recipeApi);
         if (this.recipeApi != null) this.recipeApi.shutdown();
         if (this.externalRecipes != null) this.externalRecipes.shutdown();
+        if (this.extensions != null) this.extensions.close();
         if (this.updates != null) this.updates.shutdown();
         // 先停止回调再清理回调可访问的状态。即使插件已禁用、无法再调度实体任务，
         // 尚未完成的清理屏障仍必须结束。
@@ -272,6 +243,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     /** 仅在所有查看者都关闭旧菜单后，于全局调度器调用。 */
     public void reloadSettings() {
         this.shutdownBrowsers();
+        this.language.loadAuto();
         if (this.workstationConfig != null) this.workstationConfig.load();
         if (this.integrationSettings != null) this.integrationSettings.reload();
         if (this.categoryPrompts != null) this.categoryPrompts.reloadPresets();
@@ -279,7 +251,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.reloadPlayerPreferences();
         this.createBrowsers();
         if (this.externalRecipes != null) this.externalRecipes.reload();
-        this.replenishResourcePacks();
+        this.bundledResources.replenish();
         try {
             this.menuPacks.installEnabled();
         } catch (IOException error) {
@@ -298,6 +270,14 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public LanguageManager lang() {
         return this.language;
+    }
+
+    public LanguageManager.Localized lang(Player player) {
+        if (player == null || this.playerPreferences == null) {
+            return this.language.view(this.language.locale());
+        }
+        String locale = this.playerPreferences.language(player.getUniqueId(), this.language.locale());
+        return this.language.view(locale);
     }
 
     public CerConfig config() {
@@ -324,6 +304,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         return this.integrationPrompts;
     }
 
+    public ExtensionManager extensions() {
+        return this.extensions;
+    }
+
     public CategoryApplyPromptService categoryPrompts() {
         return this.categoryPrompts;
     }
@@ -344,12 +328,18 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         if (player == null || this.playerPreferences == null || !this.playerPreferences.enabled()) {
             return this.browserService;
         }
-        BrowserService selected = this.menuBrowsers.get(this.playerPreferences.menuPack(player.getUniqueId()));
+        String pack = this.playerPreferences.menuPack(player.getUniqueId());
+        BrowserService selected = this.menuBrowsers.get(
+                browserKey(pack, this.lang(player).locale()));
         return selected == null ? this.browserService : selected;
     }
 
     public BrowserService browser(String menuPack) {
-        return this.menuBrowsers.get(menuPack);
+        return this.browser(menuPack, this.language.locale());
+    }
+
+    public BrowserService browser(String menuPack, String locale) {
+        return this.menuBrowsers.get(browserKey(menuPack, LanguageManager.supportedLocale(locale)));
     }
 
     public Map<String, BrowserService> browsers() {
@@ -365,7 +355,11 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     }
 
     public String menuPackDisplayName(String pack) {
-        CerConfig menu = this.menuConfigs.get(pack);
+        return this.menuPackDisplayName(pack, this.language.locale());
+    }
+
+    public String menuPackDisplayName(String pack, String locale) {
+        CerConfig menu = this.menuConfigs.get(browserKey(pack, LanguageManager.supportedLocale(locale)));
         return menu == null ? pack : menu.menuDisplayName();
     }
 
@@ -387,39 +381,50 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         Map<String, CerConfig> defaults = new LinkedHashMap<>();
         Map<String, Map<MenuView, CerConfig>> viewConfigs = new LinkedHashMap<>();
         boolean sharedSettingsLoaded = false;
-        for (String pack : this.menuPacks.enabled()) {
-            try {
-                Map<MenuView, CerConfig> views = new java.util.EnumMap<>(MenuView.class);
-                for (MenuView view : MenuView.values()) {
-                    CerConfig menuConfig = new CerConfig(this, pack, view);
-                    menuConfig.load(!sharedSettingsLoaded);
-                    sharedSettingsLoaded = true;
-                    views.put(view, menuConfig);
+        for (String locale : LanguageManager.supportedLocales()) {
+            LanguageManager.Localized language = this.language.view(locale);
+            for (String pack : this.menuPacks.enabled()) {
+                String key = browserKey(pack, locale);
+                try {
+                    Map<MenuView, CerConfig> views = new java.util.EnumMap<>(MenuView.class);
+                    for (MenuView view : MenuView.values()) {
+                        CerConfig menuConfig = new CerConfig(this, pack, view, language);
+                        menuConfig.load(!sharedSettingsLoaded);
+                        sharedSettingsLoaded = true;
+                        views.put(view, menuConfig);
+                    }
+                    defaults.put(key, views.get(MenuView.NAMESPACES));
+                    viewConfigs.put(key, Map.copyOf(views));
+                } catch (RuntimeException | LinkageError error) {
+                    this.getLogger().warning("Cannot load menu pack " + key + ": " + error.getMessage());
                 }
-                defaults.put(pack, views.get(MenuView.NAMESPACES));
-                viewConfigs.put(pack, Map.copyOf(views));
-            } catch (RuntimeException | LinkageError error) {
-                this.getLogger().warning("Cannot load menu pack " + pack + ": " + error.getMessage());
             }
         }
         if (defaults.isEmpty()) {
-            Map<MenuView, CerConfig> views = new java.util.EnumMap<>(MenuView.class);
-            for (MenuView view : MenuView.values()) {
-                CerConfig fallback = new CerConfig(this, ResourcePackInstaller.MENU_CUTE_DIRECTORY, view);
-                fallback.load(!sharedSettingsLoaded);
-                sharedSettingsLoaded = true;
-                views.put(view, fallback);
+            for (String locale : LanguageManager.supportedLocales()) {
+                Map<MenuView, CerConfig> views = new java.util.EnumMap<>(MenuView.class);
+                LanguageManager.Localized language = this.language.view(locale);
+                for (MenuView view : MenuView.values()) {
+                    CerConfig fallback = new CerConfig(this,
+                            ResourcePackInstaller.MENU_CUTE_DIRECTORY, view, language);
+                    fallback.load(!sharedSettingsLoaded);
+                    sharedSettingsLoaded = true;
+                    views.put(view, fallback);
+                }
+                defaults.put(browserKey(ResourcePackInstaller.MENU_CUTE_DIRECTORY, locale),
+                        views.get(MenuView.NAMESPACES));
+                viewConfigs.put(browserKey(ResourcePackInstaller.MENU_CUTE_DIRECTORY, locale),
+                        Map.copyOf(views));
             }
-            defaults.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY, views.get(MenuView.NAMESPACES));
-            viewConfigs.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY, Map.copyOf(views));
         }
         this.menuConfigs.clear();
         this.menuConfigs.putAll(defaults);
         this.menuViewConfigs.clear();
         this.menuViewConfigs.putAll(viewConfigs);
         String defaultPack = this.menuPacks.defaultPack();
-        if (!defaults.containsKey(defaultPack)) defaultPack = defaults.keySet().iterator().next();
-        this.config = defaults.get(defaultPack);
+        String defaultKey = browserKey(defaultPack, this.language.locale());
+        if (!defaults.containsKey(defaultKey)) defaultKey = defaults.keySet().iterator().next();
+        this.config = defaults.get(defaultKey);
     }
 
     private void reloadPlayerPreferences() {
@@ -440,15 +445,16 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         }
         if (browsers.isEmpty()) {
             Map<MenuView, CerConfig> fallbackViews = this.menuViewConfigs.values().iterator().next();
-            browsers.put(ResourcePackInstaller.MENU_CUTE_DIRECTORY,
+            browsers.put(browserKey(ResourcePackInstaller.MENU_CUTE_DIRECTORY, this.language.locale()),
                     new BrowserService(this, fallbackViews, this.data, this.recipeIndex));
         }
         String defaultPack = this.menuPacks.defaultPack();
-        if (!browsers.containsKey(defaultPack)) defaultPack = browsers.keySet().iterator().next();
+        String defaultKey = browserKey(defaultPack, this.language.locale());
+        if (!browsers.containsKey(defaultKey)) defaultKey = browsers.keySet().iterator().next();
         this.menuBrowsers.clear();
         this.menuBrowsers.putAll(browsers);
-        this.config = this.menuConfigs.get(defaultPack);
-        this.browserService = browsers.get(defaultPack);
+        this.config = this.menuConfigs.get(defaultKey);
+        this.browserService = browsers.get(defaultKey);
     }
 
     private void shutdownBrowsers() {
@@ -460,24 +466,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.config = null;
     }
 
-    public SearchDialogService searchDialog() {
-        return this.dialogService;
+    public PluginDialogs dialogs() {
+        return this.dialogs;
     }
 
-    public PersonalizationDialogService personalizationDialog() {
-        return this.personalizationDialog;
-    }
-
-    public UnappliedCategoryDialogService unappliedCategoryDialog() {
-        return this.unappliedCategoryDialog;
-    }
-
-    public ButtonEditorDialogService buttonEditorDialog() {
-        return this.buttonEditorDialog;
-    }
-
-    public IntegrationConfigDialogService integrationConfigDialog() {
-        return this.integrationConfigDialog;
+    private static String browserKey(String menuPack, String locale) {
+        return menuPack + "\u0000" + LanguageManager.supportedLocale(locale);
     }
 
     public static MiniMessage mini() {

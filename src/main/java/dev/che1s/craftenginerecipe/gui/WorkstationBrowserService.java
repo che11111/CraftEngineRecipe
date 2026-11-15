@@ -7,6 +7,7 @@ import dev.che1s.craftenginerecipe.config.MenuView;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.config.CerConfig;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
+import dev.che1s.craftenginerecipe.recipe.presentation.StationNames;
 import dev.che1s.craftenginerecipe.recipe.RecipeIndex;
 import dev.che1s.craftenginerecipe.recipe.RecipeEntry;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
@@ -24,6 +25,7 @@ import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.SlotElement;
 import xyz.xenondevs.invui.item.BoundItem;
 import xyz.xenondevs.invui.item.Item;
+import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.ItemBuilder;
 import xyz.xenondevs.invui.window.Window;
 
@@ -106,7 +108,7 @@ final class WorkstationBrowserService {
             List<Integer> categorySlots = BrowserLayout.slotsOf(structure, this.config.categoryIconChar());
             PagedGui.Builder<Item> builder = this.browser.contentBuilder(content, structure,
                     this.backItem(), this.browser.searchItem(MenuView.WORKSTATIONS,
-                            viewer -> this.plugin.searchDialog().open(viewer,
+                            viewer -> this.plugin.dialogs().search().open(viewer,
                             query -> this.browser.openItemList(viewer, null, query, 0, query),
                             () -> this.reopen(viewer))), MenuView.WORKSTATIONS);
             builder.addIngredient(this.config.categoryIconChar(), Item.EMPTY);
@@ -118,10 +120,13 @@ final class WorkstationBrowserService {
             builder.addModifier(gui -> this.fillCategoryBar(gui, player, type, categorySlots));
             PagedGui<Item> gui = builder.build();
             gui.setPage(Math.max(0, Math.min(page, gui.getPageCount() - 1)));
+            var presentation = this.plugin.extensions().workstationTitleStyle(
+                    type, this.plugin.lang(player).locale());
+            String workstationName = presentation.apply(this.name(type, player));
             this.browser.openWindow(Window.builder().setViewer(player)
                     .setTitle(this.config.titleWithName(this.config.workstationTitle(),
                             this.config.styledName(this.config.workstationTitleNamePrefix(),
-                                    this.name(type, player))))
+                                    workstationName, presentation.bold())))
                     .setUpperGui(gui)
                     .addOutsideClickHandler(click -> {
                         click.setCancelled(true);
@@ -195,11 +200,12 @@ final class WorkstationBrowserService {
     }
 
     private Item stationItem(RecipeWorkstation station, String active, Player player) {
-        List<Component> lore = this.plugin.lang().list("ui.workstations.category-lore")
+        List<Component> lore = this.plugin.lang(player).list("ui.workstations.category-lore")
                 .stream().map(this.config::mm).toList();
         ItemStack icon = ItemBridge.build(station.icon(), player, 1);
-        String rawName = station.name() == null ? station.id() : station.name();
-        String name = DisplayNames.expandTranslations(rawName, this.data.resourcePackTranslations());
+        String rawName = this.localizedStationName(station, player);
+        String name = DisplayNames.expandTranslations(rawName,
+                this.data.resourcePackTranslations(player));
         icon = ItemBridge.decorate(icon,
                 BrowserService.directoryName(this.config.mm(name), this.config,
                         this.config.workstationBarNamePrefix()),
@@ -213,6 +219,12 @@ final class WorkstationBrowserService {
             Sounds.play(click.player(), this.config.sounds().click());
             this.open(click.player(), station.id(), 0, null);
         })).build();
+    }
+
+    private String localizedStationName(RecipeWorkstation station, Player player) {
+        String id = station.id();
+        var language = this.plugin.lang(player);
+        return StationNames.resolve(id, language, station.name() == null ? id : station.name());
     }
 
     private Item categoryNavItem(boolean next, String active, List<Integer> slots) {
@@ -236,11 +248,14 @@ final class WorkstationBrowserService {
 
     private Item backItem() {
         CerConfig.ButtonDef def = this.config.back();
-        ItemStack icon = ItemBridge.icon(def.itemModel(), def.material(),
-                this.config.mm(this.plugin.lang().text("ui.workstations.back-name")),
-                this.plugin.lang().list("ui.workstations.back-lore").stream().map(this.config::mm).toList());
-        if (this.config.disableBackButton()) return Item.simple(icon);
-        return Item.builder().setItemProvider(icon).addClickHandler(click -> this.browser.handleClick(click.player(), () -> {
+        if (this.config.disableBackButton()) return Item.simple(ItemBridge.icon(
+                def.itemModel(), def.material(), this.config.mm(def.name()), List.of()));
+        return Item.builder().setItemProvider(player -> new ItemWrapper(ItemBridge.icon(
+                def.itemModel(), def.material(),
+                this.config.mm(def.name()),
+                this.plugin.lang(player).list("ui.workstations.back-lore").stream()
+                        .map(this.config::mm).toList()))).addClickHandler(click ->
+                this.browser.handleClick(click.player(), () -> {
             Sounds.play(click.player(), this.config.sounds().back());
             this.browser.returnToCategories(click.player());
         })).build();
@@ -248,9 +263,8 @@ final class WorkstationBrowserService {
 
     private String name(String id, Player player) {
         return this.recipes.workstations(player).stream().filter(station -> station.id().equals(id))
-                .map(station -> DisplayNames.expandTranslations(
-                        station.name() == null ? station.id() : station.name(),
-                        this.data.resourcePackTranslations()))
+                .map(station -> DisplayNames.expandTranslations(this.localizedStationName(station, player),
+                        this.data.resourcePackTranslations(player)))
                 .findFirst().orElse(id);
     }
 

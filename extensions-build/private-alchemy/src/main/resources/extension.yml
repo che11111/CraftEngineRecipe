@@ -1,0 +1,50 @@
+schema: 1
+id: private_alchemy
+names:
+  en_US: Private Alchemy
+  zh_CN: 私有炼金
+  zh_TW: 私人煉金
+  ja_JP: プライベート錬金
+  ko_KR: 개인 연금술
+  de_DE: Private Alchemie
+  fr_FR: Alchimie privée
+  es_ES: Alquimia privada
+  ru_RU: Частная алхимия
+descriptions:
+  en_US: Private alchemy source template; replace it with the real plugin API and capture logic.
+  zh_CN: 私有炼金配方来源模板；替换为实际插件 API 和采集逻辑后使用。
+  zh_TW: 私人煉金配方來源範本；替換為實際外掛 API 與擷取邏輯後使用。
+  ja_JP: プライベート錬金のレシピソーステンプレートです。実際のプラグイン API と取得処理に置き換えて使用します。
+  ko_KR: 개인 연금술 레시피 소스 템플릿입니다. 실제 플러그인 API와 수집 로직으로 교체하여 사용하십시오.
+  de_DE: Vorlage für eine private Alchimiequelle; durch die echte Plugin-API und Erfassungslogik ersetzen.
+  fr_FR: Modèle de source d'alchimie privée ; remplacez-le par l'API réelle du plugin et la logique de collecte.
+  es_ES: Plantilla de origen de alquimia privada; sustitúyala por la API real del plugin y la lógica de recopilación.
+  ru_RU: Шаблон источника частной алхимии; замените его реальным API плагина и логикой сбора.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: private_alchemy
+dependencies:
+  plugins:
+    - name: PrivateAlchemy
+      main-classes:
+        - com.example.privatealchemy.PrivateAlchemyPlugin
+      primary: true
+integration-defaults:
+  mode: ask
+  cultivation: false
+  export-missing: true
+  reexport-on-reload: true
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - minecraft:brewing_stand

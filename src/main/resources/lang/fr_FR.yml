@@ -1,0 +1,482 @@
+# Generated fr_FR translation.
+prefix: '<#79CFC9>[<bold></bold>]</#79CFC9> '
+messages:
+  debug-usage: '<#E4D397>Utilisation : recettes de débogage /cer | /cer performances de débogage [réinitialisation]</#E4D397>'
+  debug-export-start: <#E4D397>Capturer toutes les recettes en petits lots ; l'instantané sera enregistré de manière asynchrone dans le dossier de débogage du plugin.</#E4D397>
+  debug-export-busy: L'exportation de la recette <#E4D397>A est déjà en cours. Veuillez patienter.</#E4D397>
+  debug-export-cooldown: <#E4D397>Veuillez attendre {seconds} secondes avant d'exporter à nouveau.</#E4D397>
+  debug-export-success: '<#98C69A>Recipes enregistrées : {path} (Bukkit {bukkit}, CraftEngine {native}, fournisseurs CER {external} ; erreurs de saisie {errors}).</#98C69A>'
+  debug-export-failed: 'Échec de l’exportation de la recette <#E58B8B>Re : {error}. Vérifiez la console ; réessayez une fois le rechargement de la recette terminé.</#E58B8B>'
+  debug-performance-header: <#79CFC9>Statistiques de performances ({seconds} secondes depuis le démarrage ou la dernière réinitialisation)</#79CFC9>
+  debug-performance-reset: <#98C69A>Réinitialisation des minuteries et des compteurs de fonctionnement du plug-in. Les statistiques de caches et de performances du serveur sont inchangées.</#98C69A>
+  debug-performance-server: '<#B8C0CC>Serveur TPS (1/5/15 min) : {tps}, MSPT moyen : {mspt}, Folia : {folia}</#B8C0CC>'
+  debug-performance-data: <#B8C0CC>Index prêt={ready} génération={generation} ; Articles CE {items}, catégories {categories}, recettes {native} ; recettes du fournisseur {external}, articles {externalItems}</#B8C0CC>
+  debug-performance-gauge: '<#B8C0CC>{name} : {value}</#B8C0CC>'
+  debug-performance-operation: '<#B8C0CC>{name} : appels {count}, total {total} ms, moyenne {average} ms, max {max} ms</#B8C0CC>'
+  debug-performance-empty: <#8793A5>Aucun horaire d’opération pour l’instant. Utilisez les menus et exécutez à nouveau cette commande.</#8793A5>
+  debug-performance-note: Les <#8793A5>Timings peuvent être imbriqués et ne peuvent pas être ajoutés à un pourcentage de CPU de serveur. Réinitialisez, reproduisez le ralentissement, puis inspectez ; utilisez Spark pour les piles d'appels. Le TPS/MSPT global peut être indisponible sur Folia.</#8793A5>
+  no-permission: <#E58B8B>Vous n'êtes pas autorisé à faire cela.</#E58B8B>
+  player-only: <#E58B8B>Cette commande ne peut être utilisée que par un joueur.</#E58B8B>
+  personalization-saved: '<#98C69A>Préférences enregistrées : style de menu {menu}, page principale par défaut {main}, position de restauration : {remember}.</#98C69A>'
+  unapplied-updated: <#98C69A>Espace de noms mis à jour {namespace} dans {file}.</#98C69A>
+  unapplied-update-failed: L'espace de noms <#E58B8B> {namespace} est introuvable ; {file} n’a pas été modifié.</#E58B8B>
+  unapplied-permission-required: Le nœud d'autorisation <#E58B8B>A est requis lorsque la visibilité est définie sur autorisation.</#E58B8B>
+  button-updated: <#98C69A>Mise à jour du bouton personnalisé dans {file}.</#98C69A>
+  button-update-failed: <#E58B8B>Le bouton personnalisé n'existe plus ou {file} n'a pas pu être enregistré.</#E58B8B>
+  button-permission-required: Le nœud d'autorisation <#E58B8B>A est requis lorsque la visibilité des boutons est basée sur l'autorisation.</#E58B8B>
+  management-saved: <#98C69A>Modification de gestion enregistrée et le menu a été actualisé.</#98C69A>
+  management-save-failed: <#E58B8B>L'entrée cible est introuvable ou la configuration n'a pas pu être enregistrée.</#E58B8B>
+  config-invalid: <#E58B8B>Valeur de configuration invalide ; un nombre est hors limites ou une option manque. config.yml n'a pas été modifié.</#E58B8B>
+  config-save-started: <#E4D397>config.yml enregistré ; reconstruction des index et application des nouveaux paramètres...</#E4D397>
+  config-saved: <#98C69A>config.yml enregistré et rechargé avec succès.</#98C69A>
+  config-save-failed: <#E58B8B>config.yml a été enregistré, mais le rechargement a échoué ou a été remplacé par une demande plus récente. Vérifiez la console.</#E58B8B>
+  menu-default-usage: '<#E4D397>Usage : /cer menu par défaut \<cer_menu_*></#E4D397>'
+  menu-default-set: <#98C69A>Style de menu principal par défaut défini sur {menu}.</#98C69A>
+  menu-unknown: '<#E58B8B>Style de menu inconnu ou incomplet : {menu}</#E58B8B>'
+  menu-enable-usage: <#E4D397>Usage : activation du menu /cer \<cer_menu_*|all></#E4D397>
+  menu-enabled-updated: <#98C69A>Styles de menu activés mis à jour.</#98C69A>
+  menu-enable-failed: <#E58B8B>Impossible d'activer ce style de menu.</#E58B8B>
+  menu-disable-usage: '<#E4D397>Usage : /cer menu désactiver \<cer_menu_*></#E4D397>'
+  menu-disabled: '<#98C69A>Style de menu désactivé : {menu}</#98C69A>'
+  menu-disable-failed: <#E58B8B>Impossible de désactiver ce style ; le style par défaut doit rester activé.</#E58B8B>
+  menu-status-default: '<#B8C0CC>Style par défaut : {menu}</#B8C0CC>'
+  menu-status-enabled: '<#B8C0CC>EActivé : {menus}</#B8C0CC>'
+  menu-status-available: '<#B8C0CC>ADisponible : {menus}</#B8C0CC>'
+  menu-unavailable: '<#E58B8B>Ce style de menu n''est pas activé ou n''est pas disponible : {menu}</#E58B8B>'
+  management-applied: <#98C69A>{namespace} a été appliqué à catégories.yml. Vous pouvez continuer à ajuster son ordre dans la liste.</#98C69A>
+  management-applied-entry: <#98C69A>{entry} a été appliqué à catégories.yml. Vous pouvez continuer à ajuster son ordre.</#98C69A>
+  management-unapplied: <#98C69A>{entry} a été déplacé vers catégories-unapplied.yml.</#98C69A>
+  management-moved: <#98C69A>Ordre d'affichage mis à jour.</#98C69A>
+  management-edge: <#8793A5>Cette entrée se trouve déjà en bord de liste.</#8793A5>
+  management-applied-readonly: <#E4D397>Cet espace de noms est déjà dans catégories.yml ; modifier directement la configuration active.</#E4D397>
+  management-no-category-page: <#8793A5>Namespace {namespace} n'a pas de page de catégorie d'espace de noms consultable.</#8793A5>
+  index-build-started: <#E4D397>{plugins} détecté ; construction de l'index de recette...</#E4D397>
+  integration-choice-disabled: <#E58B8B>{plugins} désactivé. Les fichiers de recettes existants sont conservés, mais ils ne seront plus exportés ni indexés.</#E58B8B>
+  integration-choice-ask: <#E4D397>{plugins} remplacé par le mode demande. Les fichiers de recettes existants sont conservés, mais ils ne seront pas indexés tant qu'ils ne seront pas activés.</#E4D397>
+  integration-export-started: <#E4D397>Recette activée et support de culture pour {plugins} ; exporter des recettes et construire l'index...</#E4D397>
+  integration-index-ready: 'Index <#98C69A>{plugin} prêt : recettes {recipes} et postes de travail {workstations}.</#98C69A>'
+  integration-index-failed: 'Échec de la création de l''index <#E58B8B>{plugin} : {error}</#E58B8B>'
+  integration-unknown-error: Erreur inconnue ; vérifiez la console.
+  integration-config-detected: '<#D8B278>Configuration d''intégration en attente : intégrations {plugins} et préréglages de catégorie {presets}.</#D8B278>'
+  integration-config-open: <#79CFC9>[Configuration d'intégration ouverte]</#79CFC9>
+  integration-config-open-hover: <#B8C0CC>Ouvrir les paramètres d'intégration dans la page de gestion /cer</#B8C0CC>
+  integration-config-empty: <#8793A5>Il n’y a aucune intégration ou préréglage de catégorie en attente de configuration.</#8793A5>
+  integration-config-no-detected: <#8793A5>Aucun plug-in spécialement pris en charge ou pack de ressources adapté n'a été détecté.</#8793A5>
+  integration-config-saved: <#98C69A>Configuration d'intégration enregistrée.</#98C69A>
+  integration-config-save-failed: <#E58B8B>Impossible d'enregistrer la configuration d'intégration ; vérifiez la console.</#E58B8B>
+  category-preset-linked-applied: '<#98C69A>Application des préréglages de catégories liées tout en permettant les intégrations : {presets}.</#98C69A>'
+  api-integration-detected: <#D8B278>Détection d'une source de recette connectée via l'API CER :</#D8B278> <white>{plugin}</white>
+  api-integration-namespace: <#B8C0CC>Espace de noms :</#B8C0CC> <white>{namespace}</white>
+  api-integration-ready: <#98C69A>Ajout de recettes {recipes} ; l'index est prêt.</#98C69A>
+  api-integration-updated: 'Source de recette <#79CFC9>API {plugin} ({namespace}) mise à jour : {previous} -> Recettes {current} ; l''index a été actualisé.</#79CFC9>'
+  api-integration-unregistered: Source de recette <#E58B8B>API {plugin} ({namespace}) non enregistrée ; Les recettes {recipes} ont été supprimées et l'index a été actualisé.</#E58B8B>
+  recipe-export-usage: '<#E4D397>Utilisation : /cer export &lt ; ID source d''extension | tous></#E4D397>'
+  recipe-export-started: <#E4D397>Lecture des plugins sources et régénération des fichiers de recettes, veuillez patienter.</#E4D397>
+  recipe-export-complete: '<#98C69A>Recipe export terminé : sources {sources}, fichiers {files} et recettes {recipes}. Échecs : {failures}</#98C69A>'
+  recipe-export-failed: '<#E58B8B>Aucune source de recette n''a été exportée avec succès : {failures}</#E58B8B>'
+  reload-start: <#E4D397>Rechargement. Vous serez averti lorsque les index seront prêts.</#E4D397>
+  reload-success: <#98C69A>Configuration, langue et index de données rechargés.</#98C69A>
+  reload-failed: <#E58B8B>Rebuild a échoué ou un rechargement plus récent a remplacé cette demande. Vérifiez la console.</#E58B8B>
+  data-not-ready: '<#E4D397>Les données ne sont pas prêtes : {reason}</#E4D397>'
+  not-ready-reason: Les données sont en cours d'initialisation, de reconstruction ou la dernière reconstruction a échoué. S'il vous plaît, attendez; si nécessaire, exécutez /cer reload et vérifiez la console.
+  category-not-found: '<#E58B8B>Catégorie introuvable : {id}</#E58B8B>'
+  hand-empty: <#E4D397>Maintenez l'objet dans votre main principale pour savoir comment le fabriquer.</#E4D397>
+  hand-item-unavailable: <#E58B8B>Votre élément principal n'est pas disponible dans le menu appliqué, ou est limité par des autorisations ou des règles de masquage.</#E58B8B>
+  hand-no-recipe: <#E4D397>Aucune recette produisant {id} n'a été trouvée.</#E4D397>
+  hand-resolve-failed: <#E58B8B>Impossible d'identifier votre article principal. Vérifiez la console.</#E58B8B>
+  target-block-empty: <#E4D397>Regardez le bloc dont vous souhaitez afficher la recette de fabrication.</#E4D397>
+  target-block-unavailable: <#E58B8B>Aucune recette trouvée pour le bloc cible</#E58B8B>
+  target-block-no-recipe: <#E4D397>Aucune recette produisant {id} n'a été trouvée.</#E4D397>
+  target-block-resolve-failed: <#E58B8B>Impossible d'identifier le bloc cible. Vérifiez la console.</#E58B8B>
+command:
+  description: Ouvrez le menu de catégorie d'élément CraftEngineRecipe
+ui:
+  default-categories:
+    vanilla-name: <white>Articles vanille</white>
+    vanilla-click: <gray>Cliquez pour voir tous les articles vanille</gray>
+    vanilla-count: '<dark_gray>Articles : <count></dark_gray>'
+    divider-lore: Volet séparateur &#B8C0CCA
+    manage-name: '&#D8B278Gestion ouverte'
+    manage-lore-1: '&#B8C0CCCette page affiche le contenu CraftEngine disponible sur ce serveur'
+    manage-lore-2: '&#B8C0CCLes administrateurs peuvent appliquer du contenu, le masquer ou modifier son ordre'
+    manage-lore-3: '&#B8C0CCVous pouvez également l''ouvrir avec /cer manage'
+    manage-lore-4: '&#B8C0CCCe bouton est visible uniquement par les administrateurs'
+    manage-lore-5: '&#B8C0CCN''hésitez pas à masquer ou supprimer ce bouton'
+    integrations-name: '&#B8C278Intégrations ouvertes CER'
+    integrations-lore-1: '&#B8C0CCCette page montre les intégrations spéciales CraftEngine détectées sur le serveur'
+    integrations-lore-2: '&#B8C0CCUn administrateur doit activer une intégration avant qu''elle ne devienne active'
+    integrations-lore-3: '&#B8C0CCVous pouvez également l''ouvrir avec les intégrations /cer'
+    integrations-lore-4: '&#B8C0CCCe bouton est visible uniquement par les administrateurs'
+    integrations-lore-5: '&#B8C0CCN''hésitez pas à masquer ou supprimer ce bouton'
+  browser:
+    title: <#374151>Catégories d'articles</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>Objets</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+  category-bar:
+    icon-name: <#EEF2F6><name></#EEF2F6>
+    icon-lore:
+    - <#B8C0CC>Cliquez pour voir cette catégorie</#B8C0CC>
+    - '<#8793A5>Articles : <count></#8793A5>'
+    sub-icon-lore:
+    - <#B8C0CC>Cliquez pour ouvrir cette sous-catégorie</#B8C0CC>
+    - '<#8793A5>Articles : <count></#8793A5>'
+    admin-only-hint: <#8793A5>Cette catégorie n'est visible que par les administrateurs</#8793A5>
+    no-permission-hint: <#8793A5>Vous avez besoin de <permission> pour voir cette catégorie</#8793A5>
+    prev-category:
+      name: <#E4D397>◀ Catégorie précédente</#E4D397>
+    next-category:
+      name: <#E4D397>Catégorie suivante ▶</#E4D397>
+  content:
+    prev-page:
+      name: <#79CFC9>◀ Page précédente</#79CFC9>
+    next-page:
+      name: <#79CFC9>Page suivante ▶</#79CFC9>
+    back:
+      name: <#E58B8B>Retour au parent</#E58B8B>
+    search:
+      name: <#D8B278>Rechercher des éléments</#D8B278>
+      lore:
+      - <#B8C0CC>Cliquez pour rechercher par mot-clé</#B8C0CC>
+      craftable-lore: '<#79CFC9>Clic droit : objets à fabriquer dans votre inventaire</#79CFC9>'
+      exit-craftable-lore: '<#79CFC9>Clic droit : quitter la liste des objets pouvant être fabriqués</#79CFC9>'
+    hand:
+      name: <#79CFC9>Recettes principales</#79CFC9>
+      lore:
+      - <#B8C0CC>Cliquez pour voir comment fabriquer votre objet principal</#B8C0CC>
+      - <#8793A5>Identique à /cer hand</#8793A5>
+    query:
+      name: <#79CFC9>Recherche de recette</#79CFC9>
+      lore:
+      - '<#B8C0CC>Left-click: recettes pour l''article principal</#B8C0CC>'
+      - '<#B8C0CC>Right-click: recettes pour le bloc ciblé</#B8C0CC>'
+    close:
+      name: <#E58B8B>Fermer le menu</#E58B8B>
+      lore:
+      - <#B8C0CC>Cliquez pour fermer le menu de catégorie d'élément (identique à ESC)</#B8C0CC>
+    glasses:
+      name: <#79CFC9>Recettes de blocs cibles</#79CFC9>
+      lore:
+      - <#B8C0CC>Cliquez pour voir comment fabriquer le bloc que vous regardez</#B8C0CC>
+      - <#8793A5>Pointez votre réticule sur le bloc dont vous souhaitez visualiser la recette</#8793A5>
+    info:
+      name: <#79CFC9>Conseils d'utilisation</#79CFC9>
+      lore:
+      - <#B8C0CC>Cliquez gauche sur un objet pour voir comment le fabriquer</#B8C0CC>
+      - <#B8C0CC>Cliquez avec le bouton droit sur un élément pour afficher les recettes qui l'utilisent</#B8C0CC>
+      - <#B8C0CC>Cliquez sur une zone vide de l'écran de la table de fabrication pour revenir en arrière</#B8C0CC>
+      - <#B8C0CC>Clic droit sur une zone vide en dehors de la page pour revenir à la page principale</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>Plusieurs recettes tournent automatiquement</#8793A5>
+    workstations:
+      name: <#D8B278>Recherche par poste de travail</#D8B278>
+      lore:
+      - <#B8C0CC>Cliquez pour parcourir l'artisanat, la fusion et plus encore</#B8C0CC>
+      - <#8793A5>Seules les sorties de recettes que vous pouvez visualiser sont affichées</#8793A5>
+      personalization-lore: '<#79CFC9>Clic droit : paramètres de personnalisation</#79CFC9>'
+    item-lore: []
+    empty:
+      name: <#E58B8B>Rien ici</#E58B8B>
+  personalization:
+    title: <bold><#D8B278>Personnalisation</#D8B278></bold>
+    description: <#B8C0CC>Choisissez votre style de menu et votre page principale par défaut, et si la réouverture restaure votre dernière position.</#B8C0CC>
+    menu-pack-label: <#79CFC9>Style du menu principal</#79CFC9>
+    main-page-label: <#79CFC9>Page principale par défaut (quand aucune position précédente n'est restaurée)</#79CFC9>
+    main-page-namespaces: Parcourir par type d'élément
+    main-page-workstations: Naviguer par poste de travail
+    language-label: <#79CFC9>Langage de l'interface</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
+    remember-label: <#79CFC9>Restaurer la dernière position après la fermeture</#79CFC9>
+    true: Activé
+    false: Désactivé
+    save: <#98C69A>Enregistrer les préférences</#98C69A>
+    save-tooltip: <#B8C0CC>Enregistrez ces paramètres de personnalisation</#B8C0CC>
+    cancel: <#E58B8B>Annuler</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Annuler les modifications et revenir au menu</#B8C0CC>
+  craftable:
+    name: <#79CFC9>Objets fabriqués</#79CFC9>
+    title: <bold><#374151>Articles fabriqués</#374151> <#465D70>»</#465D70> <#293341>Inventaire actuel</#293341></bold>
+  management:
+    name: <#D8B278>Gestion</#D8B278>
+    title: <bold><#374151>Gestion</#374151></bold>
+    return-name: <#79CFC9>RRetour aux catégories d'articles</#79CFC9>
+    return-lore: <#B8C0CC>Cliquez pour revenir à la page de catégorie d'article</#B8C0CC>
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>Gérer les espaces de noms appliqués et les boutons personnalisés</#B8C0CC>
+    categories-summary: 'Entrées <#8793A5>{entries} : espaces de noms {namespaces} et boutons {buttons}</#8793A5>'
+    unapplied-name: <#D8B278>categories-unapplied.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>Rexaminer, modifier et appliquer les entrées qui ne sont pas encore présentes dans le menu actif</#B8C0CC>
+    unapplied-summary: <#8793A5>{count} entrées en attente d'examen</#8793A5>
+    workstations-name: <#D8B278>postes de travail.yml</#D8B278>
+    workstations-lore: <#B8C0CC>Ajuster le poste de travail et l'ordre d'affichage des boutons personnalisés</#B8C0CC>
+    workstations-summary: <#8793A5>{count} entrées de page de poste de travail</#8793A5>
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>Extensions non prises en charge</#D8B278>
+    integrations-lore: <#B8C0CC>Configurer la prise en charge spéciale des plugins et des packs de ressources</#B8C0CC>
+    integrations-summary: Plugins pris en charge par <#8793A5>{plugins} et préréglages du pack de ressources {presets} détectés</#8793A5>
+    integrations-left-click: '<#79CFC9>Clic gauche : paramètres d''intégration disponibles</#79CFC9>'
+    integrations-right-click: '<#E4D397>Clic droit : extensions non prises en charge par ce serveur</#E4D397>'
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>Configurer la langue, les sources de données, la recherche, les raccourcis clavier et le comportement du flux de travail</#B8C0CC>
+    config-summary: <#8793A5>Langue {language} · CER {version}</#8793A5>
+    workstations-shortcut: <#79CFC9>Cliquez pour gérer les postes de travail</#79CFC9>
+    hidden-name: <#D8B278>Catégories et articles</#D8B278>
+    items-name: <#D8B278>Articles de catégorie masqués</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: '<#98C69A>Appliqué : présent dans les catégories.yml</#98C69A>'
+    unapplied-lore: '<#B8C0CC>Non appliqué : présent uniquement dans les catégories-unapplied.yml</#B8C0CC>'
+    visibility-admin: Administrateurs uniquement
+    visibility-player: Tous les joueurs
+    visibility-permission: Basé sur les autorisations
+    visibility-value: '<#8793A5>Visibilité : {visibility} Autorisation : {permission}</#8793A5>'
+    category-state: '<#8793A5>Entrée de catégorie : {entry} Tri : {sort} Règles cachées : {hide}</#8793A5>'
+    namespace-browse: '<#79CFC9>Clic gauche : parcourir cet espace de noms dans le menu de gestion</#79CFC9>'
+    namespace-edit: '<#79CFC9>Clic droit : modifier les noms, les autorisations, les traditions et le tri</#79CFC9>'
+    namespace-hide: '<#79CFC9>Clic central : gérer la visibilité des catégories et des articles</#79CFC9>'
+    namespace-hide-unapplied: '<#79CFC9>Shift+Left : gérer la visibilité des catégories et des articles</#79CFC9>'
+    namespace-order: '<#E4D397>Maj+Gauche : monter / Maj+Droite : descendre</#E4D397>'
+    namespace-apply: '<#98C69A>Clic central : appliquer cet espace de noms aux catégories.yml</#98C69A>'
+    namespace-unapply: 'Clé <#E58B8B>Q : déplacer vers catégories-unapplied.yml</#E58B8B>'
+    no-category-button-lore: <#8793A5>Cette entrée n'affiche pas de bouton de catégorie d'espace de noms</#8793A5>
+    category-bar-lore: <#B8C0CC>Afficher les espaces de noms appliqués et non appliqués</#B8C0CC>
+    button-name: Bouton personnalisé
+    button-type: '<#8793A5>Type : bouton personnalisé</#8793A5>'
+    button-use: '<#79CFC9>Clic gauche : exécuter ce bouton</#79CFC9>'
+    button-edit: '<#79CFC9>Clic droit : modifier l''icône, le texte, l''autorisation et les actions</#79CFC9>'
+    button-apply: '<#98C69A>Clic central : appliquer ce bouton aux catégories.yml</#98C69A>'
+    button-unapply: 'Clé <#E58B8B>Q : déplacer vers catégories-unapplied.yml</#E58B8B>'
+    category-hidden: <#E58B8B>L'entrée de catégorie est masquée (y compris ses chemins de navigation)</#E58B8B>
+    category-visible: <#98C69A>L'entrée de catégorie est visible</#98C69A>
+    category-count: Articles directs <#8793A5>{items} et sous-catégories {children}</#8793A5>
+    category-open-items: '<#79CFC9>Clic gauche : gérer les éléments directs dans cette catégorie</#79CFC9>'
+    category-toggle: '<#79CFC9>Clic droit : masquer/afficher l''entrée de catégorie et ses chemins</#79CFC9>'
+    items-all-hidden: <#E58B8B>Tous les articles directs de cette catégorie sont masqués</#E58B8B>
+    items-toggle-all: '<#79CFC9>Maj+Gauche ou Maj+Droite : masquer/afficher tous les éléments directs</#79CFC9>'
+    item-hidden: <#E58B8B>Actuellement masqué</#E58B8B>
+    item-visible: <#98C69A>Actuellement visible</#98C69A>
+    item-recipe-count: Recettes <#B8C0CC>{recipes}, utilisées dans les recettes {usages}</#B8C0CC>
+    item-id: <#8793A5>{id}</#8793A5>
+    item-toggle: <#79CFC9>Cliquez pour activer/désactiver la visibilité</#79CFC9>
+    workstation-id: <#8793A5>{id}</#8793A5>
+    workstation-use: '<#79CFC9>Clic gauche : ouvrir cette page de poste de travail</#79CFC9>'
+    workstation-order: '<#E4D397>Maj+Gauche : monter / Maj+Droite : descendre</#E4D397>'
+  config-editor:
+    general-title: <bold><#D8B278>config.yml · Général</#D8B278></bold>
+    data-title: <bold><#D8B278>config.yml · Données et performances</#D8B278></bold>
+    description: <#B8C0CC>Modifier les paramètres fréquemment modifiés. La sauvegarde reconstruit les index ; les commentaires détaillés restent modifiables dans config.yml.</#B8C0CC>
+    save: <#98C69A>Enregistrer et recharger</#98C69A>
+    save-tooltip: <#B8C0CC>Écrivez config.yml et reconstruisez le menu et les index de données</#B8C0CC>
+    cancel: <#E58B8B>Annuler</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Annuler ces modifications et revenir à la direction</#B8C0CC>
+    open-data: <#79CFC9>Données et performances</#79CFC9>
+    open-general: <#79CFC9>Paramètres généraux</#79CFC9>
+    open-page-tooltip: <#B8C0CC>Passez à l'autre page de paramètres sans enregistrer cette boîte de dialogue</#B8C0CC>
+    landing-page: <#79CFC9>Page de destination par défaut</#79CFC9>
+    landing-namespaces: Catégories d'articles
+    landing-workstations: Postes de travail
+    personalization: <#79CFC9>EActiver la personnalisation du lecteur et la reprise de la navigation</#79CFC9>
+    remember-page: <#79CFC9>Mémoriser et restaurer la position de navigation précédente</#79CFC9>
+    hotkey: <#79CFC9>EActiver le raccourci clavier d'échange de mains</#79CFC9>
+    hotkey-sneak: <#79CFC9>Nécessite une furtivité pour le raccourci clavier</#79CFC9>
+    updates: <#79CFC9>Vérifiez GitHub pour les mises à jour stables</#79CFC9>
+    source-craftengine: <#79CFC9>EActiver la source de recette CraftEngine</#79CFC9>
+    source-minecraft: <#79CFC9>EActiver les données de la recette vanille</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>EActiver les données de culture de vanille</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>EActiver les données de culture CraftEngine</#79CFC9>
+    auto-reload: <#79CFC9>Regardez les recettes/pour les modifications de fichiers</#79CFC9>
+    poll-interval: <#79CFC9>Intervalle de vérification des fichiers (10-200 ticks)</#79CFC9>
+    rotate-interval: <#79CFC9>Rintervalle de rotation des recettes (5-200 ticks)</#79CFC9>
+    search-max-length: <#79CFC9>Limite d'entrée de recherche (1-64)</#79CFC9>
+    search-max-results: <#79CFC9>Limite des résultats de recherche (1-1000)</#79CFC9>
+  unapplied-editor:
+    title: <bold><#D8B278>Modifier l'espace de noms de catégorie</#D8B278> <dark_gray>{namespace}</dark_gray></bold>
+    description: <#B8C0CC>Modifie {file} ; le menu s'actualise immédiatement et la version précédente est conservée sous forme de fichier .bak.</#B8C0CC>
+    edit-lore: '<#79CFC9>Clic droit : modifier cet espace de noms</#79CFC9>'
+    visibility: <#79CFC9>Visibilité</#79CFC9>
+    visibility-admin: Administrateurs uniquement
+    visibility-player: Tous les joueurs
+    visibility-permission: Basé sur les autorisations
+    permission: <#79CFC9>Nœud d'autorisation \<permission>
+    icon-name: <#79CFC9>Modèle de nom de catégorie \<name>
+    item-lore: <#79CFC9>Item lore \<lore> (une ligne par ligne)
+    icon-lore: <#79CFC9>Catégorie de niveau supérieur \<lore> (une ligne par ligne)
+    sub-icon-lore: <#79CFC9>Sous-catégorie lore \<lore> (une ligne par ligne)
+    category-entry: <#79CFC9>Afficher l'entrée de catégorie d'espace de noms</#79CFC9>
+    sort-by-namespace: <#79CFC9>Trier par espace de noms et chemin</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>Masquer les objets sans recette et sans utilisation de fabrication</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>Appliquer des règles de masquage aux postes de travail</#79CFC9>
+    hide-inaccessible: <#79CFC9>Masquer et récupérer l'emplacement lorsqu'il est inaccessible</#79CFC9>
+    save: <#98C69A>Enregistrer les modifications</#98C69A>
+    save-tooltip: <#B8C0CC>Enregistrer dans la configuration de catégorie actuelle</#B8C0CC>
+    cancel: <#E58B8B>Annuler</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Annuler les modifications et revenir au centre de configuration</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>Modifier le bouton personnalisé</#D8B278></bold>
+    description: <#B8C0CC>Modifie {file}. Écrivez chaque action sous la forme « type de clic | action » ; le type de clic est par défaut all.</#B8C0CC>
+    material: <#79CFC9>ID de matériau ou d'article \<material>
+    name: <#79CFC9>Nom du bouton \<name>
+    lore: <#79CFC9>Bouton lore \<lore> (une ligne par ligne)
+    visibility: <#79CFC9>Visibilité des boutons \<visibility>
+    visibility-admin: Administrateurs uniquement
+    visibility-player: Tous les joueurs
+    visibility-permission: Basé sur les autorisations
+    permission: <#79CFC9>Nœud d'autorisation \<permission>
+    hide-inaccessible: <#79CFC9>Hide et récupérer l'emplacement lorsqu'il est inaccessible \<hide-inaccessible>
+    actions: '<#79CFC9>Actions du bouton \<actions> (une ligne : type de clic | action)'
+    save: <#98C69A>Bouton Enregistrer</#98C69A>
+    save-tooltip: <#B8C0CC>Écrire dans la configuration actuelle</#B8C0CC>
+    cancel: <#E58B8B>Annuler</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Annuler les modifications et revenir au centre de configuration</#B8C0CC>
+  integration-config:
+    title: <#D8B278>Intégrations et préréglages de catégorie</#D8B278>
+    plugins-title: <#D8B278>Paramètres d'intégration · Plugins spécialement pris en charge</#D8B278>
+    resources-title: <#D8B278>Paramètres d'intégration · Packs de ressources spécialement adaptés</#D8B278>
+    description: <#B8C0CC>La zone de contenu répertorie les intégrations disponibles sur ce serveur. Les entrées activées ont un reflet d’enchantement ; cliquez avec le bouton gauche ou avec le bouton droit sur une entrée pour modifier son état.</#B8C0CC>
+    status: '<#B8C0CC>État actuel : {status}</#B8C0CC>'
+    left-click: '<#8793A5>Clic gauche : état suivant</#8793A5>'
+    right-click: '<#8793A5>Clic droit : état précédent</#8793A5>'
+    page-count: Entrées <#B8C0CC>{count} sur l'autre page</#B8C0CC>
+    previous-page: <#D8B278>Page précédente</#D8B278>
+    next-page: <#D8B278>Page suivante</#D8B278>
+    page-position: <#B8C0CC>Page {current} / {pages}</#B8C0CC>
+    preset-detected: <#98C69A>RPack de ressources détecté</#98C69A>
+    preset-applied: <#79CFC9>Catégorie prédéfinie appliquée</#79CFC9>
+    preset-author-mismatch: L'auteur de <#E58B8B>pack.yml ne correspond pas à la déclaration prédéfinie</#E58B8B>
+    unsupported-label: <#E58B8B>{extension}</#E58B8B>
+    unsupported-reason: '<#E58B8B>Indisponible : {reason}</#E58B8B>'
+    unsupported-file: '<#8793A5>JAR : {file}</#8793A5>'
+    unsupported-version: '<#8793A5>Version d''extension : {version}</#8793A5>'
+    unsupported-readonly: <#B8C0CC>Cette entrée de diagnostic ne peut pas être activée sur le serveur actuel</#B8C0CC>
+    source-label: <#79CFC9>{plugin}</#79CFC9>
+    preset-label: <#79CFC9>{namespace}</#79CFC9>
+    plugin-heading: <#98C69A>CER a détecté ces plugins spécialement pris en charge ; cliquez sur un bouton pour activer : </#98C69A>
+    resource-heading: <#98C69A>CER a détecté ces packs de ressources spécialement adaptés ; cliquez sur un bouton pour activer : </#98C69A>
+    item-enable-tooltip: <#B8C0CC>Cliquez pour activer la prise en charge de cet article</#B8C0CC>
+    item-disable-tooltip: <#B8C0CC>Cliquez pour désactiver la prise en charge de cet article</#B8C0CC>
+    open-resources: <#79CFC9>Voir les packs de ressources ▶</#79CFC9>
+    open-plugins: <#E4D397>◀ Retour aux plugins</#E4D397>
+    option-ask: <#E4D397>Ask</#E4D397>
+    option-enabled: <#98C69A>Enable</#98C69A>
+    option-disabled: <#E58B8B>Désactiver</#E58B8B>
+    enable-all: <#98C69A>EActiver tous les détectés</#98C69A>
+    enable-all-tooltip: <#B8C0CC>Activer chaque plug-in de serveur actuellement détecté et chaque préréglage de pack de ressources </#B8C0CC>
+    save: <#98C69A>Enregistrer</#98C69A>
+    save-tooltip: <#B8C0CC>Enregistrer les choix et effectuer les actions demandées</#B8C0CC>
+    cancel: <#8793A5>Plus tard</#8793A5>
+    cancel-tooltip: <#B8C0CC>Fermer sans modifier la configuration</#B8C0CC>
+  workstations:
+    title: <#374151>Postes de travail</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>Postes</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+    categories:
+      crafting: Vanille·Table de fabrication
+      smelting: Vanille·Four
+      blasting: Vanille·Haut Fourneau
+      smoking: Vanille·Fumeur
+      campfire_cooking: Vanille·Feu de camp
+      stonecutting: Vanille·Tailleur de pierre
+      smithing: Vanille·Table de forge
+      brewing: Vanille·Stand de brassage
+      cultivation: Culture
+    category-lore:
+    - <#B8C0CC>Cliquez pour afficher les résultats des recettes pour ce poste de travail</#B8C0CC>
+    back-name: <#E58B8B>Retour aux catégories</#E58B8B>
+    back-lore:
+    - <#B8C0CC>Cliquez pour revenir au menu des catégories d'articles</#B8C0CC>
+  recipe:
+    title: <#292D35>Recette » <name></#292D35>
+    title-crafting: <#292D35>Vanille·Table d'artisanat</#292D35>
+    title-smelting: <#292D35>Vanille·Four</#292D35>
+    title-blasting: <#292D35>Vanille·Haut Fourneau</#292D35>
+    title-smoking: <#292D35>Vanille·Fumeur</#292D35>
+    title-campfire: <#292D35>Vanille·Feu de camp</#292D35>
+    title-stonecutting: <#292D35>Vanille·Tailleur de pierre</#292D35>
+    title-smithing: <#292D35>Vanille·Table de forge</#292D35>
+    title-brewing: <#292D35>Vanille·Support de brassage</#292D35>
+    title-none: <#292D35>Aucune recette</#292D35>
+  search:
+    dialog-title: <bold><#D8B278>Rechercher des articles</#D8B278></bold>
+    dialog-label: Entrez un mot-clé
+    dialog-hint: Rechercher par ID d'article, nom d'affichage
+    result-title: <bold><#374151>Résultats de recherche</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>
+    confirm: <#98C69A>Recherche</#98C69A>
+    confirm-tooltip: <#B8C0CC>Rechercher des articles par mot-clé</#B8C0CC>
+    cancel: <#E58B8B>Annuler</#E58B8B>
+    cancel-tooltip: <#B8C0CC>Fermer la boîte de dialogue de recherche</#B8C0CC>
+  common:
+    all-items: Tous les articles
+    unknown: Non précisé
+    first-page: <#8793A5>Déjà sur la première page</#8793A5>
+    last-page: <#8793A5>Déjà sur la dernière page</#8793A5>
+    no-recipe: <#B8C0CC>Cet article ne contient aucune recette</#B8C0CC>
+    no-usage: <#B8C0CC>Cet article n'a aucune utilité</#B8C0CC>
+    dynamic-result: <#B8C0CC>Résult dépend des éléments d'entrée réels</#B8C0CC>
+  vanilla-items:
+    name: Articles à la vanille
+logs:
+  debug-export-failed: Échec de l'exportation du fichier de diagnostic de recette
+  recipe-source-ready: 'Source de recette {source} mise à jour : {count} affiche les recettes ; fichiers : {files}'
+  recipe-source-exported: Recettes {count} {source} exportées vers des fichiers de poste de travail {files} ; recettes/ est désormais la seule source d'exécution.
+  recipe-files-reloaded: 'Fichiers de recettes modifiés : {files} ; Recettes d''affichage {count} automatiquement rechargées.'
+  session-save-failed: 'Échec de l''enregistrement de la position du menu du lecteur : {error}'
+  session-load-failed: 'Échec de la restauration de la position du menu du lecteur ; ouverture de la vue par défaut : {error}'
+  recipe-source-failed: 'La source de recette {source} n''a pas pu être mise à jour ; conservant ses dernières données valides : {error}'
+  plugin-fingerprint-mismatch: Le plugin {plugin} a été trouvé, mais la classe principale {actual} ne correspond pas à la classe principale {expected} attendue ; la source de la recette a été ignorée.
+  integration-setup-waiting: 'Intégrations CER détectées en attente de configuration : {plugins}. Aucun administrateur n''est en ligne ; l''invite de configuration cliquable apparaîtra lors de la connexion.'
+  category-preset-linked-applied: 'Préréglages de catégorie appliqués liés aux intégrations activées : {namespaces}'
+  integration-config-waiting: Détection des intégrations en attente {plugins} et des préréglages de catégorie {presets}. Aucun administrateur n'est en ligne ; l'entrée de la page de gestion apparaîtra lors de l'adhésion.
+  update-available: 'La nouvelle version {latest} est disponible (actuellement {current}) : {url}'
+  update-check-failed: 'Impossible de vérifier les mises à jour de GitHub ; réessayera au prochain démarrage ou rechargera sans affecter le plugin : {error}'
+  compatibility-fallback: L'opération de compatibilité {operation} a échoué ; en gardant la solution de repli existante. Chaque site d'appel est enregistré une fois par génération de données ; les détails des exceptions suivent.
+  search-input-failed: Échec de la lecture des données de recherche ; revenir au menu.
+  config-invalid-id: 'ID configuré non valide : {path} = {value} ; conserver le comportement de repli existant. Vérifiez l''espace de noms et le chemin.'
+  config-invalid-material: 'Matériel configuré inconnu : {path} = {value} ; conserver le comportement de repli existant.'
+  config-missing-category: 'La catégorie CraftEngine configurée n''existe pas : {path} = {value} ; en gardant la configuration. Vérifiez l''orthographe et si son pack est chargé.'
+  config-update-failed: 'Échec de l''ajout des valeurs par défaut config.yml manquantes ; conserver le fichier original : {error}'
+  search-pack-ready: 'Traductions du pack de ressources chargées : clés {count}, fichiers de langue {files}, chemin {path}'
+  search-pack-failed: 'Échec de la lecture des traductions du pack de ressources : {path} ({error}) ; en utilisant la recherche de nom et d''identifiant existante. Exécutez /cer reload après avoir généré le pack.'
+  search-pack-skipped: 'Fichier de langue du pack de ressources non valide : {error}'
+  hand-resolve-failed: 'Échec de l''identification de l''article principal : {error}'
+  target-block-resolve-failed: 'Échec de l''identification du bloc cible : {error}'
+  player-task-failed: Échec de l'exécution d'une tâche du menu du lecteur
+  folia-op-unsupported: Les actions OP temporaires arrêtent la chaîne d'actions sans exécution sur Folia ; utilisez une console explicite : commandez ou accordez au joueur des autorisations de commande.
+  enabled: CraftEngineRecipe activé ; initialisation du cache de données...
+  disabled: CraftEngineRecipe désactivé.
+  pack-install-failed: 'Échec de la préparation du pack de ressources groupé : {error}'
+  pack-copy-ready: Copie des ressources locales prête à {path} (fichiers {count} restaurés ; fichiers existants préservés)
+  pack-first-installed: Ressources installées pour la première fois sur {path} (fichiers {count} ajoutés) ; les futurs redémarrages ou rechargements laisseront les ressources CraftEngine intactes.
+  data-ready: 'Données CraftEngineRecipe prêtes : éléments {items}, catégories de niveau supérieur {categories}, total de ms {elapsed} (y compris le temps entre les lots)'
+  data-build-failed: Échec de la création des données CraftEngineRecipe
+  metrics-ready: bStats initialisé.
+  metrics-failed: 'L''initialisation de bStats a échoué ; la navigation dans les recettes n''est pas affectée : {error}'
+  category-read-failed: 'Échec de la lecture de la configuration de la catégorie : {file}'
+  category-save-failed: 'Échec de l''enregistrement de la configuration de l''espace de noms de catégorie : {error}'
+  unapplied-save-failed: 'Échec de l''enregistrement de la configuration d''entrée non appliquée : {error}'
+  result-query-failed: 'Échec de l''interrogation des recettes de sortie ({id}) : {error}'
+  usage-query-failed: 'Échec de l''interrogation des utilisations des ingrédients ({id}) : {error}'
+  layout-reserved: 'Conflit de mise en page : un bouton utilise le caractère # réservé et ne sera pas affiché'
+  layout-conflict: 'Conflit de mise en page : le caractère du bouton {symbol} est utilisé par les emplacements de catégorie/contenu et ne sera pas affiché'
+  language-unknown: Langue non prise en charge {locale} ; en utilisant l'anglais.
+  language-detected: 'Paramètres régionaux du serveur détectés : {locale}.'
+  language-save-failed: 'Échec de l''extraction des fichiers de langue ; en utilisant des traductions groupées : {error}'
+  language-update-failed: 'Échec de l''ajout des traductions manquantes à {file} ; conserver le fichier original : {error}'
+  language-read-failed: 'Échec de la lecture du fichier de langue {file} ; utilisation de traductions groupées ou de secours : {error}'
+headers:
+  unapplied: 'CraftEngineRecipe 未应用条目 / Entrées non appliquées
+
+    此文件列出未进入categories.yml
+
+    Répertorie les espaces de noms et les boutons personnalisés non présents danscategors.yml
+
+    将需要的条目复制到categories.yml et entrées 中，调整可见性后 /cer reload
+
+    Copiez les entrées souhaitées dans navigation/categories.yml, ajustez la visibilité, puis exécutez /cer reload
+
+    已应用的条目在重载后移除，其他条目保留原有属性
+
+    Les entrées appliquées sont supprimées lors du rechargement ; les autres entrées conservent leurs propriétés'

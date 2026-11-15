@@ -34,7 +34,7 @@ final class BrowserActionItems {
             boolean available = next ? gui.getPage() + 1 < gui.getPageCount() : gui.getPage() > 0;
             Component name = available
                     ? this.config.mm(def.name())
-                    : this.plugin.lang().component(next ? "ui.common.last-page" : "ui.common.first-page");
+                    : this.plugin.lang(player).component(next ? "ui.common.last-page" : "ui.common.first-page");
             String model = available ? def.itemModel() : this.config.disabledItemModel();
             return new ItemWrapper(ItemBridge.icon(model, def.material(), name, this.buttonLore(def)));
         }).addClickHandler((item, gui, click) -> this.browser.handleClick(click.player(), () -> {
@@ -49,7 +49,7 @@ final class BrowserActionItems {
     }
 
     Item searchItem() {
-        return this.searchItem(player -> this.plugin.searchDialog().open(player));
+        return this.searchItem(player -> this.plugin.dialogs().search().open(player));
     }
 
     Item searchItem(Consumer<Player> action) {
@@ -58,7 +58,7 @@ final class BrowserActionItems {
         return Item.builder().setItemProvider(player -> {
             GuiSession current = GuiSession.of(player);
             List<Component> currentLore = new ArrayList<>(this.buttonLore(def));
-            currentLore.add(this.plugin.lang().component(current.craftableMode()
+            currentLore.add(this.plugin.lang(player).component(current.craftableMode()
                     ? "ui.content.search.exit-craftable-lore"
                     : "ui.content.search.craftable-lore"));
             return new ItemWrapper(ItemBridge.icon(def.itemModel(), def.material(),
@@ -92,22 +92,25 @@ final class BrowserActionItems {
     }
 
     Item workstationsShortcutItem(CerConfig.ButtonDef def) {
-        List<Component> lore = new ArrayList<>(this.buttonLore(def));
         boolean personalizationEnabled = this.plugin.playerPreferences() != null
                 && this.plugin.playerPreferences().enabled()
-                && this.plugin.personalizationDialog() != null;
-        if (personalizationEnabled) {
-            lore.add(this.plugin.lang().component("ui.content.workstations.personalization-lore"));
-        }
-        ItemStack stack = ItemBridge.icon(def.itemModel(), def.material(), this.config.mm(def.name()), lore);
-        return Item.builder().setItemProvider(stack).addClickHandler(click -> {
+                && this.plugin.dialogs().personalization() != null;
+        return Item.builder().setItemProvider(player -> {
+            List<Component> lore = new ArrayList<>(this.buttonLore(def));
+            if (personalizationEnabled) {
+                lore.add(this.plugin.lang(player).component(
+                        "ui.content.workstations.personalization-lore"));
+            }
+            return new ItemWrapper(ItemBridge.icon(def.itemModel(), def.material(),
+                    this.config.mm(def.name()), lore));
+        }).addClickHandler(click -> {
             ClickType type = click.clickType();
             boolean personalize = personalizationEnabled
                     && (type == ClickType.RIGHT || type == ClickType.SHIFT_RIGHT);
             this.browser.handleClick(click.player(), () -> {
                 Player player = click.player();
                 Sounds.play(player, this.config.sounds().click());
-                if (personalize && this.plugin.personalizationDialog().open(player)) return;
+                if (personalize && this.plugin.dialogs().personalization().open(player)) return;
                 this.browser.openOrToggleWorkstations(player);
             });
         }).build();

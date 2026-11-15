@@ -1,0 +1,482 @@
+# Generated ko_KR translation.
+prefix: '<#79CFC9>[<bold></bold>]</#79CFC9> '
+messages:
+  debug-usage: '<#E4D397>Usage: /cer 디버그 레시피 | /cer 디버그 성능 [재설정]</#E4D397>'
+  debug-export-start: <#E4D397>모든 레시피를 작은 배치로 캡처합니다. 스냅샷은 플러그인 디버그 폴더에 비동기적으로 저장됩니다.</#E4D397>
+  debug-export-busy: <#E4D397>A 레시피 내보내기가 이미 실행 중입니다. 잠시 기다려 주십시오.</#E4D397>
+  debug-export-cooldown: <#E4D397>다시 내보내기 전에 {seconds}초 동안 기다려 주십시오.</#E4D397>
+  debug-export-success: '<#98C69A>저장된 레시피: {path}(Bukkit {bukkit}, CraftEngine {native}, CER 공급자 {external}, 입력 오류 {errors}).</#98C69A>'
+  debug-export-failed: '<#E58B8B>레시피 내보내기 실패: {error}. 콘솔을 확인하세요. 레시피 다시 로드가 완료된 후 다시 시도하세요.</#E58B8B>'
+  debug-performance-header: <#79CFC9>성능 통계(시작 또는 마지막 재설정 이후 {seconds} 초)</#79CFC9>
+  debug-performance-reset: <#98C69A>Plugin 작업 타이머 및 카운터가 재설정됩니다. 캐시 및 서버 성능 통계는 변경되지 않습니다.</#98C69A>
+  debug-performance-server: '<#B8C0CC>서버 TPS(1/5/15분): {tps}, 평균 MSPT: {mspt}, Folia: {folia}</#B8C0CC>'
+  debug-performance-data: <#B8C0CC>인덱스 준비={ready} 생성={generation}; CE 항목 {items}, 카테고리 {categories}, 레시피 {native}; 공급자 레시피 {external}, 항목 {externalItems}</#B8C0CC>
+  debug-performance-gauge: '<#B8C0CC>{name}: {value}</#B8C0CC>'
+  debug-performance-operation: '<#B8C0CC>{name}: {count} 호출, 총 {total} ms, 평균 {average} ms, 최대 {max} ms</#B8C0CC>'
+  debug-performance-empty: <#8793A5>아직 작동 시기가 없습니다. 메뉴를 사용하여 이 명령을 다시 실행하세요.</#8793A5>
+  debug-performance-note: <#8793A5>Timings는 중첩될 수 있으며 서버 CPU 비율에 추가될 수 없습니다. 재설정하고 속도 저하를 재현한 다음 검사합니다. 호출 스택에 스파크를 사용하십시오. Folia.</#8793A5>에서는 글로벌 TPS/MSPT를 사용하지 못할 수 있습니다.
+  no-permission: <#E58B8B>이 작업을 수행할 권한이 없습니다.</#E58B8B>
+  player-only: <#E58B8B>이 명령은 플레이어만 사용할 수 있습니다.</#E58B8B>
+  personalization-saved: '<#98C69A>기본 설정 저장됨: 메뉴 스타일 {menu}, 기본 메인 페이지 {main}, 복원 위치: {remember}.</#98C69A>'
+  unapplied-updated: <#98C69A>{file}.</#98C69A>의 네임스페이스 {namespace}가 업데이트되었습니다.
+  unapplied-update-failed: <#E58B8B>Namespace {namespace}를 찾을 수 없습니다. {file}가 변경되지 않았습니다.</#E58B8B>
+  unapplied-permission-required: 가시성이 권한으로 설정된 경우 <#E58B8B>A 권한 노드가 필요합니다.</#E58B8B>
+  button-updated: <#98C69A>{file}.</#98C69A>의 사용자 정의 버튼을 업데이트했습니다.
+  button-update-failed: <#E58B8B>사용자 정의 버튼이 더 이상 존재하지 않거나 {file}를 저장할 수 없습니다.</#E58B8B>
+  button-permission-required: 버튼 가시성이 권한 기반인 경우 <#E58B8B>A 권한 노드가 필요합니다.</#E58B8B>
+  management-saved: <#98C69A>관리 변경사항이 저장되고 메뉴가 새로고침되었습니다.</#98C69A>
+  management-save-failed: <#E58B8B>대상 항목을 찾을 수 없거나 구성을 저장할 수 없습니다.</#E58B8B>
+  config-invalid: <#E58B8B>잘못된 구성 값; 숫자가 범위를 벗어났거나 옵션이 누락되었습니다. config.yml이 변경되지 않았습니다.</#E58B8B>
+  config-save-started: <#E4D397>config.yml이 저장되었습니다. 인덱스 재구축 및 새 설정 적용...</#E4D397>
+  config-saved: <#98C69A>config.yml이 성공적으로 저장되고 다시 로드되었습니다.</#98C69A>
+  config-save-failed: <#E58B8B>config.yml이 저장되었지만 다시 로드에 실패했거나 최신 요청으로 대체되었습니다. 콘솔을 확인하세요.</#E58B8B>
+  menu-default-usage: '<#E4D397>Usage: /cer 메뉴 기본값 \<cer_menu_*></#E4D397>'
+  menu-default-set: <#98C69A>기본 기본 메뉴 스타일이 {menu}.</#98C69A>로 설정되었습니다.
+  menu-unknown: '<#E58B8B>알 수 없거나 불완전한 메뉴 스타일: {menu}</#E58B8B>'
+  menu-enable-usage: '<#E4D397>Usage: /cer 메뉴 활성화 \<cer_menu_*|all></#E4D397>'
+  menu-enabled-updated: <#98C69A>사용 가능한 메뉴 스타일이 업데이트되었습니다.</#98C69A>
+  menu-enable-failed: <#E58B8B>해당 메뉴 스타일을 활성화할 수 없습니다.</#E58B8B>
+  menu-disable-usage: '<#E4D397>Usage: /cer 메뉴 비활성화 \<cer_menu_*></#E4D397>'
+  menu-disabled: '<#98C69A>비활성화된 메뉴 스타일: {menu}</#98C69A>'
+  menu-disable-failed: <#E58B8B>해당 스타일을 비활성화할 수 없습니다. 기본 스타일은 활성화된 상태로 유지되어야 합니다.</#E58B8B>
+  menu-status-default: '<#B8C0CC>기본 스타일: {menu}</#B8C0CC>'
+  menu-status-enabled: '<#B8C0CC>활성화됨: {menus}</#B8C0CC>'
+  menu-status-available: '<#B8C0CC> 사용 가능: {menus}</#B8C0CC>'
+  menu-unavailable: '<#E58B8B>해당 메뉴 스타일은 활성화되어 있지 않거나 사용할 수 없습니다: {menu}</#E58B8B>'
+  management-applied: <#98C69A>{namespace}가 카테고리.yml에 적용되었습니다. 목록에서 순서를 계속 조정할 수 있습니다.</#98C69A>
+  management-applied-entry: <#98C69A>{entry}가 카테고리.yml에 적용되었습니다. 계속해서 주문을 조정할 수 있습니다.</#98C69A>
+  management-unapplied: <#98C69A>{entry}가 카테고리-unapplied.yml.</#98C69A>로 이동되었습니다.
+  management-moved: <#98C69A>표시 순서가 업데이트되었습니다.</#98C69A>
+  management-edge: <#8793A5>이 항목은 이미 목록 가장자리에 있습니다.</#8793A5>
+  management-applied-readonly: <#E4D397>이 네임스페이스는 이미 카테고리.yml에 있습니다. 활성 구성을 직접 편집하십시오.</#E4D397>
+  management-no-category-page: <#8793A5>Namespace {namespace}에는 탐색 가능한 네임스페이스 카테고리 페이지가 없습니다.</#8793A5>
+  index-build-started: <#E4D397>{plugins}가 감지되었습니다. 레시피 인덱스 작성 중...</#E4D397>
+  integration-choice-disabled: <#E58B8B>{plugins}가 비활성화되었습니다. 기존 레시피 파일은 유지되지만 더 이상 내보내거나 색인화할 수 없습니다.</#E58B8B>
+  integration-choice-ask: <#E4D397>{plugins}를 질문 모드로 변경했습니다. 기존 레시피 파일은 유지되지만 활성화될 때까지 색인이 생성되지 않습니다.</#E4D397>
+  integration-export-started: <#E4D397>{plugins}에 대한 레시피 및 재배 지원이 가능합니다. 레시피 내보내기 및 인덱스 구축 중...</#E4D397>
+  integration-index-ready: '<#98C69A>{plugin} 인덱스 준비됨: {recipes} 레시피 및 {workstations} 워크스테이션.</#98C69A>'
+  integration-index-failed: '<#E58B8B>{plugin} 인덱스 빌드 실패: {error}</#E58B8B>'
+  integration-unknown-error: 알 수 없는 오류입니다. 콘솔을 확인하세요.
+  integration-config-detected: '<#D8B278>보류 중인 통합 구성: {plugins} 통합 및 {presets} 카테고리 사전 설정.</#D8B278>'
+  integration-config-open: <#79CFC9>[개방형 통합 구성]</#79CFC9>
+  integration-config-open-hover: <#B8C0CC> /cer 관리 페이지에서 통합 설정 열기</#B8C0CC>
+  integration-config-empty: <#8793A5>구성 대기 중인 통합 또는 카테고리 사전 설정이 없습니다.</#8793A5>
+  integration-config-no-detected: <#8793A5>특별히 지원되는 플러그인이나 개조된 리소스 팩이 감지되지 않았습니다.</#8793A5>
+  integration-config-saved: <#98C69A>통합 구성이 저장되었습니다.</#98C69A>
+  integration-config-save-failed: <#E58B8B>통합 구성을 저장할 수 없습니다. 콘솔을 확인하세요.</#E58B8B>
+  category-preset-linked-applied: '<#98C69A>통합을 활성화하는 동안 연결된 카테고리 사전 설정 적용: {presets}.</#98C69A>'
+  api-integration-detected: <#D8B278>CER API를 통해 연결된 레시피 소스를 감지했습니다:</#D8B278> <white>{plugin}</white>
+  api-integration-namespace: <#B8C0CC>네임스페이스:</#B8C0CC> <white>{namespace}</white>
+  api-integration-ready: <#98C69A>{recipes} 레시피를 추가했습니다. 인덱스가 준비되었습니다.</#98C69A>
+  api-integration-updated: '<#79CFC9>API 레시피 소스 {plugin}({namespace}) 업데이트됨: {previous} -> {current} 레시피; 인덱스가 새로 고쳐졌습니다.</#79CFC9>'
+  api-integration-unregistered: <#E58B8B>API 레시피 소스 {plugin}({namespace})가 등록되지 않았습니다. {recipes} 레시피가 제거되고 색인이 새로 고쳐졌습니다.</#E58B8B>
+  recipe-export-usage: '<#E4D397>Usage: /cer 내보내기 &lt;확장 소스 ID|all></#E4D397>'
+  recipe-export-started: <#E4D397>소스 플러그인을 읽고 레시피 파일을 재생성하는 중입니다. 잠시 기다려 주십시오.</#E4D397>
+  recipe-export-complete: '<#98C69A>레시피 내보내기 완료: {sources} 소스, {files} 파일 및 {recipes} 레시피. 실패: {failures}</#98C69A>'
+  recipe-export-failed: '<#E58B8B>레시피 소스를 성공적으로 내보낸 적이 없습니다: {failures}</#E58B8B>'
+  reload-start: <#E4D397>다시 로드하는 중입니다. 인덱스가 준비되면 알림을 받게 됩니다.</#E4D397>
+  reload-success: <#98C69A>구성, 언어 및 데이터 인덱스가 다시 로드되었습니다.</#98C69A>
+  reload-failed: <#E58B8B>Rebuild가 실패했거나 최신 다시 로드가 이 요청을 대체했습니다. 콘솔을 확인하세요.</#E58B8B>
+  data-not-ready: '<#E4D397>데이터가 준비되지 않았습니다: {reason}</#E4D397>'
+  not-ready-reason: 데이터가 초기화 중이거나 재구축 중이거나 마지막 재구축이 실패했습니다. 기다리세요; 필요한 경우 /cer reload를 실행하고 콘솔을 확인하십시오.
+  category-not-found: '<#E58B8B>범주를 찾을 수 없음: {id}</#E58B8B>'
+  hand-empty: <#E4D397>주 손에 아이템을 쥐고 제작 방법을 알아보세요.</#E4D397>
+  hand-item-unavailable: <#E58B8B>주무기 아이템은 적용된 메뉴에서 사용할 수 없거나 권한 또는 숨기기 규칙으로 인해 제한되어 있습니다.</#E58B8B>
+  hand-no-recipe: <#E4D397>{id}를 생산하는 레시피를 찾을 수 없습니다.</#E4D397>
+  hand-resolve-failed: <#E58B8B>주요 아이템을 식별할 수 없습니다. 콘솔을 확인하세요.</#E58B8B>
+  target-block-empty: <#E4D397>보려는 제작 레시피가 있는 블록을 살펴보세요.</#E4D397>
+  target-block-unavailable: <#E58B8B>대상 블록에 대한 레시피를 찾을 수 없습니다.</#E58B8B>
+  target-block-no-recipe: <#E4D397>{id}를 생산하는 레시피를 찾을 수 없습니다.</#E4D397>
+  target-block-resolve-failed: <#E58B8B>대상 블록을 식별할 수 없습니다. 콘솔을 확인하세요.</#E58B8B>
+command:
+  description: CraftEngineRecipe 아이템 카테고리 메뉴 열기
+ui:
+  default-categories:
+    vanilla-name: <white>바닐라 항목</white>
+    vanilla-click: <gray>모든 바닐라 항목을 보려면 클릭하세요.</gray>
+    vanilla-count: '<dark_gray>항목: <count></dark_gray>'
+    divider-lore: '&#B8C0CCA 구분 창'
+    manage-name: '&#D8B278열린 관리'
+    manage-lore-1: '&#B8C0CC이 페이지에는 이 서버에서 사용할 수 있는 CraftEngine 콘텐츠가 표시됩니다.'
+    manage-lore-2: '&#B8C0CC관리자는 콘텐츠를 적용하거나 숨기거나 순서를 변경할 수 있습니다.'
+    manage-lore-3: '&#B8C0CC/cer 관리를 사용하여 열 수도 있습니다.'
+    manage-lore-4: '&#B8C0CC이 버튼은 관리자에게만 표시됩니다.'
+    manage-lore-5: '&#B8C0CC이 버튼을 숨기거나 제거해도 됩니다.'
+    integrations-name: '&#B8C278CER 통합 열기'
+    integrations-lore-1: '&#B8C0CC이 페이지에는 서버에서 감지된 특수 CraftEngine 통합이 표시됩니다.'
+    integrations-lore-2: '&#B8C0CC통합이 활성화되기 전에 관리자가 통합을 활성화해야 합니다.'
+    integrations-lore-3: '&#B8C0CC/cer 통합으로 열 수도 있습니다'
+    integrations-lore-4: '&#B8C0CC이 버튼은 관리자에게만 표시됩니다.'
+    integrations-lore-5: '&#B8C0CC이 버튼을 숨기거나 제거해도 됩니다.'
+  browser:
+    title: <#374151>항목 카테고리</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>아이템</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+  category-bar:
+    icon-name: <#EEF2F6><name></#EEF2F6>
+    icon-lore:
+    - <#B8C0CC>이 카테고리를 보려면 클릭하세요.</#B8C0CC>
+    - '<#8793A5>항목: <count></#8793A5>'
+    sub-icon-lore:
+    - <#B8C0CC>이 하위 카테고리를 열려면 클릭하세요.</#B8C0CC>
+    - '<#8793A5>항목: <count></#8793A5>'
+    admin-only-hint: <#8793A5>이 카테고리는 관리자에게만 표시됩니다.</#8793A5>
+    no-permission-hint: <#8793A5>이 카테고리를 보려면 <permission>가 필요합니다.</#8793A5>
+    prev-category:
+      name: <#E4D397>◀ 이전 카테고리</#E4D397>
+    next-category:
+      name: <#E4D397>다음 카테고리 ▶</#E4D397>
+  content:
+    prev-page:
+      name: <#79CFC9>◀ 이전 페이지</#79CFC9>
+    next-page:
+      name: <#79CFC9>다음 페이지 ▶</#79CFC9>
+    back:
+      name: <#E58B8B>부모로 돌아가기</#E58B8B>
+    search:
+      name: <#D8B278>항목 검색</#D8B278>
+      lore:
+      - <#B8C0CC>키워드로 검색하려면 클릭하세요.</#B8C0CC>
+      craftable-lore: '<#79CFC9>오른쪽 클릭: 인벤토리에서 제작 가능한 아이템</#79CFC9>'
+      exit-craftable-lore: '<#79CFC9>오른쪽 클릭: 제작 가능한 아이템 목록 종료</#79CFC9>'
+    hand:
+      name: <#79CFC9>메인 레시피</#79CFC9>
+      lore:
+      - <#B8C0CC>주 아이템 제작 방법을 보려면 클릭하세요.</#B8C0CC>
+      - <#8793A5> /cer hand와 동일</#8793A5>
+    query:
+      name: <#79CFC9>레시피 조회</#79CFC9>
+      lore:
+      - '<#B8C0CC>Left-click: 주요 아이템의 레시피</#B8C0CC>'
+      - '<#B8C0CC>Right-click: 대상 블록</#B8C0CC>에 대한 레시피'
+    close:
+      name: <#E58B8B>메뉴 닫기</#E58B8B>
+      lore:
+      - <#B8C0CC>클릭하면 아이템 카테고리 메뉴가 닫힙니다. (ESC와 동일)</#B8C0CC>
+    glasses:
+      name: <#79CFC9>대상 블록 레시피</#79CFC9>
+      lore:
+      - <#B8C0CC>지금 보고 있는 블록을 만드는 방법을 보려면 클릭하세요.</#B8C0CC>
+      - <#8793A5>보고 싶은 레시피가 있는 블록에 십자선을 겨누세요.</#8793A5>
+    info:
+      name: <#79CFC9>사용 팁</#79CFC9>
+      lore:
+      - <#B8C0CC>제작 방법을 보려면 아이템을 왼쪽 버튼으로 클릭하세요.</#B8C0CC>
+      - <#B8C0CC>항목을 마우스 오른쪽 버튼으로 클릭하면 해당 항목을 사용하는 레시피를 볼 수 있습니다.</#B8C0CC>
+      - <#B8C0CC>뒤로 돌아가려면 제작대 화면의 빈 공간을 클릭하세요.</#B8C0CC>
+      - <#B8C0CC>페이지 바깥쪽 빈 공간을 마우스 오른쪽 버튼으로 클릭하면 메인 페이지로 돌아갑니다</#B8C0CC>
+      - <#B8C0CC></#B8C0CC>
+      - <#8793A5>여러 레시피가 자동으로 회전합니다.</#8793A5>
+    workstations:
+      name: <#D8B278>워크스테이션별 검색</#D8B278>
+      lore:
+      - <#B8C0CC>제작, 제련 등을 찾아보려면 클릭하세요.</#B8C0CC>
+      - <#8793A5>볼 수 있는 레시피 출력만 표시됩니다.</#8793A5>
+      personalization-lore: '<#79CFC9>오른쪽 클릭: 개인 설정</#79CFC9>'
+    item-lore: []
+    empty:
+      name: <#E58B8B>여기에 아무것도 없습니다</#E58B8B>
+  personalization:
+    title: <bold><#D8B278>개인화</#D8B278></bold>
+    description: <#B8C0CC>메뉴 스타일과 기본 메인 페이지를 선택하고 다시 열면 마지막 위치가 복원되는지 여부를 선택하세요.</#B8C0CC>
+    menu-pack-label: <#79CFC9>주 메뉴 스타일</#79CFC9>
+    main-page-label: <#79CFC9>기본 메인 페이지(이전 위치가 복원되지 않은 경우)</#79CFC9>
+    main-page-namespaces: 항목 유형별로 찾아보기
+    main-page-workstations: 워크스테이션별로 찾아보기
+    language-label: <#79CFC9>인터페이스 언어</#79CFC9>
+    language-en: English
+    language-zh: 简体中文
+    language-ja: 日本語
+    language-ko: 한국어
+    language-zh-tw: 繁體中文
+    language-de: Deutsch
+    language-fr: Français
+    language-es: Español
+    language-ru: Русский
+    remember-label: <#79CFC9>마감 후 마지막 위치 복원</#79CFC9>
+    true: 활성화됨
+    false: 장애인
+    save: <#98C69A>기본 설정 저장</#98C69A>
+    save-tooltip: <#B8C0CC>이 개인 설정을 저장하세요</#B8C0CC>
+    cancel: <#E58B8B>취소</#E58B8B>
+    cancel-tooltip: <#B8C0CC>변경 사항을 취소하고 메뉴로 돌아가기</#B8C0CC>
+  craftable:
+    name: <#79CFC9>제작 가능한 아이템</#79CFC9>
+    title: <bold><#374151>제작 가능한 항목</#374151> <#465D70>»</#465D70> <#293341>현재 재고</#293341></bold>
+  management:
+    name: <#D8B278>관리</#D8B278>
+    title: <bold><#374151>관리</#374151></bold>
+    return-name: <#79CFC9>항목 카테고리로 돌아가기</#79CFC9>
+    return-lore: <#B8C0CC>항목 카테고리 페이지로 돌아가려면 클릭하세요.</#B8C0CC>
+    categories-name: <#D8B278>categories.yml</#D8B278>
+    categories-lore: <#B8C0CC>적용된 네임스페이스 및 사용자 정의 버튼 관리</#B8C0CC>
+    categories-summary: '<#8793A5>{entries} 항목: {namespaces} 네임스페이스 및 {buttons} 버튼</#8793A5>'
+    unapplied-name: <#D8B278>카테고리-미적용.yml</#D8B278>
+    unapplied-nav-lore: <#B8C0CC>활성 메뉴에 아직 없는 항목을 검토, 편집 및 적용합니다.</#B8C0CC>
+    unapplied-summary: 검토 대기 중인 <#8793A5>{count} 항목</#8793A5>
+    workstations-name: <#D8B278>workstations.yml</#D8B278>
+    workstations-lore: <#B8C0CC>워크스테이션 및 사용자 정의 버튼 표시 순서 조정</#B8C0CC>
+    workstations-summary: <#8793A5>{count} 워크스테이션 페이지 항목</#8793A5>
+    integrations-name: <#D8B278>integrations.yml</#D8B278>
+    integrations-unsupported-name: <#D8B278>지원되지 않는 확장</#D8B278>
+    integrations-lore: <#B8C0CC>플러그인 및 리소스 팩에 대한 특별 지원 구성</#B8C0CC>
+    integrations-summary: <#8793A5>{plugins} 지원 플러그인 및 {presets} 리소스 팩 사전 설정 감지</#8793A5>
+    integrations-left-click: '<#79CFC9>왼쪽 클릭: 사용 가능한 통합 설정</#79CFC9>'
+    integrations-right-click: '<#E4D397>오른쪽 클릭: 이 서버에서 지원하지 않는 확장 프로그램</#E4D397>'
+    config-name: <#D8B278>config.yml</#D8B278>
+    config-lore: <#B8C0CC>언어, 데이터 소스, 검색, 단축키 및 워크플로 동작 구성</#B8C0CC>
+    config-summary: <#8793A5>언어 {language} · CER {version}</#8793A5>
+    workstations-shortcut: <#79CFC9>워크스테이션을 관리하려면 클릭하세요.</#79CFC9>
+    hidden-name: <#D8B278>카테고리 & 항목</#D8B278>
+    items-name: <#D8B278>숨겨진 카테고리 항목</#D8B278>
+    entry-name: <bold><#EEF2F6>{namespace}</#EEF2F6></bold>
+    applied-lore: '<#98C69A>적용됨: 카테고리에 있음.yml</#98C69A>'
+    unapplied-lore: '<#B8C0CC>적용되지 않음: 카테고리-unapplied.yml</#B8C0CC>에만 존재'
+    visibility-admin: 관리자만
+    visibility-player: 모든 플레이어
+    visibility-permission: 권한 기반
+    visibility-value: '<#8793A5>가시성: {visibility} 권한: {permission}</#8793A5>'
+    category-state: '<#8793A5>범주 항목: {entry} 정렬: {sort} 숨겨진 규칙: {hide}</#8793A5>'
+    namespace-browse: '<#79CFC9>왼쪽 클릭: 관리 메뉴 내에서 이 네임스페이스를 찾아보세요.</#79CFC9>'
+    namespace-edit: '<#79CFC9>오른쪽 클릭: 이름, 권한, 지식 및 정렬 편집</#79CFC9>'
+    namespace-hide: '<#79CFC9>가운데 클릭: 카테고리 및 항목 표시 여부 관리</#79CFC9>'
+    namespace-hide-unapplied: '<#79CFC9>Shift+왼쪽: 카테고리 및 항목 표시 여부 관리</#79CFC9>'
+    namespace-order: '<#E4D397>Shift+왼쪽: 위로 이동 / Shift+오른쪽: 아래로 이동</#E4D397>'
+    namespace-apply: '<#98C69A>가운데 클릭: 이 네임스페이스를 카테고리에 적용합니다.yml</#98C69A>'
+    namespace-unapply: '<#E58B8B>Q 키: 카테고리-unapplied.yml</#E58B8B>로 이동'
+    no-category-button-lore: <#8793A5>이 항목은 네임스페이스 범주 버튼을 표시하지 않습니다.</#8793A5>
+    category-bar-lore: <#B8C0CC>적용된 네임스페이스 및 적용되지 않은 네임스페이스 보기</#B8C0CC>
+    button-name: 맞춤 버튼
+    button-type: '<#8793A5>유형: 사용자 정의 버튼</#8793A5>'
+    button-use: '<#79CFC9>왼쪽 클릭: 이 버튼 실행</#79CFC9>'
+    button-edit: '<#79CFC9>오른쪽 클릭: 아이콘, 텍스트, 권한 및 작업 편집</#79CFC9>'
+    button-apply: '<#98C69A>가운데 클릭: 이 버튼을 카테고리에 적용합니다.yml</#98C69A>'
+    button-unapply: '<#E58B8B>Q 키: 카테고리-unapplied.yml</#E58B8B>로 이동'
+    category-hidden: <#E58B8B>카테고리 항목이 숨겨져 있습니다(탐색 경로 포함)</#E58B8B>
+    category-visible: <#98C69A>카테고리 항목이 표시됩니다.</#98C69A>
+    category-count: <#8793A5>{items} 직접 품목 및 {children} 하위 카테고리</#8793A5>
+    category-open-items: '<#79CFC9>왼쪽 클릭: 이 카테고리의 직접 항목을 관리합니다.</#79CFC9>'
+    category-toggle: '<#79CFC9>오른쪽 클릭: 카테고리 항목 및 해당 경로 숨기기/표시</#79CFC9>'
+    items-all-hidden: <#E58B8B>이 카테고리의 모든 직접 항목은 숨겨졌습니다.</#E58B8B>
+    items-toggle-all: '<#79CFC9>Shift+왼쪽 또는 Shift+오른쪽: 모든 직접 항목 숨기기/표시</#79CFC9>'
+    item-hidden: <#E58B8B>현재 숨김</#E58B8B>
+    item-visible: <#98C69A>현재 표시됨</#98C69A>
+    item-recipe-count: <#B8C0CC>{recipes} 레시피는 {usages} 레시피에 사용됩니다.</#B8C0CC>
+    item-id: <#8793A5>{id}</#8793A5>
+    item-toggle: <#79CFC9>표시를 전환하려면 클릭하세요.</#79CFC9>
+    workstation-id: <#8793A5>{id}</#8793A5>
+    workstation-use: '<#79CFC9>왼쪽 클릭: 이 워크스테이션 페이지 열기</#79CFC9>'
+    workstation-order: '<#E4D397>Shift+왼쪽: 위로 이동 / Shift+오른쪽: 아래로 이동</#E4D397>'
+  config-editor:
+    general-title: <bold><#D8B278>config.yml · 일반</#D8B278></bold>
+    data-title: <bold><#D8B278>config.yml · 데이터 및 성능</#D8B278></bold>
+    description: <#B8C0CC>일반적으로 변경된 설정을 편집합니다. 저장하면 인덱스가 다시 작성됩니다. 자세한 설명은 config.yml.</#B8C0CC>에서 편집 가능합니다.
+    save: <#98C69A>저장하고 다시 로드</#98C69A>
+    save-tooltip: <#B8C0CC>config.yml을 작성하고 메뉴 및 데이터 인덱스를 다시 작성합니다.</#B8C0CC>
+    cancel: <#E58B8B>취소</#E58B8B>
+    cancel-tooltip: <#B8C0CC>이 변경 사항을 취소하고 관리로 돌아가십시오.</#B8C0CC>
+    open-data: <#79CFC9>데이터 및 성능</#79CFC9>
+    open-general: <#79CFC9>일반 설정</#79CFC9>
+    open-page-tooltip: <#B8C0CC>이 대화 상자를 저장하지 않고 다른 설정 페이지로 전환</#B8C0CC>
+    landing-page: <#79CFC9>기본 방문 페이지</#79CFC9>
+    landing-namespaces: 품목 카테고리
+    landing-workstations: 워크스테이션
+    personalization: <#79CFC9>플레이어 개인화 및 탐색 재개 활성화</#79CFC9>
+    remember-page: <#79CFC9>이전 탐색 위치 기억 및 복원</#79CFC9>
+    hotkey: <#79CFC9>스왑 핸드 단축키 활성화</#79CFC9>
+    hotkey-sneak: <#79CFC9>핫키를 사용하려면 몰래 들어가야 합니다.</#79CFC9>
+    updates: <#79CFC9>GitHub에서 안정적인 업데이트를 확인하세요.</#79CFC9>
+    source-craftengine: <#79CFC9>CraftEngine 레시피 소스 활성화</#79CFC9>
+    source-minecraft: <#79CFC9>바닐라 레시피 데이터 활성화</#79CFC9>
+    source-minecraft-cultivation: <#79CFC9>바닐라 재배 데이터 활성화</#79CFC9>
+    source-craftengine-cultivation: <#79CFC9>CraftEngine 재배 데이터 활성화</#79CFC9>
+    auto-reload: <#79CFC9>레시피 보기/파일 변경</#79CFC9>
+    poll-interval: <#79CFC9>파일 확인 간격(10-200틱)</#79CFC9>
+    rotate-interval: <#79CFC9>레시피 회전 간격(5-200틱)</#79CFC9>
+    search-max-length: <#79CFC9>검색 입력 제한(1-64)</#79CFC9>
+    search-max-results: <#79CFC9>검색 결과 제한(1~1000)</#79CFC9>
+  unapplied-editor:
+    title: <bold><#D8B278>Edit 카테고리 네임스페이스</#D8B278> <dark_gray>{namespace}</dark_gray></bold>
+    description: <#B8C0CC>{file}를 변경합니다. 메뉴가 즉시 새로 고쳐지고 이전 버전은 .bak 파일로 유지됩니다.</#B8C0CC>
+    edit-lore: '<#79CFC9>오른쪽 클릭: 이 네임스페이스 편집</#79CFC9>'
+    visibility: <#79CFC9>가시성</#79CFC9>
+    visibility-admin: 관리자만
+    visibility-player: 모든 플레이어
+    visibility-permission: 권한 기반
+    permission: <#79CFC9>권한 노드 \<permission>
+    icon-name: <#79CFC9>범주 이름 템플릿 \<name>
+    item-lore: <#79CFC9>Item lore \<lore>(행당 한 줄)
+    icon-lore: <#79CFC9>최상위 카테고리 지식 \<lore>(행당 한 줄)
+    sub-icon-lore: <#79CFC9>하위 카테고리 지식 \<lore>(행당 한 줄)
+    category-entry: <#79CFC9>네임스페이스 범주 항목 표시</#79CFC9>
+    sort-by-namespace: <#79CFC9>네임스페이스 및 경로별로 정렬</#79CFC9>
+    hide-items-without-recipes: <#79CFC9>레시피나 제작 용도가 없는 아이템 숨기기</#79CFC9>
+    hidden-rules-affect-workstations: <#79CFC9>워크스테이션에 숨기기 규칙 적용</#79CFC9>
+    hide-inaccessible: <#79CFC9>액세스할 수 없을 때 슬롯 숨기기 및 회수</#79CFC9>
+    save: <#98C69A>변경 사항 저장</#98C69A>
+    save-tooltip: <#B8C0CC>현재 범주 구성으로 저장</#B8C0CC>
+    cancel: <#E58B8B>취소</#E58B8B>
+    cancel-tooltip: <#B8C0CC>변경 사항을 취소하고 구성 센터로 돌아가기</#B8C0CC>
+  button-editor:
+    title: <bold><#D8B278>사용자 정의 버튼 편집</#D8B278></bold>
+    description: <#B8C0CC>{file}를 변경합니다. 각 동작을 "클릭 유형 | 동작"으로 작성합니다. 클릭 유형의 기본값은 all.</#B8C0CC>입니다.
+    material: <#79CFC9>재료 또는 품목 ID \<material>
+    name: <#79CFC9>버튼 이름 \<name>
+    lore: <#79CFC9>버튼 설명 \<lore>(행당 한 줄)
+    visibility: <#79CFC9>버튼 가시성 \<visibility>
+    visibility-admin: 관리자만
+    visibility-player: 모든 플레이어
+    visibility-permission: 권한 기반
+    permission: <#79CFC9>권한 노드 \<permission>
+    hide-inaccessible: <#79CFC9>액세스할 수 없는 경우 슬롯 숨기기 및 회수 \<hide-inaccessible>
+    actions: '<#79CFC9>버튼 작업 \<actions>(한 줄: 클릭 유형 | 작업)'
+    save: <#98C69A>저장 버튼</#98C69A>
+    save-tooltip: <#B8C0CC>현재 구성에 쓰기</#B8C0CC>
+    cancel: <#E58B8B>취소</#E58B8B>
+    cancel-tooltip: <#B8C0CC>변경 사항을 취소하고 구성 센터로 돌아가기</#B8C0CC>
+  integration-config:
+    title: <#D8B278>통합 및 카테고리 사전 설정</#D8B278>
+    plugins-title: <#D8B278>통합 설정 · 특별히 지원되는 플러그인</#D8B278>
+    resources-title: <#D8B278>통합 설정 · 특별히 적응된 리소스 팩</#D8B278>
+    description: <#B8C0CC>콘텐츠 영역에는 이 서버에서 사용 가능한 통합이 나열됩니다. 활성화된 항목에는 마법의 반짝임이 있습니다. 상태를 변경하려면 항목을 마우스 왼쪽 버튼으로 클릭하거나 마우스 오른쪽 버튼으로 클릭하세요.</#B8C0CC>
+    status: '<#B8C0CC>현재 상태: {status}</#B8C0CC>'
+    left-click: '<#8793A5>왼쪽 클릭: 다음 상태</#8793A5>'
+    right-click: '<#8793A5>오른쪽 클릭: 이전 상태</#8793A5>'
+    page-count: 다른 페이지의 <#B8C0CC>{count} 항목</#B8C0CC>
+    previous-page: <#D8B278>이전 페이지</#D8B278>
+    next-page: <#D8B278>다음 페이지</#D8B278>
+    page-position: <#B8C0CC>페이지 {current} / {pages}</#B8C0CC>
+    preset-detected: <#98C69A>리소스 팩이 감지되었습니다.</#98C69A>
+    preset-applied: <#79CFC9>카테고리 사전 설정 적용됨</#79CFC9>
+    preset-author-mismatch: <#E58B8B>pack.yml 작성자가 사전 설정 선언</#E58B8B>와 일치하지 않습니다.
+    unsupported-label: <#E58B8B>{extension}</#E58B8B>
+    unsupported-reason: '<#E58B8B>사용할 수 없음: {reason}</#E58B8B>'
+    unsupported-file: '<#8793A5>JAR: {file}</#8793A5>'
+    unsupported-version: '<#8793A5>확장 버전: {version}</#8793A5>'
+    unsupported-readonly: <#B8C0CC>이 진단 항목은 현재 서버에서 활성화할 수 없습니다.</#B8C0CC>
+    source-label: <#79CFC9>{plugin}</#79CFC9>
+    preset-label: <#79CFC9>{namespace}</#79CFC9>
+    plugin-heading: <#98C69A>CER는 특별히 지원되는 플러그인을 감지했습니다. 활성화하려면 버튼을 클릭하세요:</#98C69A>
+    resource-heading: <#98C69A>CER는 특별히 적용된 리소스 팩을 감지했습니다. 활성화하려면 버튼을 클릭하세요:</#98C69A>
+    item-enable-tooltip: <#B8C0CC>이 항목에 대한 지원을 활성화하려면 클릭하세요.</#B8C0CC>
+    item-disable-tooltip: <#B8C0CC>이 항목에 대한 지원을 비활성화하려면 클릭하세요.</#B8C0CC>
+    open-resources: <#79CFC9>리소스팩 보기 ▶</#79CFC9>
+    open-plugins: <#E4D397>◀ 플러그인으로 돌아가기</#E4D397>
+    option-ask: <#E4D397>Ask</#E4D397>
+    option-enabled: <#98C69A>Enable</#98C69A>
+    option-disabled: <#E58B8B>비활성화</#E58B8B>
+    enable-all: <#98C69A>감지된 모든 항목 활성화</#98C69A>
+    enable-all-tooltip: <#B8C0CC>현재 감지된 모든 서버 플러그인 및 CE 리소스 팩 사전 설정을 활성화합니다.</#B8C0CC>
+    save: <#98C69A>저장</#98C69A>
+    save-tooltip: <#B8C0CC>선택 사항을 저장하고 요청된 작업을 수행합니다.</#B8C0CC>
+    cancel: <#8793A5>나중에</#8793A5>
+    cancel-tooltip: <#B8C0CC>구성을 변경하지 않고 닫기</#B8C0CC>
+  workstations:
+    title: <#374151>워크스테이션</#374151> <#465D70>»</#465D70> <#293341><category></#293341>
+    title-compact: '<#374151>스테이션</#374151> <#465D70>»</#465D70> <#293341><category></#293341>'
+    categories:
+      crafting: 바닐라·제작대
+      smelting: 바닐라·용광로
+      blasting: 바닐라·용광로
+      smoking: 바닐라·스모커
+      campfire_cooking: 바닐라·캠프파이어
+      stonecutting: 바닐라·스톤커터
+      smithing: 바닐라·스미싱 테이블
+      brewing: 바닐라·브루잉 스탠드
+      cultivation: 재배
+    category-lore:
+    - <#B8C0CC>이 워크스테이션에 대한 레시피 출력을 보려면 클릭하세요.</#B8C0CC>
+    back-name: <#E58B8B>카테고리로 돌아가기</#E58B8B>
+    back-lore:
+    - <#B8C0CC>항목 카테고리 메뉴로 돌아가려면 클릭하세요.</#B8C0CC>
+  recipe:
+    title: <#292D35>레시피 » <name></#292D35>
+    title-crafting: <#292D35>바닐라·제작대</#292D35>
+    title-smelting: <#292D35>바닐라·화로</#292D35>
+    title-blasting: <#292D35>바닐라·용광로</#292D35>
+    title-smoking: <#292D35>바닐라·스모커</#292D35>
+    title-campfire: <#292D35>바닐라·캠프파이어</#292D35>
+    title-stonecutting: <#292D35>바닐라·Stonecutter</#292D35>
+    title-smithing: <#292D35>바닐라·스미딩 테이블</#292D35>
+    title-brewing: <#292D35>바닐라·양조 스탠드</#292D35>
+    title-none: <#292D35>레시피 없음</#292D35>
+  search:
+    dialog-title: <bold><#D8B278>항목 검색</#D8B278></bold>
+    dialog-label: 키워드를 입력하세요
+    dialog-hint: 항목 ID, 표시 이름으로 검색
+    result-title: <bold><#374151>검색 결과</#374151> <#465D70>»</#465D70> <#293341><keyword></#293341></bold>
+    confirm: <#98C69A>검색</#98C69A>
+    confirm-tooltip: <#B8C0CC>키워드로 항목 찾기</#B8C0CC>
+    cancel: <#E58B8B>취소</#E58B8B>
+    cancel-tooltip: <#B8C0CC>검색 대화 상자 닫기</#B8C0CC>
+  common:
+    all-items: 모든 항목
+    unknown: 지정되지 않음
+    first-page: <#8793A5>이미 첫 페이지에 있습니다</#8793A5>
+    last-page: <#8793A5>이미 마지막 페이지에 있습니다</#8793A5>
+    no-recipe: <#B8C0CC>이 항목에는 레시피가 없습니다.</#B8C0CC>
+    no-usage: <#B8C0CC>이 항목은 용도가 없습니다.</#B8C0CC>
+    dynamic-result: <#B8C0CC>실제 입력 항목에 따라 결과가 달라집니다.</#B8C0CC>
+  vanilla-items:
+    name: 바닐라 아이템
+logs:
+  debug-export-failed: 레시피 진단 파일을 내보내지 못했습니다.
+  recipe-source-ready: '레시피 소스 {source} 업데이트됨: {count} 레시피 표시; 파일: {files}'
+  recipe-source-exported: '{count} {source} 레시피를 {files} 워크스테이션 파일로 내보냈습니다. recipe/는 이제 유일한 런타임 소스입니다.'
+  recipe-files-reloaded: '변경된 레시피 파일: {files}; {count} 디스플레이 레시피가 자동으로 다시 로드되었습니다.'
+  session-save-failed: '플레이어 메뉴 위치 저장 실패: {error}'
+  session-load-failed: '플레이어 메뉴 위치를 복원하지 못했습니다. 기본 보기 열기: {error}'
+  recipe-source-failed: '레시피 소스 {source}를 업데이트할 수 없습니다. 마지막 유효한 데이터 유지: {error}'
+  plugin-fingerprint-mismatch: 플러그인 {plugin}가 발견되었지만 메인 클래스 {actual}가 예상 {expected}와 일치하지 않습니다. 레시피 소스가 무시되었습니다.
+  integration-setup-waiting: '구성 대기 중인 CER 통합이 감지되었습니다: {plugins}. 관리자가 온라인 상태가 아닙니다. 참여하면 클릭 가능한 설정 프롬프트가 나타납니다.'
+  category-preset-linked-applied: '활성화된 통합에 연결된 적용된 카테고리 사전 설정: {namespaces}'
+  integration-config-waiting: '{plugins} 보류 중인 통합 및 {presets} 카테고리 사전 설정이 감지되었습니다. 관리자가 온라인 상태가 아닙니다. 가입하면 관리 페이지 항목이 나타납니다.'
+  update-available: '새 버전 {latest}를 사용할 수 있습니다(현재 {current}): {url}'
+  update-check-failed: 'GitHub에서 업데이트를 확인할 수 없습니다. 다음 시작 시 다시 시도하거나 플러그인에 영향을 주지 않고 다시 로드합니다: {error}'
+  compatibility-fallback: 호환성 작업 {operation}가 실패했습니다. 기존 대체를 유지합니다. 각 호출 사이트는 데이터 생성당 한 번씩 기록됩니다. 예외 세부정보는 다음과 같습니다.
+  search-input-failed: 검색 입력을 읽지 못했습니다. 메뉴로 돌아갑니다.
+  config-invalid-id: '잘못 구성된 ID: {path} = {value}; 기존 대체 동작을 유지합니다. 네임스페이스와 경로를 확인하세요.'
+  config-invalid-material: '알 수 없는 구성 자료: {path} = {value}; 기존 대체 동작을 유지합니다.'
+  config-missing-category: '구성된 CraftEngine 카테고리가 존재하지 않습니다: {path} = {value}; 구성을 유지합니다. 철자를 확인하고 해당 팩이 로드되었는지 확인하세요.'
+  config-update-failed: '누락된 config.yml 기본값을 추가하지 못했습니다. 원본 파일 보관: {error}'
+  search-pack-ready: '로드된 리소스 팩 번역: {count} 키, {files} 언어 파일, 경로 {path}'
+  search-pack-failed: '리소스 팩 번역을 읽지 못했습니다: {path} ({error}); 기존 이름 및 ID 검색을 사용합니다. 팩을 생성한 후 /cer reload를 실행합니다.'
+  search-pack-skipped: '잘못된 리소스 팩 언어 파일을 건너뛰었습니다: {error}'
+  hand-resolve-failed: '주요 아이템 식별 실패: {error}'
+  target-block-resolve-failed: '대상 블록 식별 실패: {error}'
+  player-task-failed: 플레이어 메뉴 작업을 실행하지 못했습니다.
+  folia-op-unsupported: '임시 OP 작업은 Folia에서 실행되지 않고 작업 체인을 중지합니다. 명시적인 console: 명령을 사용하거나 플레이어에게 명령 권한을 부여하세요.'
+  enabled: CraftEngineRecipe가 활성화되었습니다. 데이터 캐시 초기화 중...
+  disabled: CraftEngineRecipe가 비활성화되었습니다.
+  pack-install-failed: '번들 리소스 팩 준비 실패: {error}'
+  pack-copy-ready: '{path}에서 로컬 리소스 복사 준비됨({count} 파일 복원됨, 기존 파일 보존됨)'
+  pack-first-installed: '{path}에 처음으로 설치된 리소스({count} 파일 추가됨) 나중에 다시 시작하거나 다시 로드하면 CraftEngine 리소스가 그대로 유지됩니다.'
+  data-ready: 'CraftEngineRecipe 데이터 준비됨: {items} 항목, {categories} 최상위 카테고리, {elapsed} ms 총계(배치 간 시간 포함)'
+  data-build-failed: CraftEngineRecipe 데이터를 구축하지 못했습니다.
+  metrics-ready: bStats가 초기화되었습니다.
+  metrics-failed: 'bStats 초기화에 실패했습니다. 레시피 검색은 영향을 받지 않습니다: {error}'
+  category-read-failed: '카테고리 구성을 읽지 못했습니다: {file}'
+  category-save-failed: '카테고리 네임스페이스 구성을 저장하지 못했습니다: {error}'
+  unapplied-save-failed: '적용되지 않은 항목 구성을 저장하지 못했습니다: {error}'
+  result-query-failed: '출력 레시피를 쿼리하지 못했습니다({id}): {error}'
+  usage-query-failed: '성분 사용 쿼리 실패({id}): {error}'
+  layout-reserved: '레이아웃 충돌: 버튼이 예약된 # 문자를 사용하므로 표시되지 않습니다.'
+  layout-conflict: '레이아웃 충돌: 버튼 문자 {symbol}는 카테고리/콘텐츠 슬롯에서 사용되며 표시되지 않습니다.'
+  language-unknown: 지원되지 않는 언어 {locale}; 영어를 사용합니다.
+  language-detected: '감지된 서버 로케일: {locale}.'
+  language-save-failed: '언어 파일을 추출하지 못했습니다. 번들 번역 사용: {error}'
+  language-update-failed: '{file}에 누락된 번역을 추가하지 못했습니다. 원본 파일 보관: {error}'
+  language-read-failed: '언어 파일 {file}를 읽지 못했습니다. 번들 또는 대체 번역 사용: {error}'
+headers:
+  unapplied: 'CraftEngineRecipe 未应用条目 / 적용되지 않은 항목
+
+    此文件列 未进入 카테고리.yml 의 命名 空间 와 사용자 정의 义按钮
+
+    카테고리.yml에 없는 네임스페이스 및 사용자 정의 버튼을 나열합니다.
+
+    将需要的条目复到범주.yml 의 항목 中，调整可见性后 /cer reload
+
+    원하는 항목을 Navigation/categories.yml에 복사하고 가시성을 조정한 다음 /cer reload를 실행합니다.
+
+    已应用 条目는 重载后移除, 其他条目保留원유를 가지고 있습니다.
+
+    다시 로드하면 적용된 항목이 제거됩니다. 다른 항목은 해당 속성을 유지합니다.'

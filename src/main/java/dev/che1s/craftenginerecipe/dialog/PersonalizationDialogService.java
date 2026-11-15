@@ -3,6 +3,7 @@ package dev.che1s.craftenginerecipe.dialog;
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSession;
+import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import dev.che1s.craftenginerecipe.preferences.PlayerPreferences;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.dialog.DialogResponseView;
@@ -25,6 +26,7 @@ public final class PersonalizationDialogService {
     private static final String MENU_PACK_KEY = "cer_personalization_menu_pack";
     private static final String REMEMBER_KEY = "cer_personalization_remember";
     private static final String MAIN_PAGE_KEY = "cer_personalization_main_page";
+    private static final String LANGUAGE_KEY = "cer_personalization_language";
 
     private final CraftEngineRecipePlugin plugin;
 
@@ -35,6 +37,7 @@ public final class PersonalizationDialogService {
     public boolean open(Player player) {
         PlayerPreferences preferences = this.plugin.playerPreferences();
         if (preferences == null || !preferences.enabled()) return false;
+        LanguageManager.Localized language = this.plugin.lang(player);
         List<String> packs = preferences.menuPacks().stream()
                 .filter(pack -> this.plugin.browser(pack) != null)
                 .toList();
@@ -51,55 +54,63 @@ public final class PersonalizationDialogService {
         for (String pack : packs) {
             entries.add(SingleOptionDialogInput.OptionEntry.create(pack,
                     net.kyori.adventure.text.Component.text(
-                            plainMenuName(this.plugin.menuPackDisplayName(pack), pack)),
+                            plainMenuName(this.plugin.menuPackDisplayName(pack, language.locale()), pack)),
                     pack.equals(selected)));
         }
         SingleOptionDialogInput menuInput = DialogInput.singleOption(MENU_PACK_KEY,
-                        this.plugin.lang().component("ui.personalization.menu-pack-label"), entries)
+                        language.component("ui.personalization.menu-pack-label"), entries)
                 .width(300)
                 .labelVisible(true)
                 .build();
         SingleOptionDialogInput mainPageInput = DialogInput.singleOption(MAIN_PAGE_KEY,
-                        this.plugin.lang().component("ui.personalization.main-page-label"), List.of(
+                        language.component("ui.personalization.main-page-label"), List.of(
                                 SingleOptionDialogInput.OptionEntry.create("namespaces",
-                                        this.plugin.lang().component("ui.personalization.main-page-namespaces"),
+                                        language.component("ui.personalization.main-page-namespaces"),
                                         landingPage == PlayerPreferences.LandingPage.NAMESPACES),
                                 SingleOptionDialogInput.OptionEntry.create("workstations",
-                                        this.plugin.lang().component("ui.personalization.main-page-workstations"),
+                                        language.component("ui.personalization.main-page-workstations"),
                                         landingPage == PlayerPreferences.LandingPage.WORKSTATIONS)))
                 .width(300)
                 .labelVisible(true)
                 .build();
+        String selectedLanguage = preferences.language(
+                player.getUniqueId(), this.plugin.lang().locale());
+        SingleOptionDialogInput languageInput = DialogInput.singleOption(LANGUAGE_KEY,
+                        language.component("ui.personalization.language-label"),
+                        languageOptions(language, selectedLanguage))
+                .width(300)
+                .labelVisible(true)
+                .build();
         var rememberInput = DialogInput.bool(REMEMBER_KEY,
-                        this.plugin.lang().component("ui.personalization.remember-label"))
+                        language.component("ui.personalization.remember-label"))
                 .initial(preferences.rememberLastPage(player.getUniqueId()))
-                .onTrue(this.booleanText(true))
-                .onFalse(this.booleanText(false))
+                .onTrue(this.booleanText(language, true))
+                .onFalse(this.booleanText(language, false))
                 .build();
 
         ActionButton save = ActionButton.create(
-                this.plugin.lang().component("ui.personalization.save"),
-                this.plugin.lang().component("ui.personalization.save-tooltip"),
+                language.component("ui.personalization.save"),
+                language.component("ui.personalization.save-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) ->
                                 this.save(player, view, generation, snapshot, source, packs),
                         ClickCallback.Options.builder().uses(1)
                                 .lifetime(Duration.ofMinutes(5L)).build()));
         ActionButton cancel = ActionButton.create(
-                this.plugin.lang().component("ui.personalization.cancel"),
-                this.plugin.lang().component("ui.personalization.cancel-tooltip"),
+                language.component("ui.personalization.cancel"),
+                language.component("ui.personalization.cancel-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) ->
                                 this.schedule(player, generation, () -> this.reopen(player, source, snapshot)),
                         ClickCallback.Options.builder().uses(1)
                                 .lifetime(Duration.ofMinutes(5L)).build()));
         Dialog dialog = Dialog.create(factory -> factory.empty()
-                .base(DialogBase.builder(this.plugin.lang().component("ui.personalization.title"))
+                .base(DialogBase.builder(language.component("ui.personalization.title"))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
-                                this.plugin.lang().component("ui.personalization.description"))))
-                        .inputs(List.of(menuInput, mainPageInput, rememberInput))
+                                language.component("ui.personalization.description"))))
+                        .inputs(List.of(menuInput, mainPageInput, languageInput, rememberInput))
                         .build())
                 .type(DialogType.confirmation(save, cancel)));
         this.plugin.browser(player).leaveForDialog(player);
@@ -110,24 +121,36 @@ public final class PersonalizationDialogService {
     private void save(Player player, DialogResponseView view, long generation,
                       GuiSession.Snapshot snapshot, BrowserService source, List<String> packs) {
         String menuPack = view.getText(MENU_PACK_KEY);
+        String language = language(view.getText(LANGUAGE_KEY));
         PlayerPreferences.LandingPage landingPage = landingPage(view.getText(MAIN_PAGE_KEY));
         Boolean remember = view.getBoolean(REMEMBER_KEY);
-        if (menuPack == null || !packs.contains(menuPack) || landingPage == null || remember == null) return;
+        if (menuPack == null || !packs.contains(menuPack) || landingPage == null
+                || remember == null || language == null) {
+            return;
+        }
         this.schedule(player, generation, () -> {
             PlayerPreferences preferences = this.plugin.playerPreferences();
             PlayerPreferences.LandingPage previousLanding = preferences.landingPage(player.getUniqueId());
+            String previousLanguage = preferences.language(
+                    player.getUniqueId(), this.plugin.lang().locale());
             if (!preferences.setMenuPack(player.getUniqueId(), menuPack)) return;
             preferences.setRememberLastPage(player.getUniqueId(), remember);
             preferences.setLandingPage(player.getUniqueId(), landingPage);
+            preferences.setLanguage(player.getUniqueId(), language);
             boolean landingChanged = previousLanding != landingPage;
-            if (!remember || landingChanged) this.plugin.sessions().clear(player.getUniqueId());
-            player.sendMessage(this.plugin.lang().message("messages.personalization-saved",
-                    "menu", plainMenuName(this.plugin.menuPackDisplayName(menuPack), menuPack),
-                    "main", this.plugin.lang().text(landingPage == PlayerPreferences.LandingPage.WORKSTATIONS
+            boolean languageChanged = !previousLanguage.equals(language);
+            if (!remember || landingChanged || languageChanged) {
+                this.plugin.sessions().clear(player.getUniqueId());
+            }
+            LanguageManager.Localized localized = this.plugin.lang(player);
+            player.sendMessage(localized.message("messages.personalization-saved",
+                    "menu", plainMenuName(
+                            this.plugin.menuPackDisplayName(menuPack, language), menuPack),
+                    "main", localized.text(landingPage == PlayerPreferences.LandingPage.WORKSTATIONS
                             ? "ui.personalization.main-page-workstations"
                             : "ui.personalization.main-page-namespaces"),
-                    "remember", this.booleanText(remember)));
-            this.switchAndReopen(player, menuPack, snapshot, landingChanged);
+                    "remember", this.booleanText(localized, remember)));
+            this.switchAndReopen(player, menuPack, snapshot, landingChanged || languageChanged);
         });
     }
 
@@ -139,7 +162,8 @@ public final class PersonalizationDialogService {
         }
         GuiSession.clear(player);
         this.plugin.tasks().playerLater(player, () -> {
-            BrowserService selected = this.plugin.browser(menuPack);
+            BrowserService selected = this.plugin.browser(
+                    menuPack, this.plugin.lang(player).locale());
             boolean opened = selected != null && (landingChanged
                     ? this.openResetLanding(selected, player)
                     : selected.openSnapshot(player, snapshot));
@@ -172,9 +196,9 @@ public final class PersonalizationDialogService {
         });
     }
 
-    private String booleanText(boolean value) {
-        boolean chinese = this.plugin.lang().locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
-        return this.plugin.lang().textOr(
+    private String booleanText(LanguageManager.Localized language, boolean value) {
+        boolean chinese = language.locale().toLowerCase(java.util.Locale.ROOT).startsWith("zh");
+        return language.textOr(
                 value ? "ui.personalization.on" : "ui.personalization.off",
                 value ? (chinese ? "开启" : "Enabled") : (chinese ? "关闭" : "Disabled"));
     }
@@ -194,5 +218,26 @@ public final class PersonalizationDialogService {
             case "workstations" -> PlayerPreferences.LandingPage.WORKSTATIONS;
             default -> null;
         };
+    }
+
+    static String language(String value) {
+        return LanguageManager.normalizeSupportedLocale(value);
+    }
+
+    private static List<SingleOptionDialogInput.OptionEntry> languageOptions(
+            LanguageManager.Localized language, String selected) {
+        List<String[]> choices = List.of(
+                new String[]{"en_US", "language-en"},
+                new String[]{"zh_CN", "language-zh"},
+                new String[]{"ja_JP", "language-ja"},
+                new String[]{"ko_KR", "language-ko"},
+                new String[]{"zh_TW", "language-zh-tw"},
+                new String[]{"de_DE", "language-de"},
+                new String[]{"fr_FR", "language-fr"},
+                new String[]{"es_ES", "language-es"},
+                new String[]{"ru_RU", "language-ru"});
+        return choices.stream().map(choice -> SingleOptionDialogInput.OptionEntry.create(
+                choice[0], language.component("ui.personalization." + choice[1]),
+                selected.equals(choice[0]))).toList();
     }
 }
