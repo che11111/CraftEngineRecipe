@@ -427,8 +427,8 @@ final class ManagementBrowserService {
         var meta = stack.getItemMeta();
         meta.displayName(name);
         List<Component> lore = new ArrayList<>();
-        lore.add(lang.component("ui.integration-config.status",
-                "status", lang.text(modeKey(mode))));
+        lore.add(lang.componentWith("ui.integration-config.status", "status",
+                lang.component(modeKey(mode))));
         lore.addAll(extra);
         lore.add(lang.component("ui.integration-config.left-click"));
         lore.add(lang.component("ui.integration-config.right-click"));

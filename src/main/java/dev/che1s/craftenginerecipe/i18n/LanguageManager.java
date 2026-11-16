@@ -232,6 +232,11 @@ public final class LanguageManager {
         return this.view(this.serverLocale).component(key, arguments);
     }
 
+    public Component componentWith(String key, String argument, Component replacement,
+                                   String... arguments) {
+        return this.view(this.serverLocale).componentWith(key, argument, replacement, arguments);
+    }
+
     public Component componentOr(String key, String fallback, String... arguments) {
         return this.view(this.serverLocale).componentOr(key, fallback, arguments);
     }
@@ -241,10 +246,19 @@ public final class LanguageManager {
     }
 
     private static Component render(String template, String... arguments) {
+        return render(template, Map.of(), arguments);
+    }
+
+    private static Component render(String template, Map<String, Component> componentArguments,
+                                    String... arguments) {
         Map<String, String> replacements = arguments(arguments);
         return MINI.deserialize(template).replaceText(builder -> builder.match(ARGUMENT)
-                .replacement((match, ignored) -> Component.text(
-                        replacements.getOrDefault(match.group(1), match.group()))));
+                .replacement((match, ignored) -> {
+                    String name = match.group(1);
+                    Component replacement = componentArguments.get(name);
+                    return replacement != null ? replacement
+                            : Component.text(replacements.getOrDefault(name, match.group()));
+                }));
     }
 
     static String format(String template, String... arguments) {
@@ -323,6 +337,11 @@ public final class LanguageManager {
 
         public Component component(String key, String... arguments) {
             return render(this.text(key), arguments);
+        }
+
+        public Component componentWith(String key, String argument, Component replacement,
+                                       String... arguments) {
+            return render(this.text(key), Map.of(argument, replacement), arguments);
         }
 
         public Component componentOr(String key, String fallback, String... arguments) {

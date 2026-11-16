@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-/** 使用全局区域数据收集器替代 BukkitScheduler 的官方 bStats 传输实现。 */
-final class RegionMetrics {
+/** 使用全局区域调度器替代 BukkitScheduler 的 bStats 兼容实现。 */
+final class FoliaCompatibleMetrics {
     private final MetricsBase base;
 
-    RegionMetrics(CraftEngineRecipePlugin plugin, int serviceId) throws IOException {
+    FoliaCompatibleMetrics(CraftEngineRecipePlugin plugin, int serviceId) throws IOException {
         File file = new File(plugin.getDataFolder().getParentFile(), "bStats/config.yml");
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         if (!config.isSet("serverUuid")) {
@@ -32,7 +32,7 @@ final class RegionMetrics {
             config.save(file);
         }
         this.base = new MetricsBase("bukkit", config.getString("serverUuid"), serviceId,
-                config.getBoolean("enabled", true), RegionMetrics::platformData,
+                config.getBoolean("enabled", true), FoliaCompatibleMetrics::platformData,
                 data -> serviceData(data, plugin.getPluginMeta().getVersion()),
                 action -> {
                     if (plugin.isEnabled()) plugin.tasks().global(action);

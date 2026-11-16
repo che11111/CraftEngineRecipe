@@ -1,5 +1,8 @@
 package dev.che1s.craftenginerecipe.i18n;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -8,6 +11,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class LanguageSelectionTest {
     @TempDir Path directory;
@@ -52,5 +56,38 @@ class LanguageSelectionTest {
         assertEquals("en_US", language.locale());
         assertEquals("Command not found", language.view("en_US").textOr(
                 "messages.missing", "Command not found"));
+    }
+
+    @Test
+    void componentsCanRenderStyledArgumentsWithoutLeakingTags() {
+        LanguageManager language = new LanguageManager(this.directory,
+                resource -> getClass().getClassLoader().getResourceAsStream(resource),
+                Logger.getAnonymousLogger());
+        LanguageManager.Localized chinese = language.view("zh_CN");
+        String[] options = {"option-enabled", "option-disabled", "option-ask"};
+        String[] labels = {"启用", "禁用", "询问"};
+        int[] colors = {0x98C69A, 0xE58B8B, 0xE4D397};
+
+        for (int index = 0; index < options.length; index++) {
+            Component status = chinese.componentWith("ui.integration-config.status",
+                    "status", chinese.component("ui.integration-config." + options[index]));
+            String plain = PlainTextComponentSerializer.plainText().serialize(status);
+
+            assertEquals("当前状态：" + labels[index], plain);
+            assertFalse(plain.contains("<#"));
+            assertEquals(TextColor.color(colors[index]), colorOfText(status, labels[index]));
+        }
+    }
+
+    private static TextColor colorOfText(Component component, String text) {
+        if (PlainTextComponentSerializer.plainText().serialize(component).equals(text)
+                && component.color() != null) {
+            return component.color();
+        }
+        for (Component child : component.children()) {
+            TextColor color = colorOfText(child, text);
+            if (color != null) return color;
+        }
+        return null;
     }
 }
