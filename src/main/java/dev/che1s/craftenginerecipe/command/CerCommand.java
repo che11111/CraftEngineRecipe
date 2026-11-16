@@ -149,6 +149,50 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             }
             return true;
         }
+        if (args.length > 0 && args[0].equalsIgnoreCase("getbook")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(this.lang(sender).message("messages.player-only"));
+                return true;
+            }
+            if (!this.plugin.recipeBook().enabled()) {
+                sender.sendMessage(this.lang(sender).message("messages.recipe-book-disabled"));
+                return true;
+            }
+            sender.sendMessage(this.lang(sender).message(this.plugin.recipeBook().give(player)
+                    ? "messages.recipe-book-given" : "messages.recipe-book-not-ready"));
+            return true;
+        }
+        if (args.length > 0 && args[0].equalsIgnoreCase("givebook")) {
+            if (!sender.hasPermission("craftenginerecipe.admin")) {
+                sender.sendMessage(this.lang(sender).message("messages.no-permission"));
+                return true;
+            }
+            if (!this.plugin.recipeBook().enabled()) {
+                sender.sendMessage(this.lang(sender).message("messages.recipe-book-disabled"));
+                return true;
+            }
+            if (args.length < 2) {
+                sender.sendMessage(this.lang(sender).message("messages.recipe-book-give-usage"));
+                return true;
+            }
+            Player target = Bukkit.getPlayerExact(args[1]);
+            if (target == null) {
+                sender.sendMessage(this.lang(sender).message(
+                        "messages.recipe-book-player-not-found", "player", args[1]));
+                return true;
+            }
+            if (!this.plugin.recipeBook().give(target)) {
+                sender.sendMessage(this.lang(sender).message("messages.recipe-book-not-ready"));
+                return true;
+            }
+            target.sendMessage(this.plugin.lang(target).message("messages.recipe-book-given"));
+            if (!(sender instanceof Player player)
+                    || !player.getUniqueId().equals(target.getUniqueId())) {
+                sender.sendMessage(this.lang(sender).message(
+                        "messages.recipe-book-given-other", "player", target.getName()));
+            }
+            return true;
+        }
         if (!(sender instanceof Player)) {
             sender.sendMessage(this.lang(sender).message("messages.player-only"));
             return true;
@@ -198,11 +242,13 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             this.plugin.browser(player).openNamespaceManager(player);
             return true;
         }
-        if (args.length > 0 && args[0].equalsIgnoreCase("craft")) {
+        if (args.length > 0 && (args[0].equalsIgnoreCase("craft")
+                || args[0].equalsIgnoreCase("table"))) {
             this.plugin.browser(player).openWorkstationBrowser(player);
             return true;
         }
-        if (args.length > 0 && args[0].equalsIgnoreCase("items")) {
+        if (args.length > 0 && (args[0].equalsIgnoreCase("items")
+                || args[0].equalsIgnoreCase("item"))) {
             this.plugin.browser(player).openNamespaceBrowser(player);
             return true;
         }
@@ -242,8 +288,21 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             if ("craft".startsWith(prefix)) {
                 out.add("craft");
             }
+            if ("table".startsWith(prefix)) {
+                out.add("table");
+            }
             if ("items".startsWith(prefix)) {
                 out.add("items");
+            }
+            if ("item".startsWith(prefix)) {
+                out.add("item");
+            }
+            if (this.plugin.recipeBook().enabled() && "getbook".startsWith(prefix)) {
+                out.add("getbook");
+            }
+            if (sender.hasPermission("craftenginerecipe.admin")
+                    && this.plugin.recipeBook().enabled() && "givebook".startsWith(prefix)) {
+                out.add("givebook");
             }
             if (sender.hasPermission("craftenginerecipe.admin") && "reload".startsWith(prefix)) {
                 out.add("reload");
@@ -285,6 +344,13 @@ public final class CerCommand implements CommandExecutor, TabCompleter {
             String prefix = args[args.length - 1].toLowerCase(Locale.ROOT);
             return this.plugin.menuPacks().enabled().stream()
                     .filter(option -> option.startsWith(prefix)).toList();
+        }
+        if (sender.hasPermission("craftenginerecipe.admin") && args.length == 2
+                && args[0].equalsIgnoreCase("givebook")) {
+            String prefix = args[1].toLowerCase(Locale.ROOT);
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                    .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
+                    .sorted(String.CASE_INSENSITIVE_ORDER).toList();
         }
         if (sender.hasPermission("craftenginerecipe.admin") && args.length >= 2 && args[0].equalsIgnoreCase("debug")) {
             List<String> options = args.length == 2 ? List.of("recipes", "performance")

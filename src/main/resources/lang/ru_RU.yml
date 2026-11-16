@@ -17,7 +17,19 @@ messages:
   debug-performance-note: <#8793A5>Timings могут быть вложенными и не могут быть добавлены в процентное соотношение ЦП сервера. Сбросьте настройки, воспроизведите замедление, затем проверьте; используйте искру для стеков вызовов. Глобальный TPS/MSPT может быть недоступен на Folia.</#8793A5>
   no-permission: <#E58B8B>У вас нет разрешения на это.</#E58B8B>
   player-only: <#E58B8B>Эту команду может использовать только игрок. </#E58B8B>
+  recipe-book-disabled: <#E58B8B>Функция книги рецептов CER отключена.</#E58B8B>
+  recipe-book-not-ready: <#E4D397>Предмет книги рецептов ещё не готов; повторите после загрузки CraftEngine.</#E4D397>
+  recipe-book-given: <#98C69A>Вы получили книгу рецептов CER.</#98C69A>
+  recipe-book-given-other: <#98C69A>Книга рецептов CER выдана игроку {player}.</#98C69A>
+  recipe-book-give-usage: '<#E4D397>Использование: /cer givebook &lt;игрок&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>Игрок не найден или не в сети: {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>Вторая рука пуста.</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>Предмет во второй руке отсутствует в индексе рецептов.</#E58B8B>
+  offhand-no-recipe: <#E58B8B>Нет рецепта, создающего предмет во второй руке.</#E58B8B>
+  offhand-no-usage: <#E58B8B>Предмет во второй руке не используется ни в одном проиндексированном рецепте.</#E58B8B>
+  target-block-no-usage: <#E58B8B>Предмет блока под прицелом не используется ни в одном проиндексированном рецепте.</#E58B8B>
   personalization-saved: '<#98C69A>Настройки сохранены: стиль меню {menu}, главная страница по умолчанию {main}, восстановить позицию: {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>Ваши настройки восстановлены до серверных значений по умолчанию.</#98C69A>
   unapplied-updated: <#98C69A>Обновлено пространство имен {namespace} в {file}.</#98C69A>
   unapplied-update-failed: <#E58B8B>Пространство имен {namespace} не найдено; {file} не был изменен. </#E58B8B>
   unapplied-permission-required: Узел разрешений <#E58B8B>A требуется, если для видимости установлено разрешение. </#E58B8B>
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>Здесь ничего нет</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·Книга рецептов</#D4AF37>'
+    lore:
+      - '<#B8C0CC>ЛКМ: {left}</#B8C0CC>'
+      - '<#B8C0CC>ПКМ: {right}</#B8C0CC>'
+      - '<#B8C0CC>Присесть + ЛКМ: {sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>Присесть + ПКМ: {sneak-right}</#B8C0CC>'
+      - '<#8793A5>Можно изменить в персональных настройках</#8793A5>'
   personalization:
     title: <bold><#D8B278>Персонализация</#D8B278></bold>
     description: <#B8C0CC>Выберите стиль меню и главную страницу по умолчанию, а также будет ли повторное открытие восстанавливать вашу последнюю позицию. </#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Восстановить последнюю позицию после закрытия </#79CFC9>
+    book-left-label: <#79CFC9>Книга рецептов · ЛКМ</#79CFC9>
+    book-right-label: <#79CFC9>Книга рецептов · ПКМ</#79CFC9>
+    book-sneak-left-label: <#79CFC9>Книга рецептов · Присесть + ЛКМ</#79CFC9>
+    book-sneak-right-label: <#79CFC9>Книга рецептов · Присесть + ПКМ</#79CFC9>
+    book-action-auto-left: 'Авто · Вторая рука пуста: предметы; с предметом: рецепт создания'
+    book-action-auto-right: 'Авто · Вторая рука пуста: верстаки; с предметом: использование рецепта'
+    book-action-item-page: Открыть категории предметов
+    book-action-table-page: Открыть категории верстаков
+    book-action-search: Открыть поиск
+    book-action-offhand: Найти рецепт предмета во второй руке
+    book-action-offhand-usage: Найти использование предмета во второй руке
+    book-action-target: Найти рецепт блока под прицелом
+    book-action-target-usage: Найти использование блока под прицелом
+    book-action-personalization: Открыть настройки
+    get-book: <#E79A45>Получить книгу рецептов</#E79A45>
+    get-book-tooltip: <#B8C0CC>Добавить книгу рецептов CER в инвентарь</#B8C0CC>
+    restore-defaults: <#E58B8B>Восстановить настройки по умолчанию</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>Сбросить настройки меню, языка, сеанса и книги рецептов</#B8C0CC>
     true: Включено
     false: Отключено
     save: <#98C69A>Сохранить настройки</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Данные и производительность</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>Настройки книги рецептов CER</#D8B278></bold>
     description: <#B8C0CC>Изменить часто изменяемые настройки. При сохранении индексы перестраиваются; подробные комментарии остаются доступными для редактирования в config.yml.</#B8C0CC>
     save: <#98C69A>Сохранить и перезагрузить</#98C69A>
     save-tooltip: <#B8C0CC>Запишите config.yml и перестройте индексы меню и данных.</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>Данные и производительность</#79CFC9>
     open-general: <#79CFC9>Общие настройки</#79CFC9>
     open-page-tooltip: <#B8C0CC>Перейти на другую страницу настроек без сохранения этого диалога</#B8C0CC>
+    open-recipe-book: <#79CFC9>Настройки книги рецептов</#79CFC9>
+    recipe-book-enabled: <#79CFC9>Включить книгу рецептов CER</#79CFC9>
+    recipe-book-name: <#79CFC9>Название книги рецептов</#79CFC9>
+    recipe-book-lore: '<#79CFC9>Описание книги; поддерживает {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
     landing-page: <#79CFC9>Целевая страница по умолчанию</#79CFC9>
     landing-namespaces: Категории товаров
     landing-workstations: Рабочие станции

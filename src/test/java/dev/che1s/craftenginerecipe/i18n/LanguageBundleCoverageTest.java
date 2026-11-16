@@ -162,6 +162,22 @@ class LanguageBundleCoverageTest {
                 CraftEngineData.searchLanguages(List.of("ja_jp", "zh_cn", "en_us", "ja_jp")));
     }
 
+    @Test
+    void recipeBookDefaultsAreLocalizedForEveryBundledLanguage() throws Exception {
+        Path directory = Path.of("src/main/resources/lang");
+        for (String locale : LanguageManager.supportedLocales()) {
+            Map<String, String> values = read(directory.resolve(locale + ".yml"));
+            String name = values.get("ui.recipe-book.name");
+            assertNotNull(name, locale);
+            assertTrue(name.contains("CER·"), locale);
+            assertTrue(name.contains("#D4AF37"), locale);
+            for (int line = 0; line < 5; line++) {
+                assertNotNull(values.get("ui.recipe-book.lore." + line),
+                        locale + " lore " + line);
+            }
+        }
+    }
+
     private Map<String, String> read(Path file) throws Exception {
         Object root;
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {

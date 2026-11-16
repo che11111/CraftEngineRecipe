@@ -17,7 +17,19 @@ messages:
   debug-performance-note: <#8793A5>Timings는 중첩될 수 있으며 서버 CPU 비율에 추가될 수 없습니다. 재설정하고 속도 저하를 재현한 다음 검사합니다. 호출 스택에 스파크를 사용하십시오. Folia.</#8793A5>에서는 글로벌 TPS/MSPT를 사용하지 못할 수 있습니다.
   no-permission: <#E58B8B>이 작업을 수행할 권한이 없습니다.</#E58B8B>
   player-only: <#E58B8B>이 명령은 플레이어만 사용할 수 있습니다.</#E58B8B>
+  recipe-book-disabled: <#E58B8B>CER 레시피 북 기능이 비활성화되어 있습니다.</#E58B8B>
+  recipe-book-not-ready: <#E4D397>레시피 북 아이템이 아직 준비되지 않았습니다. CraftEngine 로딩 후 다시 시도하세요.</#E4D397>
+  recipe-book-given: <#98C69A>CER 레시피 북을 받았습니다.</#98C69A>
+  recipe-book-given-other: <#98C69A>{player}에게 CER 레시피 북을 지급했습니다.</#98C69A>
+  recipe-book-give-usage: '<#E4D397>사용법: /cer givebook &lt;플레이어 이름&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>플레이어를 찾을 수 없거나 접속 중이 아닙니다: {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>보조 손이 비어 있습니다.</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>보조 손 아이템을 레시피 색인에서 찾을 수 없습니다.</#E58B8B>
+  offhand-no-recipe: <#E58B8B>보조 손 아이템을 생산하는 레시피가 없습니다.</#E58B8B>
+  offhand-no-usage: <#E58B8B>보조 손 아이템은 색인된 레시피에서 사용되지 않습니다.</#E58B8B>
+  target-block-no-usage: <#E58B8B>조준 블록 아이템은 색인된 레시피에서 사용되지 않습니다.</#E58B8B>
   personalization-saved: '<#98C69A>기본 설정 저장됨: 메뉴 스타일 {menu}, 기본 메인 페이지 {main}, 복원 위치: {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>개인 설정을 서버 기본값으로 복원했습니다.</#98C69A>
   unapplied-updated: <#98C69A>{file}.</#98C69A>의 네임스페이스 {namespace}가 업데이트되었습니다.
   unapplied-update-failed: <#E58B8B>Namespace {namespace}를 찾을 수 없습니다. {file}가 변경되지 않았습니다.</#E58B8B>
   unapplied-permission-required: 가시성이 권한으로 설정된 경우 <#E58B8B>A 권한 노드가 필요합니다.</#E58B8B>
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>여기에 아무것도 없습니다</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·레시피 북</#D4AF37>'
+    lore:
+      - '<#B8C0CC>왼쪽 클릭: {left}</#B8C0CC>'
+      - '<#B8C0CC>오른쪽 클릭: {right}</#B8C0CC>'
+      - '<#B8C0CC>웅크리기 + 왼쪽 클릭: {sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>웅크리기 + 오른쪽 클릭: {sneak-right}</#B8C0CC>'
+      - '<#8793A5>개인 설정에서 변경할 수 있습니다</#8793A5>'
   personalization:
     title: <bold><#D8B278>개인화</#D8B278></bold>
     description: <#B8C0CC>메뉴 스타일과 기본 메인 페이지를 선택하고 다시 열면 마지막 위치가 복원되는지 여부를 선택하세요.</#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>마감 후 마지막 위치 복원</#79CFC9>
+    book-left-label: <#79CFC9>레시피 북 · 왼쪽 클릭</#79CFC9>
+    book-right-label: <#79CFC9>레시피 북 · 오른쪽 클릭</#79CFC9>
+    book-sneak-left-label: <#79CFC9>레시피 북 · 웅크리기 + 왼쪽 클릭</#79CFC9>
+    book-sneak-right-label: <#79CFC9>레시피 북 · 웅크리기 + 오른쪽 클릭</#79CFC9>
+    book-action-auto-left: '자동 · 보조 손이 비면 아이템 분류, 아이템이 있으면 제작 레시피'
+    book-action-auto-right: '자동 · 보조 손이 비면 제작대 분류, 아이템이 있으면 레시피 용도'
+    book-action-item-page: 아이템 카테고리 열기
+    book-action-table-page: 제작대 카테고리 열기
+    book-action-search: 검색 열기
+    book-action-offhand: 보조 손 레시피 조회
+    book-action-offhand-usage: 보조 손 레시피 용도 조회
+    book-action-target: 조준 블록 레시피 조회
+    book-action-target-usage: 조준 블록 레시피 용도 조회
+    book-action-personalization: 개인 설정 열기
+    get-book: <#E79A45>레시피 북 받기</#E79A45>
+    get-book-tooltip: <#B8C0CC>CER 레시피 북을 인벤토리에 추가합니다</#B8C0CC>
+    restore-defaults: <#E58B8B>기본 개인 설정 복원</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>메뉴, 언어, 탐색 위치 및 레시피 북 설정을 초기화합니다</#B8C0CC>
     true: 활성화됨
     false: 장애인
     save: <#98C69A>기본 설정 저장</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · 일반</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · 데이터 및 성능</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>CER 레시피 북 설정</#D8B278></bold>
     description: <#B8C0CC>일반적으로 변경된 설정을 편집합니다. 저장하면 인덱스가 다시 작성됩니다. 자세한 설명은 config.yml.</#B8C0CC>에서 편집 가능합니다.
     save: <#98C69A>저장하고 다시 로드</#98C69A>
     save-tooltip: <#B8C0CC>config.yml을 작성하고 메뉴 및 데이터 인덱스를 다시 작성합니다.</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>데이터 및 성능</#79CFC9>
     open-general: <#79CFC9>일반 설정</#79CFC9>
     open-page-tooltip: <#B8C0CC>이 대화 상자를 저장하지 않고 다른 설정 페이지로 전환</#B8C0CC>
+    open-recipe-book: <#79CFC9>레시피 북 설정</#79CFC9>
+    recipe-book-enabled: <#79CFC9>CER 레시피 북 활성화</#79CFC9>
+    recipe-book-name: <#79CFC9>레시피 북 이름</#79CFC9>
+    recipe-book-lore: '<#79CFC9>레시피 북 Lore；{left}, {right}, {sneak-left}, {sneak-right} 지원</#79CFC9>'
     landing-page: <#79CFC9>기본 방문 페이지</#79CFC9>
     landing-namespaces: 품목 카테고리
     landing-workstations: 워크스테이션

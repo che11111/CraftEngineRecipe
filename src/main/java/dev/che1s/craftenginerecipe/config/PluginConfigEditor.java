@@ -2,6 +2,7 @@ package dev.che1s.craftenginerecipe.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -26,6 +27,9 @@ public final class PluginConfigEditor {
             int rotateInterval,
             int searchMaxLength,
             int searchMaxResults) {
+    }
+
+    public record BookSettings(boolean enabled, String locale, String name, List<String> lore) {
     }
 
     private PluginConfigEditor() {
@@ -61,6 +65,19 @@ public final class PluginConfigEditor {
         set(config, "recipe.rotate-interval", settings.rotateInterval());
         set(config, "search.max-length", settings.searchMaxLength());
         set(config, "search.max-results", settings.searchMaxResults());
+        return true;
+    }
+
+    public static boolean apply(FileConfiguration config, BookSettings settings) {
+        if (config == null || settings == null || settings.locale() == null
+                || settings.name() == null
+                || settings.name().isBlank() || settings.lore() == null
+                || settings.lore().isEmpty()) {
+            return false;
+        }
+        set(config, "recipe-book.enabled", settings.enabled());
+        set(config, "recipe-book.name-overrides." + settings.locale(), settings.name().trim());
+        set(config, "recipe-book.lore-overrides." + settings.locale(), List.copyOf(settings.lore()));
         return true;
     }
 

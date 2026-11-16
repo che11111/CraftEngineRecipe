@@ -17,7 +17,19 @@ messages:
   debug-performance-note: Les <#8793A5>Timings peuvent être imbriqués et ne peuvent pas être ajoutés à un pourcentage de CPU de serveur. Réinitialisez, reproduisez le ralentissement, puis inspectez ; utilisez Spark pour les piles d'appels. Le TPS/MSPT global peut être indisponible sur Folia.</#8793A5>
   no-permission: <#E58B8B>Vous n'êtes pas autorisé à faire cela.</#E58B8B>
   player-only: <#E58B8B>Cette commande ne peut être utilisée que par un joueur.</#E58B8B>
+  recipe-book-disabled: <#E58B8B>La fonction livre de recettes CER est désactivée.</#E58B8B>
+  recipe-book-not-ready: <#E4D397>L’objet livre de recettes n’est pas prêt ; réessayez après le chargement de CraftEngine.</#E4D397>
+  recipe-book-given: <#98C69A>Vous avez reçu le livre de recettes CER.</#98C69A>
+  recipe-book-given-other: <#98C69A>Le livre de recettes CER a été donné à {player}.</#98C69A>
+  recipe-book-give-usage: '<#E4D397>Utilisation : /cer givebook &lt;joueur&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>Joueur introuvable ou hors ligne : {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>Votre main secondaire est vide.</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>L’objet en main secondaire n’est pas disponible dans l’index des recettes.</#E58B8B>
+  offhand-no-recipe: <#E58B8B>Aucune recette ne produit l’objet en main secondaire.</#E58B8B>
+  offhand-no-usage: <#E58B8B>L’objet en main secondaire n’est utilisé par aucune recette indexée.</#E58B8B>
+  target-block-no-usage: <#E58B8B>L’objet du bloc visé n’est utilisé par aucune recette indexée.</#E58B8B>
   personalization-saved: '<#98C69A>Préférences enregistrées : style de menu {menu}, page principale par défaut {main}, position de restauration : {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>Vos préférences ont été restaurées aux valeurs par défaut du serveur.</#98C69A>
   unapplied-updated: <#98C69A>Espace de noms mis à jour {namespace} dans {file}.</#98C69A>
   unapplied-update-failed: L'espace de noms <#E58B8B> {namespace} est introuvable ; {file} n’a pas été modifié.</#E58B8B>
   unapplied-permission-required: Le nœud d'autorisation <#E58B8B>A est requis lorsque la visibilité est définie sur autorisation.</#E58B8B>
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>Rien ici</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·Livre de recettes</#D4AF37>'
+    lore:
+      - '<#B8C0CC>Clic gauche : {left}</#B8C0CC>'
+      - '<#B8C0CC>Clic droit : {right}</#B8C0CC>'
+      - '<#B8C0CC>Accroupi + clic gauche : {sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>Accroupi + clic droit : {sneak-right}</#B8C0CC>'
+      - '<#8793A5>Modifiable dans les préférences personnelles</#8793A5>'
   personalization:
     title: <bold><#D8B278>Personnalisation</#D8B278></bold>
     description: <#B8C0CC>Choisissez votre style de menu et votre page principale par défaut, et si la réouverture restaure votre dernière position.</#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Restaurer la dernière position après la fermeture</#79CFC9>
+    book-left-label: <#79CFC9>Livre de recettes · Clic gauche</#79CFC9>
+    book-right-label: <#79CFC9>Livre de recettes · Clic droit</#79CFC9>
+    book-sneak-left-label: <#79CFC9>Livre de recettes · Accroupi + clic gauche</#79CFC9>
+    book-sneak-right-label: <#79CFC9>Livre de recettes · Accroupi + clic droit</#79CFC9>
+    book-action-auto-left: 'Auto · Main secondaire vide : objets ; objet tenu : recette de fabrication'
+    book-action-auto-right: 'Auto · Main secondaire vide : établis ; objet tenu : utilisations de recette'
+    book-action-item-page: Ouvrir les catégories d’objets
+    book-action-table-page: Ouvrir les catégories d’établi
+    book-action-search: Ouvrir la recherche
+    book-action-offhand: Rechercher la recette en main secondaire
+    book-action-offhand-usage: Rechercher les utilisations en main secondaire
+    book-action-target: Rechercher la recette du bloc visé
+    book-action-target-usage: Rechercher les utilisations du bloc visé
+    book-action-personalization: Ouvrir les préférences
+    get-book: <#E79A45>Obtenir le livre de recettes</#E79A45>
+    get-book-tooltip: <#B8C0CC>Ajouter un livre de recettes CER à l’inventaire</#B8C0CC>
+    restore-defaults: <#E58B8B>Restaurer les préférences par défaut</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>Réinitialiser les préférences de menu, langue, session et livre de recettes</#B8C0CC>
     true: Activé
     false: Désactivé
     save: <#98C69A>Enregistrer les préférences</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · Général</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Données et performances</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>Réglages du livre de recettes CER</#D8B278></bold>
     description: <#B8C0CC>Modifier les paramètres fréquemment modifiés. La sauvegarde reconstruit les index ; les commentaires détaillés restent modifiables dans config.yml.</#B8C0CC>
     save: <#98C69A>Enregistrer et recharger</#98C69A>
     save-tooltip: <#B8C0CC>Écrivez config.yml et reconstruisez le menu et les index de données</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>Données et performances</#79CFC9>
     open-general: <#79CFC9>Paramètres généraux</#79CFC9>
     open-page-tooltip: <#B8C0CC>Passez à l'autre page de paramètres sans enregistrer cette boîte de dialogue</#B8C0CC>
+    open-recipe-book: <#79CFC9>Réglages du livre de recettes</#79CFC9>
+    recipe-book-enabled: <#79CFC9>Activer le livre de recettes CER</#79CFC9>
+    recipe-book-name: <#79CFC9>Nom du livre de recettes</#79CFC9>
+    recipe-book-lore: '<#79CFC9>Lore du livre ; prend en charge {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
     landing-page: <#79CFC9>Page de destination par défaut</#79CFC9>
     landing-namespaces: Catégories d'articles
     landing-workstations: Postes de travail

@@ -85,13 +85,13 @@ public final class MenuPackManager {
     /** 使用 FD、KC 及全部已启用菜单包重建受管子包集合。 */
     public void installEnabled() throws IOException {
         LinkedHashSet<String> selected = new LinkedHashSet<>(selectedPacks(
-                ResourcePackInstaller.REQUIRED_GUI_PACKS, enabled(), this.extensionPacks.get()));
+                ResourcePackInstaller.REQUIRED_CORE_PACKS, enabled(), this.extensionPacks.get()));
         for (String id : enabled()) {
             Path local = localRoot().resolve(id);
             ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id,
                     plugin.getName(), plugin.getDescription().getVersion());
         }
-        for (String id : ResourcePackInstaller.REQUIRED_GUI_PACKS) {
+        for (String id : ResourcePackInstaller.REQUIRED_CORE_PACKS) {
             Path local = localRoot().resolve(id);
             ResourcePackInstaller.replenishBundled(plugin.jarPath(), local, id,
                     plugin.getName(), plugin.getDescription().getVersion());

@@ -121,6 +121,19 @@ personalization:
   # 玩家尚未保存设置时，关闭菜单后是否恢复上次浏览位置。
   # Whether an unconfigured player reopens the last browsing position.
   default-remember-last-page: true
+
+# ---------- CER 配方书 / CER recipe book ----------
+recipe-book:
+  # 是否开放 /cer getbook、配方书挥手操作和玩家偏好中的配方书设置。
+  # Enables /cer getbook, recipe-book gestures, and player recipe-book preferences.
+  enabled: true
+  # 留空时使用 lang/<语言>.yml 中 ui.recipe-book 的九语言默认名称与 Lore。
+  # Empty maps use the nine-language ui.recipe-book defaults from lang/<locale>.yml.
+  # 管理页只会写入管理员当前语言的覆盖项，其他语言继续使用各自默认值。
+  # The management page writes an override only for the administrator's current locale.
+  name-overrides: {}
+  lore-overrides: {}
+
 # 标题和文本在 lang/<语言>.yml 中修改；布局、按钮、材质和音效在对应 cer_menu_*/menu.yml 中修改。
 # Edit text under ui in lang/<language>.yml; layouts, buttons, materials and sounds live in each cer_menu_*/menu.yml.
 # 检查更新：仅在插件启动或 /cer reload 时检查一次 GitHub 正式版，发现新版后只在控制台提醒，不通知管理员。

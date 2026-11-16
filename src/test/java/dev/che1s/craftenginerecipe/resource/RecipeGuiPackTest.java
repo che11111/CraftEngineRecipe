@@ -65,6 +65,31 @@ class RecipeGuiPackTest {
         }
     }
 
+    @Test
+    void recipeBookIsAnIndependentRequiredItemPack() throws Exception {
+        YamlConfiguration metadata = this.yaml("resources/cer_recipe_book/pack.yml");
+        YamlConfiguration items = this.yaml("resources/cer_recipe_book/configuration/items.yml");
+
+        assertEquals("cer_recipe_book", metadata.getString("namespace"));
+        assertEquals("paper", items.getString("items.cer_recipe_book:recipe_book.material"));
+        assertEquals("<!i><#D4AF37>CER·配方书</#D4AF37>",
+                items.getString("items.cer_recipe_book:recipe_book.data.item_name"));
+        assertEquals("cer_recipe_book:item/recipe_book",
+                items.getString("items.cer_recipe_book:recipe_book.model.path"));
+        assertEquals("cer_recipe_book:item/recipe_book",
+                items.getString("items.cer_recipe_book:recipe_book.model.generation.textures.layer0"));
+        assertTrue(ResourcePackInstaller.REQUIRED_CORE_PACKS.contains("cer_recipe_book"));
+        assertTrue(!ResourcePackInstaller.REQUIRED_GUI_PACKS.contains("cer_recipe_book"));
+
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(
+                "resources/cer_recipe_book/resourcepack/assets/cer_recipe_book/textures/item/recipe_book.png")) {
+            assertNotNull(input);
+            BufferedImage image = ImageIO.read(input);
+            assertEquals(16, image.getWidth());
+            assertEquals(16, image.getHeight());
+        }
+    }
+
     private Rectangle alphaBounds(BufferedImage image) {
         int minX = image.getWidth();
         int minY = image.getHeight();

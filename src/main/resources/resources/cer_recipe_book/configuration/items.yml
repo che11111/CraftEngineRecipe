@@ -1,0 +1,12 @@
+items:
+  cer_recipe_book:recipe_book:
+    material: paper
+    data:
+      item_name: "<!i><#D4AF37>CER·配方书</#D4AF37>"
+    model:
+      type: minecraft:model
+      path: cer_recipe_book:item/recipe_book
+      generation:
+        parent: minecraft:item/generated
+        textures:
+          layer0: cer_recipe_book:item/recipe_book

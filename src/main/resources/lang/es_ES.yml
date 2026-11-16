@@ -17,7 +17,19 @@ messages:
   debug-performance-note: <#8793A5>Timings pueden estar anidados y no se pueden agregar al porcentaje de CPU del servidor. Reinicie, reproduzca la desaceleración y luego inspeccione; use Spark para pilas de llamadas. Es posible que TPS/MSPT global no esté disponible en Folia.</#8793A5>
   no-permission: <#E58B8B>No tienes permiso para hacer esto.</#E58B8B>
   player-only: <#E58B8B>Este comando sólo puede ser utilizado por un jugador.</#E58B8B>
+  recipe-book-disabled: <#E58B8B>La función del libro de recetas CER está desactivada.</#E58B8B>
+  recipe-book-not-ready: <#E4D397>El objeto del libro aún no está listo; inténtalo después de que CraftEngine termine de cargar.</#E4D397>
+  recipe-book-given: <#98C69A>Has recibido el libro de recetas CER.</#98C69A>
+  recipe-book-given-other: <#98C69A>Se ha entregado el libro de recetas CER a {player}.</#98C69A>
+  recipe-book-give-usage: '<#E4D397>Uso: /cer givebook &lt;jugador&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>Jugador no encontrado o desconectado: {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>Tu mano secundaria está vacía.</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>El objeto de la mano secundaria no está disponible en el índice de recetas.</#E58B8B>
+  offhand-no-recipe: <#E58B8B>Ninguna receta produce el objeto de la mano secundaria.</#E58B8B>
+  offhand-no-usage: <#E58B8B>El objeto de la mano secundaria no se usa en ninguna receta indexada.</#E58B8B>
+  target-block-no-usage: <#E58B8B>El objeto del bloque apuntado no se usa en ninguna receta indexada.</#E58B8B>
   personalization-saved: '<#98C69A>Preferencias guardadas: estilo de menú {menu}, página principal predeterminada {main}, posición de restauración: {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>Tus preferencias se restauraron a los valores predeterminados del servidor.</#98C69A>
   unapplied-updated: <#98C69A>Espacio de nombres actualizado {namespace} en {file}.</#98C69A>
   unapplied-update-failed: <#E58B8B>No se encontró el espacio de nombres {namespace}; {file} no fue cambiado.</#E58B8B>
   unapplied-permission-required: El nodo de permiso <#E58B8B>A es necesario cuando la visibilidad se establece en permiso.</#E58B8B>
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>Nada aquí</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·Libro de recetas</#D4AF37>'
+    lore:
+      - '<#B8C0CC>Clic izquierdo: {left}</#B8C0CC>'
+      - '<#B8C0CC>Clic derecho: {right}</#B8C0CC>'
+      - '<#B8C0CC>Agachado + clic izquierdo: {sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>Agachado + clic derecho: {sneak-right}</#B8C0CC>'
+      - '<#8793A5>Se puede cambiar en preferencias personales</#8793A5>'
   personalization:
     title: <bold><#D8B278>Personalización</#D8B278></bold>
     description: <#B8C0CC>Elija su estilo de menú y página principal predeterminada, y si la reapertura restaura su última posición.</#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Restaurar la última posición después del cierre</#79CFC9>
+    book-left-label: <#79CFC9>Libro de recetas · Clic izquierdo</#79CFC9>
+    book-right-label: <#79CFC9>Libro de recetas · Clic derecho</#79CFC9>
+    book-sneak-left-label: <#79CFC9>Libro de recetas · Agachado + clic izquierdo</#79CFC9>
+    book-sneak-right-label: <#79CFC9>Libro de recetas · Agachado + clic derecho</#79CFC9>
+    book-action-auto-left: 'Automático · Mano secundaria vacía: objetos; con objeto: receta de fabricación'
+    book-action-auto-right: 'Automático · Mano secundaria vacía: mesas; con objeto: usos de receta'
+    book-action-item-page: Abrir categorías de objetos
+    book-action-table-page: Abrir categorías de mesas
+    book-action-search: Abrir búsqueda
+    book-action-offhand: Consultar receta de la mano secundaria
+    book-action-offhand-usage: Consultar usos de la mano secundaria
+    book-action-target: Consultar receta del bloque apuntado
+    book-action-target-usage: Consultar usos del bloque apuntado
+    book-action-personalization: Abrir preferencias
+    get-book: <#E79A45>Obtener libro de recetas</#E79A45>
+    get-book-tooltip: <#B8C0CC>Añadir un libro de recetas CER al inventario</#B8C0CC>
+    restore-defaults: <#E58B8B>Restaurar preferencias predeterminadas</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>Restablecer preferencias de menú, idioma, sesión y libro de recetas</#B8C0CC>
     true: Habilitado
     false: Discapacitado
     save: <#98C69A>Guardar preferencias</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Datos y rendimiento</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>Ajustes del libro de recetas CER</#D8B278></bold>
     description: <#B8C0CC>Editar configuraciones comúnmente cambiadas. Guardar reconstruye los índices; los comentarios detallados siguen siendo editables en config.yml.</#B8C0CC>
     save: <#98C69A>Guardar y recargar</#98C69A>
     save-tooltip: <#B8C0CC>Escriba config.yml y reconstruya el menú y los índices de datos</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>Datos y rendimiento</#79CFC9>
     open-general: <#79CFC9>Configuración general</#79CFC9>
     open-page-tooltip: <#B8C0CC>Cambiar a la otra página de configuración sin guardar este cuadro de diálogo</#B8C0CC>
+    open-recipe-book: <#79CFC9>Ajustes del libro de recetas</#79CFC9>
+    recipe-book-enabled: <#79CFC9>Activar el libro de recetas CER</#79CFC9>
+    recipe-book-name: <#79CFC9>Nombre del libro de recetas</#79CFC9>
+    recipe-book-lore: '<#79CFC9>Lore del libro; admite {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
     landing-page: <#79CFC9>Página de inicio predeterminada</#79CFC9>
     landing-namespaces: Categorías de artículos
     landing-workstations: Estaciones de trabajo

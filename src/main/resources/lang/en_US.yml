@@ -17,7 +17,19 @@ messages:
   debug-performance-note: <#8793A5>Timings may be nested and cannot be added into a server CPU percentage. Reset, reproduce the slowdown, then inspect; use spark for call stacks. Global TPS/MSPT may be unavailable on Folia.</#8793A5>
   no-permission: <#E58B8B>You do not have permission to do this.</#E58B8B>
   player-only: <#E58B8B>This command can only be used by a player.</#E58B8B>
+  recipe-book-disabled: <#E58B8B>The CER recipe book feature is disabled.</#E58B8B>
+  recipe-book-not-ready: <#E4D397>The recipe book item is not ready; try again after CraftEngine finishes loading.</#E4D397>
+  recipe-book-given: <#98C69A>You received the CER recipe book.</#98C69A>
+  recipe-book-given-other: <#98C69A>Gave the CER recipe book to {player}.</#98C69A>
+  recipe-book-give-usage: '<#E4D397>Usage: /cer givebook &lt;player&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>Player not found or not online: {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>Your offhand is empty.</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>The offhand item is not available in the recipe index.</#E58B8B>
+  offhand-no-recipe: <#E58B8B>No recipe produces the offhand item.</#E58B8B>
+  offhand-no-usage: <#E58B8B>The offhand item is not used by any indexed recipe.</#E58B8B>
+  target-block-no-usage: <#E58B8B>The targeted block item is not used by any indexed recipe.</#E58B8B>
   personalization-saved: '<#98C69A>Preferences saved: menu style {menu}, default main page {main}, restore position: {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>Your personal preferences were restored to server defaults.</#98C69A>
   unapplied-updated: <#98C69A>Updated namespace {namespace} in {file}.</#98C69A>
   unapplied-update-failed: <#E58B8B>Namespace {namespace} was not found; {file} was not changed.</#E58B8B>
   unapplied-permission-required: <#E58B8B>A permission node is required when visibility is set to permission.</#E58B8B>
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>Nothing here</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·Recipe Book</#D4AF37>'
+    lore:
+      - '<#B8C0CC>Left click: {left}</#B8C0CC>'
+      - '<#B8C0CC>Right click: {right}</#B8C0CC>'
+      - '<#B8C0CC>Sneak + left click: {sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>Sneak + right click: {sneak-right}</#B8C0CC>'
+      - '<#8793A5>Adjust these bindings in Personalization</#8793A5>'
   personalization:
     title: <bold><#D8B278>Personalization</#D8B278></bold>
     description: <#B8C0CC>Choose your menu style and default main page, and whether reopening restores your last position.</#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Restore the last position after closing</#79CFC9>
+    book-left-label: <#79CFC9>Recipe book · Left click</#79CFC9>
+    book-right-label: <#79CFC9>Recipe book · Right click</#79CFC9>
+    book-sneak-left-label: <#79CFC9>Recipe book · Sneak + left click</#79CFC9>
+    book-sneak-right-label: <#79CFC9>Recipe book · Sneak + right click</#79CFC9>
+    book-action-auto-left: 'Auto · Empty offhand: item categories; holding item: crafting recipe'
+    book-action-auto-right: 'Auto · Empty offhand: workstations; holding item: recipe uses'
+    book-action-item-page: Open item categories
+    book-action-table-page: Open workstation categories
+    book-action-search: Open search
+    book-action-offhand: Query offhand recipe
+    book-action-offhand-usage: Query offhand recipe uses
+    book-action-target: Query targeted block recipe
+    book-action-target-usage: Query targeted block recipe uses
+    book-action-personalization: Open preferences
+    get-book: <#E79A45>Get recipe book</#E79A45>
+    get-book-tooltip: <#B8C0CC>Add a CER recipe book to your inventory</#B8C0CC>
+    restore-defaults: <#E58B8B>Restore default preferences</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>Reset your menu, language, session, and recipe-book preferences</#B8C0CC>
     true: Enabled
     false: Disabled
     save: <#98C69A>Save preferences</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Data & Performance</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>CER Recipe Book</#D8B278></bold>
     description: <#B8C0CC>Edit commonly changed settings. Saving rebuilds the indexes; detailed comments remain editable in config.yml.</#B8C0CC>
     save: <#98C69A>Save and reload</#98C69A>
     save-tooltip: <#B8C0CC>Write config.yml and rebuild the menu and data indexes</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>Data & Performance</#79CFC9>
     open-general: <#79CFC9>General Settings</#79CFC9>
     open-page-tooltip: <#B8C0CC>Switch to the other settings page without saving this dialog</#B8C0CC>
+    open-recipe-book: <#79CFC9>Recipe Book Settings</#79CFC9>
+    recipe-book-enabled: <#79CFC9>Enable the CER recipe book</#79CFC9>
+    recipe-book-name: <#79CFC9>Recipe book name</#79CFC9>
+    recipe-book-lore: '<#79CFC9>Recipe book lore; supports {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
     landing-page: <#79CFC9>Default landing page</#79CFC9>
     landing-namespaces: Item categories
     landing-workstations: Workstations

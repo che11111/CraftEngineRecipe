@@ -10,6 +10,7 @@ import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.event.ClickCallback;
 import org.bukkit.entity.Player;
@@ -22,7 +23,8 @@ import java.util.List;
 public final class ConfigEditorDialogService {
     private enum Page {
         GENERAL,
-        DATA
+        DATA,
+        RECIPE_BOOK
     }
 
     private static final String LANDING_PAGE = "cer_config_landing_page";
@@ -40,6 +42,9 @@ public final class ConfigEditorDialogService {
     private static final String ROTATE_INTERVAL = "cer_config_rotate_interval";
     private static final String SEARCH_MAX_LENGTH = "cer_config_search_max_length";
     private static final String SEARCH_MAX_RESULTS = "cer_config_search_max_results";
+    private static final String BOOK_ENABLED = "cer_config_book_enabled";
+    private static final String BOOK_NAME = "cer_config_book_name";
+    private static final String BOOK_LORE = "cer_config_book_lore";
 
     private final CraftEngineRecipePlugin plugin;
 
@@ -65,16 +70,17 @@ public final class ConfigEditorDialogService {
                 DialogAction.customClick((view, audience) -> this.save(player, page, view, generation),
                         ClickCallback.Options.builder().uses(1)
                                 .lifetime(Duration.ofMinutes(10L)).build())));
-        Page target = page == Page.GENERAL ? Page.DATA : Page.GENERAL;
-        actions.add(ActionButton.create(
-                language.component(target == Page.DATA
-                                ? "ui.config-editor.open-data" : "ui.config-editor.open-general"),
-                language.component("ui.config-editor.open-page-tooltip"),
-                100,
-                DialogAction.customClick((view, audience) -> this.schedule(
-                                player, generation, () -> this.open(player, target)),
-                        ClickCallback.Options.builder().uses(1)
-                                .lifetime(Duration.ofMinutes(10L)).build())));
+        for (Page target : Page.values()) {
+            if (target == page) continue;
+            actions.add(ActionButton.create(
+                    language.component(this.pageButton(target)),
+                    language.component("ui.config-editor.open-page-tooltip"),
+                    100,
+                    DialogAction.customClick((view, audience) -> this.schedule(
+                                    player, generation, () -> this.open(player, target)),
+                            ClickCallback.Options.builder().uses(1)
+                                    .lifetime(Duration.ofMinutes(10L)).build())));
+        }
         ActionButton cancel = ActionButton.create(
                 language.component("ui.config-editor.cancel"),
                 language.component("ui.config-editor.cancel-tooltip"),
@@ -85,19 +91,19 @@ public final class ConfigEditorDialogService {
                                 .lifetime(Duration.ofMinutes(10L)).build()));
         Dialog dialog = Dialog.create(factory -> factory.empty()
                 .base(DialogBase.builder(language.component(
-                                page == Page.GENERAL
-                                        ? "ui.config-editor.general-title"
-                                        : "ui.config-editor.data-title"))
+                                this.pageTitle(page)))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
                                 language.component("ui.config-editor.description"))))
                         .inputs(page == Page.GENERAL
-                                ? this.generalInputs(player) : this.dataInputs(player))
+                                ? this.generalInputs(player)
+                                : page == Page.DATA
+                                        ? this.dataInputs(player) : this.bookInputs(player))
                         .build())
                 .type(DialogType.multiAction(actions)
                         .exitAction(cancel)
-                        .columns(3)
+                        .columns(4)
                         .build()));
         this.plugin.browser(player).leaveForDialog(player);
         player.showDialog(dialog);
@@ -153,10 +159,33 @@ public final class ConfigEditorDialogService {
                         config.getInt("search.max-results", 200)));
     }
 
+    private List<DialogInput> bookInputs(Player player) {
+        var config = this.plugin.getConfig();
+        var language = this.plugin.lang(player);
+        String lore = String.join("\n", this.plugin.recipeBook().loreTemplates(player));
+        return List.of(
+                this.boolInput(player, BOOK_ENABLED, "ui.config-editor.recipe-book-enabled",
+                        config.getBoolean("recipe-book.enabled", true)),
+                DialogInput.text(BOOK_NAME, language.component("ui.config-editor.recipe-book-name"))
+                        .width(300)
+                        .labelVisible(true)
+                        .initial(this.plugin.recipeBook().nameTemplate(player))
+                        .maxLength(256)
+                        .build(),
+                DialogInput.text(BOOK_LORE, language.component("ui.config-editor.recipe-book-lore"))
+                        .width(320)
+                        .labelVisible(true)
+                        .initial(lore)
+                        .maxLength(4096)
+                        .multiline(TextDialogInput.MultilineOptions.create(10, 160))
+                        .build());
+    }
+
     private void save(Player player, Page page, DialogResponseView view, long generation) {
         boolean generalSaved = page != Page.GENERAL || this.saveGeneral(view);
         boolean dataSaved = page != Page.DATA || this.saveData(view);
-        if (!generalSaved || !dataSaved) {
+        boolean bookSaved = page != Page.RECIPE_BOOK || this.saveBook(player, view);
+        if (!generalSaved || !dataSaved || !bookSaved) {
             player.sendMessage(this.plugin.lang(player).message("messages.config-invalid"));
             this.schedule(player, generation, () -> this.open(player, page));
             return;
@@ -205,6 +234,18 @@ public final class ConfigEditorDialogService {
                         autoReload, poll, rotate, length, results));
     }
 
+    private boolean saveBook(Player player, DialogResponseView view) {
+        Boolean enabled = view.getBoolean(BOOK_ENABLED);
+        String name = view.getText(BOOK_NAME);
+        String rawLore = view.getText(BOOK_LORE);
+        if (enabled == null || name == null || name.isBlank() || rawLore == null) return false;
+        List<String> lore = loreLines(rawLore);
+        if (lore.isEmpty()) return false;
+        return PluginConfigEditor.apply(this.plugin.getConfig(),
+                new PluginConfigEditor.BookSettings(enabled,
+                        this.plugin.lang(player).locale(), name, lore));
+    }
+
     private DialogInput boolInput(Player player, String key, String label, boolean initial) {
         var language = this.plugin.lang(player);
         return DialogInput.bool(key, language.component(label))
@@ -227,6 +268,29 @@ public final class ConfigEditorDialogService {
             Player player, String id, String label, boolean selected) {
         return SingleOptionDialogInput.OptionEntry.create(
                 id, this.plugin.lang(player).component(label), selected);
+    }
+
+    private String pageTitle(Page page) {
+        return switch (page) {
+            case GENERAL -> "ui.config-editor.general-title";
+            case DATA -> "ui.config-editor.data-title";
+            case RECIPE_BOOK -> "ui.config-editor.recipe-book-title";
+        };
+    }
+
+    private String pageButton(Page page) {
+        return switch (page) {
+            case GENERAL -> "ui.config-editor.open-general";
+            case DATA -> "ui.config-editor.open-data";
+            case RECIPE_BOOK -> "ui.config-editor.open-recipe-book";
+        };
+    }
+
+    static List<String> loreLines(String value) {
+        if (value == null) return List.of();
+        return value.replace("\r\n", "\n").replace('\r', '\n').lines()
+                .map(String::stripTrailing)
+                .toList();
     }
 
     private void schedule(Player player, long generation, Runnable action) {

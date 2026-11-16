@@ -27,10 +27,10 @@ public final class BundledResourceService {
     public void install() {
         Path localRoot = this.localRoot();
         try {
-            for (String pack : ResourcePackInstaller.REQUIRED_GUI_PACKS) {
+            for (String pack : ResourcePackInstaller.REQUIRED_CORE_PACKS) {
                 this.populate(localRoot, pack);
             }
-                for (String menuPack : ResourcePackInstaller.bundledMenuPacks(this.jarPath)) {
+            for (String menuPack : ResourcePackInstaller.bundledMenuPacks(this.jarPath)) {
                 this.populate(localRoot, menuPack);
             }
             this.menuPacks.installEnabled();
@@ -42,7 +42,7 @@ public final class BundledResourceService {
 
     public void replenish() {
         Path localRoot = this.localRoot();
-        List<String> packs = new ArrayList<>(ResourcePackInstaller.REQUIRED_GUI_PACKS);
+        List<String> packs = new ArrayList<>(ResourcePackInstaller.REQUIRED_CORE_PACKS);
         try {
             packs.addAll(ResourcePackInstaller.bundledMenuPacks(this.jarPath));
         } catch (IOException error) {

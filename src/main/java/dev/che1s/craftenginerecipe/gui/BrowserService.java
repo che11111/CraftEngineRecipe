@@ -308,9 +308,24 @@ public final class BrowserService {
         this.runClaimedQuery(player, () -> this.openHeldRecipeClaimed(player));
     }
 
+    /** 查询产出副手物品的配方。 */
+    public void openOffhandRecipe(Player player) {
+        this.runClaimedQuery(player, () -> this.openOffhandRecipeClaimed(player));
+    }
+
+    /** 查询副手物品参与哪些合成。 */
+    public void openOffhandUsage(Player player) {
+        this.runClaimedQuery(player, () -> this.openOffhandUsageClaimed(player));
+    }
+
     /** 查询产出玩家准星所指方块的配方。 */
     public void openTargetBlockRecipe(Player player) {
-        this.runClaimedQuery(player, () -> this.openTargetBlockRecipeClaimed(player));
+        this.runClaimedQuery(player, () -> this.openTargetBlockQueryClaimed(player, false));
+    }
+
+    /** 查询准星所指方块物品参与哪些合成。 */
+    public void openTargetBlockUsage(Player player) {
+        this.runClaimedQuery(player, () -> this.openTargetBlockQueryClaimed(player, true));
     }
 
     private void runClaimedQuery(Player player, BooleanSupplier query) {
@@ -351,7 +366,45 @@ public final class BrowserService {
         return this.openProducedRecipe(player, id, "messages.hand-item-unavailable", "messages.hand-no-recipe");
     }
 
-    private boolean openTargetBlockRecipeClaimed(Player player) {
+    private boolean openOffhandRecipeClaimed(Player player) {
+        ItemStack held = player.getInventory().getItemInOffHand();
+        if (held.getType().isAir() || held.getAmount() <= 0) {
+            player.sendMessage(this.plugin.lang(player).message("messages.offhand-empty"));
+            return false;
+        }
+        Key id;
+        try {
+            id = this.inventoryItemKey(held);
+        } catch (RuntimeException | LinkageError error) {
+            this.plugin.getLogger().warning(this.plugin.lang().text(
+                    "logs.hand-resolve-failed", "error", error.toString()));
+            player.sendMessage(this.plugin.lang(player).message("messages.hand-resolve-failed"));
+            return false;
+        }
+        return this.openProducedRecipe(player, id,
+                "messages.offhand-item-unavailable", "messages.offhand-no-recipe");
+    }
+
+    private boolean openOffhandUsageClaimed(Player player) {
+        ItemStack held = player.getInventory().getItemInOffHand();
+        if (held.getType().isAir() || held.getAmount() <= 0) {
+            player.sendMessage(this.plugin.lang(player).message("messages.offhand-empty"));
+            return false;
+        }
+        Key id;
+        try {
+            id = this.inventoryItemKey(held);
+        } catch (RuntimeException | LinkageError error) {
+            this.plugin.getLogger().warning(this.plugin.lang().text(
+                    "logs.hand-resolve-failed", "error", error.toString()));
+            player.sendMessage(this.plugin.lang(player).message("messages.hand-resolve-failed"));
+            return false;
+        }
+        return this.openUsageRecipe(player, id,
+                "messages.offhand-item-unavailable", "messages.offhand-no-usage");
+    }
+
+    private boolean openTargetBlockQueryClaimed(Player player, boolean usageMode) {
         Key id;
         try {
             Block target = TargetBlockQuery.trace(player);
@@ -374,17 +427,30 @@ public final class BrowserService {
             player.sendMessage(this.plugin.lang(player).message("messages.target-block-resolve-failed"));
             return false;
         }
-        return this.openProducedRecipe(player, id, "messages.target-block-unavailable", "messages.target-block-no-recipe");
+        return usageMode
+                ? this.openUsageRecipe(player, id,
+                        "messages.target-block-unavailable", "messages.target-block-no-usage")
+                : this.openProducedRecipe(player, id,
+                        "messages.target-block-unavailable", "messages.target-block-no-recipe");
     }
 
     private boolean openProducedRecipe(Player player, Key id, String unavailableMessage, String noRecipeMessage) {
+        return this.openQueriedRecipe(player, id, false, unavailableMessage, noRecipeMessage);
+    }
+
+    private boolean openUsageRecipe(Player player, Key id, String unavailableMessage, String noUsageMessage) {
+        return this.openQueriedRecipe(player, id, true, unavailableMessage, noUsageMessage);
+    }
+
+    private boolean openQueriedRecipe(Player player, Key id, boolean usageMode,
+                                      String unavailableMessage, String missingMessage) {
         var visibility = this.visibility(player);
         if (!visibility.canQuery(id)) {
             player.sendMessage(this.plugin.lang(player).message(unavailableMessage));
             return false;
         }
-        if (!this.recipeGui.hasContent(id, false, visibility)) {
-            player.sendMessage(this.plugin.lang(player).message(noRecipeMessage, "id", id.toString()));
+        if (!this.recipeGui.hasContent(id, usageMode, visibility)) {
+            player.sendMessage(this.plugin.lang(player).message(missingMessage, "id", id.toString()));
             return false;
         }
         GuiSession session = GuiSession.of(player);
@@ -396,9 +462,9 @@ public final class BrowserService {
         }
         session.unapplied(false);
         // 查询反馈音效会替代进入音效；正常窗口跟踪仍负责后续关闭处理。
-        boolean opened = this.recipeGui.open(player, id, false, 0, visibility);
+        boolean opened = this.recipeGui.open(player, id, usageMode, 0, visibility);
         if (!opened) {
-            player.sendMessage(this.plugin.lang(player).message(noRecipeMessage, "id", id.toString()));
+            player.sendMessage(this.plugin.lang(player).message(missingMessage, "id", id.toString()));
         }
         return opened;
     }

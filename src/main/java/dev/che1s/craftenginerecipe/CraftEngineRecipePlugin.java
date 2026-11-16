@@ -3,9 +3,11 @@ package dev.che1s.craftenginerecipe;
 import dev.che1s.craftenginerecipe.command.CerCommand;
 import dev.che1s.craftenginerecipe.api.CerRecipeApi;
 import dev.che1s.craftenginerecipe.api.internal.CerRecipeApiService;
+import dev.che1s.craftenginerecipe.book.RecipeBookService;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
 import dev.che1s.craftenginerecipe.debug.DebugService;
 import dev.che1s.craftenginerecipe.listener.MenuItemSafetyListener;
+import dev.che1s.craftenginerecipe.listener.RecipeBookListener;
 import dev.che1s.craftenginerecipe.config.CerConfig;
 import dev.che1s.craftenginerecipe.config.IntegrationSettings;
 import dev.che1s.craftenginerecipe.config.MenuView;
@@ -83,6 +85,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     private final Map<String, Map<MenuView, CerConfig>> menuViewConfigs = new LinkedHashMap<>();
     private final Map<String, BrowserService> menuBrowsers = new LinkedHashMap<>();
     private MetricsService metrics;
+    private RecipeBookService recipeBook;
     private UpdateChecker updates;
 
     public static CraftEngineRecipePlugin get() {
@@ -129,6 +132,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         CompatibilityWarnings.install(this.getLogger(), this.language, this.data::generation);
         this.recipeIndex = new RecipeIndex(this);
         this.createBrowsers();
+        this.recipeBook = new RecipeBookService(this);
         this.data.attachListener();
         this.dialogs = new PluginDialogs(
                 new SearchDialogService(this),
@@ -145,6 +149,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.debug.registerGauge("menu.pending-actions", this::pendingActionCount);
         new CerCommand(this).register();
         Bukkit.getPluginManager().registerEvents(new HotkeyListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new RecipeBookListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MenuItemSafetyListener(this), this);
         Bukkit.getPluginManager().registerEvents(this, this);
         this.metrics = new MetricsService(this);
@@ -352,6 +357,10 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public PlayerPreferences playerPreferences() {
         return this.playerPreferences;
+    }
+
+    public RecipeBookService recipeBook() {
+        return this.recipeBook;
     }
 
     public String menuPackDisplayName(String pack) {

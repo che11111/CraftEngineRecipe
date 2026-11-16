@@ -40,6 +40,11 @@ class PlayerPreferencesTest {
             preferences.setRememberLastPage(player, true);
             preferences.setLandingPage(player, PlayerPreferences.LandingPage.NAMESPACES);
             assertTrue(preferences.setLanguage(player, "en_us"));
+            assertTrue(preferences.setBookBindings(player, new PlayerPreferences.BookBindings(
+                    PlayerPreferences.BookAction.OFFHAND_USAGE,
+                    PlayerPreferences.BookAction.TARGET_USAGE,
+                    PlayerPreferences.BookAction.PERSONALIZATION,
+                    PlayerPreferences.BookAction.SEARCH_PAGE)));
         }
 
         try (PlayerPreferences restored = new PlayerPreferences(this.directory,
@@ -50,6 +55,12 @@ class PlayerPreferencesTest {
             assertTrue(restored.rememberLastPage(player));
             assertEquals(PlayerPreferences.LandingPage.NAMESPACES, restored.landingPage(player));
             assertEquals("en_US", restored.language(player, "zh_CN"));
+            assertEquals(new PlayerPreferences.BookBindings(
+                            PlayerPreferences.BookAction.OFFHAND_USAGE,
+                            PlayerPreferences.BookAction.TARGET_USAGE,
+                            PlayerPreferences.BookAction.PERSONALIZATION,
+                            PlayerPreferences.BookAction.SEARCH_PAGE),
+                    restored.bookBindings(player));
         }
     }
 
@@ -124,6 +135,7 @@ class PlayerPreferencesTest {
             preferences.setLandingPage(player, PlayerPreferences.LandingPage.NAMESPACES);
             assertEquals("en_US", preferences.language(player, "en_US"));
             assertTrue(preferences.setLanguage(player, "zh_CN"));
+            assertEquals(PlayerPreferences.BookBindings.defaults(), preferences.bookBindings(player));
         }
 
         try (PlayerPreferences restored = new PlayerPreferences(this.directory,
@@ -131,6 +143,7 @@ class PlayerPreferencesTest {
             restored.reload(config, List.of("cer_menu_rough"));
             assertEquals(PlayerPreferences.LandingPage.NAMESPACES, restored.landingPage(player));
             assertEquals("zh_CN", restored.language(player, "en_US"));
+            assertEquals(PlayerPreferences.BookBindings.defaults(), restored.bookBindings(player));
         }
     }
 
@@ -171,6 +184,61 @@ class PlayerPreferencesTest {
             restored.reload(config, List.of("cer_menu_cute"));
             assertEquals("zh_CN", restored.language(chinese, "en_US"));
             assertEquals("en_US", restored.language(english, "zh_CN"));
+        }
+    }
+
+    @Test
+    void recipeBookBindingsUseDefaultsAndRequireEveryGesture() {
+        UUID player = UUID.randomUUID();
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("personalization.enabled", true);
+        config.set("personalization.menu-packs", List.of("cute"));
+
+        try (PlayerPreferences preferences = new PlayerPreferences(this.directory,
+                Logger.getLogger(PlayerPreferencesTest.class.getName()))) {
+            preferences.reload(config, List.of("cer_menu_cute"));
+            PlayerPreferences.BookBindings defaults = PlayerPreferences.BookBindings.defaults();
+            assertEquals(defaults, preferences.bookBindings(player));
+            assertEquals(PlayerPreferences.BookAction.AUTO_OFFHAND_LEFT, defaults.left());
+            assertEquals(PlayerPreferences.BookAction.AUTO_OFFHAND_RIGHT, defaults.right());
+            assertEquals(PlayerPreferences.BookAction.SEARCH_PAGE, defaults.sneakLeft());
+            assertEquals(PlayerPreferences.BookAction.TARGET_RECIPE, defaults.sneakRight());
+            assertFalse(preferences.setBookBindings(player, new PlayerPreferences.BookBindings(
+                    PlayerPreferences.BookAction.ITEM_PAGE, null,
+                    PlayerPreferences.BookAction.OFFHAND_RECIPE,
+                    PlayerPreferences.BookAction.TARGET_RECIPE)));
+        }
+    }
+
+    @Test
+    void resetRemovesStoredOverrides() throws Exception {
+        UUID player = UUID.randomUUID();
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("personalization.enabled", true);
+        config.set("personalization.menu-packs", List.of("cute"));
+
+        try (PlayerPreferences preferences = new PlayerPreferences(this.directory,
+                Logger.getLogger(PlayerPreferencesTest.class.getName()))) {
+            preferences.reload(config, List.of("cer_menu_cute"));
+            assertTrue(preferences.setMenuPack(player, "cute"));
+            assertTrue(preferences.setBookBindings(player, new PlayerPreferences.BookBindings(
+                    PlayerPreferences.BookAction.SEARCH_PAGE,
+                    PlayerPreferences.BookAction.TABLE_PAGE,
+                    PlayerPreferences.BookAction.TARGET_USAGE,
+                    PlayerPreferences.BookAction.PERSONALIZATION)));
+            preferences.reset(player);
+            assertEquals(PlayerPreferences.BookBindings.defaults(), preferences.bookBindings(player));
+        }
+
+        try (var connection = DriverManager.getConnection(
+                "jdbc:sqlite:" + this.directory.resolve("player-preferences.db").toAbsolutePath());
+             var statement = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM player_preferences WHERE player_uuid = ?")) {
+            statement.setString(1, player.toString());
+            try (var result = statement.executeQuery()) {
+                assertTrue(result.next());
+                assertEquals(0, result.getInt(1));
+            }
         }
     }
 

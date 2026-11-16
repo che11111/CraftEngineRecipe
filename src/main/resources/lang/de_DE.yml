@@ -17,7 +17,19 @@ messages:
   debug-performance-note: <#8793A5>Timings können verschachtelt sein und können nicht zu einem Server-CPU-Prozentsatz hinzugefügt werden. Zurücksetzen, die Verlangsamung reproduzieren und dann prüfen; Verwenden Sie Spark für Aufrufstapel. Globales TPS/MSPT ist auf Folia.</#8793A5> möglicherweise nicht verfügbar
   no-permission: <#E58B8B>Sie haben keine Berechtigung dazu.</#E58B8B>
   player-only: <#E58B8B>Dieser Befehl kann nur von einem Spieler verwendet werden.</#E58B8B>
+  recipe-book-disabled: <#E58B8B>Die CER-Rezeptbuchfunktion ist deaktiviert.</#E58B8B>
+  recipe-book-not-ready: <#E4D397>Das Rezeptbuch ist noch nicht bereit; versuchen Sie es nach dem Laden von CraftEngine erneut.</#E4D397>
+  recipe-book-given: <#98C69A>Sie haben das CER-Rezeptbuch erhalten.</#98C69A>
+  recipe-book-given-other: <#98C69A>Das CER-Rezeptbuch wurde an {player} gegeben.</#98C69A>
+  recipe-book-give-usage: '<#E4D397>Verwendung: /cer givebook &lt;Spieler&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>Spieler nicht gefunden oder nicht online: {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>Ihre Zweithand ist leer.</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>Der Gegenstand in der Zweithand ist im Rezeptindex nicht verfügbar.</#E58B8B>
+  offhand-no-recipe: <#E58B8B>Kein Rezept erzeugt den Gegenstand in der Zweithand.</#E58B8B>
+  offhand-no-usage: <#E58B8B>Der Gegenstand in der Zweithand wird von keinem indexierten Rezept verwendet.</#E58B8B>
+  target-block-no-usage: <#E58B8B>Der Gegenstand des Zielblocks wird von keinem indexierten Rezept verwendet.</#E58B8B>
   personalization-saved: '<#98C69A>Einstellungen gespeichert: Menüstil {menu}, Standardhauptseite {main}, Wiederherstellungsposition: {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>Ihre persönlichen Einstellungen wurden auf die Serverstandards zurückgesetzt.</#98C69A>
   unapplied-updated: <#98C69A>Aktualisierter Namespace {namespace} in {file}.</#98C69A>
   unapplied-update-failed: <#E58B8B>Namespace {namespace} wurde nicht gefunden; {file} wurde nicht geändert.</#E58B8B>
   unapplied-permission-required: Der Berechtigungsknoten <#E58B8B>A ist erforderlich, wenn die Sichtbarkeit auf „permission.</#E58B8B>“ eingestellt ist
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>Nichts hier</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·Rezeptbuch</#D4AF37>'
+    lore:
+      - '<#B8C0CC>Linksklick: {left}</#B8C0CC>'
+      - '<#B8C0CC>Rechtsklick: {right}</#B8C0CC>'
+      - '<#B8C0CC>Schleichen + Linksklick: {sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>Schleichen + Rechtsklick: {sneak-right}</#B8C0CC>'
+      - '<#8793A5>Diese Belegungen können in der Personalisierung geändert werden</#8793A5>'
   personalization:
     title: <bold><#D8B278>Personalisierung</#D8B278></bold>
     description: <#B8C0CC>Wählen Sie Ihren Menüstil und die Standardhauptseite und ob beim erneuten Öffnen Ihre letzte Position wiederhergestellt wird.</#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Stellen Sie die letzte Position nach dem Schließen wieder her</#79CFC9>
+    book-left-label: <#79CFC9>Rezeptbuch · Linksklick</#79CFC9>
+    book-right-label: <#79CFC9>Rezeptbuch · Rechtsklick</#79CFC9>
+    book-sneak-left-label: <#79CFC9>Rezeptbuch · Schleichen + Linksklick</#79CFC9>
+    book-sneak-right-label: <#79CFC9>Rezeptbuch · Schleichen + Rechtsklick</#79CFC9>
+    book-action-auto-left: 'Automatisch · Leere Zweithand: Gegenstände; mit Gegenstand: Herstellungsrezept'
+    book-action-auto-right: 'Automatisch · Leere Zweithand: Werkbänke; mit Gegenstand: Rezeptverwendung'
+    book-action-item-page: Gegenstandskategorien öffnen
+    book-action-table-page: Werkbankkategorien öffnen
+    book-action-search: Suche öffnen
+    book-action-offhand: Rezept der Zweithand abfragen
+    book-action-offhand-usage: Rezeptverwendung der Zweithand abfragen
+    book-action-target: Rezept des Zielblocks abfragen
+    book-action-target-usage: Rezeptverwendung des Zielblocks abfragen
+    book-action-personalization: Persönliche Einstellungen öffnen
+    get-book: <#E79A45>Rezeptbuch erhalten</#E79A45>
+    get-book-tooltip: <#B8C0CC>Ein CER-Rezeptbuch zum Inventar hinzufügen</#B8C0CC>
+    restore-defaults: <#E58B8B>Standardeinstellungen wiederherstellen</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>Menü-, Sprach-, Sitzungs- und Rezeptbucheinstellungen zurücksetzen</#B8C0CC>
     true: Aktiviert
     false: Deaktiviert
     save: <#98C69A>Einstellungen speichern</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · Allgemein</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Daten und Leistung</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>CER-Rezeptbucheinstellungen</#D8B278></bold>
     description: <#B8C0CC>Edit häufig geänderte Einstellungen. Beim Speichern werden die Indizes neu erstellt; Detaillierte Kommentare können weiterhin in config.yml.</#B8C0CC> bearbeitet werden
     save: <#98C69A>Speichern und neu laden</#98C69A>
     save-tooltip: <#B8C0CC>Schreiben Sie config.yml und erstellen Sie die Menü- und Datenindizes neu</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>Daten und Leistung</#79CFC9>
     open-general: <#79CFC9>Allgemeine Einstellungen</#79CFC9>
     open-page-tooltip: <#B8C0CC>Wechseln Sie zur anderen Einstellungsseite, ohne diesen Dialog zu speichern</#B8C0CC>
+    open-recipe-book: <#79CFC9>Rezeptbucheinstellungen</#79CFC9>
+    recipe-book-enabled: <#79CFC9>CER-Rezeptbuch aktivieren</#79CFC9>
+    recipe-book-name: <#79CFC9>Name des Rezeptbuchs</#79CFC9>
+    recipe-book-lore: '<#79CFC9>Rezeptbuch-Lore; unterstützt {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
     landing-page: <#79CFC9>Standard-Landingpage</#79CFC9>
     landing-namespaces: Artikelkategorien
     landing-workstations: Arbeitsplätze

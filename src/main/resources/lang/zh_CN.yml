@@ -23,7 +23,19 @@ messages:
   debug-performance-note: '<#8793A5>操作计时可嵌套，不能相加为服务器占比；reset 后复现卡顿再查看，调用栈分析请配合 spark。Folia 的全服 TPS/MSPT 可能不可用。</#8793A5>'
   no-permission: <#E58B8B>你没有权限执行此操作。</#E58B8B>
   player-only: <#E58B8B>该指令只能由玩家执行。</#E58B8B>
+  recipe-book-disabled: <#E58B8B>CER 配方书功能已关闭。</#E58B8B>
+  recipe-book-not-ready: <#E4D397>配方书物品尚未就绪，请等待 CraftEngine 完成加载后重试。</#E4D397>
+  recipe-book-given: <#98C69A>已获得 CER 配方书。</#98C69A>
+  recipe-book-given-other: <#98C69A>已将 CER 配方书给予 {player}。</#98C69A>
+  recipe-book-give-usage: '<#E4D397>用法：/cer givebook &lt;玩家名&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>找不到玩家或玩家不在线：{player}</#E58B8B>'
+  offhand-empty: <#E58B8B>副手为空。</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>配方索引中没有找到副手物品。</#E58B8B>
+  offhand-no-recipe: <#E58B8B>没有配方会产出当前副手物品。</#E58B8B>
+  offhand-no-usage: <#E58B8B>当前副手物品没有参与任何已索引的合成。</#E58B8B>
+  target-block-no-usage: <#E58B8B>准星所指方块物品没有参与任何已索引的合成。</#E58B8B>
   personalization-saved: '<#98C69A>个性化设置已保存：菜单样式 {menu}，默认主页面 {main}，恢复浏览位置：{remember}。</#98C69A>'
+  personalization-reset: <#98C69A>已恢复服务器默认个性化偏好。</#98C69A>
   unapplied-updated: '<#98C69A>已更新 {file} 中的命名空间 {namespace}。</#98C69A>'
   unapplied-update-failed: '<#E58B8B>未找到命名空间 {namespace}，{file} 未修改。</#E58B8B>'
   unapplied-permission-required: '<#E58B8B>可见性设为 permission 时必须填写权限节点。</#E58B8B>'
@@ -184,6 +196,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>空空如也</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·配方书</#D4AF37>'
+    lore:
+      - '<#B8C0CC>左键：{left}</#B8C0CC>'
+      - '<#B8C0CC>右键：{right}</#B8C0CC>'
+      - '<#B8C0CC>潜行左键：{sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>潜行右键：{sneak-right}</#B8C0CC>'
+      - '<#8793A5>可在个性化设置中调整</#8793A5>'
   personalization:
     title: <bold><#D8B278>个性化设置</#D8B278></bold>
     description: <#B8C0CC>选择菜单样式、默认主页面，并决定重新打开菜单时是否恢复上次浏览位置。</#B8C0CC>
@@ -202,6 +222,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>关闭后恢复上次浏览位置</#79CFC9>
+    book-left-label: <#79CFC9>配方书 · 左键</#79CFC9>
+    book-right-label: <#79CFC9>配方书 · 右键</#79CFC9>
+    book-sneak-left-label: <#79CFC9>配方书 · 潜行左键</#79CFC9>
+    book-sneak-right-label: <#79CFC9>配方书 · 潜行右键</#79CFC9>
+    book-action-auto-left: 自动 · 副手空手打开物品分类，有物品查询合成配方
+    book-action-auto-right: 自动 · 副手空手打开合成器分类，有物品查询参与合成
+    book-action-item-page: 打开物品分类
+    book-action-table-page: 打开合成器分类
+    book-action-search: 打开搜索
+    book-action-offhand: 查询副手物品配方
+    book-action-offhand-usage: 查询副手物品参与合成
+    book-action-target: 查询准星方块配方
+    book-action-target-usage: 查询准星方块参与合成
+    book-action-personalization: 打开偏好页面
+    get-book: <#E79A45>获取配方书</#E79A45>
+    get-book-tooltip: <#B8C0CC>将一本 CER 配方书加入背包</#B8C0CC>
+    restore-defaults: <#E58B8B>恢复默认偏好</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>重置菜单、语言、浏览位置和配方书手势偏好</#B8C0CC>
     on: 开启
     off: 关闭
     save: <#98C69A>保存设置</#98C69A>
@@ -278,6 +316,7 @@ ui:
   config-editor:
     general-title: '<bold><#D8B278>config.yml · 通用设置</#D8B278></bold>'
     data-title: '<bold><#D8B278>config.yml · 数据与性能</#D8B278></bold>'
+    recipe-book-title: '<bold><#D8B278>CER 配方书设置</#D8B278></bold>'
     description: '<#B8C0CC>修改常用配置。保存后自动重建索引；详细注释仍可直接在 config.yml 中编辑。</#B8C0CC>'
     save: <#98C69A>保存并重载</#98C69A>
     save-tooltip: <#B8C0CC>写入 config.yml 并重建菜单与数据索引</#B8C0CC>
@@ -286,6 +325,10 @@ ui:
     open-data: <#79CFC9>数据与性能</#79CFC9>
     open-general: <#79CFC9>通用设置</#79CFC9>
     open-page-tooltip: <#B8C0CC>切换到另一组配置，不保存当前 Dialog</#B8C0CC>
+    open-recipe-book: <#79CFC9>配方书设置</#79CFC9>
+    recipe-book-enabled: <#79CFC9>启用 CER 配方书</#79CFC9>
+    recipe-book-name: <#79CFC9>配方书名称</#79CFC9>
+    recipe-book-lore: '<#79CFC9>配方书 Lore；支持 {left}、{right}、{sneak-left}、{sneak-right}</#79CFC9>'
     landing-page: <#79CFC9>默认主页</#79CFC9>
     landing-namespaces: 按物品种类
     landing-workstations: 按合成器

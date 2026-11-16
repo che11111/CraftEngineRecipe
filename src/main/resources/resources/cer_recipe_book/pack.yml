@@ -1,0 +1,5 @@
+author: CraftEngineRecipe,che1s
+version: 1.0.0
+description: CraftEngineRecipe 配方书物品资源包
+namespace: cer_recipe_book
+enable: true

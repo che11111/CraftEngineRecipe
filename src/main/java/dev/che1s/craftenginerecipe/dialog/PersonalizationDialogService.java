@@ -27,6 +27,10 @@ public final class PersonalizationDialogService {
     private static final String REMEMBER_KEY = "cer_personalization_remember";
     private static final String MAIN_PAGE_KEY = "cer_personalization_main_page";
     private static final String LANGUAGE_KEY = "cer_personalization_language";
+    private static final String BOOK_LEFT_KEY = "cer_personalization_book_left";
+    private static final String BOOK_RIGHT_KEY = "cer_personalization_book_right";
+    private static final String BOOK_SNEAK_LEFT_KEY = "cer_personalization_book_sneak_left";
+    private static final String BOOK_SNEAK_RIGHT_KEY = "cer_personalization_book_sneak_right";
 
     private final CraftEngineRecipePlugin plugin;
 
@@ -87,6 +91,20 @@ public final class PersonalizationDialogService {
                 .onTrue(this.booleanText(language, true))
                 .onFalse(this.booleanText(language, false))
                 .build();
+        boolean bookEnabled = this.plugin.recipeBook().enabled();
+        List<DialogInput> inputs = new ArrayList<>(List.of(
+                menuInput, mainPageInput, languageInput, rememberInput));
+        if (bookEnabled) {
+            PlayerPreferences.BookBindings bindings = preferences.bookBindings(player.getUniqueId());
+            inputs.add(this.bookActionInput(language, BOOK_LEFT_KEY,
+                    "ui.personalization.book-left-label", bindings.left()));
+            inputs.add(this.bookActionInput(language, BOOK_RIGHT_KEY,
+                    "ui.personalization.book-right-label", bindings.right()));
+            inputs.add(this.bookActionInput(language, BOOK_SNEAK_LEFT_KEY,
+                    "ui.personalization.book-sneak-left-label", bindings.sneakLeft()));
+            inputs.add(this.bookActionInput(language, BOOK_SNEAK_RIGHT_KEY,
+                    "ui.personalization.book-sneak-right-label", bindings.sneakRight()));
+        }
 
         ActionButton save = ActionButton.create(
                 language.component("ui.personalization.save"),
@@ -104,15 +122,51 @@ public final class PersonalizationDialogService {
                                 this.schedule(player, generation, () -> this.reopen(player, source, snapshot)),
                         ClickCallback.Options.builder().uses(1)
                                 .lifetime(Duration.ofMinutes(5L)).build()));
+        ActionButton restoreDefaults = ActionButton.create(
+                language.component("ui.personalization.restore-defaults"),
+                language.component("ui.personalization.restore-defaults-tooltip"),
+                100,
+                DialogAction.customClick((view, audience) -> this.schedule(player, generation, () -> {
+                    PlayerPreferences currentPreferences = this.plugin.playerPreferences();
+                    if (currentPreferences == null) return;
+                    currentPreferences.reset(player.getUniqueId());
+                    this.plugin.sessions().clear(player.getUniqueId());
+                    GuiSession.clear(player);
+                    player.sendMessage(this.plugin.lang(player).message("messages.personalization-reset"));
+                    this.plugin.tasks().playerLater(player, () -> this.open(player), 1);
+                }), ClickCallback.Options.builder().uses(1)
+                        .lifetime(Duration.ofMinutes(5L)).build()));
+        List<ActionButton> actions = new ArrayList<>(List.of(save));
+        if (bookEnabled) {
+            ActionButton getBook = ActionButton.create(
+                    language.component("ui.personalization.get-book"),
+                    language.component("ui.personalization.get-book-tooltip"),
+                    100,
+                    DialogAction.customClick((view, audience) -> this.schedule(player, generation, () -> {
+                        if (this.plugin.recipeBook().give(player)) {
+                            player.sendMessage(language.message("messages.recipe-book-given"));
+                        } else {
+                            player.sendMessage(language.message("messages.recipe-book-not-ready"));
+                        }
+                    }), ClickCallback.Options.builder().uses(5)
+                            .lifetime(Duration.ofMinutes(5L)).build()));
+            actions.add(getBook);
+        }
+        actions.add(restoreDefaults);
+        actions.add(cancel);
+        DialogType dialogType = DialogType.multiAction(actions)
+                .exitAction(cancel)
+                .columns(actions.size())
+                .build();
         Dialog dialog = Dialog.create(factory -> factory.empty()
                 .base(DialogBase.builder(language.component("ui.personalization.title"))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
                                 language.component("ui.personalization.description"))))
-                        .inputs(List.of(menuInput, mainPageInput, languageInput, rememberInput))
+                        .inputs(inputs)
                         .build())
-                .type(DialogType.confirmation(save, cancel)));
+                .type(dialogType));
         this.plugin.browser(player).leaveForDialog(player);
         player.showDialog(dialog);
         return true;
@@ -124,10 +178,24 @@ public final class PersonalizationDialogService {
         String language = language(view.getText(LANGUAGE_KEY));
         PlayerPreferences.LandingPage landingPage = landingPage(view.getText(MAIN_PAGE_KEY));
         Boolean remember = view.getBoolean(REMEMBER_KEY);
+        PlayerPreferences.BookBindings bookBindings = null;
+        if (this.plugin.recipeBook().enabled()) {
+            PlayerPreferences.BookAction left = PlayerPreferences.BookAction.parse(
+                    view.getText(BOOK_LEFT_KEY));
+            PlayerPreferences.BookAction right = PlayerPreferences.BookAction.parse(
+                    view.getText(BOOK_RIGHT_KEY));
+            PlayerPreferences.BookAction sneakLeft = PlayerPreferences.BookAction.parse(
+                    view.getText(BOOK_SNEAK_LEFT_KEY));
+            PlayerPreferences.BookAction sneakRight = PlayerPreferences.BookAction.parse(
+                    view.getText(BOOK_SNEAK_RIGHT_KEY));
+            if (left == null || right == null || sneakLeft == null || sneakRight == null) return;
+            bookBindings = new PlayerPreferences.BookBindings(left, right, sneakLeft, sneakRight);
+        }
         if (menuPack == null || !packs.contains(menuPack) || landingPage == null
                 || remember == null || language == null) {
             return;
         }
+        PlayerPreferences.BookBindings selectedBookBindings = bookBindings;
         this.schedule(player, generation, () -> {
             PlayerPreferences preferences = this.plugin.playerPreferences();
             PlayerPreferences.LandingPage previousLanding = preferences.landingPage(player.getUniqueId());
@@ -137,6 +205,9 @@ public final class PersonalizationDialogService {
             preferences.setRememberLastPage(player.getUniqueId(), remember);
             preferences.setLandingPage(player.getUniqueId(), landingPage);
             preferences.setLanguage(player.getUniqueId(), language);
+            if (selectedBookBindings != null) {
+                preferences.setBookBindings(player.getUniqueId(), selectedBookBindings);
+            }
             boolean landingChanged = previousLanding != landingPage;
             boolean languageChanged = !previousLanguage.equals(language);
             if (!remember || landingChanged || languageChanged) {
@@ -239,5 +310,20 @@ public final class PersonalizationDialogService {
         return choices.stream().map(choice -> SingleOptionDialogInput.OptionEntry.create(
                 choice[0], language.component("ui.personalization." + choice[1]),
                 selected.equals(choice[0]))).toList();
+    }
+
+    private SingleOptionDialogInput bookActionInput(
+            LanguageManager.Localized language, String key, String labelKey,
+            PlayerPreferences.BookAction selected) {
+        List<SingleOptionDialogInput.OptionEntry> entries = new ArrayList<>();
+        for (PlayerPreferences.BookAction action : PlayerPreferences.BookAction.values()) {
+            entries.add(SingleOptionDialogInput.OptionEntry.create(action.name().toLowerCase(java.util.Locale.ROOT),
+                    language.component(dev.che1s.craftenginerecipe.book.RecipeBookService.actionKey(action)),
+                    action == selected));
+        }
+        return DialogInput.singleOption(key, language.component(labelKey), entries)
+                .width(300)
+                .labelVisible(true)
+                .build();
     }
 }

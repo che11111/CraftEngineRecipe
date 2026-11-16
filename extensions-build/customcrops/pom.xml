@@ -6,7 +6,7 @@
     <parent>
         <groupId>dev.che1s.craftenginerecipe.extensions</groupId>
         <artifactId>extensions-build</artifactId>
-        <version>1.2.0-alpha.1</version>
+        <version>1.2.0-alpha.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>customcrops-extension</artifactId>

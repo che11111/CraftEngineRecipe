@@ -33,17 +33,26 @@ public final class PlayerPreferences implements AutoCloseable {
                 remember_last_page INTEGER,
                 landing_page TEXT,
                 language TEXT,
+                book_left TEXT,
+                book_right TEXT,
+                book_sneak_left TEXT,
+                book_sneak_right TEXT,
                 updated_at INTEGER NOT NULL
             )
             """;
     private static final String UPSERT = """
-            INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, landing_page, language, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, landing_page, language,
+                book_left, book_right, book_sneak_left, book_sneak_right, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(player_uuid) DO UPDATE SET
                 menu_pack = excluded.menu_pack,
                 remember_last_page = excluded.remember_last_page,
                 landing_page = excluded.landing_page,
                 language = excluded.language,
+                book_left = excluded.book_left,
+                book_right = excluded.book_right,
+                book_sneak_left = excluded.book_sneak_left,
+                book_sneak_right = excluded.book_sneak_right,
                 updated_at = excluded.updated_at
             """;
     private static final String CREATE_SESSION_TABLE = """
@@ -71,6 +80,74 @@ public final class PlayerPreferences implements AutoCloseable {
                 case "namespaces", "categories", "namespace" -> NAMESPACES;
                 case "workstations", "workstation" -> WORKSTATIONS;
                 default -> null;
+            };
+        }
+    }
+
+    public enum BookSlot {
+        LEFT,
+        RIGHT,
+        SNEAK_LEFT,
+        SNEAK_RIGHT
+    }
+
+    public enum BookAction {
+        AUTO_OFFHAND_LEFT,
+        AUTO_OFFHAND_RIGHT,
+        ITEM_PAGE,
+        TABLE_PAGE,
+        SEARCH_PAGE,
+        OFFHAND_RECIPE,
+        OFFHAND_USAGE,
+        TARGET_RECIPE,
+        TARGET_USAGE,
+        PERSONALIZATION;
+
+        public static BookAction defaultFor(BookSlot slot) {
+            return switch (slot) {
+                case LEFT -> AUTO_OFFHAND_LEFT;
+                case RIGHT -> AUTO_OFFHAND_RIGHT;
+                case SNEAK_LEFT -> SEARCH_PAGE;
+                case SNEAK_RIGHT -> TARGET_RECIPE;
+            };
+        }
+
+        public static BookAction parse(String value) {
+            if (value == null || value.isBlank()) return null;
+            return switch (value.trim().toLowerCase(Locale.ROOT)) {
+                case "auto_offhand_left", "auto_left" -> AUTO_OFFHAND_LEFT;
+                case "auto_offhand_right", "auto_right" -> AUTO_OFFHAND_RIGHT;
+                case "item_page", "item", "items", "namespace" -> ITEM_PAGE;
+                case "table_page", "table", "workstation", "workstations" -> TABLE_PAGE;
+                case "search_page", "search" -> SEARCH_PAGE;
+                case "offhand_recipe", "offhand" -> OFFHAND_RECIPE;
+                case "offhand_usage", "offhand_uses" -> OFFHAND_USAGE;
+                case "target_recipe", "target" -> TARGET_RECIPE;
+                case "target_usage", "target_uses" -> TARGET_USAGE;
+                case "personalization", "preferences", "preference" -> PERSONALIZATION;
+                default -> null;
+            };
+        }
+    }
+
+    public record BookBindings(BookAction left, BookAction right,
+                               BookAction sneakLeft, BookAction sneakRight) {
+        public static BookBindings defaults() {
+            return new BookBindings(
+                    BookAction.defaultFor(BookSlot.LEFT),
+                    BookAction.defaultFor(BookSlot.RIGHT),
+                    BookAction.defaultFor(BookSlot.SNEAK_LEFT),
+                    BookAction.defaultFor(BookSlot.SNEAK_RIGHT));
+        }
+
+        public BookAction action(BookSlot slot) {
+            return switch (slot) {
+                case LEFT -> this.left == null ? BookAction.defaultFor(slot) : this.left;
+                case RIGHT -> this.right == null ? BookAction.defaultFor(slot) : this.right;
+                case SNEAK_LEFT -> this.sneakLeft == null
+                        ? BookAction.defaultFor(slot) : this.sneakLeft;
+                case SNEAK_RIGHT -> this.sneakRight == null
+                        ? BookAction.defaultFor(slot) : this.sneakRight;
             };
         }
     }
@@ -160,36 +237,76 @@ public final class PlayerPreferences implements AutoCloseable {
                 ? stored.landingPage() : this.settings.defaultLandingPage();
     }
 
+    public BookBindings bookBindings(UUID player) {
+        Stored stored = this.preferences.get(player);
+        BookBindings defaults = BookBindings.defaults();
+        if (stored == null) return defaults;
+        return new BookBindings(
+                stored.bookLeft() == null ? defaults.left() : stored.bookLeft(),
+                stored.bookRight() == null ? defaults.right() : stored.bookRight(),
+                stored.bookSneakLeft() == null ? defaults.sneakLeft() : stored.bookSneakLeft(),
+                stored.bookSneakRight() == null ? defaults.sneakRight() : stored.bookSneakRight());
+    }
+
     public boolean setMenuPack(UUID player, String menuPack) {
         String normalized = normalize(menuPack);
         if (normalized == null || !this.settings.menuPacks().contains(normalized)) return false;
-        this.update(player, normalized, null, null, null);
+        this.update(player, normalized, null, null, null, null);
         return true;
     }
 
     public void setRememberLastPage(UUID player, boolean remember) {
-        this.update(player, null, remember, null, null);
+        this.update(player, null, remember, null, null, null);
     }
 
     public void setLandingPage(UUID player, LandingPage landingPage) {
-        if (landingPage != null) this.update(player, null, null, landingPage, null);
+        if (landingPage != null) this.update(player, null, null, landingPage, null, null);
     }
 
     public boolean setLanguage(UUID player, String language) {
         String normalized = normalizeLanguage(language);
         if (normalized == null) return false;
-        this.update(player, null, null, null, normalized);
+        this.update(player, null, null, null, normalized, null);
         return true;
     }
 
+    public boolean setBookBindings(UUID player, BookBindings bindings) {
+        if (bindings == null || bindings.left() == null || bindings.right() == null
+                || bindings.sneakLeft() == null || bindings.sneakRight() == null) {
+            return false;
+        }
+        this.update(player, null, null, null, null, bindings);
+        return true;
+    }
+
+    /** Removes all player-specific overrides so server defaults apply again. */
+    public void reset(UUID player) {
+        if (player == null) return;
+        this.preferences.remove(player);
+        this.writer.execute(() -> {
+            try (Connection connection = this.connection();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "DELETE FROM player_preferences WHERE player_uuid = ?")) {
+                statement.setString(1, player.toString());
+                statement.executeUpdate();
+            } catch (SQLException error) {
+                this.logger.warning("Cannot reset player preferences: " + error.getMessage());
+            }
+        });
+    }
+
     private void update(UUID player, String menuPack, Boolean remember,
-                        LandingPage landingPage, String language) {
+                        LandingPage landingPage, String language, BookBindings bookBindings) {
         Stored stored = this.preferences.compute(player, (ignored, current) -> {
             Stored value = current == null ? Stored.EMPTY : current;
             return new Stored(menuPack == null ? value.menuPack() : menuPack,
                     remember == null ? value.rememberLastPage() : remember,
                     landingPage == null ? value.landingPage() : landingPage,
-                    language == null ? value.language() : language);
+                    language == null ? value.language() : language,
+                    bookBindings == null ? value.bookLeft() : bookBindings.left(),
+                    bookBindings == null ? value.bookRight() : bookBindings.right(),
+                    bookBindings == null ? value.bookSneakLeft() : bookBindings.sneakLeft(),
+                    bookBindings == null ? value.bookSneakRight() : bookBindings.sneakRight());
         });
         this.writer.execute(() -> this.persist(player, stored));
     }
@@ -205,6 +322,10 @@ public final class PlayerPreferences implements AutoCloseable {
                 statement.execute(CREATE_SESSION_TABLE);
                 ensureColumn(connection, "landing_page", "TEXT");
                 ensureColumn(connection, "language", "TEXT");
+                ensureColumn(connection, "book_left", "TEXT");
+                ensureColumn(connection, "book_right", "TEXT");
+                ensureColumn(connection, "book_sneak_left", "TEXT");
+                ensureColumn(connection, "book_sneak_right", "TEXT");
             }
         } catch (Exception error) {
             this.logger.warning("Cannot initialize player preferences database: " + error.getMessage());
@@ -215,7 +336,8 @@ public final class PlayerPreferences implements AutoCloseable {
         try (Connection connection = this.connection();
              Statement statement = connection.createStatement();
              ResultSet result = statement.executeQuery(
-                     "SELECT player_uuid, menu_pack, remember_last_page, landing_page, language "
+                     "SELECT player_uuid, menu_pack, remember_last_page, landing_page, language, "
+                             + "book_left, book_right, book_sneak_left, book_sneak_right "
                              + "FROM player_preferences")) {
             while (result.next()) {
                 try {
@@ -225,7 +347,11 @@ public final class PlayerPreferences implements AutoCloseable {
                     Boolean rememberLastPage = result.wasNull() ? null : remember != 0;
                     LandingPage landingPage = LandingPage.parse(result.getString("landing_page"));
                     String language = normalizeLanguage(result.getString("language"));
-                    this.preferences.put(player, new Stored(menuPack, rememberLastPage, landingPage, language));
+                    this.preferences.put(player, new Stored(menuPack, rememberLastPage, landingPage, language,
+                            BookAction.parse(result.getString("book_left")),
+                            BookAction.parse(result.getString("book_right")),
+                            BookAction.parse(result.getString("book_sneak_left")),
+                            BookAction.parse(result.getString("book_sneak_right"))));
                 } catch (IllegalArgumentException ignored) {
                     // 忽略 UUID 格式错误的行，不影响数据库中的其他记录。
                 }
@@ -244,7 +370,13 @@ public final class PlayerPreferences implements AutoCloseable {
             if (stored.landingPage() == null) statement.setNull(4, java.sql.Types.VARCHAR);
             else statement.setString(4, stored.landingPage().name().toLowerCase(Locale.ROOT));
             statement.setString(5, stored.language());
-            statement.setLong(6, System.currentTimeMillis());
+            statement.setString(6, stored.bookLeft() == null ? null : stored.bookLeft().name().toLowerCase(Locale.ROOT));
+            statement.setString(7, stored.bookRight() == null ? null : stored.bookRight().name().toLowerCase(Locale.ROOT));
+            statement.setString(8, stored.bookSneakLeft() == null ? null
+                    : stored.bookSneakLeft().name().toLowerCase(Locale.ROOT));
+            statement.setString(9, stored.bookSneakRight() == null ? null
+                    : stored.bookSneakRight().name().toLowerCase(Locale.ROOT));
+            statement.setLong(10, System.currentTimeMillis());
             statement.executeUpdate();
         } catch (SQLException error) {
             this.logger.warning("Cannot save player preferences: " + error.getMessage());
@@ -344,8 +476,11 @@ public final class PlayerPreferences implements AutoCloseable {
     }
 
     private record Stored(String menuPack, Boolean rememberLastPage,
-                          LandingPage landingPage, String language) {
-        private static final Stored EMPTY = new Stored(null, null, null, null);
+                          LandingPage landingPage, String language,
+                          BookAction bookLeft, BookAction bookRight,
+                          BookAction bookSneakLeft, BookAction bookSneakRight) {
+        private static final Stored EMPTY = new Stored(null, null, null, null,
+                null, null, null, null);
     }
 
     public record StoredSession(String snapshot, long savedAt) {

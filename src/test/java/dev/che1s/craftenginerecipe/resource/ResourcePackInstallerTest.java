@@ -138,13 +138,14 @@ class ResourcePackInstallerTest {
     @Test
     void extensionResourcePacksArePartOfTheManagedSelection() throws IOException {
         List<String> selected = MenuPackManager.selectedPacks(
-                ResourcePackInstaller.REQUIRED_GUI_PACKS,
+                ResourcePackInstaller.REQUIRED_CORE_PACKS,
                 List.of("cer_menu_cute"),
                 List.of("cer_fd_gui", "cer_kc_gui", "cer_fd_gui", "../invalid"));
         assertEquals(List.of(
                         "cer_cultivation_gui",
                         "cer_api_gui",
                         "cer_manage_gui",
+                        "cer_recipe_book",
                         "cer_menu_cute",
                         "cer_fd_gui",
                         "cer_kc_gui"),

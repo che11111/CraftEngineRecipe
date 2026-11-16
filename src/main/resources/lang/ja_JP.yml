@@ -17,7 +17,19 @@ messages:
   debug-performance-note: <#8793A5>Timings はネストされる可能性があり、サーバーの CPU パーセンテージに追加することはできません。リセットし、速度低下を再現してから検査します。呼び出しスタックには Spark を使用します。グローバル TPS/MSPT は Folia.</#8793A5> では利用できない可能性があります
   no-permission: <#E58B8B>これを行う権限がありません。</#E58B8B>
   player-only: <#E58B8B>このコマンドはプレイヤーのみが使用できます。</#E58B8B>
+  recipe-book-disabled: <#E58B8B>CER レシピブック機能は無効です。</#E58B8B>
+  recipe-book-not-ready: <#E4D397>レシピブックのアイテムはまだ準備できていません。CraftEngine の読み込み後にもう一度お試しください。</#E4D397>
+  recipe-book-given: <#98C69A>CER レシピブックを受け取りました。</#98C69A>
+  recipe-book-given-other: <#98C69A>{player} に CER レシピブックを渡しました。</#98C69A>
+  recipe-book-give-usage: '<#E4D397>使用法: /cer givebook &lt;プレイヤー名&gt;</#E4D397>'
+  recipe-book-player-not-found: '<#E58B8B>プレイヤーが見つからないかオンラインではありません: {player}</#E58B8B>'
+  offhand-empty: <#E58B8B>オフハンドが空です。</#E58B8B>
+  offhand-item-unavailable: <#E58B8B>オフハンドのアイテムはレシピ索引にありません。</#E58B8B>
+  offhand-no-recipe: <#E58B8B>オフハンドのアイテムを生成するレシピはありません。</#E58B8B>
+  offhand-no-usage: <#E58B8B>オフハンドのアイテムは索引済みのレシピで使用されていません。</#E58B8B>
+  target-block-no-usage: <#E58B8B>照準ブロックのアイテムは索引済みのレシピで使用されていません。</#E58B8B>
   personalization-saved: '<#98C69A>保存された設定: メニュー スタイル {menu}、デフォルトのメイン ページ {main}、復元位置: {remember}.</#98C69A>'
+  personalization-reset: <#98C69A>個人設定をサーバーのデフォルトに戻しました。</#98C69A>
   unapplied-updated: <#98C69A>{file}.</#98C69A> のネームスペース {namespace} を更新しました
   unapplied-update-failed: <#E58B8B>名前空間 {namespace} が見つかりませんでした。 {file} は変更されませんでした。</#E58B8B>
   unapplied-permission-required: 可視性が許可に設定されている場合、<#E58B8B>A 許可ノードが必要です。</#E58B8B>
@@ -175,6 +187,14 @@ ui:
     item-lore: []
     empty:
       name: <#E58B8B>ここには何もありません</#E58B8B>
+  recipe-book:
+    name: '<#D4AF37>CER·レシピブック</#D4AF37>'
+    lore:
+      - '<#B8C0CC>左クリック：{left}</#B8C0CC>'
+      - '<#B8C0CC>右クリック：{right}</#B8C0CC>'
+      - '<#B8C0CC>スニーク + 左クリック：{sneak-left}</#B8C0CC>'
+      - '<#B8C0CC>スニーク + 右クリック：{sneak-right}</#B8C0CC>'
+      - '<#8793A5>個人設定で変更できます</#8793A5>'
   personalization:
     title: <bold><#D8B278>カスタマイズ</#D8B278></bold>
     description: <#B8C0CC>メニュー スタイルとデフォルトのメイン ページを選択し、再度開くと最後の位置を復元するかどうかを選択します。</#B8C0CC>
@@ -193,6 +213,24 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>クローズ後に最後のポジションを復元</#79CFC9>
+    book-left-label: <#79CFC9>レシピブック · 左クリック</#79CFC9>
+    book-right-label: <#79CFC9>レシピブック · 右クリック</#79CFC9>
+    book-sneak-left-label: <#79CFC9>レシピブック · スニーク + 左クリック</#79CFC9>
+    book-sneak-right-label: <#79CFC9>レシピブック · スニーク + 右クリック</#79CFC9>
+    book-action-auto-left: 自動 · オフハンドが空ならアイテム分類、所持なら作成レシピ
+    book-action-auto-right: 自動 · オフハンドが空なら作業台分類、所持ならレシピ用途
+    book-action-item-page: アイテムカテゴリを開く
+    book-action-table-page: 作業台カテゴリを開く
+    book-action-search: 検索を開く
+    book-action-offhand: オフハンドのレシピを検索
+    book-action-offhand-usage: オフハンドのレシピ用途を検索
+    book-action-target: 照準ブロックのレシピを検索
+    book-action-target-usage: 照準ブロックのレシピ用途を検索
+    book-action-personalization: 個人設定を開く
+    get-book: <#E79A45>レシピブックを取得</#E79A45>
+    get-book-tooltip: <#B8C0CC>CER レシピブックをインベントリに追加します</#B8C0CC>
+    restore-defaults: <#E58B8B>既定の個人設定に戻す</#E58B8B>
+    restore-defaults-tooltip: <#B8C0CC>メニュー、言語、閲覧位置、レシピブック設定をリセットします</#B8C0CC>
     true: 有効
     false: 障害者
     save: <#98C69A>設定を保存</#98C69A>
@@ -269,6 +307,7 @@ ui:
   config-editor:
     general-title: <bold><#D8B278>config.yml · 全般</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · データとパフォーマンス</#D8B278></bold>
+    recipe-book-title: <bold><#D8B278>CER レシピブック設定</#D8B278></bold>
     description: <#B8C0CC>一般的に変更される設定を編集します。保存するとインデックスが再構築されます。詳細なコメントは config.yml.</#B8C0CC> で引き続き編集可能です
     save: <#98C69A>保存して再ロード</#98C69A>
     save-tooltip: <#B8C0CC>config.yml を書き込み、メニューとデータ インデックスを再構築する</#B8C0CC>
@@ -277,6 +316,10 @@ ui:
     open-data: <#79CFC9>データとパフォーマンス</#79CFC9>
     open-general: <#79CFC9>一般設定</#79CFC9>
     open-page-tooltip: <#B8C0CC>このダイアログを保存せずに他の設定ページに切り替えます</#B8C0CC>
+    open-recipe-book: <#79CFC9>レシピブック設定</#79CFC9>
+    recipe-book-enabled: <#79CFC9>CER レシピブックを有効化</#79CFC9>
+    recipe-book-name: <#79CFC9>レシピブック名</#79CFC9>
+    recipe-book-lore: '<#79CFC9>レシピブックの Lore；{left}、{right}、{sneak-left}、{sneak-right} に対応</#79CFC9>'
     landing-page: <#79CFC9>デフォルトのランディング ページ</#79CFC9>
     landing-namespaces: アイテムカテゴリ
     landing-workstations: ワークステーション

@@ -40,6 +40,7 @@ public final class ResourcePackInstaller {
     public static final String CULTIVATION_PACK_DIRECTORY = "cer_cultivation_gui";
     public static final String API_PACK_DIRECTORY = "cer_api_gui";
     public static final String MANAGEMENT_PACK_DIRECTORY = "cer_manage_gui";
+    public static final String RECIPE_BOOK_PACK_DIRECTORY = "cer_recipe_book";
     /**
      * Packs whose lifetime is owned by the core. Source-specific packs
      * ({@code cer_kc_gui}, {@code cer_fd_gui}, {@code cer_ccrops_gui}) are installed from their
@@ -49,6 +50,11 @@ public final class ResourcePackInstaller {
             CULTIVATION_PACK_DIRECTORY,
             API_PACK_DIRECTORY,
             MANAGEMENT_PACK_DIRECTORY);
+    public static final List<String> REQUIRED_CORE_PACKS = List.of(
+            CULTIVATION_PACK_DIRECTORY,
+            API_PACK_DIRECTORY,
+            MANAGEMENT_PACK_DIRECTORY,
+            RECIPE_BOOK_PACK_DIRECTORY);
 
     private ResourcePackInstaller() {}
 

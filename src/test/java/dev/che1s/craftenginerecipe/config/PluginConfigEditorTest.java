@@ -3,6 +3,8 @@ package dev.che1s.craftenginerecipe.config;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -59,5 +61,22 @@ class PluginConfigEditorTest {
         assertNull(PluginConfigEditor.parseWithinRange("9", 10, 200));
         assertNull(PluginConfigEditor.parseWithinRange("201", 10, 200));
         assertNull(PluginConfigEditor.parseWithinRange("many", 10, 200));
+    }
+
+    @Test
+    void writesValidatedRecipeBookSettings() {
+        YamlConfiguration config = new YamlConfiguration();
+        List<String> lore = List.of("<#D4AF37>Book</#D4AF37>", "Left: {left}");
+
+        assertTrue(PluginConfigEditor.apply(config,
+                new PluginConfigEditor.BookSettings(false, "zh_CN", "  Gold Book  ", lore)));
+
+        assertFalse(config.getBoolean("recipe-book.enabled", true));
+        assertEquals("Gold Book", config.getString("recipe-book.name-overrides.zh_CN"));
+        assertEquals(lore, config.getStringList("recipe-book.lore-overrides.zh_CN"));
+
+        assertFalse(PluginConfigEditor.apply(config,
+                new PluginConfigEditor.BookSettings(true, "zh_CN", " ", lore)));
+        assertFalse(config.getBoolean("recipe-book.enabled", true));
     }
 }
