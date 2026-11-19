@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>핫키를 사용하려면 몰래 들어가야 합니다.</#79CFC9>
     updates: <#79CFC9>GitHub에서 안정적인 업데이트를 확인하세요.</#79CFC9>
     source-craftengine: <#79CFC9>CraftEngine 레시피 소스 활성화</#79CFC9>
-    source-minecraft: <#79CFC9>바닐라 레시피 데이터 활성화</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>바닐라 재배 데이터 활성화</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>CraftEngine 재배 데이터 활성화</#79CFC9>
     auto-reload: <#79CFC9>레시피 보기/파일 변경</#79CFC9>

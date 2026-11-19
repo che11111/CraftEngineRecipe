@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 public final class IntegrationLanguageManager {
     private static final List<String> LOCALES = LanguageManager.supportedLocales();
     private static final List<String> SOURCES = List.of(
-            "craftengine", "farmersdelight", "kaleidoscope",
+            "craftengine", "farmersdelight", "trailandtalesdelight", "kaleidoscope",
             "customcrops", "cultivation", "minecraft", "private_alchemy");
     private final Path directory;
     private final Function<String, InputStream> resources;

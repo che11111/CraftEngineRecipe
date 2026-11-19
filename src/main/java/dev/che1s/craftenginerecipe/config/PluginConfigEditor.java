@@ -19,7 +19,6 @@ public final class PluginConfigEditor {
 
     public record DataSettings(
             boolean craftEngine,
-            boolean minecraft,
             boolean minecraftCultivation,
             boolean craftEngineCultivation,
             boolean autoReload,
@@ -57,7 +56,6 @@ public final class PluginConfigEditor {
             return false;
         }
         set(config, "sources.craftengine", settings.craftEngine());
-        set(config, "sources.minecraft", settings.minecraft());
         set(config, "sources.minecraft-cultivation", settings.minecraftCultivation());
         set(config, "sources.craftengine-cultivation", settings.craftEngineCultivation());
         set(config, "recipes.auto-reload", settings.autoReload());

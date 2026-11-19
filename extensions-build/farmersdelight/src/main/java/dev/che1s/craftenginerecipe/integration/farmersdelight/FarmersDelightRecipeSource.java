@@ -51,6 +51,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
     private static final String COOKING_POT_TITLE = "农夫乐事·烹饪锅";
     private static final String CUTTING_BOARD_TITLE = "农夫乐事·砧板";
     private static final String SPECIAL_RECIPE_TITLE = "农夫乐事·特殊配方";
+    private static final String TRAIL_TALES_RECIPE_TYPE = "trailandtales_delight:trail_recipes";
     private static final int FAKE_BUTTON_SLOT = 0;
     public static final String PLUGIN_NAME = "FarmersDelight";
     private static final String ROOT = "com.huidu.farmersdelight.";
@@ -153,6 +154,7 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         state.boards.forEach((key, value) -> safely(recipes, "cutting_board/" + key, () -> board(value, options, titles, slots)));
         for (Object special : state.specials) safely(recipes, "special/" + text(special, "id"), () -> special(special, titles));
         for (Object type : state.types) {
+            if (TRAIL_TALES_RECIPE_TYPE.equals(text(type, "id"))) continue;
             try {
                 for (Object recipe : list(reflection.call(type, "recipes"))) {
                     safely(recipes, text(type, "id") + "/" + text(recipe, "id"), () -> addon(type, recipe));

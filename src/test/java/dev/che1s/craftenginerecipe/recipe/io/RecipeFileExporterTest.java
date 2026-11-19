@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,6 +38,32 @@ class RecipeFileExporterTest {
         }
         assertTrue(contents.contains("private:new"));
         assertFalse(contents.contains("private:old"));
+    }
+
+    @Test
+    void localizedItemNamesAreWrittenAsYamlLanguageMaps() throws Exception {
+        RecipeItem wheat = new RecipeItem("minecraft", "minecraft:wheat", null,
+                "Wheat", List.of(), Map.of(
+                "en_US", "Wheat",
+                "zh_CN", "小麦",
+                "ja_JP", "小麦"));
+        DisplayRecipe recipe = new DisplayRecipe("cultivation:wheat",
+                new RecipeWorkstation("minecraft:cultivation",
+                        RecipeItem.of("minecraft:farmland"), "Cultivation"),
+                RecipeLayout.defaults(), List.of(),
+                List.of(new RecipeResult(wheat, 1, 16, null)),
+                List.of(), null, null);
+
+        RecipeFileExporter.export(this.directory.resolve("recipes"), "minecraft-cultivation",
+                List.of(recipe));
+
+        Path file;
+        try (var paths = Files.walk(this.directory.resolve("recipes"))) {
+            file = paths.filter(Files::isRegularFile).findFirst().orElseThrow();
+        }
+        String contents = Files.readString(file);
+        assertTrue(contents.contains("en_US: Wheat"));
+        assertTrue(contents.contains("zh_CN: 小麦"));
     }
 
     private static DisplayRecipe recipe(String id) {

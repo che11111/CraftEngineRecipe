@@ -273,6 +273,18 @@ class FarmersDelightRecipeSourceTest {
         assertUsesFarmersDelightUi(recipe);
     }
 
+    @Test void trailTalesDedicatedProviderIsExcludedFromGenericAddonImport() {
+        Api.types = List.of(new AddonType("trailandtales_delight:trail_recipes",
+                Component.text("Trail & Tales Delight"),
+                new Stack("trailandtales_delight:pottery_cooking_pot", 1),
+                List.of(new AddonRecipe("ancient_coffee",
+                        List.of(new Stack("minecraft:sugar", 1)),
+                        new Stack("trailandtales_delight:ancient_coffee", 1), Map.of()))));
+
+        assertTrue(source(new Fixture(new Snapshot(Map.of(), Map.of()), Map.of()))
+                .capture().isEmpty());
+    }
+
     private static void assertUsesFarmersDelightUi(DisplayRecipe recipe) {
         assertEquals(-1, recipe.layout().workstationSlot());
         assertEquals(-1, recipe.layout().informationSlot());

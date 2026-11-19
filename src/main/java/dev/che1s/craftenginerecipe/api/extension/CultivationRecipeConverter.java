@@ -12,6 +12,7 @@ import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /** Converts normalized cultivation documents into the shared display-recipe model. */
 public final class CultivationRecipeConverter {
@@ -49,10 +50,12 @@ public final class CultivationRecipeConverter {
             List<String> seedLore = List.of(seedLoreText);
             List<RecipeIngredient> ingredients = new ArrayList<>();
             ingredients.add(new RecipeIngredient(seeds.stream()
-                    .map(item -> new RecipeItem(item.provider(), item.id(), null, item.name(), seedLore))
+                    .map(item -> named(item, context, seedLore))
                     .toList(), 1, 19, RecipeIngredient.Role.INGREDIENT));
             List<RecipeItem> substrates = items(crop.getAsJsonArray("substrates"), context).stream()
-                    .map(CultivationRecipeConverter::displayableSubstrate).toList();
+                    .map(CultivationRecipeConverter::displayableSubstrate)
+                    .map(item -> named(item, context))
+                    .toList();
             if (!substrates.isEmpty()) {
                 ingredients.add(new RecipeIngredient(substrates, 1, 21, RecipeIngredient.Role.INFO));
             }
@@ -60,8 +63,7 @@ public final class CultivationRecipeConverter {
             for (int index = 0; index < products.size(); index++) {
                 RecipeItem product = products.get(index);
                 List<String> lore = note.isBlank() ? List.of() : List.of("<#B8C0CC>" + note + "</#B8C0CC>");
-                RecipeItem decorated = new RecipeItem(product.provider(), product.id(), null,
-                        product.name(), lore);
+                RecipeItem decorated = named(product, context, lore);
                 int slot = switch (index) {
                     case 0 -> 23;
                     case 1 -> 24;
@@ -90,9 +92,13 @@ public final class CultivationRecipeConverter {
     }
 
     private static RecipeItem named(RecipeItem item, SourceContext context) {
-        String name = context.itemDisplayName().apply(item.id());
-        return name == null || name.isBlank() ? item
-                : new RecipeItem(item.provider(), item.id(), null, name, item.lore());
+        return named(item, context, item.lore());
+    }
+
+    private static RecipeItem named(RecipeItem item, SourceContext context, List<String> lore) {
+        Map<String, String> names = context.localizedItemNames(item.id());
+        String name = names.getOrDefault("en_US", context.itemDisplayName().apply(item.id()));
+        return new RecipeItem(item.provider(), item.id(), null, name, lore, names);
     }
 
     private static RecipeItem displayableSubstrate(RecipeItem item) {

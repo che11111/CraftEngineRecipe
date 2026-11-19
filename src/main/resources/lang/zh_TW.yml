@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>快捷鍵必須潛行</#79CFC9>
     updates: <#79CFC9>檢查 GitHub 正式版更新</#79CFC9>
     source-craftengine: <#79CFC9>啟用 CraftEngine 配方來源</#79CFC9>
-    source-minecraft: <#79CFC9>啟用原版配方資料</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>啟用原版栽培資料</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>啟用 CraftEngine 栽培資料</#79CFC9>
     auto-reload: <#79CFC9>自動監聽 recipes/ 檔案變化</#79CFC9>

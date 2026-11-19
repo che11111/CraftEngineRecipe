@@ -7,14 +7,14 @@ CER 核心负责配方索引、搜索、分类、GUI 和资源包；需要访问
 ```text
 plugins/CraftEngineRecipe/
 ├── extensions/
-│   ├── cer-ext-craftengine.jar
-│   ├── cer-ext-craftengine-cultivation.jar
-│   ├── cer-ext-minecraft.jar
-│   ├── cer-ext-minecraft-cultivation.jar
-│   ├── cer-ext-farmersdelight.jar
-│   ├── cer-ext-kaleidoscope.jar
-│   ├── cer-ext-customcrops.jar
-│   └── cer-ext-private-alchemy.jar
+│   ├── cer-ext-craftengine_v<版本>.jar        # 首次运行时由主插件释放
+│   ├── cer-ext-craftengine-cultivation_v<版本>.jar
+│   ├── cer-ext-minecraft-cultivation_v<版本>.jar
+│   ├── cer-ext-farmersdelight_v<版本>.jar
+│   ├── cer-ext-trailtalesdelight_v<版本>.jar
+│   ├── cer-ext-kaleidoscope_v<版本>.jar
+│   ├── cer-ext-customcrops_v<版本>.jar
+│   └── cer-ext-private-alchemy_v<版本>.jar
 ├── extensions-data/
 │   ├── craftengine-cultivation/
 │   ├── minecraft/
@@ -27,7 +27,13 @@ plugins/CraftEngineRecipe/
     └── private_alchemy/
 ```
 
-文件名保持稳定，不要在文件名中写入版本。扩展版本由 JAR manifest 的 `Implementation-Version` 提供。升级时直接替换同名 JAR，然后完整重启服务器；已经加载的类不会被热卸载。
+`cer-ext-craftengine_v<版本>.jar` 和 `cer-ext-craftengine-cultivation_v<版本>.jar` 打包在主插件 JAR 的
+`META-INF/cer-embedded-extensions/` 下。插件仅在首次运行、即创建
+`plugins/CraftEngineRecipe/extensions/` 时释放它们。目录已经存在时，即使为空或缺少
+其中某个文件，也不会自动补齐或覆盖。`cer-ext-minecraft-cultivation_v<版本>.jar`
+不内嵌，仍需手动放入扩展目录。
+
+发布文件名包含版本号，格式为 `cer-ext-<来源>_v<版本>.jar`，扩展版本同时写入 JAR manifest 的 `Implementation-Version`。`/cer reload` 会重新扫描扩展目录；新增或删除 JAR 后会重建 Provider 及其依赖状态。升级时先移除旧版本文件，只保留当前版本，再执行重载或重启；同时存在两个提供相同 Provider ID 的版本会被加载器拒绝。替换扩展二进制后仍建议完整重启，因为 Java 不保证旧类立即卸载。
 
 从旧版无前缀文件名升级时，请移除 `craftengine.jar`、`kaleidoscope.jar` 等旧文件，只保留新的 `cer-ext-*.jar`。加载器会扫描目录中的全部 JAR，新旧文件同时存在会触发重复来源 ID 错误。
 
@@ -91,7 +97,7 @@ integration-button:
 `resource-packs` 列出 JAR 内 `resourcepack/<packId>/` 的资源包。核心会在启动时从中补齐本地资源副本，再合并进 CraftEngineRecipe 的统一资源包。每个扩展维护 `.cer-resource-state.yml` 版本与文件哈希状态：普通重启不会覆盖本地编辑；扩展版本变化时只更新上一版未被服主修改的文件。pack ID 在所有已加载扩展之间必须唯一。扩展 JAR 采用以下结构：
 
 ```text
-cer-ext-farmersdelight.jar
+cer-ext-farmersdelight_v<版本>.jar
 ├── extension.yml
 ├── workstation-presets.yml
 ├── category-presets.yml
@@ -117,16 +123,15 @@ cer-ext-farmersdelight.jar
 
 物品 ID 使用标准 `namespace:path` 格式，优先推荐扩展自己资源包中的代表性物品，再列出原版备用物品。上面的农夫乐事示例会优先显示烹饪锅；扩展物品不存在或无法构建时，自动回退到原版炼药锅。依赖不满足的已加载扩展不会创建来源，并会显示在 `/cer manage` 的右键不支持列表中。
 
-四个基础来源分别是：
+三个基础来源分别是：
 
 ```text
-craftengine              -> CraftEngine 普通配方
+craftengine              -> 当前服务器生效的 CraftEngine 与原版配方
 craftengine_cultivation  -> CraftEngine 命名空间耕地数据
-minecraft                -> 当前 MC 版本的原版配方
 minecraft_cultivation    -> 当前 MC 版本的原版耕地数据
 ```
 
-四个基础扩展默认启用，不进入适配询问。`cer-ext-minecraft.jar` 和 `cer-ext-minecraft-cultivation.jar` 内含 `1.21.7`、`1.21.8`、`1.21.9`、`1.21.10`、`1.21.11`、`26.1`、`26.2`、`26.3` 八套数据，只释放与当前服务端完全匹配的一套；找不到精确版本时扩展禁用，不降级使用其他版本。这八套数据由 `scripts/fetch-vanilla-client.sh` 下载并校验对应官方客户端 JAR 后分别提取，不能从一个版本推断另一个版本。
+三个基础扩展默认启用，不进入适配询问。带版本号的 Minecraft Cultivation 扩展内含 `1.21.7`、`1.21.8`、`1.21.9`、`1.21.10`、`1.21.11`、`26.1`、`26.2`、`26.3` 八套耕地数据，只释放与当前服务端完全匹配的一套；找不到精确版本时扩展禁用，不降级使用其他版本。这八套数据由 `scripts/fetch-vanilla-client.sh` 下载并校验对应官方客户端 JAR 后分别提取，不能从一个版本推断另一个版本。原版配方由 CraftEngine 运行时提供。
 
 缺少扩展 JAR 或缺少它要求的来源插件时，核心和其他扩展继续正常工作。扩展加载失败、API 版本不兼容、重复来源 ID 或主类不匹配都会写入控制台日志。
 
@@ -252,7 +257,8 @@ presets:
       - farmersdelight:item_display
 ```
 
-扩展预设应用到服务器文件后会写入所有权标记，值就是扩展 JAR 文件名：
+扩展预设应用到服务器文件后会写入稳定的所有权标记。实际发布 JAR 带版本后缀，但
+`cer-managed-by` 会去掉 `_v<版本>`，避免升级后误删分类和工作站配置：
 
 ```yaml
 # navigation/categories.yml
@@ -299,14 +305,14 @@ dist/CraftEngineRecipe-1.1.0-mc1.21.7-1.21.11.jar
 dist/CraftEngineRecipe-1.1.0-mc26.1.jar
 dist/CraftEngineRecipe-1.1.0-mc26.2.jar
 dist/CraftEngineRecipe-1.1.0-mc26.3.jar
-dist/extensions/cer-ext-craftengine.jar
-dist/extensions/cer-ext-craftengine-cultivation.jar
-dist/extensions/cer-ext-minecraft.jar
-dist/extensions/cer-ext-minecraft-cultivation.jar
-dist/extensions/cer-ext-farmersdelight.jar
-dist/extensions/cer-ext-kaleidoscope.jar
-dist/extensions/cer-ext-customcrops.jar
-dist/extensions/cer-ext-private-alchemy.jar
+dist/extensions/cer-ext-craftengine_v<版本>.jar
+dist/extensions/cer-ext-craftengine-cultivation_v<版本>.jar
+dist/extensions/cer-ext-minecraft-cultivation_v<版本>.jar
+dist/extensions/cer-ext-farmersdelight_v<版本>.jar
+dist/extensions/cer-ext-trailtalesdelight_v<版本>.jar
+dist/extensions/cer-ext-kaleidoscope_v<版本>.jar
+dist/extensions/cer-ext-customcrops_v<版本>.jar
+dist/extensions/cer-ext-private-alchemy_v<版本>.jar
 ```
 
 单独开发扩展时，先安装核心 API，再构建扩展 reactor：
@@ -338,8 +344,8 @@ extensions-build/farmersdelight/
     └── test/java/...
 ```
 
-原版配方、土地数据和原版翻译也分别直接位于 `extensions-build/minecraft/` 与 `extensions-build/minecraft-cultivation/`。提取脚本直接写入这两个模块；因此每个扩展可以独立检查类的来源，最终 JAR 不会包含其他扩展的重复 class。
+原版耕地数据直接位于 `extensions-build/minecraft-cultivation/`。提取脚本只写入这个模块；原版配方和名称由 CraftEngine 运行时及生成资源包提供，不再发布独立的 Minecraft 配方扩展。
 
 内置九语言文件可由 `scripts/generate-language-files.py` 重新生成。该脚本会保护 MiniMessage 标签、命名参数、颜色代码和首尾空格；提交前应运行 `LanguageBundleCoverageTest` 检查所有语言的键集合与占位符是否一致。
 
-`cer-ext-private-alchemy.jar` 是私有来源模板，默认要求插件名 `PrivateAlchemy` 和主类 `com.example.privatealchemy.PrivateAlchemyPlugin`，在真实集成完成前不会产生配方。
+`cer-ext-private-alchemy_v<版本>.jar` 是私有来源模板，默认要求插件名 `PrivateAlchemy` 和主类 `com.example.privatealchemy.PrivateAlchemyPlugin`，在真实集成完成前不会产生配方。

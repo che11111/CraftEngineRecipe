@@ -29,7 +29,6 @@ class ConfigEditorLanguageTest {
                 "ui.config-editor.hotkey-sneak",
                 "ui.config-editor.updates",
                 "ui.config-editor.source-craftengine",
-                "ui.config-editor.source-minecraft",
                 "ui.config-editor.source-minecraft-cultivation",
                 "ui.config-editor.source-craftengine-cultivation",
                 "ui.config-editor.auto-reload",

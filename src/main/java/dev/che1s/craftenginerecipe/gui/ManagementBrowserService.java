@@ -55,7 +55,8 @@ final class ManagementBrowserService {
     private static final char DIRECTORY_NEXT_SLOT = '>';
     private static final List<Integer> DIRECTORY_SLOTS = List.of(1, 2, 3, 4, 5, 6, 7);
     private static final List<String> BASE_EXTENSION_ORDER = List.of(
-            "craftengine", "craftengine_cultivation", "minecraft", "minecraft_cultivation");
+            "craftengine", "craftengine_cultivation", "minecraft_cultivation",
+            "farmersdelight", "trailandtalesdelight");
     private static final List<String> MANAGEMENT_STRUCTURE = List.of(
             "<CCCCCCC>",
             "XXXXXXXXX",
@@ -407,6 +408,7 @@ final class ManagementBrowserService {
     private Material presetFallbackMaterial(String namespace) {
         return switch (namespace) {
             case "farmersdelight" -> Material.CAULDRON;
+            case "trailandtalesdelight" -> Material.DECORATED_POT;
             case "kaleidoscopecookery", "kaleidoscope" -> Material.CAMPFIRE;
             case "customcrops" -> Material.WHEAT;
             case "barbequesdelight" -> Material.COOKED_BEEF;
@@ -1080,9 +1082,9 @@ final class ManagementBrowserService {
         return switch (id) {
             case "craftengine" -> Material.COMMAND_BLOCK;
             case "craftengine_cultivation" -> Material.NETHER_WART;
-            case "minecraft" -> Material.GRASS_BLOCK;
             case "minecraft_cultivation" -> Material.WHEAT;
             case "farmersdelight" -> Material.CAULDRON;
+            case "trailandtalesdelight" -> Material.DECORATED_POT;
             case "kaleidoscope" -> Material.CAMPFIRE;
             case "customcrops" -> Material.WHEAT_SEEDS;
             case "private_alchemy" -> Material.BREWING_STAND;

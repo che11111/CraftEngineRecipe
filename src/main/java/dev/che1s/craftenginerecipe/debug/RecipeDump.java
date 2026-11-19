@@ -212,7 +212,8 @@ final class RecipeDump {
         JsonObject out = new JsonObject();
         out.addProperty("provider", item.provider());
         out.addProperty("id", item.id());
-        out.addProperty("name", item.name());
+        out.addProperty("name", item.localizedName("en_US"));
+        if (!item.localizedNames().isEmpty()) out.add("localized-names", JSON.toJsonTree(item.localizedNames()));
         out.add("lore", JSON.toJsonTree(item.lore()));
         var icon = item.icon();
         if (icon != null) out.add("icon", stack(icon));

@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>Require sneaking for the hotkey</#79CFC9>
     updates: <#79CFC9>Check GitHub for stable updates</#79CFC9>
     source-craftengine: <#79CFC9>Enable the CraftEngine recipe source</#79CFC9>
-    source-minecraft: <#79CFC9>Enable vanilla recipe data</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>Enable vanilla cultivation data</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>Enable CraftEngine cultivation data</#79CFC9>
     auto-reload: <#79CFC9>Watch recipes/ for file changes</#79CFC9>

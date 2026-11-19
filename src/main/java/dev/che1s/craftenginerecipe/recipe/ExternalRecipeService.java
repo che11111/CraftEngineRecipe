@@ -678,11 +678,6 @@ public final class ExternalRecipeService implements Listener {
     }
 
     private boolean sourceDirectoryEnabled(String directory) {
-        if (directory.startsWith("minecraft-") && !directory.equals("minecraft-cultivation")
-                && !directory.equals("minecraft-"
-                + dev.che1s.craftenginerecipe.integration.extension.ExtensionManager.minecraftVersion())) {
-            return false;
-        }
         String source = this.sourceDirectories.get(directory);
         return source != null && this.sourceEnabled(source);
     }

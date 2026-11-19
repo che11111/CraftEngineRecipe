@@ -6,7 +6,7 @@
 
 <p align="center">基于 CraftEngine 的物品与配方浏览插件，支持分类浏览、拼音搜索和配方用途查询。CER 不仅是配方书，也可以作为完整的 CE 物品图鉴。</p>
 
-> 目前 1.2.0-alpha.1 版本可能不太稳定。请先使用 Release 中发布的版本。
+> 目前 1.2.0-alpha.3 版本可能不太稳定。请先使用 Release 中发布的版本。
 
 
 <p align="center">
@@ -113,7 +113,7 @@ CER 内置五种主菜单贴图风格，玩家可在服务端已启用的样式�
 - **快速搜索**：支持物品 ID、名称、翻译键、中文拼音及首字母搜索。
 - **游戏内管理**：通过 `/cer manage` 编辑分类、可见权限、隐藏规则、排序、合成器顺序和自定义按钮，并支持正式配置与未应用配置互相移动。
 - **统一配方索引**：原版、CraftEngine 和各适配插件的配方可导出到 `recipes/` 后统一浏览，文件修改自动重载；其他插件也可通过 CER Recipe API 接入。
-- **可选配方扩展**：农夫乐事、森罗物语、CustomCrops 和私有来源适配器以独立 JAR 放在 `plugins/CraftEngineRecipe/extensions/`，无需重新构建主插件；通过 `/cer integrations` 管理启用状态。
+- **可选配方扩展**：农夫乐事、Trail & Tales Delight、森罗物语、CustomCrops 和私有来源适配器以独立 JAR 放在 `plugins/CraftEngineRecipe/extensions/`，无需重新构建主插件；通过 `/cer integrations` 管理启用状态。
 - **主配置管理**：在 `/cer manage` 中打开 `config.yml`，可直接修改数据来源、搜索上限、快捷键与重载行为。
 - **自动与玩家级语言**：插件提供英语、简体中文、繁体中文、日语、韩语、德语、法语、西班牙语和俄语。服务端语言会自动识别，玩家也可在“个性化”中选择这 9 种语言。
 - **个性化与续接**：玩家可选择菜单风格、默认页面和关闭恢复行为；个性化与浏览会话统一保存在 `player-preferences.db`。
@@ -158,7 +158,7 @@ Paper **1.21.7 / 1.21.8 / 1.21.9 / 1.21.10 / 1.21.11** 使用 Java **21**；Pape
 | `/cer manage` | 打开配置管理中心：在游戏内编辑分类、隐藏规则、显示顺序与合成器配置 |
 | `/cer integrations` | 打开CER管理页中的适配插件列表，并选择是否启用 |
 | `/cer unapplied` | 按 `categories-unapplied.yml` 的分类条目打开配方浏览页面 |
-| `/cer reload` | 手动重载配置与索引；配方文件修改会自动加载 |
+| `/cer reload` | 手动重载配置、重新扫描扩展 JAR 并重建索引；配方文件修改会自动加载 |
 | `/cer menu` | 查看默认、已启用和全部可用样式 |
 | `/cer menu enable <包名\|all>` | 启用一个样式或全部 `cer_menu_*` |
 | `/cer menu disable <包名>` | 停用非默认样式 |
@@ -194,13 +194,14 @@ dist/extensions/cer-ext-*.jar
 
 ## 扩展安装
 
-- **基础来源扩展**：`cer-ext-craftengine.jar`、`cer-ext-craftengine-cultivation.jar`、`cer-ext-minecraft.jar`、`cer-ext-minecraft-cultivation.jar`。建议全部安装，以获得 CE、原版和耕地来源的完整导出与索引。
-- **第三方来源扩展**：`cer-ext-farmersdelight.jar`、`cer-ext-kaleidoscope.jar`、`cer-ext-customcrops.jar`。仅在服务器安装对应前置插件时启用。
-- **私有来源模板**：`cer-ext-private-alchemy.jar` 只是扩展开发模板，在替换为真实 API 和采集逻辑前不会产生有效配方。
+- **内嵌来源扩展**：`cer-ext-craftengine_v<版本>.jar`、`cer-ext-craftengine-cultivation_v<版本>.jar` 已打包在主插件 JAR 中。仅在第一次创建 `plugins/CraftEngineRecipe/extensions/` 时自动释放。
+- **原版耕作扩展**：`cer-ext-minecraft-cultivation_v<版本>.jar` 包含全部支持版本的原版耕地数据，仍作为外部扩展单独安装。原版配方和九语言名称由 CraftEngine 来源导出。
+- **第三方来源扩展**：`cer-ext-farmersdelight_v<版本>.jar`、`cer-ext-trailtalesdelight_v<版本>.jar`、`cer-ext-kaleidoscope_v<版本>.jar`、`cer-ext-customcrops_v<版本>.jar`。仅在服务器安装对应前置插件时启用。
+- **私有来源模板**：`cer-ext-private-alchemy_v<版本>.jar` 只是扩展开发模板，在替换为真实 API 和采集逻辑前不会产生有效配方。
 
 ## 快速上手
 
-1. 安装兼容版本的 CraftEngine 和 CraftEngineRecipe。核心 JAR 放入 `plugins/`，所需扩展以稳定文件名放入 `plugins/CraftEngineRecipe/extensions/`，然后完整停止并启动服务器。不要使用 `/reload` 或插件管理器的热重载。
+1. 安装兼容版本的 CraftEngine 和 CraftEngineRecipe。核心 JAR 放入 `plugins/`。首次运行时，CER 会创建 `plugins/CraftEngineRecipe/extensions/` 并释放两个带版本号的内嵌扩展；把 `cer-ext-minecraft-cultivation_v<版本>.jar` 和所需可选扩展放入该目录，然后完整停止并启动服务器。不要使用 `/reload` 或插件管理器的热重载。
 
 2. 管理员执行 `/cer integrations`，开启 CER 对其他插件或资源包的特殊适配（例如农夫乐事、森罗物语等，可见本文适配列表）。
 
@@ -212,15 +213,15 @@ dist/extensions/cer-ext-*.jar
 
 ```text
 plugins/CraftEngineRecipe/
-├── extensions/                        # 基础与可选配方来源扩展（独立升级）
-│   ├── cer-ext-craftengine.jar
-│   ├── cer-ext-craftengine-cultivation.jar
-│   ├── cer-ext-minecraft.jar
-│   ├── cer-ext-minecraft-cultivation.jar
-│   ├── cer-ext-farmersdelight.jar
-│   ├── cer-ext-kaleidoscope.jar
-│   ├── cer-ext-customcrops.jar
-│   └── cer-ext-private-alchemy.jar
+├── extensions/                        # 首次运行创建；目录一旦存在就不会自动补齐
+│   ├── cer-ext-craftengine_v<版本>.jar        # 首次运行由主插件释放
+│   ├── cer-ext-craftengine-cultivation_v<版本>.jar
+│   ├── cer-ext-minecraft-cultivation_v<版本>.jar
+│   ├── cer-ext-farmersdelight_v<版本>.jar
+│   ├── cer-ext-trailtalesdelight_v<版本>.jar
+│   ├── cer-ext-kaleidoscope_v<版本>.jar
+│   ├── cer-ext-customcrops_v<版本>.jar
+│   └── cer-ext-private-alchemy_v<版本>.jar
 ├── extensions-data/                   # 扩展数据、来源目录所有权与版本标记
 ├── config.yml                         # 主配置：菜单、搜索、快捷键、更新及浏览默认值
 ├── resources/cer_menu_*/lang/         # 各菜单包独立的 9 语言覆盖文案
@@ -267,7 +268,7 @@ cer_menu_cute/
 
 支持的语言 ID 为 `en_US`、`zh_CN`、`zh_TW`、`ja_JP`、`ko_KR`、`de_DE`、`fr_FR`、`es_ES`、`ru_RU`。插件界面、Dialog、状态提示、菜单文案、原版物品名称及资源包名称跟随玩家选择的语言。CraftEngine 物品名称优先按物品配置中的翻译键，从对应语言的 CraftEngine 翻译数据解析。内置原版配方文件保持语言中立：工作站标题在运行时根据稳定 ID 本地化，插件同时打包 9 种官方客户端语言数据。
 
-物品名称严格按“玩家当前语言 → 英文 → 由物品 ID 生成的可读名称”回退，不会把 `item.*` 或 `block.*` 翻译键直接显示给玩家。原版物品和原版耕地扩展各自内置 9 种语言；原版翻译按当前服务端精确版本从 `cer-ext-minecraft.jar` 读取，不使用其他 Minecraft 版本的数据。
+物品名称严格按“玩家当前语言 → 英文 → 由物品 ID 生成的可读名称”回退，不会把 `item.*` 或 `block.*` 翻译键直接显示给玩家。原版配方名称从 CraftEngine 生成资源包读取九语言翻译；原版耕地数据仍按服务端版本单独提供。
 
 
 

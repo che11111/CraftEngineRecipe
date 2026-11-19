@@ -34,7 +34,6 @@ public final class ConfigEditorDialogService {
     private static final String HOTKEY_SNEAK = "cer_config_hotkey_sneak";
     private static final String UPDATES = "cer_config_updates";
     private static final String CRAFTENGINE = "cer_config_craftengine";
-    private static final String MINECRAFT = "cer_config_minecraft";
     private static final String MINECRAFT_CULTIVATION = "cer_config_minecraft_cultivation";
     private static final String CRAFTENGINE_CULTIVATION = "cer_config_craftengine_cultivation";
     private static final String AUTO_RELOAD = "cer_config_auto_reload";
@@ -141,8 +140,6 @@ public final class ConfigEditorDialogService {
         return List.of(
                 this.boolInput(player, CRAFTENGINE, "ui.config-editor.source-craftengine",
                         config.getBoolean("sources.craftengine", true)),
-                this.boolInput(player, MINECRAFT, "ui.config-editor.source-minecraft",
-                        config.getBoolean("sources.minecraft", true)),
                 this.boolInput(player, MINECRAFT_CULTIVATION, "ui.config-editor.source-minecraft-cultivation",
                         config.getBoolean("sources.minecraft-cultivation", true)),
                 this.boolInput(player, CRAFTENGINE_CULTIVATION, "ui.config-editor.source-craftengine-cultivation",
@@ -215,7 +212,6 @@ public final class ConfigEditorDialogService {
 
     private boolean saveData(DialogResponseView view) {
         Boolean craftEngine = view.getBoolean(CRAFTENGINE);
-        Boolean minecraft = view.getBoolean(MINECRAFT);
         Boolean minecraftCultivation = view.getBoolean(MINECRAFT_CULTIVATION);
         Boolean craftEngineCultivation = view.getBoolean(CRAFTENGINE_CULTIVATION);
         Boolean autoReload = view.getBoolean(AUTO_RELOAD);
@@ -223,14 +219,14 @@ public final class ConfigEditorDialogService {
         Integer rotate = PluginConfigEditor.parseWithinRange(view.getText(ROTATE_INTERVAL), 5, 200);
         Integer length = PluginConfigEditor.parseWithinRange(view.getText(SEARCH_MAX_LENGTH), 1, 64);
         Integer results = PluginConfigEditor.parseWithinRange(view.getText(SEARCH_MAX_RESULTS), 1, 1000);
-        if (craftEngine == null || minecraft == null || minecraftCultivation == null
+        if (craftEngine == null || minecraftCultivation == null
                 || craftEngineCultivation == null || autoReload == null
                 || poll == null || rotate == null || length == null || results == null) {
             return false;
         }
         return PluginConfigEditor.apply(this.plugin.getConfig(),
                 new PluginConfigEditor.DataSettings(
-                        craftEngine, minecraft, minecraftCultivation, craftEngineCultivation,
+                        craftEngine, minecraftCultivation, craftEngineCultivation,
                         autoReload, poll, rotate, length, results));
     }
 

@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>Requiere escabullirse para la tecla de acceso rápido</#79CFC9>
     updates: <#79CFC9>Compruebe GitHub para obtener actualizaciones estables</#79CFC9>
     source-craftengine: <#79CFC9>Enable la fuente de recetas de CraftEngine</#79CFC9>
-    source-minecraft: <#79CFC9>Enbilitar datos de recetas de vainilla</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>Enbilitar datos de cultivo de vainilla</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>Enable CraftEngine datos de cultivo</#79CFC9>
     auto-reload: <#79CFC9>Ver recetas/cambios de archivos</#79CFC9>

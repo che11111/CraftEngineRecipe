@@ -1,7 +1,6 @@
 package dev.che1s.craftenginerecipe.data;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
-import dev.che1s.craftenginerecipe.api.extension.VanillaTranslations;
 import dev.che1s.craftenginerecipe.category.CategoryGraph;
 import dev.che1s.craftenginerecipe.category.CategoryIndex;
 import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
@@ -11,6 +10,7 @@ import dev.che1s.craftenginerecipe.util.DisplayNames;
 import dev.che1s.craftenginerecipe.util.ResourcePackTranslations;
 import dev.che1s.craftenginerecipe.util.CraftEngineConfigTranslations;
 import dev.che1s.craftenginerecipe.util.CompatibilityWarnings;
+import dev.che1s.craftenginerecipe.util.VanillaNameResources;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.bukkit.api.event.CraftEngineReloadEvent;
 import net.momirealms.craftengine.core.item.ItemDefinition;
@@ -264,6 +264,8 @@ public final class CraftEngineData implements Listener {
             ResourcePackTranslations.ReadResult result;
             Map<String, Map<String, String>> localized = new LinkedHashMap<>();
             Map<String, Map<String, String>> vanilla = new LinkedHashMap<>();
+            Map<String, Map<String, String>> packagedVanilla;
+            Map<String, Map<String, String>> nameOverrides;
             String problem;
             try {
                 result = ResourcePackTranslations.read(zip, languages);
@@ -272,6 +274,14 @@ public final class CraftEngineData implements Listener {
                 result = new ResourcePackTranslations.ReadResult(Map.of(), 0, List.of());
                 problem = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
             }
+            try {
+                packagedVanilla = VanillaNameResources.read(this.plugin.getClass().getClassLoader(),
+                        dev.che1s.craftenginerecipe.integration.extension.ExtensionManager.minecraftVersion());
+            } catch (IOException | RuntimeException error) {
+                packagedVanilla = Map.of();
+                CompatibilityWarnings.warn("VanillaNameResources.read", error);
+            }
+            nameOverrides = this.plugin.extensions().itemNameOverrides();
             Path craftEngineResources = this.plugin.getDataFolder().toPath().getParent()
                     .resolve("CraftEngine").resolve("resources");
             Map<String, String> englishPack = new LinkedHashMap<>();
@@ -287,43 +297,39 @@ public final class CraftEngineData implements Listener {
             } catch (IOException | RuntimeException error) {
                 CompatibilityWarnings.warn("CraftEngineConfigTranslations.readEnglish", error);
             }
-            Path vanillaJar = this.vanillaTranslationJar();
-            String minecraftVersion =
-                    dev.che1s.craftenginerecipe.integration.extension.ExtensionManager.minecraftVersion();
-            try {
-                englishVanilla.putAll(VanillaTranslations.read(
-                        vanillaJar, minecraftVersion, "en_us"));
-            } catch (IOException | RuntimeException error) {
-                CompatibilityWarnings.warn("VanillaTranslations.readEnglish", error);
-            }
+            englishVanilla.putAll(englishPack);
             for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
                 Map<String, String> merged = new LinkedHashMap<>(englishPack);
                 merged.putAll(englishConfig);
+                Map<String, String> mergedVanilla = new LinkedHashMap<>(englishVanilla);
+                mergedVanilla.putAll(packagedVanilla.getOrDefault("en_US", Map.of()));
                 if (!"en_US".equals(locale)) {
+                    Map<String, String> localePack = Map.of();
+                    Map<String, String> localeConfig = Map.of();
                     try {
-                        merged.putAll(ResourcePackTranslations.read(
-                                zip, List.of(locale.toLowerCase(java.util.Locale.ROOT))).translations());
+                        localePack = ResourcePackTranslations.read(
+                                zip, List.of(locale.toLowerCase(java.util.Locale.ROOT))).translations();
+                        merged.putAll(localePack);
                     } catch (IOException | RuntimeException error) {
                         CompatibilityWarnings.warn("ResourcePackTranslations.read", error);
                     }
                     try {
-                        merged.putAll(CraftEngineConfigTranslations.read(craftEngineResources, locale));
+                        localeConfig = CraftEngineConfigTranslations.read(craftEngineResources, locale);
+                        merged.putAll(localeConfig);
                     } catch (IOException | RuntimeException error) {
                         CompatibilityWarnings.warn("CraftEngineConfigTranslations.read", error);
                     }
+                    for (var override : nameOverrides.getOrDefault(locale, Map.of()).entrySet()) {
+                        if (!localePack.containsKey(override.getKey())
+                                && !localeConfig.containsKey(override.getKey())) {
+                            merged.put(override.getKey(), override.getValue());
+                        }
+                    }
+                    for (String sourceLocale : List.of(locale, locale.toLowerCase(java.util.Locale.ROOT))) {
+                        mergedVanilla.putAll(packagedVanilla.getOrDefault(sourceLocale, Map.of()));
+                    }
                 }
                 localized.put(locale, Map.copyOf(merged));
-            }
-            for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
-                Map<String, String> mergedVanilla = new LinkedHashMap<>(englishVanilla);
-                try {
-                    if (!"en_US".equals(locale)) {
-                        mergedVanilla.putAll(VanillaTranslations.read(
-                                vanillaJar, minecraftVersion, locale.toLowerCase(java.util.Locale.ROOT)));
-                    }
-                } catch (IOException | RuntimeException error) {
-                    CompatibilityWarnings.warn("VanillaTranslations.read", error);
-                }
                 vanilla.put(locale, Map.copyOf(mergedVanilla));
             }
             var loaded = result;
@@ -370,11 +376,6 @@ public final class CraftEngineData implements Listener {
         return dataFolder.resolveSibling("CraftEngine").resolve("generated/resource_pack.zip");
     }
 
-    private Path vanillaTranslationJar() {
-        var minecraft = this.plugin.extensions().extension("minecraft");
-        return minecraft == null ? this.plugin.jarPath() : minecraft.jar();
-    }
-
     public static List<String> searchLanguages(List<String> preferred) {
         java.util.LinkedHashSet<String> languages = new java.util.LinkedHashSet<>(
                 ResourcePackTranslations.normalizeLanguages(preferred));
@@ -382,6 +383,13 @@ public final class CraftEngineData implements Listener {
             languages.add(locale.toLowerCase(java.util.Locale.ROOT));
         }
         return List.copyOf(languages);
+    }
+
+    private static String itemTranslation(Map<String, String> translations, String id) {
+        if (translations == null || id == null || !id.startsWith("minecraft:")) return null;
+        String path = id.substring("minecraft:".length());
+        String value = translations.get("item.minecraft." + path);
+        return value == null ? translations.get("block.minecraft." + path) : value;
     }
 
     private void captureNames(long version, long started, Captured captured, Map<String, String> translations) {
@@ -432,7 +440,7 @@ public final class CraftEngineData implements Listener {
                         for (Material material : Material.values()) {
                             if (!material.isItem()) continue;
                             Key id = Key.of("minecraft:" + material.getKey().getKey());
-                            String vanillaName = VanillaTranslations.itemName(finalVanillaTranslations, id.toString());
+                            String vanillaName = itemTranslation(finalVanillaTranslations, id.toString());
                             if (vanillaName != null && !vanillaName.isBlank()) {
                                 searchNames.putIfAbsent(id, vanillaName);
                             }
@@ -533,7 +541,12 @@ public final class CraftEngineData implements Listener {
     public String vanillaItemName(Player player, String id) {
         String locale = player == null
                 ? this.plugin.lang().locale() : this.plugin.lang(player).locale();
-        return VanillaTranslations.itemName(this.vanillaTranslations.getOrDefault(locale, Map.of()), id);
+        return this.vanillaItemName(locale, id);
+    }
+
+    public String vanillaItemName(String locale, String id) {
+        String supported = dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocale(locale);
+        return itemTranslation(this.vanillaTranslations.getOrDefault(supported, Map.of()), id);
     }
 
     /** 解析已加载 CraftEngine 物品的原始名称组件与资源包翻译。 */
@@ -549,15 +562,37 @@ public final class CraftEngineData implements Listener {
     }
 
     public String itemDisplayName(Player player, String id) {
+        String locale = player == null
+                ? this.plugin.lang().locale() : this.plugin.lang(player).locale();
+        return this.itemDisplayName(locale, id);
+    }
+
+    public String itemDisplayName(String locale, String id) {
         try {
             Key key = Key.of(id);
+            if ("minecraft".equals(key.namespace())) {
+                String vanilla = this.vanillaItemName(locale, id);
+                if (vanilla != null && !vanilla.isBlank()) return vanilla;
+            }
             ItemDefinition definition = this.items().get(key);
             return definition == null ? null
-                    : DisplayNames.of(definition, this.resourcePackTranslations(player));
+                    : DisplayNames.localizedOf(definition, this.resourcePackTranslations(locale));
         } catch (RuntimeException | LinkageError error) {
             CompatibilityWarnings.warn("CraftEngineData.itemDisplayName", error);
             return null;
         }
+    }
+
+    /** Returns all installed UI-language names for an item, with English fallback. */
+    public Map<String, String> localizedItemNames(String id) {
+        Map<String, String> names = new LinkedHashMap<>();
+        String english = this.itemDisplayName("en_US", id);
+        if (english == null || english.isBlank()) english = DisplayNames.humanizeItemId(id);
+        for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
+            String name = this.itemDisplayName(locale, id);
+            names.put(locale, name == null || name.isBlank() ? english : name);
+        }
+        return Map.copyOf(names);
     }
 
     public long translationRevision() { return this.translationRevision; }

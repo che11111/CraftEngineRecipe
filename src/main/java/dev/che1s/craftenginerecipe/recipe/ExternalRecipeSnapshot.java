@@ -81,7 +81,8 @@ public record ExternalRecipeSnapshot(Map<Key, RecipeItem> items, Map<Key, List<R
             // 名称和 lore 覆盖只属于特定配方；分类图标保留来源元数据。
             items.put(key, new RecipeItem(provider, item.id(), icon, null, null));
         }
-        if (item.name() != null) names.putIfAbsent(key, item.name());
+        String name = item.localizedName("en_US");
+        if (name != null) names.putIfAbsent(key, name);
     }
 
     private static String canonicalProvider(RecipeItem item) {

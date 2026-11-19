@@ -5,6 +5,7 @@ import dev.che1s.craftenginerecipe.api.RecipeIngredient;
 import dev.che1s.craftenginerecipe.api.RecipeItem;
 import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
+import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.inventory.ItemStack;
@@ -346,7 +347,7 @@ public final class RecipeFileExporter {
         display.put("Material", item.id());
         String inferred = item.id().startsWith("minecraft:") ? "minecraft" : "craftengine";
         if (!item.provider().equals(inferred)) display.put("Provider", item.provider());
-        if (item.name() != null) display.put("Name", item.name());
+        putName(display, item);
         if (item.lore() != null) display.put("Lore", item.lore());
         ItemStack icon = item.icon();
         if (icon != null) {
@@ -374,9 +375,23 @@ public final class RecipeFileExporter {
     private static Map<String, Object> transparentItem(RecipeItem item) {
         Map<String, Object> display = new LinkedHashMap<>();
         display.put("Material", "minecraft:air");
-        if (item.name() != null) display.put("Name", item.name());
+        putName(display, item);
         if (item.lore() != null) display.put("Lore", item.lore());
         return display;
+    }
+
+    private static void putName(Map<String, Object> display, RecipeItem item) {
+        if (!item.localizedNames().isEmpty()) {
+            Map<String, String> ordered = new LinkedHashMap<>();
+            for (String locale : LanguageManager.supportedLocales()) {
+                String value = item.localizedNames().get(locale);
+                if (value != null) ordered.put(locale, value);
+            }
+            item.localizedNames().forEach(ordered::putIfAbsent);
+            display.put("Name", ordered);
+        } else if (item.name() != null) {
+            display.put("Name", item.name());
+        }
     }
 
     private static void deleteRecursively(Path directory) {

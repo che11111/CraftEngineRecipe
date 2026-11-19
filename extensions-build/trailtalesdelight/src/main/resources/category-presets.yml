@@ -1,0 +1,4 @@
+schema: 1
+presets:
+  - id: trailandtales_delight
+    visibility: player

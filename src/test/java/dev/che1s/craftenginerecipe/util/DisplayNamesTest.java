@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DisplayNamesTest {
     @Test
@@ -34,6 +35,24 @@ class DisplayNamesTest {
 
         assertEquals("Custom Food",
                 DisplayNames.of(definition, Map.of("item.example.custom_food", "Custom Food")));
+    }
+
+    @Test
+    void strictLocalizationDoesNotForceEnglishOrHumanizedFallback() {
+        ItemDefinition definition = (ItemDefinition) Proxy.newProxyInstance(
+                ItemDefinition.class.getClassLoader(), new Class<?>[]{ItemDefinition.class},
+                (proxy, method, arguments) -> switch (method.getName()) {
+                    case "translationKey" -> "item.example.custom_food";
+                    case "processors" -> null;
+                    case "toString" -> "example:custom_food";
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> proxy == arguments[0];
+                    default -> null;
+                });
+
+        assertNull(DisplayNames.localizedOf(definition, Map.of()));
+        assertEquals("自定义食物", DisplayNames.localizedOf(definition,
+                Map.of("item.example.custom_food", "自定义食物")));
     }
 
     @Test

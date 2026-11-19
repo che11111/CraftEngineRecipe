@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>ホットキーのスニークが必要</#79CFC9>
     updates: <#79CFC9>安定したアップデートについては GitHub を確認してください</#79CFC9>
     source-craftengine: <#79CFC9>CraftEngine レシピ ソースを有効にする</#79CFC9>
-    source-minecraft: <#79CFC9>バニラレシピデータを有効にする</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>バニラ栽培データを有効化</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>CraftEngine 栽培データを有効化</#79CFC9>
     auto-reload: <#79CFC9>レシピを監視/ファイル変更用</#79CFC9>

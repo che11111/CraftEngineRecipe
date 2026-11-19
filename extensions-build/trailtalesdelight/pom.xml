@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>dev.che1s.craftenginerecipe.extensions</groupId>
+        <artifactId>extensions-build</artifactId>
+        <version>1.2.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>trailtalesdelight-extension</artifactId>
+    <packaging>jar</packaging>
+    <build>
+        <finalName>cer-ext-trailtalesdelight_v${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <CraftEngineRecipe-Provider-Class>dev.che1s.craftenginerecipe.integration.trailtalesdelight.TrailTalesDelightRecipeSourceProvider</CraftEngineRecipe-Provider-Class>
+                            <CraftEngineRecipe-Api-Version>1</CraftEngineRecipe-Api-Version>
+                            <CraftEngineRecipe-Minecraft>*</CraftEngineRecipe-Minecraft>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -6,9 +6,6 @@ sources:
   # 从 CraftEngine 配方管理器导出一次固定产物配方；之后只读取 recipes/craftengine/。
   # Export fixed-result recipes from CraftEngine once, then read only recipes/craftengine/.
   craftengine: true
-  # 启用由客户端 JAR 提取的原版合成配方。
-  # Enable vanilla crafting recipe fallback data extracted from client JARs.
-  minecraft: true
   # 启用由客户端 JAR 提取的“耕地”原版栽培数据。
   # Enable vanilla cultivation data extracted from client JARs.
   minecraft-cultivation: true

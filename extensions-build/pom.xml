@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.che1s.craftenginerecipe.extensions</groupId>
     <artifactId>extensions-build</artifactId>
-    <version>1.2.0-alpha.2</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
     <name>CraftEngineRecipe extension artifacts</name>
 
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>dev.che1s</groupId>
             <artifactId>craftenginerecipe</artifactId>
-            <version>1.2.0-alpha.2</version>
+            <version>1.2.0-alpha.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -90,9 +90,9 @@
     <modules>
         <module>craftengine</module>
         <module>craftengine-cultivation</module>
-        <module>minecraft</module>
         <module>minecraft-cultivation</module>
         <module>farmersdelight</module>
+        <module>trailtalesdelight</module>
         <module>kaleidoscope</module>
         <module>customcrops</module>
         <module>private-alchemy</module>

@@ -57,6 +57,20 @@ public final class DisplayNames {
         return key == null ? null : translations.get(key);
     }
 
+    /**
+     * Resolves only translations supplied by the selected language map. Missing keys return null
+     * so callers can preserve the original client-side translatable component instead of forcing
+     * the server's English fallback.
+     */
+    public static String localizedOf(ItemDefinition definition, Map<String, String> translations) {
+        if (definition == null) return null;
+        String key = translationKeyOf(definition);
+        if (key != null && notBlank(translations.get(key))) return translations.get(key);
+        String raw = findProcessorRaw(definition, true);
+        if (!notBlank(raw)) raw = findProcessorRaw(definition, false);
+        return localizeConfigured(raw, translations);
+    }
+
     public static String translationKeyOf(ItemDefinition definition) {
         if (definition == null) return null;
         try {
@@ -69,6 +83,11 @@ public final class DisplayNames {
     }
 
     private static String findProcessor(ItemDefinition definition, boolean custom, Map<String, String> translations) {
+        String raw = findProcessorRaw(definition, custom);
+        return raw == null ? null : strip(raw, translations);
+    }
+
+    private static String findProcessorRaw(ItemDefinition definition, boolean custom) {
         ItemProcessor[] processors;
         try {
             processors = definition.processors();
@@ -84,16 +103,34 @@ public final class DisplayNames {
                 if (custom) {
                     if (!(processor instanceof CustomNameProcessor)) continue;
                     CustomNameProcessor cnp = (CustomNameProcessor) processor;
-                    return strip(cnp.customName(), translations);
+                    return cnp.customName();
                 }
                 if (!(processor instanceof ItemNameProcessor)) continue;
                 ItemNameProcessor inp = (ItemNameProcessor) processor;
-                return strip(inp.itemName(), translations);
+                return inp.itemName();
             } catch (RuntimeException | LinkageError error) {
                 CompatibilityWarnings.warn("DisplayNames.nameProcessor", error);
             }
         }
         return null;
+    }
+
+    private static String localizeConfigured(String raw, Map<String, String> translations) {
+        if (!notBlank(raw)) return null;
+        String plain = translatePlainKey(raw.trim(), translations);
+        if (plain != null) return plain;
+        Matcher matcher = LOCALIZED.matcher(raw);
+        StringBuilder expanded = new StringBuilder(raw.length());
+        int last = 0;
+        while (matcher.find()) {
+            String translated = translations.get(matcher.group(1));
+            if (!notBlank(translated)) return null;
+            expanded.append(raw, last, matcher.start()).append(translated);
+            last = matcher.end();
+        }
+        expanded.append(raw.substring(last));
+        String text = TAG.matcher(expanded).replaceAll("").trim();
+        return text.isBlank() ? null : text;
     }
 
     public static String of(Category category) {

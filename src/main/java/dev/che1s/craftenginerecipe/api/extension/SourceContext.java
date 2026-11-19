@@ -6,6 +6,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -37,6 +38,12 @@ public interface SourceContext {
     Function<String, String> resourcePackTranslation();
 
     Function<String, String> itemDisplayName();
+
+    /** Returns display names for every installed UI language when the core can resolve them. */
+    default Map<String, String> localizedItemNames(String id) {
+        String name = itemDisplayName().apply(id);
+        return name == null || name.isBlank() ? Map.of() : Map.of("en_US", name);
+    }
 
     long translationRevision();
 

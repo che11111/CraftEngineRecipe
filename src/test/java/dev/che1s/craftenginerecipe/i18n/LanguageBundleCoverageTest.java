@@ -1,6 +1,5 @@
 package dev.che1s.craftenginerecipe.i18n;
 
-import com.google.gson.JsonParser;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
@@ -37,8 +36,8 @@ class LanguageBundleCoverageTest {
                     .sorted()
                     .forEach(directories::add);
         }
-        for (String module : List.of("craftengine", "craftengine-cultivation", "minecraft",
-                "minecraft-cultivation", "farmersdelight", "kaleidoscope", "customcrops",
+        for (String module : List.of("craftengine", "craftengine-cultivation",
+                "minecraft-cultivation", "farmersdelight", "trailtalesdelight", "kaleidoscope", "customcrops",
                 "private-alchemy")) {
             directories.add(Path.of("extensions-build", module, "src/main/resources/lang"));
         }
@@ -60,8 +59,8 @@ class LanguageBundleCoverageTest {
 
     @Test
     void workstationTitlesDoNotUseSpacesAroundMiddleDots() throws Exception {
-        List<String> modules = List.of("craftengine", "craftengine-cultivation", "minecraft",
-                "minecraft-cultivation", "farmersdelight", "kaleidoscope", "customcrops",
+        List<String> modules = List.of("craftengine", "craftengine-cultivation",
+                "minecraft-cultivation", "farmersdelight", "trailtalesdelight", "kaleidoscope", "customcrops",
                 "private-alchemy");
         for (String module : modules) {
             Path directory = Path.of("extensions-build", module, "src/main/resources/lang");
@@ -98,8 +97,8 @@ class LanguageBundleCoverageTest {
 
     @Test
     void everyExtensionDeclaresAndShipsAllNineLanguages() throws Exception {
-        for (String module : List.of("craftengine", "craftengine-cultivation", "minecraft",
-                "minecraft-cultivation", "farmersdelight", "kaleidoscope", "customcrops",
+        for (String module : List.of("craftengine", "craftengine-cultivation",
+                "minecraft-cultivation", "farmersdelight", "trailtalesdelight", "kaleidoscope", "customcrops",
                 "private-alchemy")) {
             Path manifest = Path.of("extensions-build", module, "src/main/resources/extension.yml");
             YamlConfiguration yaml = YamlConfiguration.loadConfiguration(manifest.toFile());
@@ -110,24 +109,6 @@ class LanguageBundleCoverageTest {
                         manifest + " names." + locale);
                 assertFalse(yaml.getString("descriptions." + locale, "").isBlank(),
                         manifest + " descriptions." + locale);
-            }
-        }
-    }
-
-    @Test
-    void minecraftExtensionShipsNineOfficialVanillaTranslationsPerVersion() throws Exception {
-        Path root = Path.of("extensions-build/minecraft/src/main/resources/vanilla-lang");
-        for (String version : List.of(
-                "minecraft-1.21.7", "minecraft-1.21.8", "minecraft-1.21.9",
-                "minecraft-1.21.10", "minecraft-1.21.11",
-                "minecraft-26.1", "minecraft-26.2", "minecraft-26.3")) {
-            for (String locale : LanguageManager.supportedLocales()) {
-                Path file = root.resolve(version).resolve(locale.toLowerCase() + ".json");
-                assertTrue(Files.isRegularFile(file), file.toString());
-                try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-                    assertTrue(JsonParser.parseReader(reader).getAsJsonObject().size() > 1000,
-                            file.toString());
-                }
             }
         }
     }

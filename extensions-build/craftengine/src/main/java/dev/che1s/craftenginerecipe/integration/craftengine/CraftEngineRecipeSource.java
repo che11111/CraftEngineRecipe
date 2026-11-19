@@ -11,10 +11,8 @@ import dev.che1s.craftenginerecipe.api.extension.SourceContext;
 import dev.che1s.craftenginerecipe.api.extension.SourceText;
 import net.momirealms.craftengine.core.plugin.CraftEngine;
 import net.momirealms.craftengine.core.item.recipe.CustomBrewingRecipe;
-import net.momirealms.craftengine.core.item.recipe.CustomCookingRecipe;
 import net.momirealms.craftengine.core.item.recipe.CustomShapedRecipe;
 import net.momirealms.craftengine.core.item.recipe.CustomSmithingTransformRecipe;
-import net.momirealms.craftengine.core.item.recipe.CustomStoneCuttingRecipe;
 import net.momirealms.craftengine.core.item.recipe.FixedResultRecipe;
 import net.momirealms.craftengine.core.item.recipe.Ingredient;
 import net.momirealms.craftengine.core.item.recipe.Recipe;
@@ -23,11 +21,9 @@ import net.momirealms.craftengine.core.item.recipe.result.CustomRecipeResult;
 import net.momirealms.craftengine.core.util.Key;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 /** 将 CraftEngine 固定产物配方一次性转换为可编辑 CER YAML 的桥接器。 */
 public final class CraftEngineRecipeSource implements RecipeSource {
@@ -54,7 +50,8 @@ public final class CraftEngineRecipeSource implements RecipeSource {
             if (page == null) continue;
             for (Recipe recipe : CraftEngine.instance().recipeManager().recipesByType(type)) {
                 try {
-                    if (!recipe.canBeSearched() || !(recipe instanceof FixedResultRecipe fixed)) continue;
+                    // Recipe discovery and CER display capability are separate concerns.
+                    if (!(recipe instanceof FixedResultRecipe fixed)) continue;
                     CustomRecipeResult result = fixed.result();
                     if (result == null || result.item() == null || result.item().id() == null) continue;
                     List<RecipeIngredient> ingredients = ingredients(recipe, type);

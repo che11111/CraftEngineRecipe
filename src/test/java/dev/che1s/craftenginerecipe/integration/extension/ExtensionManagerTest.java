@@ -14,6 +14,7 @@ import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtensionManagerTest {
@@ -28,11 +29,33 @@ class ExtensionManagerTest {
     }
 
     @Test
+    void managedOwnershipMarkersUseStableUnversionedJarNames() {
+        assertEquals("cer-ext-craftengine.jar",
+                ExtensionManager.canonicalJarName("cer-ext-craftengine_v1.2.0.jar"));
+        assertEquals("cer-ext-farmersdelight.jar",
+                ExtensionManager.canonicalJarName("cer-ext-farmersdelight.jar"));
+        assertEquals("cer-ext-private-alchemy.jar",
+                ExtensionManager.canonicalJarName("cer-ext-private-alchemy_v26.3+build.4.jar"));
+    }
+
+    @Test
+    void extensionFingerprintChangesWhenJarSetChanges() throws Exception {
+        Path first = Files.writeString(this.temporary.resolve("one.jar"), "one");
+        List<String> initial = ExtensionManager.fingerprint(List.of(first));
+
+        Path second = Files.writeString(this.temporary.resolve("two.jar"), "two");
+        List<String> added = ExtensionManager.fingerprint(List.of(first, second));
+        assertNotEquals(initial, added);
+
+        Files.delete(second);
+        assertEquals(initial, ExtensionManager.fingerprint(List.of(first)));
+    }
+
+    @Test
     void bundledExtensionsShipUniformDeclarations() {
         Map<String, String> modules = Map.of(
                 "craftengine", "craftengine",
                 "craftengine_cultivation", "craftengine-cultivation",
-                "minecraft", "minecraft",
                 "minecraft_cultivation", "minecraft-cultivation",
                 "farmersdelight", "farmersdelight",
                 "kaleidoscope", "kaleidoscope",
@@ -56,7 +79,7 @@ class ExtensionManagerTest {
                     yaml.getStringList("supported-languages"), entry.getKey());
             assertFalse(yaml.getStringList("integration-button.icons").isEmpty(), entry.getKey());
             String expectedMode = List.of("craftengine", "craftengine_cultivation",
-                    "minecraft", "minecraft_cultivation").contains(entry.getKey())
+                    "minecraft_cultivation").contains(entry.getKey())
                     ? "enabled" : "ask";
             assertEquals(expectedMode, yaml.getString("integration-defaults.mode"), entry.getKey());
             assertTrue(yaml.isBoolean("integration-defaults.cultivation"), entry.getKey());
@@ -97,22 +120,10 @@ class ExtensionManagerTest {
                 workstation.getMapList("navigation").stream()
                         .map(entry -> String.valueOf(entry.get("id"))).toList());
 
-        Path minecraftLang = Path.of("extensions-build", "minecraft",
-                "src/main/resources/lang");
         Path cultivationLang = Path.of("extensions-build", "minecraft-cultivation",
                 "src/main/resources/lang");
         for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
-            assertTrue(Files.isRegularFile(minecraftLang.resolve(locale + ".yml")), locale);
             assertTrue(Files.isRegularFile(cultivationLang.resolve(locale + ".yml")), locale);
-        }
-        Path vanillaRoot = Path.of("extensions-build", "minecraft",
-                "src/main/resources/vanilla-lang");
-        for (String version : List.of("1.21.7", "1.21.8", "1.21.9", "1.21.10",
-                "1.21.11", "26.1", "26.2", "26.3")) {
-            for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
-                assertTrue(Files.isRegularFile(vanillaRoot.resolve("minecraft-" + version)
-                        .resolve(locale.toLowerCase() + ".json")), version + "/" + locale);
-            }
         }
     }
 

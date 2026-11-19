@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -37,6 +38,9 @@ class CultivationRecipeConverterTest {
             @Override public SourceText text(String integrationId) { return text; }
             @Override public Function<String, String> resourcePackTranslation() { return key -> null; }
             @Override public Function<String, String> itemDisplayName() { return key -> null; }
+            @Override public Map<String, String> localizedItemNames(String id) {
+                return Map.of("en_US", id, "zh_CN", "名称-" + id);
+            }
             @Override public long translationRevision() { return 0; }
             @Override public boolean chinese() { return false; }
             @Override public boolean sourceEnabled(String sourceId) { return true; }
@@ -57,5 +61,6 @@ class CultivationRecipeConverterTest {
                 .contains("<cer-lang:cultivation:seed.lore>"));
         assertTrue(recipe.results().getFirst().item().lore().stream()
                 .anyMatch(line -> line.contains("<cer-lang:cultivation:note.wheat>")));
+        assertTrue(recipe.results().getFirst().item().localizedNames().containsKey("zh_CN"));
     }
 }

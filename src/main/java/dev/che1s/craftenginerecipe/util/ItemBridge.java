@@ -85,9 +85,6 @@ public final class ItemBridge {
                 name = translations.get(material.getTranslationKey());
             }
         }
-        if (name == null || name.isBlank()) {
-            name = DisplayNames.humanizeItemId(id.toString());
-        }
         if (name == null || name.isBlank()) return stack;
         ItemStack copy = stack.clone();
         ItemMeta meta = copy.getItemMeta();
@@ -130,14 +127,16 @@ public final class ItemBridge {
             if ((item.name() == null || item.name().isBlank())
                     && DisplayNames.looksLikeTranslationKey(existingPlain)) {
                 String fallback = translations.get(existingPlain);
-                if (fallback == null || fallback.isBlank()) {
-                    fallback = DisplayNames.humanizeTranslationKey(existingPlain);
+                if (fallback != null && !fallback.isBlank()) {
+                    meta.displayName(plugin.config().mm(fallback));
                 }
-                meta.displayName(plugin.config().mm(fallback));
             }
             if (item.name() != null) {
-                String localized = plugin.data() == null ? null
-                        : plugin.data().itemDisplayName(player, item.id());
+                String localized = item.localizedName(player == null ? "en_US"
+                        : plugin.lang(player).locale());
+                if ((localized == null || localized.isBlank()) && plugin.data() != null) {
+                    localized = plugin.data().itemDisplayName(player, item.id());
+                }
                 if ((localized == null || localized.isBlank()) && "minecraft".equals(item.provider())
                         && plugin.data() != null) {
                     localized = plugin.data().vanillaItemName(player, item.id());

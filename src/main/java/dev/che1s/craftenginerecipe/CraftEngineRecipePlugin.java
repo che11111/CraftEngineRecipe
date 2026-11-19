@@ -25,6 +25,7 @@ import dev.che1s.craftenginerecipe.dialog.PluginDialogs;
 import dev.che1s.craftenginerecipe.gui.BrowserService;
 import dev.che1s.craftenginerecipe.gui.GuiSessionStore;
 import dev.che1s.craftenginerecipe.integration.IntegrationPromptService;
+import dev.che1s.craftenginerecipe.integration.extension.BuiltInExtensionInstaller;
 import dev.che1s.craftenginerecipe.integration.extension.ExtensionManager;
 import dev.che1s.craftenginerecipe.listener.HotkeyListener;
 import dev.che1s.craftenginerecipe.gui.GuiSession;
@@ -96,6 +97,8 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     public void onLoad() {
         this.language = new LanguageManager(this.getDataFolder().toPath(), this::getResource, this.getLogger());
         this.saveDefaultConfig();
+        BuiltInExtensionInstaller.installOnFirstRun(
+                this.getDataFolder().toPath(), this::getResource, this.getLogger());
         this.extensions = new ExtensionManager(this);
         this.menuPacks = new MenuPackManager(this, () -> this.extensions == null
                 ? List.of() : this.extensions.resourcePackIds());
@@ -248,6 +251,12 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
     /** 仅在所有查看者都关闭旧菜单后，于全局调度器调用。 */
     public void reloadSettings() {
         this.shutdownBrowsers();
+        boolean extensionsChanged = this.extensions != null && this.extensions.refreshIfChanged();
+        if (extensionsChanged) {
+            this.language.setExtensionLanguageResources(this.extensions::languageResource);
+            this.language.setIntegrationSources(this.extensions.languageSources());
+            this.bundledResources.installExtensionPacks(this.extensions);
+        }
         this.language.loadAuto();
         if (this.workstationConfig != null) this.workstationConfig.load();
         if (this.integrationSettings != null) this.integrationSettings.reload();

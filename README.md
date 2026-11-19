@@ -6,7 +6,7 @@
 
 <p align="center">An item and recipe browser for CraftEngine, supporting category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
 
-> Version 1.2.0-alpha.1 may currently be unstable. Prefer a version published in Releases.
+> Version 1.2.0-alpha.3 may currently be unstable. Prefer a version published in Releases.
 
 
 <p align="center">
@@ -113,7 +113,7 @@ Only a selection is shown here. For more CER interface textures, visit the [Scre
 - **Fast search**: search by item ID, name, translation key, Chinese pinyin, or pinyin initials.
 - **In-game management**: use `/cer manage` to edit categories, visibility permissions, hiding rules, ordering, workstation order, and custom buttons, including moving entries between applied and unapplied configurations.
 - **Unified recipe index**: vanilla, CraftEngine, and supported integration recipes can be exported under `recipes/` and browsed together, with automatic reload after file edits; other plugins can also publish through the CER Recipe API.
-- **Optional recipe extensions**: Farmer's Delight, Kaleidoscope Cookery, CustomCrops, and private source adapters ship as separate JARs under `plugins/CraftEngineRecipe/extensions/`, so they can be updated without rebuilding the core plugin. Enable them through `/cer integrations`.
+- **Optional recipe extensions**: Farmer's Delight, Trail & Tales Delight, Kaleidoscope Cookery, CustomCrops, and private source adapters ship as separate JARs under `plugins/CraftEngineRecipe/extensions/`, so they can be updated without rebuilding the core plugin. Enable them through `/cer integrations`.
 - **Config management**: open `config.yml` from `/cer manage` to edit data sources, search limits, hotkeys, and reload behavior in game.
 - **Automatic and per-player localization**: CER ships English, Simplified Chinese, Traditional Chinese, Japanese, Korean, German, French, Spanish, and Russian. The server language is detected automatically, and players can choose any of the nine languages in Personalization.
 - **Personalization and resume**: players can choose a menu style, landing page, and reopen behavior; preferences and browsing sessions share `player-preferences.db`.
@@ -157,7 +157,7 @@ The core uses the CraftEngine **26.8.1** compile API. The bundled `craftengine` 
 | `/cer integrations` | Open the integration list inside CER's management page and choose whether to enable each integration |
 | `/cer manage` | Open the Configuration Center to edit categories, hiding rules, ordering, and workstation configuration in game |
 | `/cer unapplied` | Browse recipes using category entries from `categories-unapplied.yml` |
-| `/cer reload` | Reload configuration and indexes manually; recipe-file edits reload automatically |
+| `/cer reload` | Reload configuration, rescan extension JARs, and rebuild indexes; recipe-file edits reload automatically |
 | `/cer menu` | Show the default, enabled, and available UI styles |
 | `/cer menu enable <pack\|all>` | Enable one style or every `cer_menu_*` |
 | `/cer menu disable <pack>` | Disable a non-default style |
@@ -193,14 +193,15 @@ For a single target, select one Maven profile: `mc-1.21.7-1.21.11`, `mc-26.1`, `
 
 ## Extension Installation
 
-- **Base source extensions**: `cer-ext-craftengine.jar`, `cer-ext-craftengine-cultivation.jar`, `cer-ext-minecraft.jar`, and `cer-ext-minecraft-cultivation.jar`. Install all four for the complete CraftEngine, vanilla, and cultivation source indexes.
-- **Third-party source extensions**: `cer-ext-farmersdelight.jar`, `cer-ext-kaleidoscope.jar`, and `cer-ext-customcrops.jar`. Enable these only when the corresponding source plugins are installed.
-- **Private source template**: `cer-ext-private-alchemy.jar` is a development template and does not produce real recipes until its API and capture logic are replaced.
+- **Bundled source extensions**: `cer-ext-craftengine_v<version>.jar` and `cer-ext-craftengine-cultivation_v<version>.jar` are embedded in the core JAR. They are installed automatically only when `plugins/CraftEngineRecipe/extensions/` is created for the first time.
+- **Vanilla cultivation extension**: `cer-ext-minecraft-cultivation_v<version>.jar` remains external because it carries versioned vanilla cultivation data. Vanilla recipes and nine-language names are exported by the CraftEngine source.
+- **Third-party source extensions**: `cer-ext-farmersdelight_v<version>.jar`, `cer-ext-trailtalesdelight_v<version>.jar`, `cer-ext-kaleidoscope_v<version>.jar`, and `cer-ext-customcrops_v<version>.jar`. Enable these only when the corresponding source plugins are installed.
+- **Private source template**: `cer-ext-private-alchemy_v<version>.jar` is a development template and does not produce real recipes until its API and capture logic are replaced.
 
 
 ## Quick Start
 
-1. Install compatible versions of CraftEngine and CraftEngineRecipe. Place the core JAR under `plugins/` and the required extensions under `plugins/CraftEngineRecipe/extensions/` using their stable file names, then fully stop and start the server. Do not use `/reload` or plugin-manager hot reloading.
+1. Install compatible versions of CraftEngine and CraftEngineRecipe. Place the core JAR under `plugins/`. On the first run, CER creates `plugins/CraftEngineRecipe/extensions/` and releases its two bundled versioned extensions there. Place `cer-ext-minecraft-cultivation_v<version>.jar` and any required optional extensions in that directory, then fully stop and start the server. Do not use `/reload` or plugin-manager hot reloading.
 
 2. As an administrator, run `/cer integrations` to enable CER's special integrations for other plugins or resource packs (for example, Farmer's Delight, Kaleidoscope Cookery, and others; see the compatibility list in this README).
 
@@ -212,15 +213,15 @@ For a single target, select one Maven profile: `mc-1.21.7-1.21.11`, `mc-26.1`, `
 
 ```text
 plugins/CraftEngineRecipe/
-├── extensions/                        # Base and optional source extensions, versioned independently from the core JAR
-│   ├── cer-ext-craftengine.jar
-│   ├── cer-ext-craftengine-cultivation.jar
-│   ├── cer-ext-minecraft.jar
-│   ├── cer-ext-minecraft-cultivation.jar
-│   ├── cer-ext-farmersdelight.jar
-│   ├── cer-ext-kaleidoscope.jar
-│   ├── cer-ext-customcrops.jar
-│   └── cer-ext-private-alchemy.jar
+├── extensions/                        # Created on the first run; never repaired automatically once it exists
+│   ├── cer-ext-craftengine_v<version>.jar        # Released from the core JAR on first run
+│   ├── cer-ext-craftengine-cultivation_v<version>.jar
+│   ├── cer-ext-minecraft-cultivation_v<version>.jar
+│   ├── cer-ext-farmersdelight_v<version>.jar
+│   ├── cer-ext-trailtalesdelight_v<version>.jar
+│   ├── cer-ext-kaleidoscope_v<version>.jar
+│   ├── cer-ext-customcrops_v<version>.jar
+│   └── cer-ext-private-alchemy_v<version>.jar
 ├── extensions-data/                   # Extension data, source-directory ownership, and version markers
 ├── config.yml                         # Main settings: menus, search, hotkeys, updates, browser defaults
 ├── resources/cer_menu_*/lang/         # Per-menu-pack text overrides for all nine languages
@@ -267,7 +268,7 @@ cer_menu_cute/
 
 The supported locale IDs are `en_US`, `zh_CN`, `zh_TW`, `ja_JP`, `ko_KR`, `de_DE`, `fr_FR`, `es_ES`, and `ru_RU`. The plugin UI, dialogs, status messages, menu labels, vanilla item names, and resource-pack-backed names follow each player's selected language. CraftEngine item names are resolved from the item definition's translation key in the corresponding CraftEngine locale data. Bundled vanilla recipe files are language-neutral: stable workstation IDs are localized at runtime, and official client translations for all nine locales are bundled.
 
-Item names fall back in this order: player locale, English, then a readable name derived from the item ID. Raw `item.*` and `block.*` translation keys are never shown as item names. The vanilla recipe and vanilla cultivation extensions each ship nine locales; exact-version vanilla names are read from `cer-ext-minecraft.jar` so another Minecraft version's data cannot leak into the UI.
+Item names fall back in this order: player locale, English, then a readable name derived from the item ID. Raw `item.*` and `block.*` translation keys are never shown as item names. Vanilla recipe names are read from the generated CraftEngine resource pack in all nine supported locales; vanilla cultivation remains version-specific.
 
 
 

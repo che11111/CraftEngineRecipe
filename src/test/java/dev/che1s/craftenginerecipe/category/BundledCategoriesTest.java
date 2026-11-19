@@ -153,14 +153,14 @@ class BundledCategoriesTest {
     @Test
     void extensionCategoryPresetsKeepPluginSpecificHidingRules() throws Exception {
         List<Map<?, ?>> entries = new java.util.ArrayList<>();
-        for (String module : List.of("craftengine", "farmersdelight",
+        for (String module : List.of("craftengine", "farmersdelight", "trailtalesdelight",
                 "kaleidoscope", "customcrops")) {
             YamlConfiguration yaml = YamlConfiguration.loadConfiguration(
                     Path.of("extensions-build", module,
                             "src/main/resources/category-presets.yml").toFile());
             entries.addAll(yaml.getMapList("presets"));
         }
-        assertEquals(11, entries.size());
+        assertEquals(12, entries.size());
         Map<String, CategoryNamespaces.NamespaceEntry> presets = new java.util.LinkedHashMap<>();
         for (Map<?, ?> value : entries) {
             CategoryNamespaces.NamespaceEntry preset = CategoryNamespaces.parseNamespace(value);
@@ -170,6 +170,8 @@ class BundledCategoriesTest {
         assertEquals(Set.of("farmersdelight:gui", "farmersdelight:item_display"),
                 presets.get("farmersdelight").hiddenCategories());
         assertEquals(Set.of(), presets.get("customcrops").hiddenCategories());
+        assertEquals(CategoryNamespaces.Visibility.PLAYER,
+                presets.get("trailandtales_delight").visibility());
         assertEquals(Set.of("endsdelight:item_display"),
                 presets.get("endsdelight").hiddenCategories());
         assertTrue(presets.get("ultramarine").hideItemsWithoutRecipes());

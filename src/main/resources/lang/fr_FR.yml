@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>Nécessite une furtivité pour le raccourci clavier</#79CFC9>
     updates: <#79CFC9>Vérifiez GitHub pour les mises à jour stables</#79CFC9>
     source-craftengine: <#79CFC9>EActiver la source de recette CraftEngine</#79CFC9>
-    source-minecraft: <#79CFC9>EActiver les données de la recette vanille</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>EActiver les données de culture de vanille</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>EActiver les données de culture CraftEngine</#79CFC9>
     auto-reload: <#79CFC9>Regardez les recettes/pour les modifications de fichiers</#79CFC9>

@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>Требовать скрытого доступа к горячей клавише</#79CFC9>
     updates: <#79CFC9>Проверьте GitHub на наличие стабильных обновлений </#79CFC9>
     source-craftengine: <#79CFC9>Включить источник рецептов CraftEngine</#79CFC9>
-    source-minecraft: <#79CFC9>Включить данные ванильного рецепта </#79CFC9>
     source-minecraft-cultivation: <#79CFC9>Включить данные о выращивании ванили </#79CFC9>
     source-craftengine-cultivation: <#79CFC9>Enable CraftEngine данные обработки двигателя </#79CFC9>
     auto-reload: <#79CFC9>Смотреть рецепты/вносить изменения в файлы</#79CFC9>

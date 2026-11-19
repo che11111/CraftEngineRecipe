@@ -7,6 +7,7 @@ import dev.che1s.craftenginerecipe.api.extension.SourceText;
 import dev.che1s.craftenginerecipe.api.DisplayRecipe;
 import dev.che1s.craftenginerecipe.i18n.IntegrationText;
 import dev.che1s.craftenginerecipe.recipe.io.CustomRecipeLoader;
+import dev.che1s.craftenginerecipe.util.PackagedNameOverrides;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -56,6 +57,7 @@ public final class ExtensionManager {
     private final Map<String, LoadedExtension> extensions = new LinkedHashMap<>();
     private final List<UnavailableExtension> unavailable = new ArrayList<>();
     private final Map<String, String> resourcePackOwners = new LinkedHashMap<>();
+    private List<String> jarFingerprint = List.of();
 
     public ExtensionManager(CraftEngineRecipePlugin plugin) {
         this.plugin = plugin;
@@ -63,29 +65,47 @@ public final class ExtensionManager {
     }
 
     public void load() {
-        this.close();
-        this.unavailable.clear();
-        this.resourcePackOwners.clear();
         try {
             Files.createDirectories(this.directory);
+            this.load(this.scanJars());
         } catch (IOException error) {
             this.plugin.getLogger().warning("Cannot create extension directory " + this.directory + ": "
                     + error.getMessage());
-            return;
         }
+    }
 
-        List<Path> jars;
-        try (var paths = Files.list(this.directory)) {
-            jars = paths.filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
-                    .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".jar"))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toList();
+    /**
+     * Reloads providers only when the extension directory's JAR set or contents changed.
+     */
+    public boolean refreshIfChanged() {
+        try {
+            Files.createDirectories(this.directory);
+            List<Path> jars = this.scanJars();
+            List<String> nextFingerprint = fingerprint(jars);
+            if (nextFingerprint.equals(this.jarFingerprint)) return false;
+            this.load(jars);
+            return true;
         } catch (IOException error) {
             this.plugin.getLogger().warning("Cannot scan extension directory " + this.directory + ": "
                     + error.getMessage());
-            return;
+            return false;
         }
+    }
 
+    private List<Path> scanJars() throws IOException {
+        try (var paths = Files.list(this.directory)) {
+            return paths.filter(path -> Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
+                    .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".jar"))
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+                    .toList();
+        }
+    }
+
+    private void load(List<Path> jars) throws IOException {
+        this.close();
+        this.unavailable.clear();
+        this.resourcePackOwners.clear();
+        this.jarFingerprint = fingerprint(jars);
         for (Path jar : jars) {
             this.loadJar(jar);
         }
@@ -93,11 +113,20 @@ public final class ExtensionManager {
                 + " CraftEngineRecipe extension(s) from " + this.directory);
     }
 
+    static List<String> fingerprint(List<Path> jars) throws IOException {
+        List<String> values = new ArrayList<>(jars.size());
+        for (Path jar : jars) {
+            values.add(jar.getFileName() + ":" + Files.size(jar) + ":"
+                    + Files.getLastModifiedTime(jar).toMillis());
+        }
+        return List.copyOf(values);
+    }
+
     private void loadJar(Path jar) {
         URLClassLoader loader = null;
         RecipeSourceProvider provider = null;
         String providerClass = null;
-        String id = jar.getFileName().toString().replaceFirst("(?i)\\.jar$", "");
+        String id = canonicalJarName(jar.getFileName().toString()).replaceFirst("(?i)\\.jar$", "");
         String displayName = id;
         String version = "unknown";
         try (JarFile file = new JarFile(jar.toFile(), false)) {
@@ -439,7 +468,8 @@ public final class ExtensionManager {
         List<BundledCategoryPreset> presets = new ArrayList<>();
         for (LoadedExtension extension : this.extensions.values()) {
             for (Map<String, Object> definition : extension.definition().categoryPresets()) {
-                presets.add(new BundledCategoryPreset(extension.id(), extension.jar().getFileName().toString(),
+                presets.add(new BundledCategoryPreset(extension.id(), canonicalJarName(
+                        extension.jar().getFileName().toString()),
                         definition));
             }
         }
@@ -451,7 +481,8 @@ public final class ExtensionManager {
         for (LoadedExtension extension : this.extensions.values()) {
             if (!this.isActive(extension)) continue;
             for (String id : extension.definition().presentation().navigation()) {
-                presets.add(new ManagedWorkstationPreset(id, extension.jar().getFileName().toString()));
+                presets.add(new ManagedWorkstationPreset(id, canonicalJarName(
+                        extension.jar().getFileName().toString())));
             }
         }
         return List.copyOf(presets);
@@ -460,7 +491,9 @@ public final class ExtensionManager {
     public java.util.Set<String> activeManagedJarNames() {
         java.util.LinkedHashSet<String> jars = new java.util.LinkedHashSet<>();
         for (LoadedExtension extension : this.extensions.values()) {
-            if (this.isActive(extension)) jars.add(extension.jar().getFileName().toString());
+            if (this.isActive(extension)) {
+                jars.add(canonicalJarName(extension.jar().getFileName().toString()));
+            }
         }
         return java.util.Set.copyOf(jars);
     }
@@ -485,10 +518,12 @@ public final class ExtensionManager {
         for (LoadedExtension extension : this.extensions.values()) {
             if (activeOnly && !this.isActive(extension)) continue;
             if (extension.definition().presentation().navigation().contains(stationId)) {
-                if (explicit.isBlank()) explicit = extension.jar().getFileName().toString();
+                if (explicit.isBlank()) {
+                    explicit = canonicalJarName(extension.jar().getFileName().toString());
+                }
             }
             if (!extension.definition().presentation().stationPrefixes().isEmpty()) {
-                prefixes.put(extension.jar().getFileName().toString(),
+                prefixes.put(canonicalJarName(extension.jar().getFileName().toString()),
                         extension.definition().presentation().stationPrefixes());
             }
         }
@@ -512,11 +547,21 @@ public final class ExtensionManager {
         return owner;
     }
 
+    /**
+     * Removes the release version suffix while retaining the stable extension filename used by
+     * managed category and workstation ownership markers.
+     */
+    static String canonicalJarName(String fileName) {
+        if (fileName == null || fileName.isBlank()) return "";
+        return fileName.trim().replaceFirst(
+                "(?i)(?:_v\\d[0-9A-Za-z._+-]*)?\\.jar$", ".jar");
+    }
+
     public String bundledCategoryOwner(String namespace) {
         for (LoadedExtension extension : this.extensions.values()) {
             for (Map<String, Object> definition : extension.definition().categoryPresets()) {
                 if (namespace != null && namespace.equals(string(definition.get("id")))) {
-                    return extension.jar().getFileName().toString();
+                    return canonicalJarName(extension.jar().getFileName().toString());
                 }
             }
         }
@@ -567,6 +612,30 @@ public final class ExtensionManager {
 
     public LoadedExtension extension(String id) {
         return this.extensions.get(id);
+    }
+
+    /**
+     * Collects language fallbacks bundled by installed source extensions. Extensions should only
+     * provide keys missing from the source pack; core applies them after the source translations.
+     */
+    public Map<String, Map<String, String>> itemNameOverrides() {
+        Map<String, Map<String, String>> merged = new LinkedHashMap<>();
+        for (LoadedExtension extension : List.copyOf(this.extensions.values())) {
+            try {
+                Map<String, Map<String, String>> values = PackagedNameOverrides.readJar(
+                        extension.jar(), "item-name-overrides/default.json");
+                for (var locale : values.entrySet()) {
+                    merged.computeIfAbsent(locale.getKey(), ignored -> new LinkedHashMap<>())
+                            .putAll(locale.getValue());
+                }
+            } catch (IOException | RuntimeException error) {
+                this.plugin.getLogger().warning("Cannot read item name overrides from "
+                        + extension.jar().getFileName() + ": " + error.getMessage());
+            }
+        }
+        Map<String, Map<String, String>> immutable = new LinkedHashMap<>();
+        merged.forEach((locale, values) -> immutable.put(locale, Map.copyOf(values)));
+        return Map.copyOf(immutable);
     }
 
     public Plugin requiredPlugin(RecipeSourceProvider provider) {
@@ -754,7 +823,6 @@ public final class ExtensionManager {
         String legacy = switch (sourceId) {
             case "craftengine" -> "sources.craftengine";
             case "craftengine_cultivation" -> "sources.craftengine-cultivation";
-            case "minecraft" -> "sources.minecraft";
             case "minecraft_cultivation" -> "sources.minecraft-cultivation";
             default -> null;
         };
@@ -1013,6 +1081,11 @@ public final class ExtensionManager {
         @Override
         public Function<String, String> itemDisplayName() {
             return this.core.data()::itemDisplayName;
+        }
+
+        @Override
+        public java.util.Map<String, String> localizedItemNames(String id) {
+            return this.core.data().localizedItemNames(id);
         }
 
         @Override

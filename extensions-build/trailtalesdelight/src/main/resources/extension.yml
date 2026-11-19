@@ -1,0 +1,55 @@
+schema: 1
+id: trailandtalesdelight
+names:
+  en_US: Trail & Tales Delight
+  zh_CN: Trail & Tales Delight
+  zh_TW: Trail & Tales Delight
+  ja_JP: Trail & Tales Delight
+  ko_KR: Trail & Tales Delight
+  de_DE: Trail & Tales Delight
+  fr_FR: Trail & Tales Delight
+  es_ES: Trail & Tales Delight
+  ru_RU: Trail & Tales Delight
+descriptions:
+  en_US: Imports Trail & Tales Delight pottery cooking pot recipes as a dedicated CER source.
+  zh_CN: 将 Trail & Tales Delight 陶锅配方作为独立配方来源导入。
+  zh_TW: 將 Trail & Tales Delight 陶鍋配方作為獨立配方來源匯入。
+  ja_JP: Trail & Tales Delight の陶器調理鍋レシピを専用の CER ソースとして読み込みます。
+  ko_KR: Trail & Tales Delight 도자기 요리 냄비 레시피를 전용 CER 소스로 가져옵니다.
+  de_DE: Importiert Trail-&-Tales-Delight-Rezepte für den Tontopf als eigene CER-Quelle.
+  fr_FR: Importe les recettes de marmite en terre cuite de Trail & Tales Delight comme source CER dédiée.
+  es_ES: Importa las recetas de la olla de cerámica de Trail & Tales Delight como fuente CER dedicada.
+  ru_RU: Импортирует рецепты глиняного котла Trail & Tales Delight как отдельный источник CER.
+authors:
+  - che1s
+supported-languages:
+  - en_US
+  - zh_CN
+  - zh_TW
+  - ja_JP
+  - ko_KR
+  - de_DE
+  - fr_FR
+  - es_ES
+  - ru_RU
+language-source: trailandtalesdelight
+dependencies:
+  plugins:
+    - name: TrailTalesDelight
+      main-classes:
+        - dev.che1s.trailtalesdelight.TrailTalesDelightPlugin
+      version: ">=1.0.6"
+      primary: true
+    - name: FarmersDelight
+      main-classes:
+        - com.huidu.farmersdelight.FarmersDelightPlugin
+      version: ">=1.0.3"
+integration-defaults:
+  mode: enabled
+  export-missing: true
+  reexport-on-reload: true
+  reexport-craftengine-on-ce-reload: true
+integration-button:
+  icons:
+    - trailandtales_delight:pottery_cooking_pot
+    - minecraft:decorated_pot

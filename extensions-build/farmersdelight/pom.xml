@@ -6,13 +6,13 @@
     <parent>
         <groupId>dev.che1s.craftenginerecipe.extensions</groupId>
         <artifactId>extensions-build</artifactId>
-        <version>1.2.0-alpha.2</version>
+        <version>1.2.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>farmersdelight-extension</artifactId>
     <packaging>jar</packaging>
     <build>
-        <finalName>cer-ext-farmersdelight</finalName>
+        <finalName>cer-ext-farmersdelight_v${project.version}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>

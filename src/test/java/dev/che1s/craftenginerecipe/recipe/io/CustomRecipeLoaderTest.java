@@ -27,6 +27,51 @@ class CustomRecipeLoaderTest {
     }
 
     @Test
+    void minecraftCultivationDirectoryIsLoaded() throws Exception {
+        this.write("minecraft-cultivation/cultivation.yml",
+                minimal("minecraft_cultivation:wheat"));
+
+        List<DisplayRecipe> loaded = this.loader().load();
+
+        assertEquals(List.of("minecraft_cultivation:wheat"),
+                loaded.stream().map(DisplayRecipe::id).toList());
+    }
+
+    @Test
+    void localizedItemNamesLoadAndResolveByPlayerLanguage() throws Exception {
+        this.write("cultivation.yml", """
+                recipes:
+                  cultivation:wheat:
+                    layout: {rows: 3}
+                    workstation:
+                      id: minecraft:cultivation
+                      icon: minecraft:farmland
+                    results:
+                      - id: minecraft:wheat
+                        slot: 16
+                        name:
+                          en_US: Wheat
+                          zh_CN: 小麦
+                          ja_JP: コムギ
+                    ingredients:
+                      - id: minecraft:wheat_seeds
+                        name:
+                          en_US: Wheat Seeds
+                          zh_CN: 小麦种子
+                        slot: 10
+                """);
+
+        DisplayRecipe recipe = this.loader().load().getFirst();
+        RecipeItem result = recipe.results().getFirst().item();
+        RecipeItem ingredient = recipe.ingredients().getFirst().choices().getFirst();
+
+        assertEquals("小麦", result.localizedName("zh_CN"));
+        assertEquals("コムギ", result.localizedName("ja-JP"));
+        assertEquals("Wheat", result.localizedName("de_DE"));
+        assertEquals("小麦种子", ingredient.localizedName("zh_CN"));
+    }
+
+    @Test
     void readsNestedFilesMultipleRecipesChoicesOutputsAndFileLocalTemplates() throws Exception {
         this.write("garden/stews.yaml", """
                 layouts:
@@ -186,33 +231,6 @@ class CustomRecipeLoaderTest {
 
         assertEquals("crafting", recipe.layout().page());
         assertTrue(recipe.layout().nativeUi());
-    }
-
-    @Test
-    void generatedMinecraftDataIsAlreadyInCerYamlFormat() throws Exception {
-        Path generated = Path.of("extensions-build/minecraft/src/main/resources/recipes/minecraft-26.2");
-        org.junit.jupiter.api.Assumptions.assumeTrue(Files.isDirectory(generated));
-        try (var paths = Files.walk(generated)) {
-            for (Path source : paths.filter(Files::isRegularFile).toList()) {
-                Path copied = this.dataFolder.resolve("recipes/minecraft-26.2")
-                        .resolve(generated.relativize(source));
-                Files.createDirectories(copied.getParent());
-                Files.copy(source, copied);
-            }
-        }
-
-        List<DisplayRecipe> recipes = this.loader().load();
-        List<DisplayRecipe> swords = recipes.stream()
-                .filter(recipe -> recipe.id().startsWith("minecraft_data:wooden_sword"))
-                .toList();
-
-        assertTrue(swords.size() >= 12);
-        assertTrue(swords.stream().allMatch(recipe -> recipe.layout().page().equals("crafting")));
-        assertTrue(swords.stream().flatMap(recipe -> recipe.ingredients().stream())
-                .allMatch(ingredient -> ingredient.choices().size() == 1));
-        assertFalse(swords.stream().flatMap(recipe -> recipe.ingredients().stream())
-                .flatMap(ingredient -> ingredient.choices().stream())
-                .anyMatch(item -> item.id().equals("minecraft:knowledge_book")));
     }
 
     @Test
@@ -782,7 +800,7 @@ class CustomRecipeLoaderTest {
         this.write("customcrops/crops.yml", minimal("customcrops:pot"));
 
         List<DisplayRecipe> loaded = new CustomRecipeLoader(this.dataFolder,
-                () -> true, () -> true, source -> source.equals("customcrops")).load();
+                () -> true, source -> source.equals("customcrops")).load();
 
         assertEquals(List.of("customcrops:pot"),
                 loaded.stream().map(DisplayRecipe::id).toList());

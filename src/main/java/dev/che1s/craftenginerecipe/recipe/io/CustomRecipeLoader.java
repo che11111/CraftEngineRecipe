@@ -34,16 +34,14 @@ import java.util.function.Predicate;
 /** 读取仅用于展示的配方。加载失败时不会返回部分有效的替代数据。 */
 public final class CustomRecipeLoader {
     private static final Set<String> OPTIONAL_SOURCE_DIRECTORIES =
-            Set.of("farmersdelight", "kaleidoscope", "customcrops");
+            Set.of("farmersdelight", "trailandtalesdelight", "kaleidoscope", "customcrops");
     private final Path directory;
-    private final BooleanSupplier minecraftEnabled;
     private final BooleanSupplier craftEngineEnabled;
     private final Predicate<String> integrationEnabled;
     private final Set<String> managedSourceDirectories;
 
     public CustomRecipeLoader(JavaPlugin plugin) {
         this(plugin.getDataFolder().toPath(),
-                () -> plugin.getConfig().getBoolean("sources.minecraft", true),
                 () -> plugin.getConfig().getBoolean("sources.craftengine", true),
                 source -> plugin instanceof dev.che1s.craftenginerecipe.CraftEngineRecipePlugin cer
                         && cer.integrations().enabled(source),
@@ -52,43 +50,36 @@ public final class CustomRecipeLoader {
 
     /** Creates a loader for an extension-owned data snapshot. */
     public static CustomRecipeLoader allSources(Path dataFolder) {
-        return new CustomRecipeLoader(dataFolder, () -> true, () -> true);
+        return new CustomRecipeLoader(dataFolder, () -> true, ignored -> true, OPTIONAL_SOURCE_DIRECTORIES);
     }
 
     CustomRecipeLoader(Path dataFolder) {
-        this(dataFolder, () -> true, () -> true, ignored -> true, OPTIONAL_SOURCE_DIRECTORIES);
+        this(dataFolder, () -> true, ignored -> true, OPTIONAL_SOURCE_DIRECTORIES);
     }
 
-    CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled) {
-        this(dataFolder, minecraftEnabled, craftEngineEnabled, ignored -> true,
-                OPTIONAL_SOURCE_DIRECTORIES);
-    }
-
-    CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled,
+    CustomRecipeLoader(Path dataFolder, BooleanSupplier craftEngineEnabled,
                        Predicate<String> integrationEnabled) {
-        this(dataFolder, minecraftEnabled, craftEngineEnabled, integrationEnabled,
-                OPTIONAL_SOURCE_DIRECTORIES);
+        this(dataFolder, craftEngineEnabled, integrationEnabled, OPTIONAL_SOURCE_DIRECTORIES);
     }
 
-    CustomRecipeLoader(Path dataFolder, BooleanSupplier minecraftEnabled, BooleanSupplier craftEngineEnabled,
+    CustomRecipeLoader(Path dataFolder, BooleanSupplier craftEngineEnabled,
                        Predicate<String> integrationEnabled, Set<String> managedSourceDirectories) {
         this.directory = dataFolder.resolve("recipes");
-        this.minecraftEnabled = minecraftEnabled;
         this.craftEngineEnabled = craftEngineEnabled;
         this.integrationEnabled = integrationEnabled;
         this.managedSourceDirectories = Set.copyOf(managedSourceDirectories);
     }
 
     /** 使用启动/重载时刻的配置快照，避免异步文件扫描继续读取 Bukkit 配置。 */
-    public CustomRecipeLoader(Path dataFolder, boolean minecraftEnabled, boolean craftEngineEnabled,
+    public CustomRecipeLoader(Path dataFolder, boolean craftEngineEnabled,
                               Set<String> enabledOptionalSources) {
-        this(dataFolder, () -> minecraftEnabled, () -> craftEngineEnabled,
+        this(dataFolder, () -> craftEngineEnabled,
                 source -> enabledOptionalSources.contains(source), OPTIONAL_SOURCE_DIRECTORIES);
     }
 
     public CustomRecipeLoader(Path dataFolder, Set<String> managedSourceDirectories,
                               Predicate<String> sourceEnabled) {
-        this(dataFolder, () -> true, () -> true, sourceEnabled, managedSourceDirectories);
+        this(dataFolder, () -> true, sourceEnabled, managedSourceDirectories);
     }
 
     /**
@@ -191,8 +182,6 @@ public final class CustomRecipeLoader {
         String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
         if (!name.endsWith(".yml") && !name.endsWith(".yaml")) return false;
         Path relative = this.directory.relativize(path);
-        if (!this.minecraftEnabled.getAsBoolean() && relative.getNameCount() > 1
-                && relative.getName(0).toString().startsWith("minecraft-")) return false;
         if (!this.craftEngineEnabled.getAsBoolean() && relative.getNameCount() > 1
                 && relative.getName(0).toString().equals("craftengine")) return false;
         if (relative.getNameCount() > 1) {

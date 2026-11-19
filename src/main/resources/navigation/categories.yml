@@ -35,6 +35,9 @@ entries:
       items:
         - default:gui_head_size_1
         - default:gui_head_size_4
+  icon-name:
+    zh_CN: '<white>CE默认物品</white>'
+    en_US: '<white>CE Default Items</white>'
 - display:
     material: minecraft:gray_stained_glass_pane
     name: ''
@@ -74,35 +77,6 @@ entries:
       - close
       - 'delay: 0.1'
       - 'command: cer manage'
-- display:
-    material: minecraft:compass
-    name:
-      zh_CN: '&#D8B278打开「CER的适配插件页面」'
-      en_US: '&#B8C278Open CER Integrations'
-    lore:
-      zh_CN:
-        - '&#B8C0CC在页面中会显示当前服务器中有哪些CER特殊适配内容'
-        - '&#B8C0CC需要管理员手动开启，适配内容方可工作'
-        - ''
-        - '&#B8C0CC通过/cer integrations指令也可以进入'
-        - '&#B8C0CC此按钮仅管理员可见'
-        - '&#B8C0CC可以试试将这个按钮隐藏/删掉？'
-      en_US:
-        - '&#B8C0CCThis page shows the special CraftEngine integrations detected on the server'
-        - '&#B8C0CCAn administrator must enable an integration before it becomes active'
-        - ''
-        - '&#B8C0CCYou can also open it with /cer integrations'
-        - '&#B8C0CCThis button is visible to administrators only'
-        - '&#B8C0CCFeel free to hide or remove this button'
-  visibility: admin
-  permission: ''
-  hide-inaccessible: true
-  actions:
-    all:
-      - 'sound: UI_BUTTON_CLICK-1-2'
-      - close
-      - 'delay: 0.1'
-      - 'command: cer integrations'
 - display:
     material: minecraft:gray_stained_glass_pane
     name: ''

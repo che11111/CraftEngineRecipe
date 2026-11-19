@@ -40,7 +40,7 @@ class PluginConfigEditorTest {
     void writesDataSettingsOnlyWhenAllNumbersAreInRange() {
         YamlConfiguration config = new YamlConfiguration();
         PluginConfigEditor.DataSettings valid = new PluginConfigEditor.DataSettings(
-                true, false, true, false, false, 40, 60, 48, 300);
+                true, true, false, false, 40, 60, 48, 300);
 
         assertTrue(PluginConfigEditor.apply(config, valid));
         assertEquals(40, config.getInt("recipes.poll-interval"));
@@ -49,7 +49,7 @@ class PluginConfigEditorTest {
         assertEquals(300, config.getInt("search.max-results"));
 
         PluginConfigEditor.DataSettings invalid = new PluginConfigEditor.DataSettings(
-                true, true, true, true, true, 9, 60, 48, 300);
+                true, true, true, true, 9, 60, 48, 300);
         assertFalse(PluginConfigEditor.apply(config, invalid));
         assertEquals(40, config.getInt("recipes.poll-interval"));
     }

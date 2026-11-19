@@ -329,7 +329,6 @@ ui:
     hotkey-sneak: <#79CFC9>Require für den Hotkey</#79CFC9> schleichen
     updates: <#79CFC9>Überprüfen Sie GitHub auf stabile Updates</#79CFC9>
     source-craftengine: <#79CFC9>Aktivieren Sie die CraftEngine-Rezeptquelle</#79CFC9>
-    source-minecraft: <#79CFC9>EVanille-Rezeptdaten aktivieren</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>EVanille-Anbaudaten aktivieren</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>ECraftEngine-Anbaudaten aktivieren</#79CFC9>
     auto-reload: <#79CFC9>Überwachen Sie Rezepte/auf Dateiänderungen</#79CFC9>

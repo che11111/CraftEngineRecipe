@@ -6,6 +6,7 @@ import dev.che1s.craftenginerecipe.api.RecipeItem;
 import dev.che1s.craftenginerecipe.api.RecipeLayout;
 import dev.che1s.craftenginerecipe.api.RecipeResult;
 import dev.che1s.craftenginerecipe.api.RecipeWorkstation;
+import dev.che1s.craftenginerecipe.i18n.LanguageManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -695,11 +696,11 @@ final class RecipeDocumentParser {
                 icon = carrier;
             }
         }
-        String name = this.string(item.get("name"), path + ".name", false);
+        LocalizedName name = this.localizedName(item.get("name"), path + ".name");
         List<String> lore = !item.containsKey("lore") || item.get("lore") == null
                 ? null : this.strings(item.get("lore"), path + ".lore");
         try {
-            return new RecipeItem(provider, id, icon, name, lore);
+            return new RecipeItem(provider, id, icon, name.value(), lore, name.localized());
         } catch (IllegalArgumentException error) {
             throw this.error(path, error.getMessage(), error);
         }
@@ -728,10 +729,12 @@ final class RecipeDocumentParser {
                 meta.setItemModel(NamespacedKey.minecraft("air"));
                 carrier.setItemMeta(meta);
             }
-            return new RecipeItem("minecraft", "minecraft:air", carrier, item.name(), item.lore());
+            return new RecipeItem("minecraft", "minecraft:air", carrier, item.name(), item.lore(),
+                    item.localizedNames());
         } catch (RuntimeException | LinkageError unavailableRegistry) {
             // 单元测试中的 Bukkit 桩没有注册表；实际服务器路径会提供空气模型。
-            return new RecipeItem("minecraft", "minecraft:air", item.icon(), item.name(), item.lore());
+            return new RecipeItem("minecraft", "minecraft:air", item.icon(), item.name(), item.lore(),
+                    item.localizedNames());
         }
     }
 
@@ -880,9 +883,7 @@ final class RecipeDocumentParser {
                 if (configured.isEmpty()) throw this.error(entryPath + ".choices", "at least one item is required");
                 for (int choice = 0; choice < configured.size(); choice++) {
                     RecipeItem item = this.item(configured.get(choice), entryPath + ".choices[" + choice + "]");
-                    choices.add(new RecipeItem(item.provider(), item.id(), item.icon(),
-                            entry.containsKey("name") ? this.string(entry.get("name"), entryPath + ".name", false) : item.name(),
-                            entry.containsKey("lore") ? this.optionalLore(entry, entryPath) : item.lore()));
+                    choices.add(overrideDisplay(item, entry, entryPath));
                 }
             } else choices.add(this.entryItem(entry, entryPath));
             output.add(new RecipeIngredient(choices, this.amount(entry, entryPath), this.contentSlot(entry, entryPath, rows), role));
@@ -893,9 +894,7 @@ final class RecipeDocumentParser {
         if (entry.containsKey("item")) {
             if (entry.containsKey("id") || entry.containsKey("provider")) throw this.error(path, "use item or provider/id, not both");
             RecipeItem item = this.item(entry.get("item"), path + ".item");
-            return new RecipeItem(item.provider(), item.id(), item.icon(),
-                    entry.containsKey("name") ? this.string(entry.get("name"), path + ".name", false) : item.name(),
-                    entry.containsKey("lore") ? this.optionalLore(entry, path) : item.lore());
+            return overrideDisplay(item, entry, path);
         }
         Map<String, Object> item = new LinkedHashMap<>();
         for (String key : RecipeDocumentSchema.ITEM_KEYS) {
@@ -914,13 +913,47 @@ final class RecipeDocumentParser {
         String id = this.string(item.get("id"), path + ".id", true);
         String provider = item.containsKey("provider") ? this.string(item.get("provider"), path + ".provider", true)
                 : id.startsWith("minecraft:") ? "minecraft" : "craftengine";
+        LocalizedName name = this.localizedName(item.get("name"), path + ".name");
         try {
-            return new RecipeItem(provider, id, null, this.string(item.get("name"), path + ".name", false), this.optionalLore(item, path));
+            return new RecipeItem(provider, id, null, name.value(), this.optionalLore(item, path),
+                    name.localized());
         } catch (IllegalArgumentException error) { throw this.error(path, error.getMessage(), error); }
+    }
+
+    private RecipeItem overrideDisplay(RecipeItem item, Map<String, Object> entry, String path) throws IOException {
+        LocalizedName name = entry.containsKey("name")
+                ? this.localizedName(entry.get("name"), path + ".name")
+                : new LocalizedName(item.name(), item.localizedNames());
+        List<String> lore = entry.containsKey("lore") ? this.optionalLore(entry, path) : item.lore();
+        return new RecipeItem(item.provider(), item.id(), item.icon(), name.value(), lore, name.localized());
     }
 
     private List<String> optionalLore(Map<String, Object> item, String path) throws IOException {
         return !item.containsKey("lore") || item.get("lore") == null ? null : this.strings(item.get("lore"), path + ".lore");
+    }
+
+    private LocalizedName localizedName(Object configured, String path) throws IOException {
+        if (configured == null) return new LocalizedName(null, Map.of());
+        if (configured instanceof String text) return new LocalizedName(text, Map.of());
+        Map<String, Object> values = this.map(configured, path);
+        Map<String, String> localized = new LinkedHashMap<>();
+        for (var entry : values.entrySet()) {
+            String locale = LanguageManager.normalizeSupportedLocale(entry.getKey());
+            if (locale == null) {
+                throw this.error(path + "." + entry.getKey(), "unsupported locale");
+            }
+            localized.put(locale, this.string(entry.getValue(), path + "." + entry.getKey(), false));
+        }
+        if (localized.isEmpty()) throw this.error(path, "expected a string or locale-to-string map");
+        String fallback = localized.get("en_US");
+        if (fallback == null || fallback.isBlank()) fallback = localized.values().iterator().next();
+        return new LocalizedName(fallback, localized);
+    }
+
+    private record LocalizedName(String value, Map<String, String> localized) {
+        private LocalizedName {
+            localized = localized == null ? Map.of() : Map.copyOf(localized);
+        }
     }
 
     RecipeLayout layout(Map<String, Object> values, Integer stationSlot, String path) throws IOException {

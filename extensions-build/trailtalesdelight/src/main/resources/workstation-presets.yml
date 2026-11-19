@@ -1,0 +1,10 @@
+schema: 1
+navigation:
+  - id: "trailandtalesdelight:pottery_cooking_pot"
+presentation:
+  station-prefixes:
+    - trailandtalesdelight:
+  styles:
+    default:
+      remove-spaces: false
+      bold: false
