@@ -27,6 +27,7 @@ public final class PersonalizationDialogService {
     private static final String REMEMBER_KEY = "cer_personalization_remember";
     private static final String MAIN_PAGE_KEY = "cer_personalization_main_page";
     private static final String LANGUAGE_KEY = "cer_personalization_language";
+    private static final String HOTKEY_ENABLED_KEY = "cer_personalization_hotkey_enabled";
     private static final String BOOK_LEFT_KEY = "cer_personalization_book_left";
     private static final String BOOK_RIGHT_KEY = "cer_personalization_book_right";
     private static final String BOOK_SNEAK_LEFT_KEY = "cer_personalization_book_sneak_left";
@@ -91,9 +92,18 @@ public final class PersonalizationDialogService {
                 .onTrue(this.booleanText(language, true))
                 .onFalse(this.booleanText(language, false))
                 .build();
+        boolean globalHotkeyEnabled = this.plugin.getConfig().getBoolean("hotkey.enabled", false);
         boolean bookEnabled = this.plugin.recipeBook().enabled();
         List<DialogInput> inputs = new ArrayList<>(List.of(
                 menuInput, mainPageInput, languageInput, rememberInput));
+        if (globalHotkeyEnabled) {
+            inputs.add(DialogInput.bool(HOTKEY_ENABLED_KEY,
+                            language.component("ui.personalization.hotkey-enabled"))
+                    .initial(preferences.hotkeyEnabled(player.getUniqueId()))
+                    .onTrue(this.booleanText(language, true))
+                    .onFalse(this.booleanText(language, false))
+                    .build());
+        }
         if (bookEnabled) {
             PlayerPreferences.BookBindings bindings = preferences.bookBindings(player.getUniqueId());
             inputs.add(this.bookActionInput(language, BOOK_LEFT_KEY,
@@ -136,6 +146,7 @@ public final class PersonalizationDialogService {
                     this.plugin.tasks().playerLater(player, () -> this.open(player), 1);
                 }), ClickCallback.Options.builder().uses(1)
                         .lifetime(Duration.ofMinutes(5L)).build()));
+        // exitAction 会单独渲染为取消按钮，不能再次放入普通动作列表。
         List<ActionButton> actions = new ArrayList<>(List.of(save));
         if (bookEnabled) {
             ActionButton getBook = ActionButton.create(
@@ -153,7 +164,6 @@ public final class PersonalizationDialogService {
             actions.add(getBook);
         }
         actions.add(restoreDefaults);
-        actions.add(cancel);
         DialogType dialogType = DialogType.multiAction(actions)
                 .exitAction(cancel)
                 .columns(actions.size())
@@ -178,6 +188,8 @@ public final class PersonalizationDialogService {
         String language = language(view.getText(LANGUAGE_KEY));
         PlayerPreferences.LandingPage landingPage = landingPage(view.getText(MAIN_PAGE_KEY));
         Boolean remember = view.getBoolean(REMEMBER_KEY);
+        boolean globalHotkeyEnabled = this.plugin.getConfig().getBoolean("hotkey.enabled", false);
+        Boolean hotkeyEnabled = globalHotkeyEnabled ? view.getBoolean(HOTKEY_ENABLED_KEY) : null;
         PlayerPreferences.BookBindings bookBindings = null;
         if (this.plugin.recipeBook().enabled()) {
             PlayerPreferences.BookAction left = PlayerPreferences.BookAction.parse(
@@ -195,7 +207,9 @@ public final class PersonalizationDialogService {
                 || remember == null || language == null) {
             return;
         }
+        if (globalHotkeyEnabled && hotkeyEnabled == null) return;
         PlayerPreferences.BookBindings selectedBookBindings = bookBindings;
+        Boolean selectedHotkeyEnabled = hotkeyEnabled;
         this.schedule(player, generation, () -> {
             PlayerPreferences preferences = this.plugin.playerPreferences();
             PlayerPreferences.LandingPage previousLanding = preferences.landingPage(player.getUniqueId());
@@ -205,6 +219,9 @@ public final class PersonalizationDialogService {
             preferences.setRememberLastPage(player.getUniqueId(), remember);
             preferences.setLandingPage(player.getUniqueId(), landingPage);
             preferences.setLanguage(player.getUniqueId(), language);
+            if (selectedHotkeyEnabled != null) {
+                preferences.setHotkeyEnabled(player.getUniqueId(), selectedHotkeyEnabled);
+            }
             if (selectedBookBindings != null) {
                 preferences.setBookBindings(player.getUniqueId(), selectedBookBindings);
             }

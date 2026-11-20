@@ -1,5 +1,7 @@
 schema: 1
 id: trailandtalesdelight
+version: "1.2.0"
+requires-cer: ">=1.2.0-alpha4"
 names:
   en_US: Trail & Tales Delight
   zh_CN: Trail & Tales Delight
@@ -46,6 +48,7 @@ dependencies:
       version: ">=1.0.3"
 integration-defaults:
   mode: enabled
+  cultivation: false
   export-missing: true
   reexport-on-reload: true
   reexport-craftengine-on-ce-reload: true

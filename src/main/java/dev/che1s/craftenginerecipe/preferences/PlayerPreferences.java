@@ -37,13 +37,14 @@ public final class PlayerPreferences implements AutoCloseable {
                 book_right TEXT,
                 book_sneak_left TEXT,
                 book_sneak_right TEXT,
+                hotkey_enabled INTEGER,
                 updated_at INTEGER NOT NULL
             )
             """;
     private static final String UPSERT = """
             INSERT INTO player_preferences(player_uuid, menu_pack, remember_last_page, landing_page, language,
-                book_left, book_right, book_sneak_left, book_sneak_right, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                book_left, book_right, book_sneak_left, book_sneak_right, hotkey_enabled, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(player_uuid) DO UPDATE SET
                 menu_pack = excluded.menu_pack,
                 remember_last_page = excluded.remember_last_page,
@@ -53,6 +54,7 @@ public final class PlayerPreferences implements AutoCloseable {
                 book_right = excluded.book_right,
                 book_sneak_left = excluded.book_sneak_left,
                 book_sneak_right = excluded.book_sneak_right,
+                hotkey_enabled = excluded.hotkey_enabled,
                 updated_at = excluded.updated_at
             """;
     private static final String CREATE_SESSION_TABLE = """
@@ -248,25 +250,30 @@ public final class PlayerPreferences implements AutoCloseable {
                 stored.bookSneakRight() == null ? defaults.sneakRight() : stored.bookSneakRight());
     }
 
+    public boolean hotkeyEnabled(UUID player) {
+        Stored stored = this.preferences.get(player);
+        return stored == null || stored.hotkeyEnabled() == null || stored.hotkeyEnabled();
+    }
+
     public boolean setMenuPack(UUID player, String menuPack) {
         String normalized = normalize(menuPack);
         if (normalized == null || !this.settings.menuPacks().contains(normalized)) return false;
-        this.update(player, normalized, null, null, null, null);
+        this.update(player, normalized, null, null, null, null, null);
         return true;
     }
 
     public void setRememberLastPage(UUID player, boolean remember) {
-        this.update(player, null, remember, null, null, null);
+        this.update(player, null, remember, null, null, null, null);
     }
 
     public void setLandingPage(UUID player, LandingPage landingPage) {
-        if (landingPage != null) this.update(player, null, null, landingPage, null, null);
+        if (landingPage != null) this.update(player, null, null, landingPage, null, null, null);
     }
 
     public boolean setLanguage(UUID player, String language) {
         String normalized = normalizeLanguage(language);
         if (normalized == null) return false;
-        this.update(player, null, null, null, normalized, null);
+        this.update(player, null, null, null, normalized, null, null);
         return true;
     }
 
@@ -275,8 +282,12 @@ public final class PlayerPreferences implements AutoCloseable {
                 || bindings.sneakLeft() == null || bindings.sneakRight() == null) {
             return false;
         }
-        this.update(player, null, null, null, null, bindings);
+        this.update(player, null, null, null, null, bindings, null);
         return true;
+    }
+
+    public void setHotkeyEnabled(UUID player, boolean enabled) {
+        this.update(player, null, null, null, null, null, enabled);
     }
 
     /** Removes all player-specific overrides so server defaults apply again. */
@@ -296,7 +307,8 @@ public final class PlayerPreferences implements AutoCloseable {
     }
 
     private void update(UUID player, String menuPack, Boolean remember,
-                        LandingPage landingPage, String language, BookBindings bookBindings) {
+                        LandingPage landingPage, String language, BookBindings bookBindings,
+                        Boolean hotkeyEnabled) {
         Stored stored = this.preferences.compute(player, (ignored, current) -> {
             Stored value = current == null ? Stored.EMPTY : current;
             return new Stored(menuPack == null ? value.menuPack() : menuPack,
@@ -306,7 +318,8 @@ public final class PlayerPreferences implements AutoCloseable {
                     bookBindings == null ? value.bookLeft() : bookBindings.left(),
                     bookBindings == null ? value.bookRight() : bookBindings.right(),
                     bookBindings == null ? value.bookSneakLeft() : bookBindings.sneakLeft(),
-                    bookBindings == null ? value.bookSneakRight() : bookBindings.sneakRight());
+                    bookBindings == null ? value.bookSneakRight() : bookBindings.sneakRight(),
+                    hotkeyEnabled == null ? value.hotkeyEnabled() : hotkeyEnabled);
         });
         this.writer.execute(() -> this.persist(player, stored));
     }
@@ -326,6 +339,7 @@ public final class PlayerPreferences implements AutoCloseable {
                 ensureColumn(connection, "book_right", "TEXT");
                 ensureColumn(connection, "book_sneak_left", "TEXT");
                 ensureColumn(connection, "book_sneak_right", "TEXT");
+                ensureColumn(connection, "hotkey_enabled", "INTEGER");
             }
         } catch (Exception error) {
             this.logger.warning("Cannot initialize player preferences database: " + error.getMessage());
@@ -337,7 +351,7 @@ public final class PlayerPreferences implements AutoCloseable {
              Statement statement = connection.createStatement();
              ResultSet result = statement.executeQuery(
                      "SELECT player_uuid, menu_pack, remember_last_page, landing_page, language, "
-                             + "book_left, book_right, book_sneak_left, book_sneak_right "
+                             + "book_left, book_right, book_sneak_left, book_sneak_right, hotkey_enabled "
                              + "FROM player_preferences")) {
             while (result.next()) {
                 try {
@@ -345,13 +359,16 @@ public final class PlayerPreferences implements AutoCloseable {
                     String menuPack = result.getString("menu_pack");
                     int remember = result.getInt("remember_last_page");
                     Boolean rememberLastPage = result.wasNull() ? null : remember != 0;
+                    int hotkey = result.getInt("hotkey_enabled");
+                    Boolean hotkeyEnabled = result.wasNull() ? null : hotkey != 0;
                     LandingPage landingPage = LandingPage.parse(result.getString("landing_page"));
                     String language = normalizeLanguage(result.getString("language"));
                     this.preferences.put(player, new Stored(menuPack, rememberLastPage, landingPage, language,
                             BookAction.parse(result.getString("book_left")),
                             BookAction.parse(result.getString("book_right")),
                             BookAction.parse(result.getString("book_sneak_left")),
-                            BookAction.parse(result.getString("book_sneak_right"))));
+                            BookAction.parse(result.getString("book_sneak_right")),
+                            hotkeyEnabled));
                 } catch (IllegalArgumentException ignored) {
                     // 忽略 UUID 格式错误的行，不影响数据库中的其他记录。
                 }
@@ -376,7 +393,9 @@ public final class PlayerPreferences implements AutoCloseable {
                     : stored.bookSneakLeft().name().toLowerCase(Locale.ROOT));
             statement.setString(9, stored.bookSneakRight() == null ? null
                     : stored.bookSneakRight().name().toLowerCase(Locale.ROOT));
-            statement.setLong(10, System.currentTimeMillis());
+            if (stored.hotkeyEnabled() == null) statement.setNull(10, java.sql.Types.INTEGER);
+            else statement.setInt(10, stored.hotkeyEnabled() ? 1 : 0);
+            statement.setLong(11, System.currentTimeMillis());
             statement.executeUpdate();
         } catch (SQLException error) {
             this.logger.warning("Cannot save player preferences: " + error.getMessage());
@@ -478,9 +497,10 @@ public final class PlayerPreferences implements AutoCloseable {
     private record Stored(String menuPack, Boolean rememberLastPage,
                           LandingPage landingPage, String language,
                           BookAction bookLeft, BookAction bookRight,
-                          BookAction bookSneakLeft, BookAction bookSneakRight) {
+                          BookAction bookSneakLeft, BookAction bookSneakRight,
+                          Boolean hotkeyEnabled) {
         private static final Stored EMPTY = new Stored(null, null, null, null,
-                null, null, null, null);
+                null, null, null, null, null);
     }
 
     public record StoredSession(String snapshot, long savedAt) {

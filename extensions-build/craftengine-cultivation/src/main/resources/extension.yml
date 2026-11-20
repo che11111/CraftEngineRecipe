@@ -1,5 +1,7 @@
 schema: 1
 id: craftengine_cultivation
+version: "1.2.0"
+requires-cer: ">=1.2.0-alpha4"
 names:
   en_US: CraftEngine Cultivation
   zh_CN: CraftEngine 耕地

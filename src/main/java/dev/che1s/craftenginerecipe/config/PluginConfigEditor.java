@@ -13,7 +13,6 @@ public final class PluginConfigEditor {
             boolean personalization,
             boolean rememberLastPage,
             boolean hotkey,
-            boolean requireSneak,
             boolean checkForUpdates) {
     }
 
@@ -28,7 +27,8 @@ public final class PluginConfigEditor {
             int searchMaxResults) {
     }
 
-    public record BookSettings(boolean enabled, String locale, String name, List<String> lore) {
+    public record BookSettings(boolean enabled, boolean craftingEnabled,
+                               String locale, String name, List<String> lore) {
     }
 
     private PluginConfigEditor() {
@@ -42,7 +42,6 @@ public final class PluginConfigEditor {
         set(config, "personalization.enabled", settings.personalization());
         set(config, "browser.remember-last-page", settings.rememberLastPage());
         set(config, "hotkey.enabled", settings.hotkey());
-        set(config, "hotkey.require-sneak", settings.requireSneak());
         set(config, "check-for-updates", settings.checkForUpdates());
         return true;
     }
@@ -74,6 +73,7 @@ public final class PluginConfigEditor {
             return false;
         }
         set(config, "recipe-book.enabled", settings.enabled());
+        set(config, "recipe-book.crafting-enabled", settings.craftingEnabled());
         set(config, "recipe-book.name-overrides." + settings.locale(), settings.name().trim());
         set(config, "recipe-book.lore-overrides." + settings.locale(), List.copyOf(settings.lore()));
         return true;

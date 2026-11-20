@@ -28,6 +28,7 @@ import java.util.Locale;
 /** 将 CraftEngine 固定产物配方一次性转换为可编辑 CER YAML 的桥接器。 */
 public final class CraftEngineRecipeSource implements RecipeSource {
     public static final String SOURCE_ID = "craftengine";
+    private static final Key RECIPE_BOOK_ITEM = Key.of("cer_recipe_book:recipe_book");
     private static final List<Integer> CRAFTING_SLOTS =
             List.of(10, 11, 12, 19, 20, 21, 28, 29, 30);
     private final SourceContext context;
@@ -54,6 +55,8 @@ public final class CraftEngineRecipeSource implements RecipeSource {
                     if (!(recipe instanceof FixedResultRecipe fixed)) continue;
                     CustomRecipeResult result = fixed.result();
                     if (result == null || result.item() == null || result.item().id() == null) continue;
+                    // 配方书由核心维护独立的查询展示文件，避免查询页重复。
+                    if (RECIPE_BOOK_ITEM.equals(result.item().id())) continue;
                     List<RecipeIngredient> ingredients = ingredients(recipe, type);
                     if (ingredients.isEmpty()) continue;
                     String stationName = this.text.text("station." + page.langKey(),

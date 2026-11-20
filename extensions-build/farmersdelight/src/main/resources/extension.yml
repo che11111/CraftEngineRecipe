@@ -1,5 +1,7 @@
 schema: 1
 id: farmersdelight
+version: "1.2.0"
+requires-cer: ">=1.2.0-alpha4"
 names:
   en_US: Farmer's Delight
   zh_CN: 农夫乐事

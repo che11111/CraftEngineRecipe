@@ -26,6 +26,9 @@ class ExtensionManagerTest {
         assertTrue(ExtensionManager.versionMatches("26.9.2", ">=26.9.2 <27.0.0"));
         assertFalse(ExtensionManager.versionMatches("1.0.2", ">=1.0.3"));
         assertTrue(ExtensionManager.versionMatches("3.6.58", "=3.6.58"));
+        assertTrue(ExtensionManager.versionMatches("1.2.0-alpha4", ">=1.2.0-alpha4"));
+        assertTrue(ExtensionManager.versionMatches("1.2.0", ">=1.2.0-alpha4"));
+        assertFalse(ExtensionManager.versionMatches("1.2.0-alpha.2", ">=1.2.0-alpha4"));
     }
 
     @Test
@@ -52,12 +55,22 @@ class ExtensionManagerTest {
     }
 
     @Test
+    void selectsHighestDeclaredExtensionVersionForCanonicalName() throws Exception {
+        Path old = extensionJar("cer-ext-same_v1.0.0.jar", "same", "1.0.0");
+        Path latest = extensionJar("cer-ext-same_v2.0.0.jar", "same", "2.0.0");
+
+        assertEquals(List.of(latest), ExtensionManager.selectLatestByCanonicalName(
+                List.of(latest, old)));
+    }
+
+    @Test
     void bundledExtensionsShipUniformDeclarations() {
         Map<String, String> modules = Map.of(
                 "craftengine", "craftengine",
                 "craftengine_cultivation", "craftengine-cultivation",
                 "minecraft_cultivation", "minecraft-cultivation",
                 "farmersdelight", "farmersdelight",
+                "trailandtalesdelight", "trailtalesdelight",
                 "kaleidoscope", "kaleidoscope",
                 "customcrops", "customcrops",
                 "private_alchemy", "private-alchemy");
@@ -68,6 +81,8 @@ class ExtensionManagerTest {
             YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file.toFile());
             assertEquals(1, yaml.getInt("schema"), entry.getKey());
             assertEquals(entry.getKey(), yaml.getString("id"), entry.getKey());
+            assertEquals("1.2.0", yaml.getString("version"), entry.getKey());
+            assertEquals(">=1.2.0-alpha4", yaml.getString("requires-cer"), entry.getKey());
             for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
                 assertFalse(yaml.getString("names." + locale, "").isBlank(),
                         entry.getKey() + " names." + locale);
@@ -79,7 +94,7 @@ class ExtensionManagerTest {
                     yaml.getStringList("supported-languages"), entry.getKey());
             assertFalse(yaml.getStringList("integration-button.icons").isEmpty(), entry.getKey());
             String expectedMode = List.of("craftengine", "craftengine_cultivation",
-                    "minecraft_cultivation").contains(entry.getKey())
+                    "minecraft_cultivation", "trailandtalesdelight").contains(entry.getKey())
                     ? "enabled" : "ask";
             assertEquals(expectedMode, yaml.getString("integration-defaults.mode"), entry.getKey());
             assertTrue(yaml.isBoolean("integration-defaults.cultivation"), entry.getKey());
@@ -125,6 +140,18 @@ class ExtensionManagerTest {
         for (String locale : dev.che1s.craftenginerecipe.i18n.LanguageManager.supportedLocales()) {
             assertTrue(Files.isRegularFile(cultivationLang.resolve(locale + ".yml")), locale);
         }
+    }
+
+    private Path extensionJar(String fileName, String id, String version) throws Exception {
+        Path jar = this.temporary.resolve(fileName);
+        try (JarOutputStream output = new JarOutputStream(Files.newOutputStream(jar))) {
+            output.putNextEntry(new JarEntry("extension.yml"));
+            output.write(("schema: 1\nid: " + id + "\nversion: \"" + version
+                    + "\"\nrequires-cer: \">=1.2.0-alpha4\"\n")
+                    .getBytes(StandardCharsets.UTF_8));
+            output.closeEntry();
+        }
+        return jar;
     }
 
     @Test

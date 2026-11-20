@@ -1,5 +1,7 @@
 schema: 1
 id: minecraft_cultivation
+version: "1.2.0"
+requires-cer: ">=1.2.0-alpha4"
 names:
   en_US: Minecraft Cultivation
   zh_CN: 原版耕地

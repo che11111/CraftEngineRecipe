@@ -2,6 +2,7 @@ package dev.che1s.craftenginerecipe.gui;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.api.RecipeIngredient;
+import dev.che1s.craftenginerecipe.book.RecipeBookService;
 import dev.che1s.craftenginerecipe.category.CategoryNamespaces;
 import dev.che1s.craftenginerecipe.data.CraftEngineData;
 import dev.che1s.craftenginerecipe.debug.Diagnostics;
@@ -80,6 +81,9 @@ public final class BrowserVisibility implements RecipeAccessPolicy {
                 Key result = WorkstationRecipes.resultKey(entry.nativeRecipe());
                 return result == null || this.nativeItemVisible(result, this.applied());
             }
+            if (RecipeBookService.isQueryRecipe(entry.display())) {
+                return this.plugin.recipeBook().enabled();
+            }
             if (BrowserService.isStandaloneMinecraftRecipe(entry.display().id())) {
                 return entry.canView(this.player);
             }
@@ -124,6 +128,9 @@ public final class BrowserVisibility implements RecipeAccessPolicy {
     @Override
     public boolean canQuery(Key id) {
         return this.queryable.computeIfAbsent(id, key -> {
+            if (RecipeBookService.isRecipeBookItem(key)) {
+                return this.plugin.recipeBook().enabled();
+            }
             if (this.nativeItemVisible(key, this.applied())) return true;
             return this.snapshot.results().getOrDefault(key, List.of()).stream().anyMatch(this::canView)
                     || this.snapshot.usages().getOrDefault(key, List.of()).stream().anyMatch(this::canView);

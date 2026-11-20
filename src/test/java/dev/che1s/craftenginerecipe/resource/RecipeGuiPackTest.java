@@ -69,15 +69,46 @@ class RecipeGuiPackTest {
     void recipeBookIsAnIndependentRequiredItemPack() throws Exception {
         YamlConfiguration metadata = this.yaml("resources/cer_recipe_book/pack.yml");
         YamlConfiguration items = this.yaml("resources/cer_recipe_book/configuration/items.yml");
+        YamlConfiguration recipes = this.yaml(
+                "resources/cer_recipe_book/configuration/recipes.yml");
+        YamlConfiguration translations = this.yaml(
+                "resources/cer_recipe_book/configuration/translations.yml");
 
         assertEquals("cer_recipe_book", metadata.getString("namespace"));
         assertEquals("paper", items.getString("items.cer_recipe_book:recipe_book.material"));
-        assertEquals("<!i><#D4AF37>CER·配方书</#D4AF37>",
+        assertEquals("<!i><#D4AF37><lang:item.cer_recipe_book.recipe_book></#D4AF37>",
                 items.getString("items.cer_recipe_book:recipe_book.data.item_name"));
         assertEquals("cer_recipe_book:item/recipe_book",
                 items.getString("items.cer_recipe_book:recipe_book.model.path"));
         assertEquals("cer_recipe_book:item/recipe_book",
                 items.getString("items.cer_recipe_book:recipe_book.model.generation.textures.layer0"));
+        String recipe = "recipes.cer_recipe_book:crafting/recipe_book";
+        assertEquals("shaped", recipes.getString(recipe + ".type"));
+        assertEquals(java.util.List.of("GTG", "PBP", "GCG"),
+                recipes.getStringList(recipe + ".pattern"));
+        assertEquals("minecraft:gold_nugget", recipes.getString(recipe + ".ingredients.G"));
+        assertEquals("minecraft:crafting_table", recipes.getString(recipe + ".ingredients.T"));
+        assertEquals("minecraft:paper", recipes.getString(recipe + ".ingredients.P"));
+        assertEquals("minecraft:book", recipes.getString(recipe + ".ingredients.B"));
+        assertEquals("minecraft:compass", recipes.getString(recipe + ".ingredients.C"));
+        assertEquals("cer_recipe_book:recipe_book", recipes.getString(recipe + ".result.id"));
+        assertEquals(1, recipes.getInt(recipe + ".result.count"));
+        assertEquals(java.util.Map.of(
+                        "en", "CER·Recipe Book",
+                        "zh_cn", "CER·配方书",
+                        "zh_tw", "CER·配方書",
+                        "ja_jp", "CER·レシピブック",
+                        "ko_kr", "CER·레시피 북",
+                        "de_de", "CER·Rezeptbuch",
+                        "fr_fr", "CER·Livre de recettes",
+                        "es_es", "CER·Libro de recetas",
+                        "ru_ru", "CER·Книга рецептов"),
+                java.util.Map.ofEntries(translations.getConfigurationSection("translations")
+                        .getKeys(false).stream()
+                        .map(locale -> java.util.Map.entry(locale,
+                                translations.getString("translations." + locale
+                                        + ".item.cer_recipe_book.recipe_book")))
+                        .toArray(java.util.Map.Entry[]::new)));
         assertTrue(ResourcePackInstaller.REQUIRED_CORE_PACKS.contains("cer_recipe_book"));
         assertTrue(!ResourcePackInstaller.REQUIRED_GUI_PACKS.contains("cer_recipe_book"));
 

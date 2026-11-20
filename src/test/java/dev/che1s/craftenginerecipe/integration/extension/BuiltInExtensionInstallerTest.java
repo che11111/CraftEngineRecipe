@@ -26,7 +26,8 @@ class BuiltInExtensionInstallerTest {
     private static final Logger LOGGER = Logger.getAnonymousLogger();
     private static final List<String> EMBEDDED_FILES = List.of(
             "cer-ext-craftengine_v1.2.0.jar",
-            "cer-ext-craftengine-cultivation_v1.2.0.jar");
+            "cer-ext-craftengine-cultivation_v1.2.0.jar",
+            "cer-ext-minecraft-cultivation_v1.2.0.jar");
 
     @TempDir Path temporary;
 

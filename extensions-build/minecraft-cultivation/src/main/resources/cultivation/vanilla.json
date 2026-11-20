@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "version": "minecraft-1.21.8",
-  "source": "client-jar",
+  "version": "all",
+  "source": "bundled",
   "crops": [
     {
       "id": "minecraft:wheat",

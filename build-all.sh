@@ -1,5 +1,5 @@
 #!/bin/sh
-# 从源码依次构建每个 Minecraft 目标，再构建独立扩展 JAR，把两个小型基础扩展
+# 从源码依次构建每个 Minecraft 目标，再构建独立扩展 JAR，把三个小型基础扩展
 # 注入核心 JAR，最后收集其余外置扩展到 dist/。
 # JAVA_HOME 用于选择 JDK 25；CER_MAVEN 可指定 PATH 之外的 Maven 可执行文件。
 # 额外参数会原样传给 Maven，例如：./build-all.sh -o -Dmaven.repo.local=/path/to/repository
@@ -40,10 +40,6 @@ cer_version=
 cer_extension_version=
 trap 'rm -rf "$cer_stage"' 0
 trap 'exit 1' HUP INT TERM
-
-# 在构建任何目标前统一刷新一次按版本归档的原版耕地资源。
-printf 'Extracting vanilla cultivation data from lib/*.jar...\n'
-sh "$cer_project/scripts/extract-vanilla-cultivation.sh"
 
 for cer_label in 1.21.7-1.21.11 26.1 26.2 26.3; do
     printf '\nBuilding Minecraft %s...\n' "$cer_label"
@@ -92,14 +88,14 @@ if [ -z "$cer_extension_version" ]; then
     exit 1
 fi
 
-# 核心 JAR 内嵌两个小型基础扩展。首次运行创建 extensions/ 时再由插件释放。
+# 核心 JAR 内嵌三个小型基础扩展。首次运行创建 extensions/ 时再由插件释放。
 # 发布目录仍完整收集全部扩展，便于服主单独升级或重新安装内置来源。
 printf '\nEmbedding bundled extension JARs...\n'
 cer_embedded_root="$cer_stage/.embedded-extensions"
 mkdir -p "$cer_embedded_root/META-INF/cer-embedded-extensions"
 cer_embedded_index="$cer_embedded_root/META-INF/cer-embedded-extensions/index.txt"
 : > "$cer_embedded_index"
-for cer_extension in craftengine craftengine-cultivation; do
+for cer_extension in craftengine craftengine-cultivation minecraft-cultivation; do
     cer_extension_file="cer-ext-${cer_extension}_v${cer_extension_version}.jar"
     cer_extension_jar="$cer_project/extensions-build/$cer_extension/target/$cer_extension_file"
     if [ ! -f "$cer_extension_jar" ]; then
@@ -112,7 +108,7 @@ done
 for cer_jar in "$cer_stage"/*.jar; do
     "$cer_jar_tool" --update --file "$cer_jar" \
         -C "$cer_embedded_root" META-INF/cer-embedded-extensions
-    for cer_extension in craftengine craftengine-cultivation; do
+    for cer_extension in craftengine craftengine-cultivation minecraft-cultivation; do
         cer_resource="META-INF/cer-embedded-extensions/cer-ext-${cer_extension}_v${cer_extension_version}.jar"
         if ! "$cer_jar_tool" --list --file "$cer_jar" | grep -Fq "$cer_resource"; then
             printf 'Embedded extension missing from %s: %s\n' "$cer_jar" "$cer_resource" >&2

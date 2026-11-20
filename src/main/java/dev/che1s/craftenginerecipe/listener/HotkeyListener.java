@@ -19,11 +19,10 @@ public final class HotkeyListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSwapHand(PlayerSwapHandItemsEvent event) {
         if (!this.plugin.data().isReady()) return;
-        if (!this.plugin.config().hotkeyEnabled()) {
-            return;
-        }
         Player player = event.getPlayer();
-        if (this.plugin.config().hotkeyRequireSneak() && !player.isSneaking()) {
+        var preferences = this.plugin.playerPreferences();
+        boolean playerEnabled = preferences == null || preferences.hotkeyEnabled(player.getUniqueId());
+        if (!shouldHandle(this.plugin.config().hotkeyEnabled(), playerEnabled, player.isSneaking())) {
             return;
         }
         event.setCancelled(true);
@@ -32,5 +31,9 @@ public final class HotkeyListener implements Listener {
                 this.plugin.browser(player).openApplied(player);
             }
         });
+    }
+
+    static boolean shouldHandle(boolean globallyEnabled, boolean playerEnabled, boolean sneaking) {
+        return globallyEnabled && playerEnabled && sneaking;
     }
 }

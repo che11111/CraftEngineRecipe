@@ -1,0 +1,19 @@
+translations:
+  en:
+    item.cer_recipe_book.recipe_book: "CER·Recipe Book"
+  zh_cn:
+    item.cer_recipe_book.recipe_book: "CER·配方书"
+  zh_tw:
+    item.cer_recipe_book.recipe_book: "CER·配方書"
+  ja_jp:
+    item.cer_recipe_book.recipe_book: "CER·レシピブック"
+  ko_kr:
+    item.cer_recipe_book.recipe_book: "CER·레시피 북"
+  de_de:
+    item.cer_recipe_book.recipe_book: "CER·Rezeptbuch"
+  fr_fr:
+    item.cer_recipe_book.recipe_book: "CER·Livre de recettes"
+  es_es:
+    item.cer_recipe_book.recipe_book: "CER·Libro de recetas"
+  ru_ru:
+    item.cer_recipe_book.recipe_book: "CER·Книга рецептов"

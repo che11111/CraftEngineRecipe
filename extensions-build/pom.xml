@@ -32,7 +32,7 @@
         <dependency>
             <groupId>dev.che1s</groupId>
             <artifactId>craftenginerecipe</artifactId>
-            <version>1.2.0-alpha.3</version>
+            <version>1.2.0-alpha4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

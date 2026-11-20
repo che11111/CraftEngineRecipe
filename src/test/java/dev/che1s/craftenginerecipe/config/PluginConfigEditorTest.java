@@ -16,13 +16,12 @@ class PluginConfigEditorTest {
         YamlConfiguration config = new YamlConfiguration();
 
         assertTrue(PluginConfigEditor.apply(config, new PluginConfigEditor.GeneralSettings(
-                "workstations", false, false, true, false, false)));
+                "workstations", false, false, true, false)));
 
         assertEquals("workstations", config.getString("browser.default-main-page"));
         assertFalse(config.getBoolean("personalization.enabled"));
         assertFalse(config.getBoolean("browser.remember-last-page"));
         assertTrue(config.getBoolean("hotkey.enabled"));
-        assertFalse(config.getBoolean("hotkey.require-sneak"));
         assertFalse(config.getBoolean("check-for-updates"));
     }
 
@@ -32,7 +31,7 @@ class PluginConfigEditorTest {
         config.set("browser.default-main-page", "namespaces");
 
         assertFalse(PluginConfigEditor.apply(config, new PluginConfigEditor.GeneralSettings(
-                "invalid", false, false, false, false, false)));
+                "invalid", false, false, false, false)));
         assertEquals("namespaces", config.getString("browser.default-main-page"));
     }
 
@@ -69,14 +68,15 @@ class PluginConfigEditorTest {
         List<String> lore = List.of("<#D4AF37>Book</#D4AF37>", "Left: {left}");
 
         assertTrue(PluginConfigEditor.apply(config,
-                new PluginConfigEditor.BookSettings(false, "zh_CN", "  Gold Book  ", lore)));
+                new PluginConfigEditor.BookSettings(false, true, "zh_CN", "  Gold Book  ", lore)));
 
         assertFalse(config.getBoolean("recipe-book.enabled", true));
+        assertTrue(config.getBoolean("recipe-book.crafting-enabled"));
         assertEquals("Gold Book", config.getString("recipe-book.name-overrides.zh_CN"));
         assertEquals(lore, config.getStringList("recipe-book.lore-overrides.zh_CN"));
 
         assertFalse(PluginConfigEditor.apply(config,
-                new PluginConfigEditor.BookSettings(true, "zh_CN", " ", lore)));
+                new PluginConfigEditor.BookSettings(true, true, "zh_CN", " ", lore)));
         assertFalse(config.getBoolean("recipe-book.enabled", true));
     }
 }

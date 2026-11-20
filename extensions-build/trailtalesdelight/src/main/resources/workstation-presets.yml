@@ -8,3 +8,10 @@ presentation:
     default:
       remove-spaces: false
       bold: false
+    en_US:
+      remove-spaces: true
+      bold: false
+    zh_CN:
+      bold: true
+    zh_TW:
+      bold: true

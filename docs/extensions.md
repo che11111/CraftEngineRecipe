@@ -27,21 +27,23 @@ plugins/CraftEngineRecipe/
     └── private_alchemy/
 ```
 
-`cer-ext-craftengine_v<版本>.jar` 和 `cer-ext-craftengine-cultivation_v<版本>.jar` 打包在主插件 JAR 的
+`cer-ext-craftengine_v<版本>.jar`、`cer-ext-craftengine-cultivation_v<版本>.jar` 和
+`cer-ext-minecraft-cultivation_v<版本>.jar` 打包在主插件 JAR 的
 `META-INF/cer-embedded-extensions/` 下。插件仅在首次运行、即创建
 `plugins/CraftEngineRecipe/extensions/` 时释放它们。目录已经存在时，即使为空或缺少
-其中某个文件，也不会自动补齐或覆盖。`cer-ext-minecraft-cultivation_v<版本>.jar`
-不内嵌，仍需手动放入扩展目录。
+其中某个文件，也不会自动补齐或覆盖。
 
-发布文件名包含版本号，格式为 `cer-ext-<来源>_v<版本>.jar`，扩展版本同时写入 JAR manifest 的 `Implementation-Version`。`/cer reload` 会重新扫描扩展目录；新增或删除 JAR 后会重建 Provider 及其依赖状态。升级时先移除旧版本文件，只保留当前版本，再执行重载或重启；同时存在两个提供相同 Provider ID 的版本会被加载器拒绝。替换扩展二进制后仍建议完整重启，因为 Java 不保证旧类立即卸载。
+发布文件名包含版本号，格式为 `cer-ext-<来源>_v<版本>.jar`。扩展版本和最低 CER 版本分别由 `extension.yml` 的 `version`、`requires-cer` 声明。加载器会按去除 `_v<版本>` 后的规范文件名分组；同一扩展存在多个 JAR 时，只加载 `version` 最高的一个并忽略其余版本。没有 `version` 时会回退使用文件名中的版本进行选择。`/cer reload` 会重新扫描扩展目录；新增或删除 JAR 后会重建 Provider 及其依赖状态。替换扩展二进制后仍建议完整重启，因为 Java 不保证旧类立即卸载。
 
-从旧版无前缀文件名升级时，请移除 `craftengine.jar`、`kaleidoscope.jar` 等旧文件，只保留新的 `cer-ext-*.jar`。加载器会扫描目录中的全部 JAR，新旧文件同时存在会触发重复来源 ID 错误。
+扩展声明的 `requires-cer` 不满足当前核心版本时，该 JAR 会进入不支持列表而不会实例化。不同规范文件名的扩展如果声明了相同 Provider ID，仍会被拒绝并记录重复来源 ID 错误。
 
 每个扩展 JAR 根目录都应包含格式统一的 `extension.yml`，作用类似 Bukkit 的 `plugin.yml`。它声明扩展 ID、多语言名称与描述、扩展作者、支持语言、来源插件依赖和 `integrations.yml` 管理页按钮图标：
 
 ```yaml
 schema: 1
 id: farmersdelight
+version: "1.2.0"
+requires-cer: ">=1.2.0-alpha4"
 names:
   en_US: Farmer's Delight
   zh_CN: 农夫乐事
@@ -131,7 +133,7 @@ craftengine_cultivation  -> CraftEngine 命名空间耕地数据
 minecraft_cultivation    -> 当前 MC 版本的原版耕地数据
 ```
 
-三个基础扩展默认启用，不进入适配询问。带版本号的 Minecraft Cultivation 扩展内含 `1.21.7`、`1.21.8`、`1.21.9`、`1.21.10`、`1.21.11`、`26.1`、`26.2`、`26.3` 八套耕地数据，只释放与当前服务端完全匹配的一套；找不到精确版本时扩展禁用，不降级使用其他版本。这八套数据由 `scripts/fetch-vanilla-client.sh` 下载并校验对应官方客户端 JAR 后分别提取，不能从一个版本推断另一个版本。原版配方由 CraftEngine 运行时提供。
+三个基础扩展默认启用，不进入适配询问。`cer-ext-minecraft-cultivation` 直接内置当前维护的原版耕地数据，构建时不再读取服务端 `lib/*.jar`，也不在运行时安装版本目录。原版配方由 CraftEngine 运行时提供。
 
 缺少扩展 JAR 或缺少它要求的来源插件时，核心和其他扩展继续正常工作。扩展加载失败、API 版本不兼容、重复来源 ID 或主类不匹配都会写入控制台日志。
 
@@ -344,7 +346,7 @@ extensions-build/farmersdelight/
     └── test/java/...
 ```
 
-原版耕地数据直接位于 `extensions-build/minecraft-cultivation/`。提取脚本只写入这个模块；原版配方和名称由 CraftEngine 运行时及生成资源包提供，不再发布独立的 Minecraft 配方扩展。
+原版耕地数据直接位于 `extensions-build/minecraft-cultivation/src/main/resources/cultivation/vanilla.json`，并随扩展 JAR 一起构建。原版配方和名称由 CraftEngine 运行时及生成资源包提供，不再发布独立的 Minecraft 配方扩展。
 
 内置九语言文件可由 `scripts/generate-language-files.py` 重新生成。该脚本会保护 MiniMessage 标签、命名参数、颜色代码和首尾空格；提交前应运行 `LanguageBundleCoverageTest` 检查所有语言的键集合与占位符是否一致。
 

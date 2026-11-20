@@ -95,7 +95,6 @@ public final class CerConfig {
     private List<String> searchLanguages;
     private SoundSettings sounds;
     private boolean hotkeyEnabled;
-    private boolean hotkeyRequireSneak;
     private boolean rememberLastPage;
     private long rememberLastPageMinutes;
     private boolean workstationsToggle;
@@ -225,8 +224,7 @@ public final class CerConfig {
 
         this.sounds = SoundSettings.load(ui);
 
-        this.hotkeyEnabled = c.getBoolean("hotkey.enabled", true);
-        this.hotkeyRequireSneak = c.getBoolean("hotkey.require-sneak", true);
+        this.hotkeyEnabled = c.getBoolean("hotkey.enabled", false);
         this.rememberLastPage = c.getBoolean("browser.remember-last-page", true);
         this.rememberLastPageMinutes = Math.max(1,
                 c.getLong("browser.remember-last-page-minutes", 3));
@@ -699,10 +697,6 @@ public final class CerConfig {
 
     public boolean hotkeyEnabled() {
         return this.hotkeyEnabled;
-    }
-
-    public boolean hotkeyRequireSneak() {
-        return this.hotkeyRequireSneak;
     }
 
     public boolean rememberLastPage() {

@@ -213,12 +213,13 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Restaurar la última posición después del cierre</#79CFC9>
+    hotkey-enabled: <#79CFC9>Activar el atajo Shift+F</#79CFC9>
     book-left-label: <#79CFC9>Libro de recetas · Clic izquierdo</#79CFC9>
     book-right-label: <#79CFC9>Libro de recetas · Clic derecho</#79CFC9>
     book-sneak-left-label: <#79CFC9>Libro de recetas · Agachado + clic izquierdo</#79CFC9>
     book-sneak-right-label: <#79CFC9>Libro de recetas · Agachado + clic derecho</#79CFC9>
-    book-action-auto-left: 'Automático · Mano secundaria vacía: objetos; con objeto: receta de fabricación'
-    book-action-auto-right: 'Automático · Mano secundaria vacía: mesas; con objeto: usos de receta'
+    book-action-auto-left: 'Mano secundaria vacía: objetos; con objeto: receta de fabricación'
+    book-action-auto-right: 'Mano secundaria vacía: mesas; con objeto: usos de receta'
     book-action-item-page: Abrir categorías de objetos
     book-action-table-page: Abrir categorías de mesas
     book-action-search: Abrir búsqueda
@@ -305,10 +306,12 @@ ui:
     workstation-use: '<#79CFC9>Clic izquierdo: abrir esta página de estación de trabajo</#79CFC9>'
     workstation-order: '<#E4D397>Shift+Izquierda: subir / Shift+Derecha: bajar</#E4D397>'
   config-editor:
+    home-title: <bold><#D8B278>config.yml · Inicio de ajustes</#D8B278></bold>
+    home-description: <#B8C0CC>Elige una categoría de ajustes.</#B8C0CC>
     general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Datos y rendimiento</#D8B278></bold>
     recipe-book-title: <bold><#D8B278>Ajustes del libro de recetas CER</#D8B278></bold>
-    description: <#B8C0CC>Editar configuraciones comúnmente cambiadas. Guardar reconstruye los índices; los comentarios detallados siguen siendo editables en config.yml.</#B8C0CC>
+    description: <#B8C0CC>Aquí puedes modificar algunos ajustes habituales de config.yml.</#B8C0CC>
     save: <#98C69A>Guardar y recargar</#98C69A>
     save-tooltip: <#B8C0CC>Escriba config.yml y reconstruya el menú y los índices de datos</#B8C0CC>
     cancel: <#E58B8B>Cancelar</#E58B8B>
@@ -317,17 +320,19 @@ ui:
     open-general: <#79CFC9>Configuración general</#79CFC9>
     open-page-tooltip: <#B8C0CC>Cambiar a la otra página de configuración sin guardar este cuadro de diálogo</#B8C0CC>
     open-recipe-book: <#79CFC9>Ajustes del libro de recetas</#79CFC9>
+    back-home: <#79CFC9>Volver al inicio de ajustes</#79CFC9>
+    back-home-tooltip: <#B8C0CC>Volver a las categorías sin guardar esta página</#B8C0CC>
     recipe-book-enabled: <#79CFC9>Activar el libro de recetas CER</#79CFC9>
+    recipe-book-crafting-enabled: <#79CFC9>Activar la receta de fabricación de “Libro de recetas CER”</#79CFC9>
     recipe-book-name: <#79CFC9>Nombre del libro de recetas</#79CFC9>
     recipe-book-lore: '<#79CFC9>Lore del libro; admite {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
-    landing-page: <#79CFC9>Página de inicio predeterminada</#79CFC9>
+    landing-page: <#79CFC9>Página de inicio global predeterminada</#79CFC9>
     landing-namespaces: Categorías de artículos
     landing-workstations: Estaciones de trabajo
-    personalization: <#79CFC9>Habilitar personalización del reproductor y currículum de navegación</#79CFC9>
-    remember-page: <#79CFC9>Recordar y restaurar la posición de navegación anterior</#79CFC9>
-    hotkey: <#79CFC9>Enable la tecla de acceso rápido para intercambiar manos</#79CFC9>
-    hotkey-sneak: <#79CFC9>Requiere escabullirse para la tecla de acceso rápido</#79CFC9>
-    updates: <#79CFC9>Compruebe GitHub para obtener actualizaciones estables</#79CFC9>
+    personalization: <#79CFC9>Activar globalmente la personalización y la reanudación de navegación</#79CFC9>
+    remember-page: <#79CFC9>Recordar y restaurar globalmente la posición de navegación</#79CFC9>
+    hotkey: <#79CFC9>Activar globalmente el atajo Shift+F</#79CFC9>
+    updates: <#79CFC9>Comprobar globalmente actualizaciones estables en GitHub</#79CFC9>
     source-craftengine: <#79CFC9>Enable la fuente de recetas de CraftEngine</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>Enbilitar datos de cultivo de vainilla</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>Enable CraftEngine datos de cultivo</#79CFC9>

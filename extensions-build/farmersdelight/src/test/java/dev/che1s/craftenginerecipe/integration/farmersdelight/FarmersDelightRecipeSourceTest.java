@@ -257,6 +257,62 @@ class FarmersDelightRecipeSourceTest {
         assertUsesFarmersDelightUi(recipe);
     }
 
+    @Test void specialRecipeTextRetainsResourcePackLanguageKeysForPerPlayerResolution() {
+        Api.specials = List.of(new Special("compost", "farmersdelight:compost",
+                "special.compost.title", List.of("special.compost.description", "special.compost.line"),
+                List.of(new Slot("minecraft:dirt", null, null,
+                        "special.compost.input", List.of("special.compost.input_lore"))),
+                List.of(new Slot("minecraft:bone_meal", null, null,
+                        "special.compost.output", List.of("special.compost.output_lore"))),
+                List.of(new Slot(null, "farmersdelight:compost", "activators",
+                        "special.compost.catalyst", List.of("special.compost.catalyst_lore"))),
+                true, true));
+        Map<String, String> translations = Map.ofEntries(
+                Map.entry("special.compost.description", "说明"),
+                Map.entry("special.compost.line", "更多说明"),
+                Map.entry("special.compost.input", "输入"),
+                Map.entry("special.compost.input_lore", "输入说明"),
+                Map.entry("special.compost.output", "输出"),
+                Map.entry("special.compost.output_lore", "输出说明"),
+                Map.entry("special.compost.catalyst", "催化物"),
+                Map.entry("special.compost.catalyst_lore", "催化说明"),
+                Map.entry("gui.condition.sunlight", "阳光"),
+                Map.entry("gui.condition.sunlight_lore", "需要阳光"),
+                Map.entry("gui.condition.water", "水"),
+                Map.entry("gui.condition.water_lore", "需要水"));
+
+        DisplayRecipe recipe = source(new Fixture(new Snapshot(Map.of(), Map.of()), Map.of()),
+                translations::get).capture().getFirst();
+
+        RecipeIngredient description = ingredientWithId(recipe, "minecraft:paper");
+        assertEquals("<lang:special.compost.description>", description.choices().getFirst().name());
+        assertEquals(List.of("<lang:special.compost.line>"), description.choices().getFirst().lore());
+        RecipeIngredient input = ingredientWithId(recipe, "minecraft:dirt");
+        assertEquals("<lang:special.compost.input>", input.choices().getFirst().name());
+        assertEquals(List.of("<lang:special.compost.input_lore>"), input.choices().getFirst().lore());
+        assertEquals("minecraft:bone_meal", recipe.results().getFirst().item().id());
+        assertEquals("<lang:special.compost.output>", recipe.results().getFirst().item().name());
+        assertEquals(List.of("<lang:special.compost.output_lore>"),
+                recipe.results().getFirst().item().lore());
+        RecipeIngredient catalysts = recipe.ingredients().stream()
+                .filter(ingredient -> ingredient.choices().size() == 2)
+                .findFirst().orElseThrow();
+        assertTrue(catalysts.choices().stream().allMatch(choice ->
+                "<lang:special.compost.catalyst>".equals(choice.name())));
+        assertTrue(catalysts.choices().stream().allMatch(choice ->
+                choice.lore().contains("<lang:special.compost.catalyst_lore>")));
+        assertTrue(recipe.ingredients().stream().anyMatch(ingredient -> ingredient.choices().getFirst().name()
+                .equals("<yellow><lang:gui.condition.sunlight></yellow>")));
+        assertTrue(recipe.ingredients().stream().anyMatch(ingredient -> ingredient.choices().getFirst().lore()
+                .equals(List.of("<gray><lang:gui.condition.sunlight_lore></gray>"))));
+    }
+
+    private static RecipeIngredient ingredientWithId(DisplayRecipe recipe, String id) {
+        return recipe.ingredients().stream()
+                .filter(ingredient -> ingredient.choices().getFirst().id().equals(id))
+                .findFirst().orElseThrow();
+    }
+
     @Test void addonDisplayRoleListsRemainSeparateSimultaneousSlots() {
         Api.types = List.of(new AddonType("barbequesdelight:grilling", Component.text("Grill"), new Stack("addon:grill", 1),
                 List.of(new AddonRecipe("roast", List.of(new Stack("minecraft:beef", 2)), new Stack("addon:roast", 3),
@@ -740,7 +796,16 @@ class FarmersDelightRecipeSourceTest {
                     hasSunlight, hasWater, false, "recipe");
         }
     }
-    public record Slot(String itemId, String behaviorBlockId, String behaviorListKey) {}
+    public record Slot(String itemId, String behaviorBlockId, String behaviorListKey,
+                       String nameKey, List<String> loreKeys) {
+        public Slot(String itemId, String behaviorBlockId, String behaviorListKey) {
+            this(itemId, behaviorBlockId, behaviorListKey, null, List.of());
+        }
+
+        public Slot {
+            loreKeys = loreKeys == null ? List.of() : List.copyOf(loreKeys);
+        }
+    }
     public record AddonType(String id, Component title, ItemStack icon, List<AddonRecipe> recipes) {}
     public record AddonTypeLayout(String id, Component title, ItemStack icon, List<AddonRecipe> recipes,
                                   Layout detail) {

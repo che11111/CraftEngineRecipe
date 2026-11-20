@@ -6,7 +6,7 @@
 
 <p align="center">基于 CraftEngine 的物品与配方浏览插件，支持分类浏览、拼音搜索和配方用途查询。CER 不仅是配方书，也可以作为完整的 CE 物品图鉴。</p>
 
-> 目前 1.2.0-alpha.3 版本可能不太稳定。请先使用 Release 中发布的版本。
+> 目前 1.2.0-alpha4 版本可能不太稳定。请先使用 Release 中发布的版本。
 
 
 <p align="center">
@@ -143,7 +143,7 @@ Paper **1.21.7 / 1.21.8 / 1.21.9 / 1.21.10 / 1.21.11** 使用 Java **21**；Pape
 
 | 命令 | 用途 |
 | --- | --- |
-| `/cer` | 打开正式菜单；快捷键 `Shift+F` |
+| `/cer` | 打开正式菜单；可在配置中启用 `Shift+F` |
 | `/cer craft` | 直接打开“按合成器分类”页面 |
 | `/cer items` | 直接打开“按物品种类分类”页面 |
 | `/cer search` | 搜索物品 |
@@ -194,20 +194,19 @@ dist/extensions/cer-ext-*.jar
 
 ## 扩展安装
 
-- **内嵌来源扩展**：`cer-ext-craftengine_v<版本>.jar`、`cer-ext-craftengine-cultivation_v<版本>.jar` 已打包在主插件 JAR 中。仅在第一次创建 `plugins/CraftEngineRecipe/extensions/` 时自动释放。
-- **原版耕作扩展**：`cer-ext-minecraft-cultivation_v<版本>.jar` 包含全部支持版本的原版耕地数据，仍作为外部扩展单独安装。原版配方和九语言名称由 CraftEngine 来源导出。
+- **内嵌来源扩展**：`cer-ext-craftengine_v<版本>.jar`、`cer-ext-craftengine-cultivation_v<版本>.jar` 和 `cer-ext-minecraft-cultivation_v<版本>.jar` 已打包在主插件 JAR 中。仅在第一次创建 `plugins/CraftEngineRecipe/extensions/` 时自动释放。原版耕地数据直接包含在扩展内，不再依赖服务端 `lib/*.jar` 提取；原版配方和九语言名称由 CraftEngine 来源导出。
 - **第三方来源扩展**：`cer-ext-farmersdelight_v<版本>.jar`、`cer-ext-trailtalesdelight_v<版本>.jar`、`cer-ext-kaleidoscope_v<版本>.jar`、`cer-ext-customcrops_v<版本>.jar`。仅在服务器安装对应前置插件时启用。
 - **私有来源模板**：`cer-ext-private-alchemy_v<版本>.jar` 只是扩展开发模板，在替换为真实 API 和采集逻辑前不会产生有效配方。
 
 ## 快速上手
 
-1. 安装兼容版本的 CraftEngine 和 CraftEngineRecipe。核心 JAR 放入 `plugins/`。首次运行时，CER 会创建 `plugins/CraftEngineRecipe/extensions/` 并释放两个带版本号的内嵌扩展；把 `cer-ext-minecraft-cultivation_v<版本>.jar` 和所需可选扩展放入该目录，然后完整停止并启动服务器。不要使用 `/reload` 或插件管理器的热重载。
+1. 安装兼容版本的 CraftEngine 和 CraftEngineRecipe。核心 JAR 放入 `plugins/`。首次运行时，CER 会创建 `plugins/CraftEngineRecipe/extensions/` 并释放三个带版本号的内嵌扩展；将所需可选扩展放入该目录，然后完整停止并启动服务器。不要使用 `/reload` 或插件管理器的热重载。
 
 2. 管理员执行 `/cer integrations`，开启 CER 对其他插件或资源包的特殊适配（例如农夫乐事、森罗物语等，可见本文适配列表）。
 
 3. 管理员使用 `/cer manage` 在游戏内调整分类、排序和隐藏规则。（CER采用白名单模式，只有管理员在此页面调整后，对应的配方才可显示）
 
-4. 玩家使用 `/cer` 或 `Shift+F` 打开物品分类；也可以使用 `/cer items`、`/cer craft` 和 `/cer search` 直接进入对应页面。
+4. 玩家使用 `/cer` 打开物品分类。管理员可在配置中启用可选的 `Shift+F` 快捷键；也可以使用 `/cer items`、`/cer craft` 和 `/cer search` 直接进入对应页面。
 
 ## 配置目录
 
@@ -216,7 +215,7 @@ plugins/CraftEngineRecipe/
 ├── extensions/                        # 首次运行创建；目录一旦存在就不会自动补齐
 │   ├── cer-ext-craftengine_v<版本>.jar        # 首次运行由主插件释放
 │   ├── cer-ext-craftengine-cultivation_v<版本>.jar
-│   ├── cer-ext-minecraft-cultivation_v<版本>.jar
+│   ├── cer-ext-minecraft-cultivation_v<版本>.jar    # 首次运行由主插件释放
 │   ├── cer-ext-farmersdelight_v<版本>.jar
 │   ├── cer-ext-trailtalesdelight_v<版本>.jar
 │   ├── cer-ext-kaleidoscope_v<版本>.jar

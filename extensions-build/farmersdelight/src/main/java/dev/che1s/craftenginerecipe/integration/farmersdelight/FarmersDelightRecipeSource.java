@@ -460,9 +460,9 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         List<String> keys = list(reflection.call(raw, "descriptionKeys")).stream().map(String::valueOf).toList();
         if (keys.isEmpty()) return;
         List<String> lore = keys.size() > 1
-                ? keys.subList(1, keys.size()).stream().map(this::translation).toList() : List.of();
+                ? keys.subList(1, keys.size()).stream().map(this::deferredTranslation).toList() : List.of();
         RecipeItem description = new RecipeItem("minecraft", "minecraft:paper",
-                invisibleCarrier(Material.PAPER), translation(keys.getFirst()), lore);
+                invisibleCarrier(Material.PAPER), deferredTranslation(keys.getFirst()), lore);
         target.add(new RecipeIngredient(List.of(description), 1, takeSlot(slots, used), RecipeIngredient.Role.INFO));
     }
 
@@ -473,8 +473,8 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
         Material material = itemId.equals("minecraft:torch") ? Material.TORCH
                 : itemId.equals("minecraft:water_bucket") ? Material.WATER_BUCKET : Material.PAPER;
         RecipeItem condition = new RecipeItem("minecraft", itemId, invisibleCarrier(material),
-                "<" + color + ">" + translation(nameKey) + "</" + color + ">",
-                List.of("<gray>" + translation(loreKey) + "</gray>"));
+                "<" + color + ">" + deferredTranslation(nameKey) + "</" + color + ">",
+                List.of("<gray>" + deferredTranslation(loreKey) + "</gray>"));
         target.add(new RecipeIngredient(List.of(condition), 1, takeSlot(slots, used), RecipeIngredient.Role.INFO));
     }
 
@@ -537,12 +537,12 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
 
     private RecipeItem decorated(RecipeItem item, Object entry) {
         String nameKey = text(entry, "nameKey");
-        String itemId = text(entry, "itemId");
-        boolean referenced = itemId != null && itemId.startsWith("#") || text(entry, "behaviorBlockId") != null;
         List<String> lore = new ArrayList<>();
-        for (Object key : list(reflection.call(entry, "loreKeys"))) lore.add(translation(String.valueOf(key)));
+        for (Object key : list(reflection.call(entry, "loreKeys"))) {
+            lore.add(deferredTranslation(String.valueOf(key)));
+        }
         return new RecipeItem(item.provider(), item.id(), item.icon(),
-                nameKey == null || referenced ? item.name() : translation(nameKey),
+                nameKey == null || nameKey.isBlank() ? item.name() : deferredTranslation(nameKey),
                 lore.isEmpty() ? null : lore);
     }
 
@@ -1023,6 +1023,15 @@ public final class FarmersDelightRecipeSource implements RecipeSource {
             }
         }
         return result;
+    }
+
+    private String deferredTranslation(String key) {
+        if (key == null || key.isBlank()) return "";
+        String canonical = canonicalTranslationKey(key);
+        String packed = this.resourcePackTranslations.apply(canonical);
+        return packed == null || packed.isBlank()
+                ? translation(canonical)
+                : "<lang:" + canonical + ">";
     }
 
     private String titleTranslation(String key) {

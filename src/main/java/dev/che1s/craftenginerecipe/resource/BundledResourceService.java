@@ -5,16 +5,20 @@ import dev.che1s.craftenginerecipe.integration.extension.ExtensionManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Installs and replenishes bundled CraftEngine resource packs. */
 public final class BundledResourceService {
+    private static final String RECIPE_BOOK_RECIPE_FILE = "configuration/recipes.yml";
     private final JavaPlugin plugin;
     private final Path jarPath;
     private final MenuPackManager menuPacks;
     private final LanguageManager language;
+    private boolean recipeBookCraftingChanged;
 
     public BundledResourceService(JavaPlugin plugin, Path jarPath,
                                   MenuPackManager menuPacks, LanguageManager language) {
@@ -33,6 +37,8 @@ public final class BundledResourceService {
             for (String menuPack : ResourcePackInstaller.bundledMenuPacks(this.jarPath)) {
                 this.populate(localRoot, menuPack);
             }
+            this.syncRecipeBookCraftingFile();
+            this.recipeBookCraftingChanged = false;
             this.menuPacks.installEnabled();
         } catch (IOException error) {
             this.plugin.getLogger().severe(this.language.text(
@@ -43,6 +49,8 @@ public final class BundledResourceService {
     public void replenish() {
         Path localRoot = this.localRoot();
         List<String> packs = new ArrayList<>(ResourcePackInstaller.REQUIRED_CORE_PACKS);
+        Path recipe = this.recipeBookRecipe(localRoot);
+        boolean recipeWasPresent = Files.isRegularFile(recipe, LinkOption.NOFOLLOW_LINKS);
         try {
             packs.addAll(ResourcePackInstaller.bundledMenuPacks(this.jarPath));
         } catch (IOException error) {
@@ -59,6 +67,19 @@ public final class BundledResourceService {
                         "logs.pack-install-failed", "error", error.getMessage()));
             }
         }
+        try {
+            boolean recipeIsPresent = this.syncRecipeBookCraftingFile();
+            this.recipeBookCraftingChanged = recipeWasPresent != recipeIsPresent;
+        } catch (IOException error) {
+            this.plugin.getLogger().severe(this.language.text(
+                    "logs.pack-install-failed", "error", error.getMessage()));
+        }
+    }
+
+    public boolean consumeRecipeBookCraftingChanged() {
+        boolean changed = this.recipeBookCraftingChanged;
+        this.recipeBookCraftingChanged = false;
+        return changed;
     }
 
     public void installExtensionPacks(ExtensionManager extensions) {
@@ -89,6 +110,28 @@ public final class BundledResourceService {
         int count = ResourcePackInstaller.replenishBundled(this.jarPath, local, pack,
                 this.plugin.getName(), this.plugin.getDescription().getVersion());
         this.logCopy(local, count);
+    }
+
+    private boolean syncRecipeBookCraftingFile() throws IOException {
+        Path root = this.localRoot();
+        Path recipe = this.recipeBookRecipe(root);
+        boolean enabled = this.plugin.getConfig().getBoolean("recipe-book.enabled", true)
+                && this.plugin.getConfig().getBoolean("recipe-book.crafting-enabled", true);
+        boolean present = Files.isRegularFile(recipe, LinkOption.NOFOLLOW_LINKS);
+        if (enabled && !present) {
+            ResourcePackInstaller.replenishBundled(this.jarPath,
+                    root.resolve(ResourcePackInstaller.RECIPE_BOOK_PACK_DIRECTORY),
+                    ResourcePackInstaller.RECIPE_BOOK_PACK_DIRECTORY,
+                    this.plugin.getName(), this.plugin.getDescription().getVersion());
+        } else if (!enabled) {
+            Files.deleteIfExists(recipe);
+        }
+        return Files.isRegularFile(recipe, LinkOption.NOFOLLOW_LINKS);
+    }
+
+    private Path recipeBookRecipe(Path localRoot) {
+        return localRoot.resolve(ResourcePackInstaller.RECIPE_BOOK_PACK_DIRECTORY)
+                .resolve(RECIPE_BOOK_RECIPE_FILE);
     }
 
     private void logCopy(Path local, int count) {

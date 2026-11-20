@@ -213,12 +213,13 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Restore the last position after closing</#79CFC9>
+    hotkey-enabled: <#79CFC9>Enable the Shift+F hotkey</#79CFC9>
     book-left-label: <#79CFC9>Recipe book · Left click</#79CFC9>
     book-right-label: <#79CFC9>Recipe book · Right click</#79CFC9>
     book-sneak-left-label: <#79CFC9>Recipe book · Sneak + left click</#79CFC9>
     book-sneak-right-label: <#79CFC9>Recipe book · Sneak + right click</#79CFC9>
-    book-action-auto-left: 'Auto · Empty offhand: item categories; holding item: crafting recipe'
-    book-action-auto-right: 'Auto · Empty offhand: workstations; holding item: recipe uses'
+    book-action-auto-left: 'Empty offhand: item categories; holding an item: crafting recipe'
+    book-action-auto-right: 'Empty offhand: workstations; holding an item: recipe uses'
     book-action-item-page: Open item categories
     book-action-table-page: Open workstation categories
     book-action-search: Open search
@@ -305,10 +306,12 @@ ui:
     workstation-use: '<#79CFC9>Left-click: open this workstation page</#79CFC9>'
     workstation-order: '<#E4D397>Shift+Left: move up / Shift+Right: move down</#E4D397>'
   config-editor:
+    home-title: <bold><#D8B278>config.yml · Settings</#D8B278></bold>
+    home-description: <#B8C0CC>Choose a settings category to continue.</#B8C0CC>
     general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Data & Performance</#D8B278></bold>
     recipe-book-title: <bold><#D8B278>CER Recipe Book</#D8B278></bold>
-    description: <#B8C0CC>Edit commonly changed settings. Saving rebuilds the indexes; detailed comments remain editable in config.yml.</#B8C0CC>
+    description: <#B8C0CC>Some commonly used config.yml settings can be modified here.</#B8C0CC>
     save: <#98C69A>Save and reload</#98C69A>
     save-tooltip: <#B8C0CC>Write config.yml and rebuild the menu and data indexes</#B8C0CC>
     cancel: <#E58B8B>Cancel</#E58B8B>
@@ -317,17 +320,19 @@ ui:
     open-general: <#79CFC9>General Settings</#79CFC9>
     open-page-tooltip: <#B8C0CC>Switch to the other settings page without saving this dialog</#B8C0CC>
     open-recipe-book: <#79CFC9>Recipe Book Settings</#79CFC9>
+    back-home: <#79CFC9>Back to settings home</#79CFC9>
+    back-home-tooltip: <#B8C0CC>Return to the settings categories without saving this page</#B8C0CC>
     recipe-book-enabled: <#79CFC9>Enable the CER recipe book</#79CFC9>
+    recipe-book-crafting-enabled: <#79CFC9>Enable the crafting recipe for “CER Recipe Book”</#79CFC9>
     recipe-book-name: <#79CFC9>Recipe book name</#79CFC9>
     recipe-book-lore: '<#79CFC9>Recipe book lore; supports {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
-    landing-page: <#79CFC9>Default landing page</#79CFC9>
+    landing-page: <#79CFC9>Global default landing page</#79CFC9>
     landing-namespaces: Item categories
     landing-workstations: Workstations
-    personalization: <#79CFC9>Enable player personalization and browsing resume</#79CFC9>
-    remember-page: <#79CFC9>Remember and restore the previous browsing position</#79CFC9>
-    hotkey: <#79CFC9>Enable the swap-hands hotkey</#79CFC9>
-    hotkey-sneak: <#79CFC9>Require sneaking for the hotkey</#79CFC9>
-    updates: <#79CFC9>Check GitHub for stable updates</#79CFC9>
+    personalization: <#79CFC9>Globally enable player personalization and browsing resume</#79CFC9>
+    remember-page: <#79CFC9>Globally remember and restore the previous browsing position</#79CFC9>
+    hotkey: <#79CFC9>Globally enable the Shift+F hotkey</#79CFC9>
+    updates: <#79CFC9>Globally check GitHub for stable updates</#79CFC9>
     source-craftengine: <#79CFC9>Enable the CraftEngine recipe source</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>Enable vanilla cultivation data</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>Enable CraftEngine cultivation data</#79CFC9>

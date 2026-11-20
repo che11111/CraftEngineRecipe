@@ -222,12 +222,13 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>关闭后恢复上次浏览位置</#79CFC9>
+    hotkey-enabled: <#79CFC9>启用 Shift+F 快捷键</#79CFC9>
     book-left-label: <#79CFC9>配方书 · 左键</#79CFC9>
     book-right-label: <#79CFC9>配方书 · 右键</#79CFC9>
     book-sneak-left-label: <#79CFC9>配方书 · 潜行左键</#79CFC9>
     book-sneak-right-label: <#79CFC9>配方书 · 潜行右键</#79CFC9>
-    book-action-auto-left: 自动 · 副手空手打开物品分类，有物品查询合成配方
-    book-action-auto-right: 自动 · 副手空手打开合成器分类，有物品查询参与合成
+    book-action-auto-left: '副手空手：打开物品分类；有物品：查询合成配方'
+    book-action-auto-right: '副手空手：打开合成器分类；有物品：查询参与合成'
     book-action-item-page: 打开物品分类
     book-action-table-page: 打开合成器分类
     book-action-search: 打开搜索
@@ -314,10 +315,12 @@ ui:
     workstation-use: <#79CFC9>左键：打开此合成器页面</#79CFC9>
     workstation-order: '<#E4D397>Shift+左键上移 / Shift+右键下移</#E4D397>'
   config-editor:
+    home-title: '<bold><#D8B278>config.yml · 配置首页</#D8B278></bold>'
+    home-description: '<#B8C0CC>请选择一个设置分类进入子页面。</#B8C0CC>'
     general-title: '<bold><#D8B278>config.yml · 通用设置</#D8B278></bold>'
     data-title: '<bold><#D8B278>config.yml · 数据与性能</#D8B278></bold>'
-    recipe-book-title: '<bold><#D8B278>CER 配方书设置</#D8B278></bold>'
-    description: '<#B8C0CC>修改常用配置。保存后自动重建索引；详细注释仍可直接在 config.yml 中编辑。</#B8C0CC>'
+    recipe-book-title: '<bold><#D8B278>config.yml · CER 配方书设置</#D8B278></bold>'
+    description: '<#B8C0CC>这里可以修改 config.yml 一些常用的配置项。</#B8C0CC>'
     save: <#98C69A>保存并重载</#98C69A>
     save-tooltip: <#B8C0CC>写入 config.yml 并重建菜单与数据索引</#B8C0CC>
     cancel: <#E58B8B>取消</#E58B8B>
@@ -326,17 +329,19 @@ ui:
     open-general: <#79CFC9>通用设置</#79CFC9>
     open-page-tooltip: <#B8C0CC>切换到另一组配置，不保存当前 Dialog</#B8C0CC>
     open-recipe-book: <#79CFC9>配方书设置</#79CFC9>
+    back-home: <#79CFC9>返回配置首页</#79CFC9>
+    back-home-tooltip: <#B8C0CC>返回配置分类，不保存当前子页面的修改</#B8C0CC>
     recipe-book-enabled: <#79CFC9>启用 CER 配方书</#79CFC9>
+    recipe-book-crafting-enabled: <#79CFC9>启用物品：“CER配方书” 的合成配方</#79CFC9>
     recipe-book-name: <#79CFC9>配方书名称</#79CFC9>
     recipe-book-lore: '<#79CFC9>配方书 Lore；支持 {left}、{right}、{sneak-left}、{sneak-right}</#79CFC9>'
-    landing-page: <#79CFC9>默认主页</#79CFC9>
+    landing-page: <#79CFC9>全局默认主页</#79CFC9>
     landing-namespaces: 按物品种类
     landing-workstations: 按合成器
-    personalization: <#79CFC9>启用玩家个性化和浏览恢复</#79CFC9>
-    remember-page: <#79CFC9>保存并恢复上次浏览位置</#79CFC9>
-    hotkey: <#79CFC9>启用交换副手快捷键</#79CFC9>
-    hotkey-sneak: <#79CFC9>快捷键必须潜行</#79CFC9>
-    updates: <#79CFC9>检查 GitHub 正式版更新</#79CFC9>
+    personalization: <#79CFC9>全局启用玩家个性化和浏览恢复</#79CFC9>
+    remember-page: <#79CFC9>全局保存并恢复上次浏览位置</#79CFC9>
+    hotkey: <#79CFC9>全局启用 Shift+F 快捷键</#79CFC9>
+    updates: <#79CFC9>全局检查 GitHub 正式版更新</#79CFC9>
     source-craftengine: <#79CFC9>启用 CraftEngine 配方来源</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>启用原版栽培数据</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>启用 CraftEngine 栽培数据</#79CFC9>

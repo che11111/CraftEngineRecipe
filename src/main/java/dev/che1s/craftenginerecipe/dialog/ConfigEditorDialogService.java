@@ -22,6 +22,7 @@ import java.util.List;
 /** In-game editor for the commonly managed values in the primary config.yml. */
 public final class ConfigEditorDialogService {
     private enum Page {
+        HOME,
         GENERAL,
         DATA,
         RECIPE_BOOK
@@ -31,7 +32,6 @@ public final class ConfigEditorDialogService {
     private static final String PERSONALIZATION = "cer_config_personalization";
     private static final String REMEMBER_PAGE = "cer_config_remember_page";
     private static final String HOTKEY = "cer_config_hotkey";
-    private static final String HOTKEY_SNEAK = "cer_config_hotkey_sneak";
     private static final String UPDATES = "cer_config_updates";
     private static final String CRAFTENGINE = "cer_config_craftengine";
     private static final String MINECRAFT_CULTIVATION = "cer_config_minecraft_cultivation";
@@ -42,6 +42,7 @@ public final class ConfigEditorDialogService {
     private static final String SEARCH_MAX_LENGTH = "cer_config_search_max_length";
     private static final String SEARCH_MAX_RESULTS = "cer_config_search_max_results";
     private static final String BOOK_ENABLED = "cer_config_book_enabled";
+    private static final String BOOK_CRAFTING_ENABLED = "cer_config_book_crafting_enabled";
     private static final String BOOK_NAME = "cer_config_book_name";
     private static final String BOOK_LORE = "cer_config_book_lore";
 
@@ -52,7 +53,7 @@ public final class ConfigEditorDialogService {
     }
 
     public boolean open(Player player) {
-        return this.open(player, Page.GENERAL);
+        return this.open(player, Page.HOME);
     }
 
     private boolean open(Player player, Page page) {
@@ -61,25 +62,13 @@ public final class ConfigEditorDialogService {
                 || !this.plugin.data().isReady()) return false;
         var language = this.plugin.lang(player);
         long generation = this.plugin.data().generation();
-        List<ActionButton> actions = new ArrayList<>();
-        actions.add(ActionButton.create(
+        ActionButton save = ActionButton.create(
                 language.component("ui.config-editor.save"),
                 language.component("ui.config-editor.save-tooltip"),
                 100,
                 DialogAction.customClick((view, audience) -> this.save(player, page, view, generation),
                         ClickCallback.Options.builder().uses(1)
-                                .lifetime(Duration.ofMinutes(10L)).build())));
-        for (Page target : Page.values()) {
-            if (target == page) continue;
-            actions.add(ActionButton.create(
-                    language.component(this.pageButton(target)),
-                    language.component("ui.config-editor.open-page-tooltip"),
-                    100,
-                    DialogAction.customClick((view, audience) -> this.schedule(
-                                    player, generation, () -> this.open(player, target)),
-                            ClickCallback.Options.builder().uses(1)
-                                    .lifetime(Duration.ofMinutes(10L)).build())));
-        }
+                                .lifetime(Duration.ofMinutes(10L)).build()));
         ActionButton cancel = ActionButton.create(
                 language.component("ui.config-editor.cancel"),
                 language.component("ui.config-editor.cancel-tooltip"),
@@ -88,22 +77,50 @@ public final class ConfigEditorDialogService {
                                 player, generation, () -> this.plugin.browser(player).reopenManagement(player)),
                         ClickCallback.Options.builder().uses(1)
                                 .lifetime(Duration.ofMinutes(10L)).build()));
+        List<ActionButton> actions = new ArrayList<>();
+        if (page == Page.HOME) {
+            for (Page target : List.of(Page.DATA, Page.GENERAL, Page.RECIPE_BOOK)) {
+                actions.add(ActionButton.create(
+                        language.component(this.pageButton(target)),
+                        language.component("ui.config-editor.open-page-tooltip"),
+                        100,
+                        DialogAction.customClick((view, audience) -> this.schedule(
+                                        player, generation, () -> this.open(player, target)),
+                                ClickCallback.Options.builder().uses(1)
+                                        .lifetime(Duration.ofMinutes(10L)).build())));
+            }
+        } else {
+            actions.add(save);
+            actions.add(ActionButton.create(
+                    language.component("ui.config-editor.back-home"),
+                    language.component("ui.config-editor.back-home-tooltip"),
+                    100,
+                    DialogAction.customClick((view, audience) -> this.schedule(
+                                    player, generation, () -> this.open(player, Page.HOME)),
+                            ClickCallback.Options.builder().uses(1)
+                                    .lifetime(Duration.ofMinutes(10L)).build())));
+        }
+        List<DialogInput> inputs = switch (page) {
+            case HOME -> List.of();
+            case GENERAL -> this.generalInputs(player);
+            case DATA -> this.dataInputs(player);
+            case RECIPE_BOOK -> this.bookInputs(player);
+        };
+        DialogType dialogType = page == Page.HOME
+                ? DialogType.multiAction(actions).columns(actions.size()).build()
+                : DialogType.multiAction(actions).exitAction(cancel).columns(actions.size()).build();
         Dialog dialog = Dialog.create(factory -> factory.empty()
                 .base(DialogBase.builder(language.component(
                                 this.pageTitle(page)))
                         .canCloseWithEscape(true)
                         .pause(false)
                         .body(List.of(DialogBody.plainMessage(
-                                language.component("ui.config-editor.description"))))
-                        .inputs(page == Page.GENERAL
-                                ? this.generalInputs(player)
-                                : page == Page.DATA
-                                        ? this.dataInputs(player) : this.bookInputs(player))
+                                language.component(page == Page.HOME
+                                        ? "ui.config-editor.home-description"
+                                        : "ui.config-editor.description"))))
+                        .inputs(inputs)
                         .build())
-                .type(DialogType.multiAction(actions)
-                        .exitAction(cancel)
-                        .columns(4)
-                        .build()));
+                .type(dialogType));
         this.plugin.browser(player).leaveForDialog(player);
         player.showDialog(dialog);
         return true;
@@ -128,9 +145,7 @@ public final class ConfigEditorDialogService {
                 this.boolInput(player, REMEMBER_PAGE, "ui.config-editor.remember-page",
                         config.getBoolean("browser.remember-last-page", true)),
                 this.boolInput(player, HOTKEY, "ui.config-editor.hotkey",
-                        config.getBoolean("hotkey.enabled", true)),
-                this.boolInput(player, HOTKEY_SNEAK, "ui.config-editor.hotkey-sneak",
-                        config.getBoolean("hotkey.require-sneak", true)),
+                        config.getBoolean("hotkey.enabled", false)),
                 this.boolInput(player, UPDATES, "ui.config-editor.updates",
                         config.getBoolean("check-for-updates", true)));
     }
@@ -163,6 +178,9 @@ public final class ConfigEditorDialogService {
         return List.of(
                 this.boolInput(player, BOOK_ENABLED, "ui.config-editor.recipe-book-enabled",
                         config.getBoolean("recipe-book.enabled", true)),
+                this.boolInput(player, BOOK_CRAFTING_ENABLED,
+                        "ui.config-editor.recipe-book-crafting-enabled",
+                        config.getBoolean("recipe-book.crafting-enabled", true)),
                 DialogInput.text(BOOK_NAME, language.component("ui.config-editor.recipe-book-name"))
                         .width(300)
                         .labelVisible(true)
@@ -200,14 +218,13 @@ public final class ConfigEditorDialogService {
         Boolean personalization = view.getBoolean(PERSONALIZATION);
         Boolean remember = view.getBoolean(REMEMBER_PAGE);
         Boolean hotkey = view.getBoolean(HOTKEY);
-        Boolean sneak = view.getBoolean(HOTKEY_SNEAK);
         Boolean updates = view.getBoolean(UPDATES);
         if (personalization == null || remember == null || hotkey == null
-                || sneak == null || updates == null) return false;
+                || updates == null) return false;
         return PluginConfigEditor.apply(this.plugin.getConfig(),
                 new PluginConfigEditor.GeneralSettings(
                         view.getText(LANDING_PAGE), personalization, remember,
-                        hotkey, sneak, updates));
+                        hotkey, updates));
     }
 
     private boolean saveData(DialogResponseView view) {
@@ -232,14 +249,16 @@ public final class ConfigEditorDialogService {
 
     private boolean saveBook(Player player, DialogResponseView view) {
         Boolean enabled = view.getBoolean(BOOK_ENABLED);
+        Boolean craftingEnabled = view.getBoolean(BOOK_CRAFTING_ENABLED);
         String name = view.getText(BOOK_NAME);
         String rawLore = view.getText(BOOK_LORE);
-        if (enabled == null || name == null || name.isBlank() || rawLore == null) return false;
+        if (enabled == null || craftingEnabled == null || name == null
+                || name.isBlank() || rawLore == null) return false;
         List<String> lore = loreLines(rawLore);
         if (lore.isEmpty()) return false;
         return PluginConfigEditor.apply(this.plugin.getConfig(),
                 new PluginConfigEditor.BookSettings(enabled,
-                        this.plugin.lang(player).locale(), name, lore));
+                        craftingEnabled, this.plugin.lang(player).locale(), name, lore));
     }
 
     private DialogInput boolInput(Player player, String key, String label, boolean initial) {
@@ -268,6 +287,7 @@ public final class ConfigEditorDialogService {
 
     private String pageTitle(Page page) {
         return switch (page) {
+            case HOME -> "ui.config-editor.home-title";
             case GENERAL -> "ui.config-editor.general-title";
             case DATA -> "ui.config-editor.data-title";
             case RECIPE_BOOK -> "ui.config-editor.recipe-book-title";
@@ -276,6 +296,7 @@ public final class ConfigEditorDialogService {
 
     private String pageButton(Page page) {
         return switch (page) {
+            case HOME -> "ui.config-editor.home-title";
             case GENERAL -> "ui.config-editor.open-general";
             case DATA -> "ui.config-editor.open-data";
             case RECIPE_BOOK -> "ui.config-editor.open-recipe-book";

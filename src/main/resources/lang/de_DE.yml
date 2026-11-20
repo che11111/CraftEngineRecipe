@@ -213,12 +213,13 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Stellen Sie die letzte Position nach dem Schließen wieder her</#79CFC9>
+    hotkey-enabled: <#79CFC9>Shift+F-Hotkey aktivieren</#79CFC9>
     book-left-label: <#79CFC9>Rezeptbuch · Linksklick</#79CFC9>
     book-right-label: <#79CFC9>Rezeptbuch · Rechtsklick</#79CFC9>
     book-sneak-left-label: <#79CFC9>Rezeptbuch · Schleichen + Linksklick</#79CFC9>
     book-sneak-right-label: <#79CFC9>Rezeptbuch · Schleichen + Rechtsklick</#79CFC9>
-    book-action-auto-left: 'Automatisch · Leere Zweithand: Gegenstände; mit Gegenstand: Herstellungsrezept'
-    book-action-auto-right: 'Automatisch · Leere Zweithand: Werkbänke; mit Gegenstand: Rezeptverwendung'
+    book-action-auto-left: 'Zweithand leer: Gegenstände; mit Gegenstand: Herstellungsrezept'
+    book-action-auto-right: 'Zweithand leer: Werkbänke; mit Gegenstand: Rezeptverwendung'
     book-action-item-page: Gegenstandskategorien öffnen
     book-action-table-page: Werkbankkategorien öffnen
     book-action-search: Suche öffnen
@@ -305,10 +306,12 @@ ui:
     workstation-use: '<#79CFC9>Linksklick: Diese Workstation-Seite öffnen</#79CFC9>'
     workstation-order: '<#E4D397>Umschalt+Links: nach oben bewegen / Umschalt+Rechts: nach unten bewegen</#E4D397>'
   config-editor:
+    home-title: <bold><#D8B278>config.yml · Einstellungsstart</#D8B278></bold>
+    home-description: <#B8C0CC>Wählen Sie eine Einstellungskategorie aus.</#B8C0CC>
     general-title: <bold><#D8B278>config.yml · Allgemein</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Daten und Leistung</#D8B278></bold>
     recipe-book-title: <bold><#D8B278>CER-Rezeptbucheinstellungen</#D8B278></bold>
-    description: <#B8C0CC>Edit häufig geänderte Einstellungen. Beim Speichern werden die Indizes neu erstellt; Detaillierte Kommentare können weiterhin in config.yml.</#B8C0CC> bearbeitet werden
+    description: <#B8C0CC>Hier können einige häufig verwendete Einstellungen aus config.yml geändert werden.</#B8C0CC>
     save: <#98C69A>Speichern und neu laden</#98C69A>
     save-tooltip: <#B8C0CC>Schreiben Sie config.yml und erstellen Sie die Menü- und Datenindizes neu</#B8C0CC>
     cancel: <#E58B8B>Abbrechen</#E58B8B>
@@ -317,17 +320,19 @@ ui:
     open-general: <#79CFC9>Allgemeine Einstellungen</#79CFC9>
     open-page-tooltip: <#B8C0CC>Wechseln Sie zur anderen Einstellungsseite, ohne diesen Dialog zu speichern</#B8C0CC>
     open-recipe-book: <#79CFC9>Rezeptbucheinstellungen</#79CFC9>
+    back-home: <#79CFC9>Zurück zur Einstellungsauswahl</#79CFC9>
+    back-home-tooltip: <#B8C0CC>Zurück zu den Einstellungskategorien, ohne diese Seite zu speichern</#B8C0CC>
     recipe-book-enabled: <#79CFC9>CER-Rezeptbuch aktivieren</#79CFC9>
+    recipe-book-crafting-enabled: <#79CFC9>Herstellungsrezept für „CER-Rezeptbuch“ aktivieren</#79CFC9>
     recipe-book-name: <#79CFC9>Name des Rezeptbuchs</#79CFC9>
     recipe-book-lore: '<#79CFC9>Rezeptbuch-Lore; unterstützt {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
-    landing-page: <#79CFC9>Standard-Landingpage</#79CFC9>
+    landing-page: <#79CFC9>Globale Standard-Startseite</#79CFC9>
     landing-namespaces: Artikelkategorien
     landing-workstations: Arbeitsplätze
-    personalization: <#79CFC9>ESpielerpersonalisierung und Browsing-Wiederaufnahme aktivieren</#79CFC9>
-    remember-page: <#79CFC9>Erinnern Sie sich an die vorherige Browserposition und stellen Sie sie wieder her</#79CFC9>
-    hotkey: <#79CFC9>EAktivieren Sie den Hotkey „Hands tauschen“</#79CFC9>
-    hotkey-sneak: <#79CFC9>Require für den Hotkey</#79CFC9> schleichen
-    updates: <#79CFC9>Überprüfen Sie GitHub auf stabile Updates</#79CFC9>
+    personalization: <#79CFC9>Spielerpersonalisierung und Browsing-Wiederaufnahme global aktivieren</#79CFC9>
+    remember-page: <#79CFC9>Vorherige Browserposition global merken und wiederherstellen</#79CFC9>
+    hotkey: <#79CFC9>Shift+F-Hotkey global aktivieren</#79CFC9>
+    updates: <#79CFC9>GitHub global auf stabile Updates prüfen</#79CFC9>
     source-craftengine: <#79CFC9>Aktivieren Sie die CraftEngine-Rezeptquelle</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>EVanille-Anbaudaten aktivieren</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>ECraftEngine-Anbaudaten aktivieren</#79CFC9>

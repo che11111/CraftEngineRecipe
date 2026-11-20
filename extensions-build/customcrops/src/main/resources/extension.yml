@@ -1,5 +1,7 @@
 schema: 1
 id: customcrops
+version: "1.2.0"
+requires-cer: ">=1.2.0-alpha4"
 names:
   en_US: CustomCrops
   zh_CN: CustomCrops

@@ -2,7 +2,7 @@ items:
   cer_recipe_book:recipe_book:
     material: paper
     data:
-      item_name: "<!i><#D4AF37>CER·配方书</#D4AF37>"
+      item_name: "<!i><#D4AF37><lang:item.cer_recipe_book.recipe_book></#D4AF37>"
     model:
       type: minecraft:model
       path: cer_recipe_book:item/recipe_book

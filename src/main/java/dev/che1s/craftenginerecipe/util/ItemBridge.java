@@ -2,6 +2,7 @@ package dev.che1s.craftenginerecipe.util;
 
 import dev.che1s.craftenginerecipe.CraftEngineRecipePlugin;
 import dev.che1s.craftenginerecipe.api.RecipeItem;
+import dev.che1s.craftenginerecipe.book.RecipeBookService;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
@@ -69,7 +70,9 @@ public final class ItemBridge {
         if (id == null || stack == null || player == null) return stack;
         var plugin = CraftEngineRecipePlugin.get();
         if (plugin == null || plugin.data() == null) return stack;
-        String name = plugin.data().itemDisplayName(player, id.toString());
+        String name = RecipeBookService.isRecipeBookItem(id) && plugin.recipeBook() != null
+                ? plugin.recipeBook().nameTemplate(player)
+                : plugin.data().itemDisplayName(player, id.toString());
         if ((name == null || name.isBlank()) && "minecraft".equals(id.namespace())) {
             name = plugin.data().vanillaItemName(player, id.toString());
         }

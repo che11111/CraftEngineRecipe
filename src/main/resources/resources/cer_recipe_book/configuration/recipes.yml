@@ -1,0 +1,17 @@
+recipes:
+  cer_recipe_book:crafting/recipe_book:
+    type: shaped
+    category: misc
+    pattern:
+      - GTG
+      - PBP
+      - GCG
+    ingredients:
+      G: minecraft:gold_nugget
+      T: minecraft:crafting_table
+      P: minecraft:paper
+      B: minecraft:book
+      C: minecraft:compass
+    result:
+      id: cer_recipe_book:recipe_book
+      count: 1

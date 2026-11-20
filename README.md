@@ -6,7 +6,7 @@
 
 <p align="center">An item and recipe browser for CraftEngine, supporting category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
 
-> Version 1.2.0-alpha.3 may currently be unstable. Prefer a version published in Releases.
+> Version 1.2.0-alpha4 may currently be unstable. Prefer a version published in Releases.
 
 
 <p align="center">
@@ -142,7 +142,7 @@ The core uses the CraftEngine **26.8.1** compile API. The bundled `craftengine` 
 
 | Command | Purpose |
 | --- | --- |
-| `/cer` | Open the main menu; shortcut `Shift+F` |
+| `/cer` | Open the main menu; `Shift+F` can be enabled in config |
 | `/cer craft` | Open the workstation browser directly |
 | `/cer items` | Open the item-type browser directly |
 | `/cer search` | Search for items |
@@ -193,21 +193,20 @@ For a single target, select one Maven profile: `mc-1.21.7-1.21.11`, `mc-26.1`, `
 
 ## Extension Installation
 
-- **Bundled source extensions**: `cer-ext-craftengine_v<version>.jar` and `cer-ext-craftengine-cultivation_v<version>.jar` are embedded in the core JAR. They are installed automatically only when `plugins/CraftEngineRecipe/extensions/` is created for the first time.
-- **Vanilla cultivation extension**: `cer-ext-minecraft-cultivation_v<version>.jar` remains external because it carries versioned vanilla cultivation data. Vanilla recipes and nine-language names are exported by the CraftEngine source.
+- **Bundled source extensions**: `cer-ext-craftengine_v<version>.jar`, `cer-ext-craftengine-cultivation_v<version>.jar`, and `cer-ext-minecraft-cultivation_v<version>.jar` are embedded in the core JAR. They are installed automatically only when `plugins/CraftEngineRecipe/extensions/` is created for the first time. Vanilla cultivation data is bundled in the extension and no longer requires extraction from server `lib/*.jar` files; vanilla recipes and nine-language names are exported by the CraftEngine source.
 - **Third-party source extensions**: `cer-ext-farmersdelight_v<version>.jar`, `cer-ext-trailtalesdelight_v<version>.jar`, `cer-ext-kaleidoscope_v<version>.jar`, and `cer-ext-customcrops_v<version>.jar`. Enable these only when the corresponding source plugins are installed.
 - **Private source template**: `cer-ext-private-alchemy_v<version>.jar` is a development template and does not produce real recipes until its API and capture logic are replaced.
 
 
 ## Quick Start
 
-1. Install compatible versions of CraftEngine and CraftEngineRecipe. Place the core JAR under `plugins/`. On the first run, CER creates `plugins/CraftEngineRecipe/extensions/` and releases its two bundled versioned extensions there. Place `cer-ext-minecraft-cultivation_v<version>.jar` and any required optional extensions in that directory, then fully stop and start the server. Do not use `/reload` or plugin-manager hot reloading.
+1. Install compatible versions of CraftEngine and CraftEngineRecipe. Place the core JAR under `plugins/`. On the first run, CER creates `plugins/CraftEngineRecipe/extensions/` and releases its three bundled versioned extensions there. Place any required optional extensions in that directory, then fully stop and start the server. Do not use `/reload` or plugin-manager hot reloading.
 
 2. As an administrator, run `/cer integrations` to enable CER's special integrations for other plugins or resource packs (for example, Farmer's Delight, Kaleidoscope Cookery, and others; see the compatibility list in this README).
 
 3. As an administrator, run `/cer manage` to adjust categories, ordering, and hiding rules in game. (CER uses a whitelist model: recipes become visible only after an administrator configures them on this page.)
 
-4. Players can run `/cer` or press `Shift+F` to open item categories. They can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
+4. Players can run `/cer` to open item categories. Administrators can opt in to the `Shift+F` shortcut in config. Players can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
 
 ## Configuration Layout
 
@@ -216,7 +215,7 @@ plugins/CraftEngineRecipe/
 ├── extensions/                        # Created on the first run; never repaired automatically once it exists
 │   ├── cer-ext-craftengine_v<version>.jar        # Released from the core JAR on first run
 │   ├── cer-ext-craftengine-cultivation_v<version>.jar
-│   ├── cer-ext-minecraft-cultivation_v<version>.jar
+│   ├── cer-ext-minecraft-cultivation_v<version>.jar    # Released from the core JAR on first run
 │   ├── cer-ext-farmersdelight_v<version>.jar
 │   ├── cer-ext-trailtalesdelight_v<version>.jar
 │   ├── cer-ext-kaleidoscope_v<version>.jar

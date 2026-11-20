@@ -95,7 +95,9 @@ public final class CraftEngineData implements Listener {
         this.reloadRevision.incrementAndGet();
         // 配置读取属于全局任务；查看者背包只能在各自的实体调度器上访问。
         this.plugin.tasks().global(() -> this.rebuild(ok -> {
-            if (ok) this.plugin.externalRecipes().reexportAfterCraftEngineReload();
+            if (ok) {
+                this.plugin.externalRecipes().reexportAfterCraftEngineReload();
+            }
         }));
     }
 

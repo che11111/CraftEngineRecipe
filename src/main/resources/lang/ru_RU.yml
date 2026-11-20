@@ -213,12 +213,13 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>Восстановить последнюю позицию после закрытия </#79CFC9>
+    hotkey-enabled: <#79CFC9>Включить горячую клавишу Shift+F</#79CFC9>
     book-left-label: <#79CFC9>Книга рецептов · ЛКМ</#79CFC9>
     book-right-label: <#79CFC9>Книга рецептов · ПКМ</#79CFC9>
     book-sneak-left-label: <#79CFC9>Книга рецептов · Присесть + ЛКМ</#79CFC9>
     book-sneak-right-label: <#79CFC9>Книга рецептов · Присесть + ПКМ</#79CFC9>
-    book-action-auto-left: 'Авто · Вторая рука пуста: предметы; с предметом: рецепт создания'
-    book-action-auto-right: 'Авто · Вторая рука пуста: верстаки; с предметом: использование рецепта'
+    book-action-auto-left: 'Вторая рука пуста: предметы; с предметом: рецепт создания'
+    book-action-auto-right: 'Вторая рука пуста: верстаки; с предметом: использование рецепта'
     book-action-item-page: Открыть категории предметов
     book-action-table-page: Открыть категории верстаков
     book-action-search: Открыть поиск
@@ -305,10 +306,12 @@ ui:
     workstation-use: '<#79CFC9>Щелкните левой кнопкой мыши: откройте страницу рабочей станции</#79CFC9>'
     workstation-order: '<#E4D397>Shift+Влево: перемещение вверх / Shift+Вправо: перемещение вниз</#E4D397>'
   config-editor:
+    home-title: <bold><#D8B278>config.yml · Главная настроек</#D8B278></bold>
+    home-description: <#B8C0CC>Выберите категорию настроек.</#B8C0CC>
     general-title: <bold><#D8B278>config.yml · General</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · Данные и производительность</#D8B278></bold>
     recipe-book-title: <bold><#D8B278>Настройки книги рецептов CER</#D8B278></bold>
-    description: <#B8C0CC>Изменить часто изменяемые настройки. При сохранении индексы перестраиваются; подробные комментарии остаются доступными для редактирования в config.yml.</#B8C0CC>
+    description: <#B8C0CC>Здесь можно изменить некоторые часто используемые параметры config.yml.</#B8C0CC>
     save: <#98C69A>Сохранить и перезагрузить</#98C69A>
     save-tooltip: <#B8C0CC>Запишите config.yml и перестройте индексы меню и данных.</#B8C0CC>
     cancel: <#E58B8B>Отмена</#E58B8B>
@@ -317,17 +320,19 @@ ui:
     open-general: <#79CFC9>Общие настройки</#79CFC9>
     open-page-tooltip: <#B8C0CC>Перейти на другую страницу настроек без сохранения этого диалога</#B8C0CC>
     open-recipe-book: <#79CFC9>Настройки книги рецептов</#79CFC9>
+    back-home: <#79CFC9>Вернуться к выбору настроек</#79CFC9>
+    back-home-tooltip: <#B8C0CC>Вернуться к категориям без сохранения этой страницы</#B8C0CC>
     recipe-book-enabled: <#79CFC9>Включить книгу рецептов CER</#79CFC9>
+    recipe-book-crafting-enabled: <#79CFC9>Включить рецепт создания «Книги рецептов CER»</#79CFC9>
     recipe-book-name: <#79CFC9>Название книги рецептов</#79CFC9>
     recipe-book-lore: '<#79CFC9>Описание книги; поддерживает {left}, {right}, {sneak-left}, {sneak-right}</#79CFC9>'
-    landing-page: <#79CFC9>Целевая страница по умолчанию</#79CFC9>
+    landing-page: <#79CFC9>Глобальная начальная страница по умолчанию</#79CFC9>
     landing-namespaces: Категории товаров
     landing-workstations: Рабочие станции
-    personalization: <#79CFC9>Включить персонализацию игрока и просмотр резюме </#79CFC9>
-    remember-page: <#79CFC9>Запомнить и восстановить предыдущую позицию просмотра </#79CFC9>
-    hotkey: <#79CFC9>Включить горячую клавишу обмена руками</#79CFC9>
-    hotkey-sneak: <#79CFC9>Требовать скрытого доступа к горячей клавише</#79CFC9>
-    updates: <#79CFC9>Проверьте GitHub на наличие стабильных обновлений </#79CFC9>
+    personalization: <#79CFC9>Глобально включить персонализацию и восстановление навигации </#79CFC9>
+    remember-page: <#79CFC9>Глобально запоминать и восстанавливать позицию просмотра </#79CFC9>
+    hotkey: <#79CFC9>Глобально включить горячую клавишу Shift+F</#79CFC9>
+    updates: <#79CFC9>Глобально проверять стабильные обновления GitHub </#79CFC9>
     source-craftengine: <#79CFC9>Включить источник рецептов CraftEngine</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>Включить данные о выращивании ванили </#79CFC9>
     source-craftengine-cultivation: <#79CFC9>Enable CraftEngine данные обработки двигателя </#79CFC9>

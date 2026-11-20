@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -52,5 +53,16 @@ public final class RecipeBookListener implements Listener {
         event.setUseItemInHand(Event.Result.DENY);
         this.plugin.browser(event.getPlayer()).deferMenuAction(event.getPlayer(),
                 () -> this.plugin.recipeBook().perform(event.getPlayer(), slot));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+        if (!this.plugin.recipeBook().isRecipeBook(event.getInventory().getResult())) return;
+        if (!this.plugin.recipeBook().craftingEnabled()
+                || !(event.getView().getPlayer() instanceof org.bukkit.entity.Player player)) {
+            event.getInventory().setResult(null);
+            return;
+        }
+        event.getInventory().setResult(this.plugin.recipeBook().create(player));
     }
 }

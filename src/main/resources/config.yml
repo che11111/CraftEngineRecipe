@@ -124,6 +124,9 @@ recipe-book:
   # 是否开放 /cer getbook、配方书挥手操作和玩家偏好中的配方书设置。
   # Enables /cer getbook, recipe-book gestures, and player recipe-book preferences.
   enabled: true
+  # 是否注册配方书合成配方。默认启用。
+  # Whether to register the recipe-book crafting recipe. Enabled by default.
+  crafting-enabled: true
   # 留空时使用 lang/<语言>.yml 中 ui.recipe-book 的九语言默认名称与 Lore。
   # Empty maps use the nine-language ui.recipe-book defaults from lang/<locale>.yml.
   # 管理页只会写入管理员当前语言的覆盖项，其他语言继续使用各自默认值。
@@ -188,12 +191,9 @@ search:
 
 # ---------- 快捷键 / Hotkey ----------
 hotkey:
-  # 是否启用交换副手键打开菜单，默认 Shift+F；无需额外权限。
-  # Enable opening with the swap-hands key (Shift+F by default); no extra permission required.
-  enabled: true
-  # 是否必须潜行；设为 false 会占用普通交换副手操作。
-  # Require sneaking; false also intercepts normal swap-hands actions.
-  require-sneak: true
+  # 是否启用 Shift+F 打开菜单；单按 F 永远不会被拦截。无需额外权限。
+  # Enable opening with Shift+F; plain F is never intercepted. No extra permission required.
+  enabled: false
 
 # ---------- bStats 统计 / Anonymous bStats metrics ----------
 bstats:

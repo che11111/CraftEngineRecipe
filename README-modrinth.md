@@ -6,7 +6,7 @@
 
 <p align="center">An item and recipe browser for CraftEngine, supporting category navigation, pinyin search, and recipe-usage lookup. CER is more than a recipe book: it can also serve as a complete catalog of CraftEngine items.</p>
 
-> Version 1.2.0-alpha.3 may currently be unstable. Prefer a version published in Releases.
+> Version 1.2.0-alpha4 may currently be unstable. Prefer a version published in Releases.
 
 
 <p align="center">
@@ -148,7 +148,7 @@ The core uses the CraftEngine **26.8.1** compile API. The bundled `craftengine` 
 
 3. As an administrator, run `/cer manage` to adjust categories, ordering, and hiding rules in game. (CER uses a whitelist model: recipes become visible only after an administrator configures them on this page.)
 
-4. Players can run `/cer` or press `Shift+F` to open item categories. They can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
+4. Players can run `/cer` to open item categories. Administrators can opt in to the `Shift+F` shortcut in config. Players can also use `/cer items`, `/cer craft`, or `/cer search` to open a specific page directly.
 
 
 ## Configuration Guide

@@ -35,11 +35,13 @@ class PlayerPreferencesTest {
             assertEquals(List.of("cer_menu_cute", "cer_menu_rough"), preferences.menuPacks());
             assertEquals("cer_menu_rough", preferences.menuPack(player));
             assertFalse(preferences.rememberLastPage(player));
+            assertTrue(preferences.hotkeyEnabled(player));
             assertEquals(PlayerPreferences.LandingPage.WORKSTATIONS, preferences.landingPage(player));
             assertTrue(preferences.setMenuPack(player, "cute"));
             preferences.setRememberLastPage(player, true);
             preferences.setLandingPage(player, PlayerPreferences.LandingPage.NAMESPACES);
             assertTrue(preferences.setLanguage(player, "en_us"));
+            preferences.setHotkeyEnabled(player, false);
             assertTrue(preferences.setBookBindings(player, new PlayerPreferences.BookBindings(
                     PlayerPreferences.BookAction.OFFHAND_USAGE,
                     PlayerPreferences.BookAction.TARGET_USAGE,
@@ -55,6 +57,7 @@ class PlayerPreferencesTest {
             assertTrue(restored.rememberLastPage(player));
             assertEquals(PlayerPreferences.LandingPage.NAMESPACES, restored.landingPage(player));
             assertEquals("en_US", restored.language(player, "zh_CN"));
+            assertFalse(restored.hotkeyEnabled(player));
             assertEquals(new PlayerPreferences.BookBindings(
                             PlayerPreferences.BookAction.OFFHAND_USAGE,
                             PlayerPreferences.BookAction.TARGET_USAGE,
@@ -132,6 +135,7 @@ class PlayerPreferencesTest {
             assertEquals("cer_menu_rough", preferences.menuPack(player));
             assertTrue(preferences.rememberLastPage(player));
             assertEquals(PlayerPreferences.LandingPage.WORKSTATIONS, preferences.landingPage(player));
+            assertTrue(preferences.hotkeyEnabled(player));
             preferences.setLandingPage(player, PlayerPreferences.LandingPage.NAMESPACES);
             assertEquals("en_US", preferences.language(player, "en_US"));
             assertTrue(preferences.setLanguage(player, "zh_CN"));

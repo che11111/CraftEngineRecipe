@@ -213,12 +213,13 @@ ui:
     language-es: Español
     language-ru: Русский
     remember-label: <#79CFC9>마감 후 마지막 위치 복원</#79CFC9>
+    hotkey-enabled: <#79CFC9>Shift+F 단축키 활성화</#79CFC9>
     book-left-label: <#79CFC9>레시피 북 · 왼쪽 클릭</#79CFC9>
     book-right-label: <#79CFC9>레시피 북 · 오른쪽 클릭</#79CFC9>
     book-sneak-left-label: <#79CFC9>레시피 북 · 웅크리기 + 왼쪽 클릭</#79CFC9>
     book-sneak-right-label: <#79CFC9>레시피 북 · 웅크리기 + 오른쪽 클릭</#79CFC9>
-    book-action-auto-left: '자동 · 보조 손이 비면 아이템 분류, 아이템이 있으면 제작 레시피'
-    book-action-auto-right: '자동 · 보조 손이 비면 제작대 분류, 아이템이 있으면 레시피 용도'
+    book-action-auto-left: '보조 손이 비면: 아이템 분류; 아이템이 있으면: 제작 레시피'
+    book-action-auto-right: '보조 손이 비면: 제작대 분류; 아이템이 있으면: 레시피 용도'
     book-action-item-page: 아이템 카테고리 열기
     book-action-table-page: 제작대 카테고리 열기
     book-action-search: 검색 열기
@@ -305,10 +306,12 @@ ui:
     workstation-use: '<#79CFC9>왼쪽 클릭: 이 워크스테이션 페이지 열기</#79CFC9>'
     workstation-order: '<#E4D397>Shift+왼쪽: 위로 이동 / Shift+오른쪽: 아래로 이동</#E4D397>'
   config-editor:
+    home-title: <bold><#D8B278>config.yml · 설정 홈</#D8B278></bold>
+    home-description: <#B8C0CC>설정 분류를 선택하세요.</#B8C0CC>
     general-title: <bold><#D8B278>config.yml · 일반</#D8B278></bold>
     data-title: <bold><#D8B278>config.yml · 데이터 및 성능</#D8B278></bold>
     recipe-book-title: <bold><#D8B278>CER 레시피 북 설정</#D8B278></bold>
-    description: <#B8C0CC>일반적으로 변경된 설정을 편집합니다. 저장하면 인덱스가 다시 작성됩니다. 자세한 설명은 config.yml.</#B8C0CC>에서 편집 가능합니다.
+    description: <#B8C0CC>여기서 config.yml의 자주 사용하는 설정 항목을 변경할 수 있습니다.</#B8C0CC>
     save: <#98C69A>저장하고 다시 로드</#98C69A>
     save-tooltip: <#B8C0CC>config.yml을 작성하고 메뉴 및 데이터 인덱스를 다시 작성합니다.</#B8C0CC>
     cancel: <#E58B8B>취소</#E58B8B>
@@ -317,17 +320,19 @@ ui:
     open-general: <#79CFC9>일반 설정</#79CFC9>
     open-page-tooltip: <#B8C0CC>이 대화 상자를 저장하지 않고 다른 설정 페이지로 전환</#B8C0CC>
     open-recipe-book: <#79CFC9>레시피 북 설정</#79CFC9>
+    back-home: <#79CFC9>설정 홈으로 돌아가기</#79CFC9>
+    back-home-tooltip: <#B8C0CC>현재 페이지를 저장하지 않고 설정 분류로 돌아갑니다</#B8C0CC>
     recipe-book-enabled: <#79CFC9>CER 레시피 북 활성화</#79CFC9>
+    recipe-book-crafting-enabled: <#79CFC9>아이템 “CER 레시피 북”의 제작 레시피 활성화</#79CFC9>
     recipe-book-name: <#79CFC9>레시피 북 이름</#79CFC9>
     recipe-book-lore: '<#79CFC9>레시피 북 Lore；{left}, {right}, {sneak-left}, {sneak-right} 지원</#79CFC9>'
-    landing-page: <#79CFC9>기본 방문 페이지</#79CFC9>
+    landing-page: <#79CFC9>전역 기본 방문 페이지</#79CFC9>
     landing-namespaces: 품목 카테고리
     landing-workstations: 워크스테이션
-    personalization: <#79CFC9>플레이어 개인화 및 탐색 재개 활성화</#79CFC9>
-    remember-page: <#79CFC9>이전 탐색 위치 기억 및 복원</#79CFC9>
-    hotkey: <#79CFC9>스왑 핸드 단축키 활성화</#79CFC9>
-    hotkey-sneak: <#79CFC9>핫키를 사용하려면 몰래 들어가야 합니다.</#79CFC9>
-    updates: <#79CFC9>GitHub에서 안정적인 업데이트를 확인하세요.</#79CFC9>
+    personalization: <#79CFC9>플레이어 개인화 및 탐색 재개 전역 활성화</#79CFC9>
+    remember-page: <#79CFC9>이전 탐색 위치 전역 기억 및 복원</#79CFC9>
+    hotkey: <#79CFC9>Shift+F 단축키를 전체 활성화</#79CFC9>
+    updates: <#79CFC9>GitHub 안정 버전 업데이트 전역 확인</#79CFC9>
     source-craftengine: <#79CFC9>CraftEngine 레시피 소스 활성화</#79CFC9>
     source-minecraft-cultivation: <#79CFC9>바닐라 재배 데이터 활성화</#79CFC9>
     source-craftengine-cultivation: <#79CFC9>CraftEngine 재배 데이터 활성화</#79CFC9>

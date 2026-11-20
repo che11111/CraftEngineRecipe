@@ -136,6 +136,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.recipeIndex = new RecipeIndex(this);
         this.createBrowsers();
         this.recipeBook = new RecipeBookService(this);
+        this.recipeBook.syncQueryRecipe();
         this.data.attachListener();
         this.dialogs = new PluginDialogs(
                 new SearchDialogService(this),
@@ -226,6 +227,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
 
     public void reloadSelf(Consumer<Boolean> completion) {
         this.tasks.global(() -> this.data.rebuild(true, ok -> {
+            if (ok) this.reloadCraftEngineForRecipeBookResourceChange();
             if (ok && this.externalRecipes.reexportOnReload()) {
                 this.externalRecipes.reexportConfigured(report -> {
                     this.integrationPrompts.openPrompt();
@@ -264,6 +266,7 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.loadMenuConfigs();
         this.reloadPlayerPreferences();
         this.createBrowsers();
+        if (this.recipeBook != null) this.recipeBook.syncQueryRecipe();
         if (this.externalRecipes != null) this.externalRecipes.reload();
         this.bundledResources.replenish();
         try {
@@ -274,6 +277,13 @@ public final class CraftEngineRecipePlugin extends JavaPlugin implements Listene
         this.metrics.reload();
         this.updates.reload();
         new CerCommand(this).register();
+    }
+
+    private void reloadCraftEngineForRecipeBookResourceChange() {
+        if (!this.bundledResources.consumeRecipeBookCraftingChanged()) return;
+        String command = this.getConfig().getString("menu-packs.reload-command", "ce reload all");
+        if (command == null || command.isBlank()) return;
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
     }
 
     public Diagnostics diagnostics() { return this.diagnostics; }

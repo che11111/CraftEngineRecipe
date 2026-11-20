@@ -106,7 +106,13 @@ public final class ExtensionManager {
         this.unavailable.clear();
         this.resourcePackOwners.clear();
         this.jarFingerprint = fingerprint(jars);
-        for (Path jar : jars) {
+        List<Path> selected = selectLatestByCanonicalName(jars);
+        if (selected.size() < jars.size()) {
+            this.plugin.getLogger().info("Ignoring " + (jars.size() - selected.size())
+                    + " shadowed extension JAR(s); only the highest declared version of each "
+                    + "canonical extension name is loaded");
+        }
+        for (Path jar : selected) {
             this.loadJar(jar);
         }
         this.plugin.getLogger().info("Loaded " + this.extensions.size()
@@ -122,6 +128,58 @@ public final class ExtensionManager {
         return List.copyOf(values);
     }
 
+    static List<Path> selectLatestByCanonicalName(List<Path> jars) {
+        Map<String, Path> selected = new LinkedHashMap<>();
+        for (Path jar : jars) {
+            if (jar == null) continue;
+            String key = canonicalJarName(jar.getFileName().toString())
+                    .toLowerCase(Locale.ROOT);
+            Path current = selected.get(key);
+            if (current == null || compareCandidates(jar, current) > 0) {
+                selected.put(key, jar);
+            }
+        }
+        return List.copyOf(selected.values());
+    }
+
+    private static int compareCandidates(Path left, Path right) {
+        int versions = compareVersions(declaredVersion(left), declaredVersion(right));
+        if (versions != 0) return versions;
+        return left.getFileName().toString().compareTo(right.getFileName().toString());
+    }
+
+    private static String declaredVersion(Path jar) {
+        try {
+            String version = readDeclaration(jar).version();
+            return version.isBlank() ? versionFromJarName(jar.getFileName().toString()) : version;
+        } catch (IOException | InvalidConfigurationException | RuntimeException ignored) {
+            return versionFromJarName(jar.getFileName().toString());
+        }
+    }
+
+    private static String versionFromJarName(String fileName) {
+        if (fileName == null) return "";
+        var matcher = java.util.regex.Pattern.compile(
+                "(?i)_v(\\d[0-9A-Za-z._+-]*)\\.jar$").matcher(fileName);
+        return matcher.find() ? matcher.group(1) : "";
+    }
+
+    private static ExtensionDeclaration readDeclaration(Path jar)
+            throws IOException, InvalidConfigurationException {
+        try (JarFile file = new JarFile(jar.toFile(), false)) {
+            var entry = file.getJarEntry(DEFINITION_RESOURCE);
+            if (entry == null || entry.isDirectory()) return ExtensionDeclaration.EMPTY;
+            YamlConfiguration yaml = new YamlConfiguration();
+            try (var stream = file.getInputStream(entry)) {
+                yaml.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+            }
+            return new ExtensionDeclaration(
+                    yaml.getString("id", "").trim(),
+                    yaml.getString("version", "").trim(),
+                    yaml.getString("requires-cer", "").trim());
+        }
+    }
+
     private void loadJar(Path jar) {
         URLClassLoader loader = null;
         RecipeSourceProvider provider = null;
@@ -129,6 +187,22 @@ public final class ExtensionManager {
         String id = canonicalJarName(jar.getFileName().toString()).replaceFirst("(?i)\\.jar$", "");
         String displayName = id;
         String version = "unknown";
+        try {
+            ExtensionDeclaration declaration = readDeclaration(jar);
+            if (!declaration.id().isBlank()) id = declaration.id();
+            if (!declaration.version().isBlank()) version = declaration.version();
+            String coreVersion = this.plugin.getDescription().getVersion();
+            if (!versionMatches(coreVersion, declaration.requiresCer())) {
+                throw new IllegalArgumentException("extension requires CraftEngineRecipe "
+                        + declaration.requiresCer() + " but core is " + coreVersion);
+            }
+        } catch (IOException | InvalidConfigurationException | RuntimeException error) {
+            String reason = error.getMessage() == null ? error.toString() : error.getMessage();
+            this.unavailable.add(new UnavailableExtension(id, displayName, jar, version, reason));
+            this.plugin.getLogger().warning("Cannot inspect extension " + jar.getFileName() + ": "
+                    + reason);
+            return;
+        }
         try (JarFile file = new JarFile(jar.toFile(), false)) {
             Manifest manifest = file.getManifest();
             if (manifest == null) {
@@ -137,8 +211,10 @@ public final class ExtensionManager {
             Attributes attributes = manifest.getMainAttributes();
             providerClass = required(attributes, MANIFEST_PROVIDER_CLASS);
             int apiVersion = integer(attributes, MANIFEST_API_VERSION, -1);
-            version = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
-            if (version == null || version.isBlank()) version = "unknown";
+            if (version.equals("unknown")) {
+                version = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+                if (version == null || version.isBlank()) version = "unknown";
+            }
             if (apiVersion != RecipeSourceProvider.API_VERSION) {
                 throw new IllegalArgumentException("extension API " + apiVersion
                         + " is incompatible with core API " + RecipeSourceProvider.API_VERSION);
@@ -748,9 +824,11 @@ public final class ExtensionManager {
         return true;
     }
 
-    private static int compareVersions(String left, String right) {
-        String[] leftParts = normalizedVersion(left).split("\\.");
-        String[] rightParts = normalizedVersion(right).split("\\.");
+    static int compareVersions(String left, String right) {
+        String[] leftVersion = normalizedVersion(left).split("[-+]", 2);
+        String[] rightVersion = normalizedVersion(right).split("[-+]", 2);
+        String[] leftParts = leftVersion[0].split("\\.");
+        String[] rightParts = rightVersion[0].split("\\.");
         int length = Math.max(leftParts.length, rightParts.length);
         for (int index = 0; index < length; index++) {
             int leftValue = index < leftParts.length ? leadingInteger(leftParts[index]) : 0;
@@ -758,7 +836,41 @@ public final class ExtensionManager {
             int result = Integer.compare(leftValue, rightValue);
             if (result != 0) return result;
         }
+        String leftQualifier = releaseEquivalentQualifier(
+                leftVersion.length > 1 ? leftVersion[1] : "");
+        String rightQualifier = releaseEquivalentQualifier(
+                rightVersion.length > 1 ? rightVersion[1] : "");
+        if (leftQualifier.isEmpty() && rightQualifier.isEmpty()) return 0;
+        if (leftQualifier.isEmpty()) return 1;
+        if (rightQualifier.isEmpty()) return -1;
+        String[] leftIdentifiers = leftQualifier.split("[.-]");
+        String[] rightIdentifiers = rightQualifier.split("[.-]");
+        int qualifierLength = Math.max(leftIdentifiers.length, rightIdentifiers.length);
+        for (int index = 0; index < qualifierLength; index++) {
+            if (index >= leftIdentifiers.length) return -1;
+            if (index >= rightIdentifiers.length) return 1;
+            String leftIdentifier = leftIdentifiers[index];
+            String rightIdentifier = rightIdentifiers[index];
+            boolean leftNumeric = leftIdentifier.chars().allMatch(Character::isDigit);
+            boolean rightNumeric = rightIdentifier.chars().allMatch(Character::isDigit);
+            int result;
+            if (leftNumeric && rightNumeric) {
+                result = Integer.compare(
+                        leadingInteger(leftIdentifier), leadingInteger(rightIdentifier));
+            } else if (leftNumeric != rightNumeric) {
+                result = leftNumeric ? -1 : 1;
+            } else {
+                result = leftIdentifier.compareTo(rightIdentifier);
+            }
+            if (result != 0) return result;
+        }
         return 0;
+    }
+
+    private static String releaseEquivalentQualifier(String qualifier) {
+        String normalized = qualifier == null ? "" : qualifier.trim().toLowerCase(Locale.ROOT);
+        return List.of("stable", "release", "final", "snapshot").contains(normalized)
+                ? "" : normalized;
     }
 
     private static String normalizedVersion(String version) {
@@ -897,6 +1009,11 @@ public final class ExtensionManager {
     public record LoadedExtension(String id, Path jar, URLClassLoader loader,
                                   RecipeSourceProvider provider, String version,
                                   ExtensionDefinition definition) {
+    }
+
+    private record ExtensionDeclaration(String id, String version, String requiresCer) {
+        private static final ExtensionDeclaration EMPTY =
+                new ExtensionDeclaration("", "", "");
     }
 
     public record ExtensionDefinition(String id, Map<String, String> names,

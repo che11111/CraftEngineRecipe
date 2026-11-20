@@ -17,29 +17,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MinecraftCultivationResourceTest {
     @Test
     void vanillaCultivationContainsOnlyMinecraftNamespaces() throws Exception {
-        List<Path> resources;
-        try (var files = Files.list(Path.of("src/main/resources/cultivation"))) {
-            resources = files.filter(Files::isDirectory).sorted().toList();
-        }
+        Path file = Path.of("src/main/resources/cultivation/vanilla.json");
+        assertTrue(Files.isRegularFile(file), file.toString());
+        JsonObject root = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+        assertEquals("bundled", root.get("source").getAsString(), file.toString());
 
-        assertFalse(resources.isEmpty());
-        for (Path directory : resources) {
-            Path file = directory.resolve("vanilla.json");
-            assertTrue(Files.isRegularFile(file), file.toString());
-            JsonObject root = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
-            assertEquals("client-jar", root.get("source").getAsString(), file.toString());
-
-            JsonArray crops = root.getAsJsonArray("crops");
-            assertTrue(crops != null && !crops.isEmpty(), file.toString());
-            for (JsonElement element : crops) {
-                JsonObject crop = element.getAsJsonObject();
-                assertMinecraftId(crop.get("id").getAsString(), file);
-                for (String field : List.of("seeds", "products", "substrates")) {
-                    JsonArray values = crop.getAsJsonArray(field);
-                    if (values == null) continue;
-                    for (JsonElement value : values) {
-                        assertMinecraftId(value.getAsString(), file);
-                    }
+        JsonArray crops = root.getAsJsonArray("crops");
+        assertTrue(crops != null && !crops.isEmpty(), file.toString());
+        for (JsonElement element : crops) {
+            JsonObject crop = element.getAsJsonObject();
+            assertMinecraftId(crop.get("id").getAsString(), file);
+            for (String field : List.of("seeds", "products", "substrates")) {
+                JsonArray values = crop.getAsJsonArray(field);
+                if (values == null) continue;
+                for (JsonElement value : values) {
+                    assertMinecraftId(value.getAsString(), file);
                 }
             }
         }
